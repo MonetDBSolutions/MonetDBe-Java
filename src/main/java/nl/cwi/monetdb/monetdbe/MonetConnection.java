@@ -1,25 +1,27 @@
 package nl.cwi.monetdb.monetdbe;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.sql.*;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-public class MonetConnection
-        implements Connection {
-    /*private final Properties conn_props = new Properties();
-    private final String hostname;
-    private int port = 0;
-    private final String database;
-    private final String username;
-    private final String password;
-    private boolean closed;
+public class MonetConnection implements Connection {
+    private ByteBuffer database;
+    private String url;
+    private ByteBuffer opts;
     private boolean autoCommit = true;
-    private SQLWarning warnings = null;*/
 
 
-    MonetConnection(final Properties props)
-            throws SQLException, IllegalArgumentException {
+    MonetConnection(final Properties props) throws SQLException, IllegalArgumentException {
+        this.database = ByteBuffer.allocateDirect(0);
+        this.url = "jdbc:monetdb://localhost/test";
+        this.opts = ByteBuffer.allocateDirect(0);
+        int result = MonetNative.monetdbe_open(database,url,opts);
+        System.out.println(result);
     }
 
     @Override
@@ -290,5 +292,13 @@ public class MonetConnection
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return false;
+    }
+
+    public static void main (String[] args) {
+        try {
+            Connection c = new MonetConnection(null);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,10 +1,12 @@
 package nl.cwi.monetdb.monetdbe;
 
+import java.net.URI;
 import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 final public class MonetDriver implements Driver {
+    //TODO: Pedro's old code
     // the url kind will be jdbc:monetdb://<host>[:<port>]/<database>
     static final String MONETURL = "jdbc:monetdb://";
 
@@ -19,12 +21,15 @@ final public class MonetDriver implements Driver {
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
-        return null;
+        // url should be of style jdbc:monetdb://<host>/<database>
+        if (!acceptsURL(url))
+            return null;
+        return new MonetConnection(info);
     }
 
     @Override
-    public boolean acceptsURL(String url) throws SQLException {
-        return false;
+    public boolean acceptsURL(final String url) {
+        return url != null && url.startsWith(MONETURL);
     }
 
     @Override
