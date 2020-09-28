@@ -9,7 +9,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (
   monetdbe_options *opts = (*env)->GetDirectBufferAddress(env,j_opts);
 
   //call monetdbe_open
-  int result = monetdbe_open(*dbhdl,*url,*opts);
+  int result = monetdbe_open(*dbhdl,url,*opts);
 
   //release resources
   env->ReleaseStringUTFChars(env, j_url, url);
@@ -23,6 +23,6 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (
  */
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close (JNIEnv * env, jclass self, jobject j_dbhdl) {
   monetdbe_database *dbhdl = (*env)->GetDirectBufferAddress(env,j_dbhdl);
-  int result = monetdbe_open(*dbhdl,*url,*opts);
+  int result = monetdbe_open(*dbhdl,url,*opts);
   return result;
 }
