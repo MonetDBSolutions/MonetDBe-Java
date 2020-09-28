@@ -1,4 +1,5 @@
-import nl.cwi.monetdb.monetdbe.*;
+import nl.cwi.monetdb.monetdbe.MonetDriver;
+import nl.cwi.monetdb.monetdbe.MonetConnection;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

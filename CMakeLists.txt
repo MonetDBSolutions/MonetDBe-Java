@@ -20,6 +20,7 @@ file(GLOB JAVA_SRC_FILES src/main/java/nl/cwi/monetdb/monetdbe/*.java)
 
 add_jar(monetdbe-java
         ${JAVA_SRC_FILES}
+        META-INF/services/java.sql.Driver
         GENERATE_NATIVE_HEADERS
         monetdbe-native)
 
@@ -27,8 +28,9 @@ add_jar(monetdbe-java
 #Link libraries (Java generated header, JNI wrapper and C library)
 link_directories("/home/bernardo/MonetDB-Jun2020/build/tools/monetdbe")
 add_library(monetdbe-lowlevel SHARED src/jni/monetdbe._lowlevel.c)
-target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/tools/monetdbe")
+find_package(MonetDB CONFIG REQUIRED)
 target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/dist/include/monetdb")
+target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/tools/monetdbe")
 target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/monetdb5/mal")
 target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/monetdb5/modules/atoms")
 target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/monetdb5/modules/mal")
