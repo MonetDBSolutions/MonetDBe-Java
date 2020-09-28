@@ -14,9 +14,6 @@ public class TestMonetDBeJava {
         }
     }
 
-    public TestMonetDBeJava() {
-    }
-
     public static void main (String[] args) {
         try {
             System.out.println(DriverManager.getDrivers().nextElement().toString());
