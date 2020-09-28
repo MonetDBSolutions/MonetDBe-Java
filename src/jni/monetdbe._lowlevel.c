@@ -5,7 +5,7 @@
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_dbhdl, jstring j_url, jobject j_opts) {
   //convert and access resources
   monetdbe_database* dbhdl = (*env)->GetDirectBufferAddress(env,j_dbhdl);
-  char* url = (*env)->GetStringUTFChars(env,j_url,NULL);
+  const char* url = (*env)->GetStringUTFChars(env,j_url,NULL);
   //char* url = env->GetStringUTFChars(env, j_url, NULL);
   monetdbe_options* opts = (*env)->GetDirectBufferAddress(env,j_opts);
 
