@@ -1,3 +1,5 @@
+package nl.cwi.monetdb.monetdbe_tests;
+
 import nl.cwi.monetdb.monetdbe.MonetDriver;
 import nl.cwi.monetdb.monetdbe.MonetConnection;
 
