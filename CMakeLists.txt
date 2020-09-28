@@ -44,7 +44,7 @@ set_target_properties(monetdbe-lowlevel PROPERTIES SUFFIX ".so")
 set_target_properties(monetdbe-lowlevel PROPERTIES PREFIX "lib")
 
 add_custom_command(OUTPUT monetdbe-jdbc
-                   DEPENDS monetdbe-lowlevel monetdbe-java monetdbe-java-test
+                   DEPENDS monetdbe-lowlevel monetdbe-java
                    COMMAND ${Java_JAR_EXECUTABLE}
                            uf
                            monetdbe-java.jar
