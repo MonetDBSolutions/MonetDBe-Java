@@ -12,7 +12,7 @@ final public class MonetDriver implements Driver {
     // initialize this class: register it at the DriverManager
     static {
         try {
-            DriverManager.registerDriver(new MonetDriver());
+            DriverManager.registerDriver(new nl.cwi.monetdb.monetdbe.MonetDriver());
         } catch (SQLException e) {
             e.printStackTrace();
         }
