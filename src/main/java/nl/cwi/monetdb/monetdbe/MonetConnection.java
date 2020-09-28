@@ -293,12 +293,4 @@ public class MonetConnection implements Connection {
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
         return false;
     }
-
-    public static void main (String[] args) {
-        try {
-            Connection c = new MonetConnection(null);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 }
