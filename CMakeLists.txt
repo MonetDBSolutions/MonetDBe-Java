@@ -6,8 +6,9 @@ set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".lib" ".a" ".dylib")
 
 #Library dependencies
-find_package(Java 1.8)
-find_package(JNI)
+find_package(Java 1.8 REQUIRED)
+set(JAVA_AWT_LIBRARY NotNeeded)
+find_package(JNI REQUIRED)
 
 #Project
 include(UseJava)
