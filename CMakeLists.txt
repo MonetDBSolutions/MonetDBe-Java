@@ -17,22 +17,12 @@ project(MonetDBe-Java)
 #Compile monetdbe-java without linked library, generate headers
 set(CMAKE_JAVA_COMPILE_FLAGS -source 1.8 -target 1.8)
 file(GLOB JAVA_SRC_FILES src/main/java/nl/cwi/monetdb/monetdbe/*.java)
-file(GLOB JAVA_TEST_FILES src/test/java/*.java)
 
 add_jar(monetdbe-java
         ${JAVA_SRC_FILES}
         META-INF/services/java.sql.Driver
         GENERATE_NATIVE_HEADERS
         monetdbe-native)
-
-add_jar(monetdbe-java-test
-        ${JAVA_SRC_FILES}
-        ${JAVA_TEST_FILES}
-        META-INF/services/java.sql.Driver
-        MANIFEST
-        META-INF/MANIFEST.MF
-        OUTPUT-NAME
-        monetdbe-java-test.jar)
 
 #Link libraries (Java generated header, JNI wrapper and C library)
 link_directories("/home/bernardo/MonetDB-Jun2020/build/tools/monetdbe")
