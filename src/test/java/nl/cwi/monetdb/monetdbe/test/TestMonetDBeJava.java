@@ -1,7 +1,6 @@
-package nl.cwi.monetdb.monetdbe_test;
+package nl.cwi.monetdb.monetdbe.test;
 
 import nl.cwi.monetdb.monetdbe.*;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
