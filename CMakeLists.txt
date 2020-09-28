@@ -1,6 +1,10 @@
 #Revise
 cmake_minimum_required(VERSION 3.10)
 
+#Set CMAKE library find variables
+set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".lib" ".a" ".dylib")
+
 #Library dependencies
 find_package(Java 1.8)
 find_package(JNI)
@@ -19,6 +23,8 @@ add_jar(monetdbe-java
 #Link libraries (Java generated header, JNI wrapper and C library)
 add_library(monetdbe-lowlevel SHARED src/jni/monetdbe._lowlevel.c)
 target_link_libraries(monetdbe-lowlevel monetdbe-native monetdbe)
+set_target_properties(monetdbe-lowlevel PROPERTIES SUFFIX ".so")
+set_target_properties(monetdbe-lowlevel PROPERTIES PREFIX "lib")
 
 add_custom_command(OUTPUT monetdbe-jdbc
                    DEPENDS monetdbe-lowlevel monetdbe-java
