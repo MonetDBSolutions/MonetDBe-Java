@@ -29,8 +29,6 @@ add_jar(monetdbe-java-test
         ${JAVA_SRC_FILES}
         ${JAVA_TEST_FILES}
         META-INF/services/java.sql.Driver
-        ENTRY-POINT
-        test/java/TestMonetDBe
         OUTPUT-NAME
         monetdbe-java-test.jar)
 
