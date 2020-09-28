@@ -7,8 +7,7 @@ import java.sql.SQLException;
 public class TestMonetDBeJava {
     static {
         try {
-            MonetDriver d = null;
-            Class.forName("nl.cwi.monetdb.monetdbe.MonetDriver");
+            Class.forName("MonetDriver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
