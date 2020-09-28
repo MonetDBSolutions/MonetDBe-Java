@@ -48,7 +48,7 @@ final public class MonetDriver implements Driver {
 
     @Override
     public boolean jdbcCompliant() {
-        return false;
+        return true;
     }
 
     @Override
