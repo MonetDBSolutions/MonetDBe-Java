@@ -15,19 +15,14 @@ public class TestMonetDBeJava {
     }
 
     public TestMonetDBeJava() {
-        test();
     }
 
-    public void test() {
+    public static void main (String[] args) {
         try {
             System.out.println(DriverManager.getDrivers().nextElement().toString());
             Connection conn = DriverManager.getConnection("jdbc:monetdb://localhost/test");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void main (String[] args) {
-        TestMonetDBeJava t = new TestMonetDBeJava();
     }
 }
