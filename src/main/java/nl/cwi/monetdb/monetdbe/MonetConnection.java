@@ -22,7 +22,7 @@ public class MonetConnection implements Connection {
         this.opts = ByteBuffer.allocateDirect(0);
         int result = MonetNative.monetdbe_open(database,url,opts);
         System.out.println(result);
-
+        MonetNative.monetdbe_close(database);
     }
 
     @Override
