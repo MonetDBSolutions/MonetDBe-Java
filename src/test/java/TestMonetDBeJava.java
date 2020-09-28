@@ -9,6 +9,7 @@ import java.sql.SQLException;
 public class TestMonetDBeJava {
     static {
         try {
+            Class.forName("MonetDriver");
             Class.forName("nl.cwi.monetdb.monetdbe.MonetDriver");
             //Class.forName("org.duckdb.DuckDBDriver");
         } catch (ClassNotFoundException e) {
