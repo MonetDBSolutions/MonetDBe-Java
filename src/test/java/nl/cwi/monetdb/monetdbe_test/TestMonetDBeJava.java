@@ -1,3 +1,5 @@
+package nl.cwi.monetdb.monetdbe_test;
+
 import nl.cwi.monetdb.monetdbe.*;
 
 import java.sql.Connection;

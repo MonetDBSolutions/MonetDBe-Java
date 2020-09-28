@@ -1,6 +1,5 @@
 package nl.cwi.monetdb.monetdbe;
 
-import java.net.URI;
 import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;
