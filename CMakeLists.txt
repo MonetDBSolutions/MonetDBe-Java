@@ -17,6 +17,7 @@ project(MonetDBe-Java)
 #Compile monetdbe-java without linked library, generate headers
 set(CMAKE_JAVA_COMPILE_FLAGS -source 1.8 -target 1.8)
 file(GLOB JAVA_SRC_FILES src/main/java/nl/cwi/monetdb/monetdbe/*.java)
+file(GLOB JAVA_TEST_FILES src/test/java/*.java)
 
 add_jar(monetdbe-java
         ${JAVA_SRC_FILES}
@@ -24,6 +25,14 @@ add_jar(monetdbe-java
         GENERATE_NATIVE_HEADERS
         monetdbe-native)
 
+add_jar(monetdbe-java-test
+        ${JAVA_SRC_FILES}
+        ${JAVA_TEST_FILES}
+        META-INF/services/java.sql.Driver
+        ENTRY-POINT
+        test/java/TestMonetDBe
+        OUTPUT-NAME
+        monetdbe-java-test.jar)
 
 #Link libraries (Java generated header, JNI wrapper and C library)
 link_directories("/home/bernardo/MonetDB-Jun2020/build/tools/monetdbe")
@@ -45,7 +54,7 @@ set_target_properties(monetdbe-lowlevel PROPERTIES SUFFIX ".so")
 set_target_properties(monetdbe-lowlevel PROPERTIES PREFIX "lib")
 
 add_custom_command(OUTPUT monetdbe-jdbc
-                   DEPENDS monetdbe-lowlevel monetdbe-java
+                   DEPENDS monetdbe-lowlevel monetdbe-java monetdbe-java-test
                    COMMAND ${Java_JAR_EXECUTABLE}
                            uf
                            monetdbe-java.jar
