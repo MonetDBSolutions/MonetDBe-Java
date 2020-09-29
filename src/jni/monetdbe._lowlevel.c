@@ -5,7 +5,10 @@
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jstring j_url, jobject j_opts) {
   //convert and access resources
   monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
-  char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
+  //char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
+  const char* const_url = (*env)->GetStringUTFChars(env,j_url,NULL);
+  char* url = malloc(strlen(const_url));
+  strcpy(url,const_url);
   monetdbe_options* opts = (*env)->GetDirectBufferAddress(env,j_opts);
 
   //call monetdbe_open
@@ -24,7 +27,9 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close 
 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
   monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
-  const char* result = (const char*) monetdbe_error(db);
-  printf("%s",result);
-  return (*env)->NewStringUTF(env,result);
+  char* result = (char*) monetdbe_error(db);
+  const char* r = malloc(strlen(result));
+  strcpy(r,result);
+  jstring result_string (*env)->NewStringUTF(env,r);
+  return result_string
 }
