@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 final public class MonetDriver implements java.sql.Driver {
     //TODO: Pedro's old code
     // the url kind will be jdbc:monetdb://<host>[:<port>]/<database>
-    static final String MONETURL = "jdbc:monetdb://";
+    static final String MONETURL = "jdbc:monetdb:";
 
     // initialize this class: register it at the DriverManager
     static {
