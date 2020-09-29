@@ -8,7 +8,7 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 
 	jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array_j, NULL);
 
-	for (idx_t i = 0; i < len; i++) {
+	for (int i = 0; i < len; i++) {
 		string[i] = bytes[i];
 	}
 	(*env)->ReleaseByteArrayElements(env, array_j, bytes, 0);
