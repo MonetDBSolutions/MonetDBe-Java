@@ -25,7 +25,7 @@ public class TestMonetDBeJava {
         MonetDriver m = new MonetDriver();
         MonetConnection c;
         try {
-            c = (MonetConnection) m.connect("jdbc:monetdb:memory",null);
+            c = (MonetConnection) m.connect("jdbc:monetdb://localhost/test",null);
         } catch (SQLException e) {
             e.printStackTrace();
         }
