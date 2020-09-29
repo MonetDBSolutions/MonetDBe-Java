@@ -6,14 +6,13 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 	int len = (*env)->GetArrayLength(env,array_j);
 	char* string = malloc(len);
 
-	jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(ba_j, NULL);
+	jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array_j, NULL);
 
 	for (idx_t i = 0; i < len; i++) {
 		string[i] = bytes[i];
 	}
-	(*env)->ReleaseByteArrayElements(array_j, bytes, 0);
-
-	return ret;
+	(*env)->ReleaseByteArrayElements(env, array_j, bytes, 0);
+	return string;
 }
 
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jbyteArray j_url, jobject j_opts) {
