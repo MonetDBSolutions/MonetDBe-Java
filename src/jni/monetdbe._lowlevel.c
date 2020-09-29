@@ -12,7 +12,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (
   int result = monetdbe_open(db,url,opts);
 
   //release resources
-  (*env)->ReleaseStringUTFChars(env, j_url, url);
+  (*env)->ReleaseStringUTFChars(env, j_url, NULL);
   return result;
 }
 
