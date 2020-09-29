@@ -3,6 +3,7 @@ package nl.cwi.monetdb.monetdbe;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
@@ -20,7 +21,7 @@ public class MonetConnection implements Connection {
         this.database = ByteBuffer.allocateDirect(0);
         this.url = "jdbc:monetdb://localhost/teste";
         this.opts = ByteBuffer.allocateDirect(0);
-        int result = MonetNative.monetdbe_open(database,url,opts);
+        int result = MonetNative.monetdbe_open(database,url.getBytes(StandardCharsets.UTF_8),opts);
         System.out.println("Open result: " + result);
         String error = MonetNative.monetdbe_error(database);
         System.out.println("Error: " + error);

@@ -30,6 +30,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   char* result = (char*) monetdbe_error(db);
   char* r = malloc(strlen(result));
   strcpy(r,result);
-  jstring result_string = (*env)->NewString(env,r,strlen(r));
+
+  jstring result_string = (*env)->NewStringUTF(env,r);
   return result_string;
 }
