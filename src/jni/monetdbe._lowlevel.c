@@ -23,7 +23,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (
   //const char* const_url = (*env)->GetStringUTFChars(env,j_url,0);
   //char* url = malloc(strlen(const_url));
   //strcpy(url,const_url);
-  char* url = byte_array_to_string(env,j_url)
+  char* url = byte_array_to_string(env,j_url);
   monetdbe_options* opts = (*env)->GetDirectBufferAddress(env,j_opts);
 
   //call monetdbe_open
