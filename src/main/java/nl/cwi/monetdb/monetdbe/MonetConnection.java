@@ -25,8 +25,8 @@ public class MonetConnection implements Connection {
         System.out.println("Open result: " + result);
         String error = MonetNative.monetdbe_error(database);
         System.out.println("Error: " + error);
-        result = MonetNative.monetdbe_close(database);
-        System.out.println("Close result: " + result);
+        //result = MonetNative.monetdbe_close(database);
+        //System.out.println("Close result: " + result);
     }
 
     @Override

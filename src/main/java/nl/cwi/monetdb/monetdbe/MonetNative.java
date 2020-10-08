@@ -10,5 +10,5 @@ public class MonetNative {
     protected static native int monetdbe_open(ByteBuffer db, byte[] url, ByteBuffer opts);
     protected static native int monetdbe_close(ByteBuffer db);
 
-    protected static native String monetdbe_error(ByteBuffer db);
+    protected static native byte[] monetdbe_error(ByteBuffer db);
 }
