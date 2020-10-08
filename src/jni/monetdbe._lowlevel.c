@@ -65,7 +65,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   char* result = monetdbe_error(db);
   char* r = (char*) malloc(strlen(result+1));
   strcpy(r,result);
-  console_printf((const char*) r)
+  console_printf((const char*) r);
 
   //char *buf = (char*)malloc(10);
   //strcpy(buf, "123456789");
