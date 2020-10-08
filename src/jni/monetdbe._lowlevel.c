@@ -30,6 +30,8 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
     for (int i = 0; i < len; i++) {
         printf("%c", bytes[i]);
     }
+    printf("\n");
+    fflush(stdout);
 
     return array;
 }
