@@ -46,10 +46,10 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close 
 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
   monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
-  char* result = (char*) monetdbe_error(db);
-  char* r = malloc(strlen(result));
-  strcpy(r,result);
+  char* result = monetdbe_error(db);
+  //char* r = malloc(strlen(result));
+  //strcpy(r,result);
 
-  jstring result_string = (*env)->NewStringUTF(env,r);
+  jstring result_string = (*env)->NewString(env,r,strlen(result));
   return result_string;
 }
