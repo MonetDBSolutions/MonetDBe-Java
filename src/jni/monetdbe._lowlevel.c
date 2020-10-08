@@ -38,7 +38,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
 
   jobject r = (*env)->NewDirectByteBuffer(env,db,sizeof(monetdbe_database));
 
-  printf("Hey\n");
+  printf("1\n");
   fflush(stdout);
 
   return r;
