@@ -24,7 +24,7 @@ public class MonetConnection implements Connection {
         int result = MonetNative.monetdbe_open(database,url.getBytes(StandardCharsets.UTF_8),opts);
         System.out.println("Open result: " + result);
         byte[] error = MonetNative.monetdbe_error(database);
-        System.out.println("Error: " + error);
+        System.out.println("Error: " + new String(error,StandardCharsets.UTF_8));
         //result = MonetNative.monetdbe_close(database);
         //System.out.println("Close result: " + result);
     }
