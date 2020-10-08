@@ -88,7 +88,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   //char *buf = (char*)malloc(10);
   //strcpy(buf, "123456789");
 
-  //jstring result_string = (*env)->NewStringUTF(env,(const char*) result);
+  jstring result_string = (*env)->NewStringUTF(env,(const char*) result);
 
   fflush(stdout);
   return result_string;
