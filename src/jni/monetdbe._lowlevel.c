@@ -35,13 +35,14 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (
   fflush(stdout);
   monetdbe_options* opts = (*env)->GetDirectBufferAddress(env,j_opts);*/
 
-  monetdbe_database* db, monetdbe_options* opts;
+  monetdbe_database* db;
+  monetdbe_options* opts;
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
 
   int result = monetdbe_open(db,url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
-  j_db = (*env)->NewDirectByteBuffer(db,0);
+  j_db = (*env)->NewDirectByteBuffer(env,db,0);
   return result;
 }
 
