@@ -1,16 +1,21 @@
 #include <jni.h>
 #include "nl_cwi_monetdb_monetdbe_MonetNative.h"
 #include "monetdbe.c"
+#include <string.h>
 
 char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 	int len = (*env)->GetArrayLength(env,array_j);
-	char* string = malloc(len);
+	//Bytearray len + NULL terminator
+	char* string = malloc(len+1);
+	jbyte* array = (jbyte*) (*env)->GetByteArrayElements(env, array_j, NULL);
 
-	jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array_j, NULL);
+	/*for (int i = 0; i < len; i++) {
+		string[i] = array[i];
+	}*/
 
-	for (int i = 0; i < len; i++) {
-		string[i] = bytes[i];
-	}
+	memcpy(string,array,len);
+	string[len] = 0;
+
 	(*env)->ReleaseByteArrayElements(env, array_j, bytes, 0);
 	return string;
 }
