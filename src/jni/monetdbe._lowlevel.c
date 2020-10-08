@@ -2,6 +2,7 @@
 #include "nl_cwi_monetdb_monetdbe_MonetNative.h"
 #include "monetdbe.c"
 #include <string.h>
+#include <stdio.h>
 
 char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 	int len = (*env)->GetArrayLength(env,array_j);
@@ -65,7 +66,9 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   char* result = monetdbe_error(db);
   char* r = (char*) malloc(strlen(result+1));
   strcpy(r,result);
-  console_printf((const char*) r);
+  printf("%s", r);
+  fflush(stdout);
+
 
   //char *buf = (char*)malloc(10);
   //strcpy(buf, "123456789");
