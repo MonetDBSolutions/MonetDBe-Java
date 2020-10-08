@@ -16,7 +16,7 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 	memcpy(string,array,len);
 	string[len] = 0;
 
-	(*env)->ReleaseByteArrayElements(env, array_j, bytes, 0);
+	(*env)->ReleaseByteArrayElements(env, array_j, array, 0);
 	return string;
 }
 
