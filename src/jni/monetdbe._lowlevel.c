@@ -28,7 +28,7 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
     return array;
 }
 
-JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jstring j_url, jobject j_opts) {
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jstring j_url, jobject j_opts) {
   monetdbe_database* db;
   monetdbe_options* opts;
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
