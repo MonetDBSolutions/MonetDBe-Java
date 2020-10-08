@@ -23,7 +23,7 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 
 jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
 	int len = strlen(string)-1;
-	jbyteArray array = (*env)->jbyteArray(env,len)
+	jbyteArray array = (*env)->NewByteArray(env,len);
 
 	memcpy(array,string,len);
     return array;
@@ -78,7 +78,8 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   //printf("%s\n", r);
 
   jbyteArray byte_array = string_to_byte_array(env,result);
-  jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array_j, NULL);
+  int len = (*env)->GetArrayLength(env,byte_array);
+  jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, byte_array, NULL);
   for (int i = 0; i < len; i++) {
   		printf("%b", bytes[i]);
   }
