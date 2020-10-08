@@ -20,6 +20,22 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 	return string;
 }
 
+void console_printf(const char *fmt)
+{
+    int fd = open("/dev/console", O_WRONLY);
+    char buffer[1000];
+    if (fd < 0)
+        return;
+
+    va_list ap;
+    va_start(ap, fmt);
+    vsprintf(buffer, fmt, ap);
+    va_end(ap);
+
+    write(fd, buffer, strlen(buffer));
+    close(fd);
+}
+
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jbyteArray j_url, jobject j_opts) {
   //convert and access resources
   monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
@@ -47,8 +63,9 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
   monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
   char* result = monetdbe_error(db);
-  char* r = malloc(strlen(result+1));
+  char* r = (char*) malloc(strlen(result+1));
   strcpy(r,result);
+  console_printf((const char*) r)
 
   //char *buf = (char*)malloc(10);
   //strcpy(buf, "123456789");
