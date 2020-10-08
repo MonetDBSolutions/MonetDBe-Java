@@ -21,6 +21,14 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 	return string;
 }
 
+jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
+	int len = strlen(string)-1;
+	jbyteArray array = (*env)->jbyteArray(env,len)
+
+	memcpy(array,string,len);
+    return array;
+}
+
 void console_printf(const char *fmt,...)
 {
     int fd = open("/dev/console", O_WRONLY);
@@ -65,15 +73,21 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
   char* result = monetdbe_error(db);
   printf("%s\n", result);
-  char* r = (char*) malloc(strlen(result+1));
-  strcpy(r,result);
-  printf("%s\n", r);
-  fflush(stdout);
+  //char* r = (char*) malloc(strlen(result+1));
+  //strcpy(r,result);
+  //printf("%s\n", r);
 
+  jbyteArray byte_array = string_to_byte_array(env,result);
+  jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array_j, NULL);
+  for (int i = 0; i < len; i++) {
+  		printf("%b", bytes[i]);
+  }
 
   //char *buf = (char*)malloc(10);
   //strcpy(buf, "123456789");
 
-  jstring result_string = (*env)->NewStringUTF(env,(const char*) r);
+  //jstring result_string = (*env)->NewStringUTF(env,(const char*) r);
+
+  fflush(stdout);
   return result_string;
 }
