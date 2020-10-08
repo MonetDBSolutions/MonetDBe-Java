@@ -20,7 +20,7 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 	return string;
 }
 
-void console_printf(const char *fmt)
+void console_printf(const char *fmt,...)
 {
     int fd = open("/dev/console", O_WRONLY);
     char buffer[1000];
