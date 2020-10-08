@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     nl_cwi_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_open
- * Signature: (Ljava/nio/ByteBuffer;[BLjava/nio/ByteBuffer;)I
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;Ljava/nio/ByteBuffer;)I
  */
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open
-  (JNIEnv *, jclass, jobject, jbyteArray, jobject);
+  (JNIEnv *, jclass, jobject, jstring, jobject);
 
 /*
  * Class:     nl_cwi_monetdb_monetdbe_MonetNative
@@ -21,14 +21,6 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open
  * Signature: (Ljava/nio/ByteBuffer;)I
  */
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close
-  (JNIEnv *, jclass, jobject);
-
-/*
- * Class:     nl_cwi_monetdb_monetdbe_MonetNative
- * Method:    monetdbe_error
- * Signature: (Ljava/nio/ByteBuffer;)Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error
   (JNIEnv *, jclass, jobject);
 
 #ifdef __cplusplus
