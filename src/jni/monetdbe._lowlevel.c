@@ -22,7 +22,7 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 }
 
 jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
-	int len = strlen(string)-1;
+	int len = strlen(string);
 	jbyteArray array = (*env)->NewByteArray(env,len);
 	memcpy(array,string,len);
 
