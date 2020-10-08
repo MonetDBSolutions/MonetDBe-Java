@@ -25,13 +25,6 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
 	int len = strlen(string);
 	jbyteArray array = (*env)->NewByteArray(env,len);
 	jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array, NULL);
-
-	memcpy(bytes,string,len);
-    for (int i = 0; i < len; i++) {
-        printf("%c\n", bytes[i]);
-    }
-    fflush(stdout);
-
     return array;
 }
 
