@@ -80,8 +80,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   char* result = monetdbe_error(db);
   printf("%d %s\n",strlen(result),result);
   //printf("%s\n", result);
-  //char* r = (char*) malloc(strlen(result+1));
-  //strcpy(r,result);
+  char* r = strdup(r,result);
   //printf("%s\n", r);
 
   //jbyteArray byte_array = string_to_byte_array(env,result);
