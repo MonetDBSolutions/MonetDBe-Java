@@ -81,7 +81,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   int len = (*env)->GetArrayLength(env,byte_array);
   jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, byte_array, NULL);
   for (int i = 0; i < len; i++) {
-  		printf("%b", bytes[i]);
+  		printf("%c", bytes[i]);
   }
 
   //char *buf = (char*)malloc(10);
