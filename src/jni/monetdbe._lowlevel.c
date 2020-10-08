@@ -24,11 +24,11 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
 	int len = strlen(string);
 	jbyteArray array = (*env)->NewByteArray(env,len);
-	memcpy(array,string,len);
-
 	jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array, NULL);
+
+	memcpy(bytes,string,len);
     for (int i = 0; i < len; i++) {
-        printf("%b\n", bytes[i]);
+        printf("%c\n", bytes[i]);
     }
     fflush(stdout);
 
