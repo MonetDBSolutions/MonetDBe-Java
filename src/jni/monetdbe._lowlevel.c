@@ -47,7 +47,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
     printf("Value result: %p\n", db2);
     fflush(stdout);
   }
-  return null;
+  return NULL;
 }
 
 
