@@ -40,11 +40,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   int result = monetdbe_open(db,url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
-  printf("Open result: %d", result);
+  printf("Open result: %d\n", result);
 
   if (result != 0) {
      char* error = monetdbe_error(db);
-     printf("Error: %s",error);
+     printf("Error: %s\n",error);
+     fflush(stdout);
      return NULL;
   }
   else {
