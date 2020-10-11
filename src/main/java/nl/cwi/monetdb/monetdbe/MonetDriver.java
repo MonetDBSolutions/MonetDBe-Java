@@ -23,7 +23,8 @@ final public class MonetDriver implements java.sql.Driver {
         // url should be of style jdbc:monetdb://<host>/<database>
         if (!acceptsURL(url))
             return null;
-        return new MonetConnection(url.substring(14),info);
+        System.out.println(url + " " + url.substring(13));
+        return new MonetConnection(url.substring(13),info);
     }
 
     @Override
