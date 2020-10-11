@@ -15,9 +15,7 @@ public class MonetConnection implements Connection {
     private boolean autoCommit = true;
 
     MonetConnection(String dbdir, final Properties props) throws SQLException, IllegalArgumentException {
-        connection = MonetNative.monetdbe_open(dbdir);
-        String error = MonetNative.monetdbe_error(connection);
-        System.out.println("Error: " + error);
+        this.connection = MonetNative.monetdbe_open(dbdir);
     }
 
     public ByteBuffer getConnection() {
