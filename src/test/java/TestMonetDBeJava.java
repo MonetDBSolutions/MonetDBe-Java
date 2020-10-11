@@ -31,6 +31,7 @@ public class TestMonetDBeJava {
             s.execute("CREATE TABLE test(id int);");
             s.execute("INSERT INTO test VALUES (1), (2), (3);");
             s.execute("SELECT * FROM test;");
+            s.execute("DROP TABLE test;");
             c.close();
         } catch (SQLException | NullPointerException e) {
             e.printStackTrace();
