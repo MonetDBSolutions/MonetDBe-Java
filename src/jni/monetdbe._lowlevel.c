@@ -29,14 +29,18 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jstring j_url, jobject j_opts) {
-  monetdbe_database* db;
-  monetdbe_options* opts;
-  char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
+  monetdbe_database* db = malloc(sizeof(monetdbe_database));
+  monetdbe_options* opts = malloc(sizeof(monetdbe_options));
+  opts->memorylimit = 0;
+  opts->querytimeout = 0;
+  opts->sessiontimeout = 0;
+  opts->nrthreads = 1;
 
+  char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   int result = monetdbe_open(db,url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
-  /*jobject r = (*env)->NewDirectByteBuffer(env,(*db),(jlong) sizeof(monetdbe_database));
+  jobject r = (*env)->NewDirectByteBuffer(env,(*db),(jlong) sizeof(monetdbe_database));
   monetdbe_database db2 = (*env)->GetDirectBufferAddress(env,r);
 
   j_db = r;
@@ -46,7 +50,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
     printf("Value result: %p\n", db2);
     fflush(stdout);
   }
-  return r;*/
+  return r;
   return NULL;
 }
 
