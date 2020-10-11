@@ -40,10 +40,19 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   int result = monetdbe_open(db,url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
-  //jobject r = (*env)->NewDirectByteBuffer(env,(*db),(jlong) sizeof(monetdbe_database));
-  jobject r = (*env)->NewDirectByteBuffer(env,(*db),0);
-  j_db = r;
-  return r;
+  printf("Open result: %d", result);
+
+  if (result != 0) {
+     char* error = monetdbe_error(db);
+     print("Error: %s",error);
+     return NULL;
+  }
+  else {
+    //jobject r = (*env)->NewDirectByteBuffer(env,(*db),(jlong) sizeof(monetdbe_database));
+    jobject r = (*env)->NewDirectByteBuffer(env,(*db),0);
+    j_db = r;
+    return r;
+  }
 }
 
 

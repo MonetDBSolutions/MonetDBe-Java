@@ -11,18 +11,12 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 public class MonetConnection implements Connection {
-    private ByteBuffer database;
-    private String url;
-    private ByteBuffer opts;
+    private ByteBuffer connection;
     private boolean autoCommit = true;
 
 
     MonetConnection(final Properties props) throws SQLException, IllegalArgumentException {
-        this.url = "jdbc:monetdb://localhost/test";
-        //int result = MonetNative.monetdbe_open(database,url.getBytes(StandardCharsets.UTF_8),opts);
-        //int result = MonetNative.monetdbe_open(database,url,opts);
-        this.database = MonetNative.monetdbe_open(database,url,opts);
-        //System.out.println("Open result: " + result);
+        connection = MonetNative.monetdbe_open("jdbc:monetdb://localhost/test");
         System.out.println("Database pointer: " + database);
         byte[] error = MonetNative.monetdbe_error(database);
         System.out.println("Error: " + new String(error,StandardCharsets.UTF_8));
