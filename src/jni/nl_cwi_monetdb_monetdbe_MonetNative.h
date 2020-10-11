@@ -28,7 +28,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close
  * Method:    monetdbe_error
  * Signature: (Ljava/nio/ByteBuffer;)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error
   (JNIEnv *, jclass, jobject);
 
 #ifdef __cplusplus
