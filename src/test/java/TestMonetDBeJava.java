@@ -29,7 +29,7 @@ public class TestMonetDBeJava {
             c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
             MonetStatement s = (MonetStatement) c.createStatement();
             s.execute("CREATE TABLE test(id int);");
-            s.execute("INSERT test VALUES (1), (2), (3);");
+            s.execute("INSERT INTO test VALUES (1), (2), (3);");
             s.execute("SELECT * FROM test;");
             c.close();
         } catch (SQLException | NullPointerException e) {
