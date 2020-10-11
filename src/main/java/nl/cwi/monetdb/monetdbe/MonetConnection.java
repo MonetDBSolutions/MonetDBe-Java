@@ -18,12 +18,10 @@ public class MonetConnection implements Connection {
 
 
     MonetConnection(final Properties props) throws SQLException, IllegalArgumentException {
-        this.database = null;
         this.url = "jdbc:monetdb://localhost/test";
-        this.opts = null;
         //int result = MonetNative.monetdbe_open(database,url.getBytes(StandardCharsets.UTF_8),opts);
         //int result = MonetNative.monetdbe_open(database,url,opts);
-        this.database = MonetNative.monetdbe_open(null,url,opts);
+        this.database = MonetNative.monetdbe_open(database,url,opts);
         //System.out.println("Open result: " + result);
         System.out.println("2");
         //System.out.println("Database pointer: " + database);
