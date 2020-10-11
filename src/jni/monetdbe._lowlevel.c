@@ -25,6 +25,8 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
 	int len = strlen(string);
 	jbyteArray array = (*env)->NewByteArray(env,len);
 	jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array, NULL);
+	(*env)->SetByteArrayRegion(env,array,0,len,(jbyte*)string);
+
     return array;
 }
 
@@ -44,6 +46,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
 
   if (result != 0) {
      char* error = monetdbe_error(db);
+
      printf("Error: %s\n",error);
      fflush(stdout);
   }
