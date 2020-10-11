@@ -21,7 +21,7 @@ public class MonetConnection implements Connection {
         this.url = "jdbc:monetdb://localhost/test";
         //int result = MonetNative.monetdbe_open(database,url.getBytes(StandardCharsets.UTF_8),opts);
         //int result = MonetNative.monetdbe_open(database,url,opts);
-        MonetNative.monetdbe_open(database,url,opts);
+        this.database = MonetNative.monetdbe_open(database,url,opts);
         //System.out.println("Open result: " + result);
         System.out.println("Database pointer: " + database);
         byte[] error = MonetNative.monetdbe_error(database);
