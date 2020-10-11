@@ -28,7 +28,7 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
     return array;
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jstring j_url, jobject j_opts) {
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jstring j_url) {
   monetdbe_database* db = malloc(sizeof(monetdbe_database));
   monetdbe_options* opts = malloc(sizeof(monetdbe_options));
   opts->memorylimit = 0;
