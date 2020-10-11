@@ -26,9 +26,9 @@ public class TestMonetDBeJava {
         MonetDriver m = new MonetDriver();
         MonetConnection c;
         try {
-            c = (MonetConnection) m.connect("jdbc:monetdb:/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
+            c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
             MonetStatement s = (MonetStatement) c.createStatement();
-            s.execute("CREATE TABLE test(id int);");
+            s.execute("CREATE TABLE test2(id int);");
             c.close();
         } catch (SQLException | NullPointerException e) {
             e.printStackTrace();
