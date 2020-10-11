@@ -14,10 +14,14 @@ public class MonetConnection implements Connection {
     private ByteBuffer connection;
     private boolean autoCommit = true;
 
-    MonetConnection(final Properties props) throws SQLException, IllegalArgumentException {
-        connection = MonetNative.monetdbe_open("/home/bernardo/MonetDB-Jun2020/db-farm/test");
+    MonetConnection(String dbdir, final Properties props) throws SQLException, IllegalArgumentException {
+        connection = MonetNative.monetdbe_open(dbdir);
         String error = MonetNative.monetdbe_error(connection);
         System.out.println("Error: " + error);
+    }
+
+    public ByteBuffer getConnection() {
+        return connection;
     }
 
     @Override

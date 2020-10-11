@@ -1,9 +1,10 @@
 package nl.cwi.monetdb.monetdbe;
 
+import java.nio.ByteBuffer;
 import java.sql.*;
 
 public class MonetStatement implements Statement {
-    private Connection conn;
+    private MonetConnection conn;
 
     public MonetStatement(MonetConnection conn) {
         this.conn = conn;
@@ -11,7 +12,11 @@ public class MonetStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        return false;
+        ByteBuffer result = MonetNative.monetdbe_query(conn.getConnection(),sql);
+        if(result == null) {
+            return false;
+        }
+        return true;
     }
 
     @Override

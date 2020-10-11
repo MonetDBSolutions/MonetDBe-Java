@@ -9,6 +9,6 @@ public class MonetNative {
 
     protected static native ByteBuffer monetdbe_open(String dbdir);
     protected static native int monetdbe_close(ByteBuffer db);
-    protected static native ByteBuffer monetdbe_execute(ByteBuffer statement);
+    protected static native ByteBuffer monetdbe_query(ByteBuffer db, String sql);
     protected static native String monetdbe_error(ByteBuffer db);
 }

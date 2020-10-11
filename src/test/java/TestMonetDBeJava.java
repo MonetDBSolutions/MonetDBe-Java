@@ -1,5 +1,6 @@
 import nl.cwi.monetdb.monetdbe.MonetDriver;
 import nl.cwi.monetdb.monetdbe.MonetConnection;
+import nl.cwi.monetdb.monetdbe.MonetStatement;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -25,8 +26,10 @@ public class TestMonetDBeJava {
         MonetDriver m = new MonetDriver();
         MonetConnection c;
         try {
-            c = (MonetConnection) m.connect("jdbc:monetdb://localhost/test",null);
-        } catch (SQLException e) {
+            c = (MonetConnection) m.connect("jdbc:monetdb:/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
+            MonetStatement s = (MonetStatement) c.createStatement();
+            s.execute("CREATE TABLE test(id int);");
+        } catch (SQLException | NullPointerException e) {
             e.printStackTrace();
         }
     }
