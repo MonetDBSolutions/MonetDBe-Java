@@ -41,48 +41,17 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   int result = monetdbe_open(db,url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
-  printf("Open result: %d\n", result);
-
   if (result != 0) {
      char* error = monetdbe_error(*db);
-     printf("Error: %s\n",error);
+     printf("Error in monetdbe_open: %s\n",error);
      fflush(stdout);
   }
   return (*env)->NewDirectByteBuffer(env,(*db),sizeof(monetdbe_database));
 }
 
-
-/*JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jstring j_url, jobject j_opts) {
-  /*monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
-  char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
-  printf("%s\n", url);
-  fflush(stdout);
-  monetdbe_options* opts = (*env)->GetDirectBufferAddress(env,j_opts);
-
-  monetdbe_database* db;
-  monetdbe_options* opts;
-  char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
-
-  int result = monetdbe_open(db,url,opts);
-  (*env)->ReleaseStringUTFChars(env, j_url, url);
-
-  j_db = (*env)->NewDirectByteBuffer(env,db,sizeof(monetdbe_database));
-  return result;
-}*/
-
-/*JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jobject j_db, jbyteArray j_url, jobject j_opts) {
-  monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
-  char* url = byte_array_to_string(env,j_url);
-  monetdbe_options* opts = (*env)->GetDirectBufferAddress(env,j_opts);
-  int result = monetdbe_open(db,url,opts);
-  (*env)->ReleaseStringUTFChars(env, j_url, url);
-  return result;
-}*/
-
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close (JNIEnv * env, jclass self, jobject j_db) {
-  monetdbe_database* db = (*env)->GetDirectBufferAddress(env,j_db);
-  int result = monetdbe_close(db);
-  return result;
+  monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
+  return monetdbe_close(db);
 }
 
 JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {

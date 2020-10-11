@@ -18,10 +18,10 @@ public class MonetConnection implements Connection {
     MonetConnection(final Properties props) throws SQLException, IllegalArgumentException {
         connection = MonetNative.monetdbe_open("/home/bernardo/MonetDB-Jun2020/db-farm/test");
         System.out.println("Database pointer: " + connection);
-        //byte[] error = MonetNative.monetdbe_error(database);
-        //System.out.println("Error: " + new String(error,StandardCharsets.UTF_8));
-        //result = MonetNative.monetdbe_close(database);
-        //System.out.println("Close result: " + result);
+        byte[] error = MonetNative.monetdbe_error(connection);
+        System.out.println("Error: " + new String(error,StandardCharsets.UTF_8));
+        int result = MonetNative.monetdbe_close(connection);
+        System.out.println("Close result: " + result);
     }
 
     @Override
