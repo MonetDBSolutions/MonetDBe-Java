@@ -44,7 +44,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
 
   if (result != 0) {
      char* error = monetdbe_error(db);
-     print("Error: %s",error);
+     printf("Error: %s",error);
      return NULL;
   }
   else {
