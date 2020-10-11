@@ -63,7 +63,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
 
   char* result_msg = monetdbe_query(db, sql, result, affected_rows);
   printf("Result msg: %s\n", result_msg);
-  printf("Affected rows: %d\n", (*affected_rows))
+  printf("Affected rows: %d\n", (*affected_rows));
 
   return NULL;
 }
