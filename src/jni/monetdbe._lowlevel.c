@@ -69,6 +69,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
 
   jclass returnClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe$NativeResult;");
   jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;I)V");
+  printf("%p %d",*result,(int)(*affected_rows))
   jobject returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(int) (*affected_rows));
 
   /*jclass returnArrayClass = (*env)->FindClass(env, "[Ljava/lang/Object;");
