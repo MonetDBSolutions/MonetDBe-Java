@@ -65,7 +65,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   printf("Result msg: %s\n", result_msg);
   printf("Affected rows: %d\n", (*affected_rows));
 
-  jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result))
+  jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
 
   jclass returnClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe$NativeResult;");
   jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;I)V");
