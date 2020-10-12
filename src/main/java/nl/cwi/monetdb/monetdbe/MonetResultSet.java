@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class MonetResultSet implements ResultSet {
     public MonetResultSet() {
-        
+
     }
 
     @Override

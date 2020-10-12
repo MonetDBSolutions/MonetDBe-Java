@@ -7,14 +7,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class TestMonetDBeJava {
-    /*static {
+    static {
         try {
             Class.forName("nl.cwi.monetdb.monetdbe.MonetDriver");
-            //Class.forName("org.duckdb.DuckDBDriver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 
     public static void main (String[] args) {
         /*try {
@@ -26,7 +25,8 @@ public class TestMonetDBeJava {
         MonetDriver m = new MonetDriver();
         MonetConnection c;
         try {
-            c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
+            //c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
+            c = (MonetConnection) m.connect("jdbc:monetdb://localhost:memory:",null);
             MonetStatement s = (MonetStatement) c.createStatement();
             s.execute("CREATE TABLE test(id int);");
             s.execute("INSERT INTO test VALUES (1), (2), (3);");

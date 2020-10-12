@@ -65,7 +65,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   printf("Result msg: %s\n", result_msg);
   printf("Affected rows: %d\n", (*affected_rows));
 
-  return NULL;
+  return (*env)->NewDirectByteBuffer(env,(*db),sizeof(monetdbe_database));
 }
 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
