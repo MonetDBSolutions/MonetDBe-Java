@@ -70,12 +70,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   //jobject returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(int) (*affected_rows));
 
   jobject returnObject = NULL;
-  printf("%d %d %b",(*result)->ncols,(*result)->nrows,(*result)==NULL);
-  if(*result) {
+  //TODO What is the condition for being a query instead on an update? Some results? Can queries not have empty results?
+  if((*result)->ncols > 0) {
     jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;II)V");
     returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(*result)->nrows,(*result)->ncols);
   }
-  else if (affected_rows) {
+  else {
     jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(I)V");
     returnObject = (*env)->NewObject(env,returnClass,constructor,(int) (*affected_rows));
   }
