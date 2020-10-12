@@ -34,6 +34,7 @@ public class MonetStatement implements Statement {
         }
         else {
             System.out.println("\nOperation had no results or updates.");
+            return false;
         }
     }
 
