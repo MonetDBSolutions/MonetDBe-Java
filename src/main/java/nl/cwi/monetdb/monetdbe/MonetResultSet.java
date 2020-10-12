@@ -10,10 +10,38 @@ import java.util.Calendar;
 import java.util.Map;
 
 public class MonetResultSet implements ResultSet {
+    //TODO: Pedro's code
+    /** The parental Statement object */
+    private final Statement statement;
+    /** The native monet_result pointer */
     private ByteBuffer nativeResult;
+    /** The number of rows in this ResultSet */
+    //private final int tupleCount;
+    /** The current position of the cursor for this ResultSet object */
+    private int curRow = 0;
 
-    public MonetResultSet(ByteBuffer nativeResult) {
+    /** The names of the columns in this ResultSet */
+    //private final String[] columns;
+    /** The MonetDB types of the columns in this ResultSet */
+    //private final String[] types;
+    /** The JDBC SQL types of the columns in this ResultSet. The content will be derived from the MonetDB types[] */
+    //private final int[] JdbcSQLTypes;
+
+    /** The type of this ResultSet (forward or scrollable) */
+    private int type = ResultSet.TYPE_FORWARD_ONLY;
+    /** The concurrency of this ResultSet (currently only read-only) */
+    private int concurrency = ResultSet.CONCUR_READ_ONLY;
+    /** The warnings for this ResultSet object */
+    private SQLWarning warnings;
+    /** whether the last read field (via some getXyz() method) was NULL */
+    private boolean lastReadWasNull = true;
+    /** to store the fetchsize set. */
+    private int fetchSize;
+
+    public MonetResultSet(Statement statement, ByteBuffer nativeResult) {
+        this.statement = statement;
         this.nativeResult = nativeResult;
+
     }
 
     @Override

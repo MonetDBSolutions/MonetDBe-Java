@@ -66,9 +66,19 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   }
   jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
   jclass returnClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/NativeResult;");
-  jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;I)V");
+  //jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;I)V");
+  //jobject returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(int) (*affected_rows));
 
-  jobject returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(int) (*affected_rows));
+  jobject returnObject;
+  if(result!=NULL) {
+    jstring name = (*env)->NewStringUTF(env,(const char*) result->name);
+    jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;IILjava/lang/String;I)V");
+    returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,result->nrows,result->ncols,name,result->last_id);
+  }
+  else {
+    jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(I)V");
+    returnObject = (*env)->NewObject(env,returnClass,constructor,(int) (*affected_rows));
+  }
   return returnObject;
 }
 

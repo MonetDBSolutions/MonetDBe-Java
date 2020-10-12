@@ -5,26 +5,43 @@ import java.sql.*;
 
 public class MonetStatement implements Statement {
     private MonetConnection conn;
+    private int updateCount;
+    private MonetResultSet resultSet;
 
     public MonetStatement(MonetConnection conn) {
         this.conn = conn;
+        this.updateCount = -1;
+        this.resultSet = null;
     }
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        NativeResult resultValues = (NativeResult) MonetNative.monetdbe_query(conn.getConnection(),sql);
-        ByteBuffer resultSet = resultValues.getResultSet();
+        NativeResult resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql);
+        ByteBuffer nativeResultSet = resultValues.getResultSet();
         int affectedRows = resultValues.getAffectedRows();
 
         if (affectedRows > 0) {
             System.out.println("Update operation with " + affectedRows + " affected rows.");
+            this.updateCount = affectedRows;
             return false;
         }
         else {
             System.out.println("Query operation.");
-            MonetResultSet results = new MonetResultSet(resultSet);
+            this.updateCount = -1;
+            this.resultSet = new MonetResultSet(this,nativeResultSet);
+            System.out.println("ResultSet Name: " + resultValues.getName() + "\nNrows: " + resultValues.getNrows() + "\nNcols" + resultValues.getNcols() + "\nLast id: "+ resultValues.getLast_id());
             return true;
         }
+    }
+
+    @Override
+    public int getUpdateCount() throws SQLException {
+        return this.updateCount;
+    }
+
+    @Override
+    public ResultSet getResultSet() throws SQLException {
+        return resultSet;
     }
 
     @Override
@@ -145,16 +162,6 @@ public class MonetStatement implements Statement {
     @Override
     public void setCursorName(String name) throws SQLException {
 
-    }
-
-    @Override
-    public ResultSet getResultSet() throws SQLException {
-        return null;
-    }
-
-    @Override
-    public int getUpdateCount() throws SQLException {
-        return 0;
     }
 
     @Override
