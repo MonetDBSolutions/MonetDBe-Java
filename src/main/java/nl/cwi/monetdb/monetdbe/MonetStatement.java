@@ -12,11 +12,11 @@ public class MonetStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        ByteBuffer result = MonetNative.monetdbe_query(conn.getConnection(),sql);
+        /*ByteBuffer result = MonetNative.monetdbe_query(conn.getConnection(),sql);
         if(result == null) {
             return false;
         }
-        return true;
+        return true;*/return false;
     }
 
     @Override
