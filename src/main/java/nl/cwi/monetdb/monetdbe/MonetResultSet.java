@@ -4,13 +4,16 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
 public class MonetResultSet implements ResultSet {
-    public MonetResultSet() {
+    private ByteBuffer nativeResult;
 
+    public MonetResultSet() {
+        this.nativeResult = null;
     }
 
     @Override
