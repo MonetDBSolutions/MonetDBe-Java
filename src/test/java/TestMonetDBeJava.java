@@ -25,14 +25,19 @@ public class TestMonetDBeJava {
         MonetDriver m = new MonetDriver();
         MonetConnection c;
         try {
-            //c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
-            c = (MonetConnection) m.connect("jdbc:monetdb://localhost:memory:",null);
-            MonetStatement s = (MonetStatement) c.createStatement();
-            s.execute("CREATE TABLE test(id int);");
-            s.execute("INSERT INTO test VALUES (1), (2), (3);");
-            s.execute("SELECT * FROM test;");
-            s.execute("DROP TABLE test;");
-            c.close();
+            c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
+            //c = (MonetConnection) m.connect("jdbc:monetdb://localhost:memory:",null);
+            if (c!= null) {
+                MonetStatement s = (MonetStatement) c.createStatement();
+                s.execute("CREATE TABLE test(id int);");
+                s.execute("INSERT INTO test VALUES (1), (2), (3);");
+                s.execute("SELECT * FROM test;");
+                s.execute("DROP TABLE test;");
+                c.close();
+            }
+            else {
+                System.out.println("No connection was made");
+            }
         } catch (SQLException | NullPointerException e) {
             e.printStackTrace();
         }
