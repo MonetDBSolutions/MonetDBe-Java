@@ -57,26 +57,18 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1query (JNIEnv * env, jclass self, jobject j_db, jstring j_sql) {
   monetdbe_result** result = malloc(sizeof(monetdbe_result*));
   monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
-
   char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
 
   char* result_msg = monetdbe_query(db, sql, result, affected_rows);
-  printf("Result msg: %s\n", result_msg);
-  printf("Affected rows: %d\n", (*affected_rows));
-
+  if(result_msg!=null) {
+    printf("Result msg: %s\n", result_msg);
+  }
   jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
-
   jclass returnClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/NativeResult;");
   jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;I)V");
-  printf("%p %d",*result,(int)(*affected_rows));
+
   jobject returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(int) (*affected_rows));
-
-  /*jclass returnArrayClass = (*env)->FindClass(env, "[Ljava/lang/Object;");
-  jobjectArray returnValues = (*env)->NewObjectArray(env,2,returnArrayClass,NULL);
-  (*env)->SetObjectArrayElement(env,returnValues,0,);
-  //(*env)->SetObjectArrayElement(env,returnValues,1,(jobject)(*affected_rows));*/
-
   return returnObject;
 }
 
