@@ -61,7 +61,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
 
   char* result_msg = monetdbe_query(db, sql, result, affected_rows);
-  if(result_msg!=null) {
+  if(result_msg!=NULL) {
     printf("Result msg: %s\n", result_msg);
   }
   jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
