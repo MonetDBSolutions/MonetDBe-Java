@@ -14,7 +14,7 @@ public class MonetStatement implements Statement {
     public boolean execute(String sql) throws SQLException {
         NativeResult resultValues = (NativeResult) MonetNative.monetdbe_query(conn.getConnection(),sql);
         ByteBuffer resultSet = resultValues.getResultSet();
-        int affectedRows = resultValues.getAffectedRows()
+        int affectedRows = resultValues.getAffectedRows();
 
         if (affectedRows > 0) {
             System.out.println("Update operation with " + affectedRows + " affected rows.");
