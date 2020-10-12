@@ -13,6 +13,7 @@ public class NativeResult {
         this.resultSet = resultSet;
         this.nrows = nrows;
         this.ncols = ncols;
+        this.affectedRows = 0;
     }
 
     public NativeResult(ByteBuffer resultSet, int affectedRows) {

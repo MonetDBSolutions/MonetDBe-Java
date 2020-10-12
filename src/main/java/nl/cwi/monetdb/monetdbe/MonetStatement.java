@@ -20,7 +20,7 @@ public class MonetStatement implements Statement {
         ByteBuffer nativeResultSet = resultValues.getResultSet();
         int affectedRows = resultValues.getAffectedRows();
 
-        if (nativeResultSet == null) {
+        if (nativeResultSet == null && affectedRows > 0) {
             System.out.println("\nUpdate operation with " + affectedRows + " affected rows.");
             this.updateCount = affectedRows;
             return false;
