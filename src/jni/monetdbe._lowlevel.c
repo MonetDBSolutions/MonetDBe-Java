@@ -57,6 +57,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1query (JNIEnv * env, jclass self, jobject j_db, jstring j_sql) {
   monetdbe_result** result = malloc(sizeof(monetdbe_result*));
   monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
+  (*affected_rows) = -1;
   char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
 
@@ -75,7 +76,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
     jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;II)V");
     returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(*result)->nrows,(*result)->ncols);
   }
-  else {
+  else if((*affected_rows) > 0){
     jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(I)V");
     returnObject = (*env)->NewObject(env,returnClass,constructor,(int) (*affected_rows));
   }
