@@ -16,7 +16,6 @@ public class MonetConnection implements Connection {
 
     MonetConnection(String dbdir, final Properties props) throws SQLException, IllegalArgumentException {
         this.connection = MonetNative.monetdbe_open(dbdir);
-        System.out.println("Opened connection @ " + dbdir);
     }
 
     public ByteBuffer getConnection() {

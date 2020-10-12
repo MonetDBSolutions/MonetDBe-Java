@@ -28,15 +28,17 @@ public class TestMonetDBeJava {
             c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
             //c = (MonetConnection) m.connect("jdbc:monetdb://localhost:memory:",null);
             if (c!= null) {
+                System.out.println("Opened connection @ /home/bernardo/MonetDB-Jun2020/db-farm/test");
                 MonetStatement s = (MonetStatement) c.createStatement();
-                s.execute("CREATE TABLE test1(id int);");
-                s.execute("INSERT INTO test1 VALUES (1), (2), (3);");
+                s.execute("CREATE TABLE t(id int);");
+                s.execute("INSERT INTO t VALUES (1), (2), (3);");
                 System.out.println("Insert update count: " + s.getUpdateCount());
-                s.execute("SELECT * FROM test1;");
+                s.execute("SELECT * FROM t;");
                 System.out.println("Select resultSet: " + s.getResultSet().next());
-                s.execute("DROP TABLE test1;");
+                s.execute("DROP TABLE t;");
                 System.out.println("Drop update count: " + s.getUpdateCount());
                 c.close();
+                System.out.println("Closed connection");
             }
             else {
                 System.out.println("No connection was made");
