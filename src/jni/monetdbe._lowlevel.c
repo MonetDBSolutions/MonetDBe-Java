@@ -61,8 +61,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
 
   char* result_msg = monetdbe_query(db, sql, result, affected_rows);
-  if(result_msg!=NULL) {
-    printf("Result msg: %s\n", result_msg);
+  if(!result_msg) {
+    printf("Query result msg: %s\n", result_msg);
   }
   jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
   jclass returnClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/NativeResult;");
@@ -70,7 +70,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   //jobject returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(int) (*affected_rows));
 
   jobject returnObject;
-  if(result!=NULL) {
+  if(!result) {
     jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;II)V");
     returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(*result)->nrows,(*result)->ncols);
   }
