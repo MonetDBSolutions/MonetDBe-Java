@@ -22,6 +22,7 @@ public class NativeResult {
 
     public NativeResult(int affectedRows) {
         this.affectedRows = affectedRows;
+        this.resultSet = null;
     }
 
     public ByteBuffer getResultSet() {
