@@ -12,11 +12,19 @@ public class MonetStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        /*ByteBuffer result = MonetNative.monetdbe_query(conn.getConnection(),sql);
-        if(result == null) {
+        Object[] resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql);
+        ByteBuffer resultSet = (ByteBuffer) resultValues[0];
+        int affectedRows = (int) resultValues[1];
+
+        if (affectedRows > 0) {
+            System.out.println("Update operation with " + affectedRows + " affected rows.");
             return false;
         }
-        return true;*/return false;
+        else {
+            System.out.println("Query operation.");
+            MonetResultSet results = new MonetResultSet(resultSet);
+            return true;
+        }
     }
 
     @Override

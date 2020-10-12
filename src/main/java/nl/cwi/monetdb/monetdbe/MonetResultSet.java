@@ -12,8 +12,8 @@ import java.util.Map;
 public class MonetResultSet implements ResultSet {
     private ByteBuffer nativeResult;
 
-    public MonetResultSet() {
-        this.nativeResult = null;
+    public MonetResultSet(ByteBuffer nativeResult) {
+        this.nativeResult = nativeResult;
     }
 
     @Override
