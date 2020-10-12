@@ -992,7 +992,7 @@ public class MonetResultSet implements ResultSet {
     }
 }
 
-final class NativeResult {
+class NativeResult {
     private ByteBuffer resultSet;
     private int affectedRows;
 
