@@ -16,7 +16,7 @@ public class MonetResultSet implements ResultSet {
     /** The native monet_result pointer */
     private ByteBuffer nativeResult;
     /** The number of rows in this ResultSet */
-    //private final int tupleCount;
+    private final int tupleCount;
     /** The current position of the cursor for this ResultSet object */
     private int curRow = 0;
 
@@ -38,9 +38,10 @@ public class MonetResultSet implements ResultSet {
     /** to store the fetchsize set. */
     private int fetchSize;
 
-    public MonetResultSet(Statement statement, ByteBuffer nativeResult) {
+    public MonetResultSet(Statement statement, ByteBuffer nativeResult, int nrows, int ncols) {
         this.statement = statement;
         this.nativeResult = nativeResult;
+        this.tupleCount = nrows;
 
     }
 

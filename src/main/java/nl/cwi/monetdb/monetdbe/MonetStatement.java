@@ -23,7 +23,7 @@ public class MonetStatement implements Statement {
 
         if (nativeResultSet != null) {
             this.updateCount = -1;
-            this.resultSet = new MonetResultSet(this,nativeResultSet);
+            this.resultSet = new MonetResultSet(this,nativeResultSet,resultValues.getNrows(),resultValues.getNcols());
             System.out.println("\nQuery result set w/ Nrows: " + resultValues.getNrows() + "\nNcols:" + resultValues.getNcols());
             return true;
         }
