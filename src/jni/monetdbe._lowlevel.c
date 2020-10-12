@@ -65,9 +65,10 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
   printf("Result msg: %s\n", result_msg);
   printf("Affected rows: %d\n", (*affected_rows));
 
-  jobjectArray returnValues = (*env)->NewObjectArray(env,2);
+  jclass returnArrayClass = (*env)->FindClass(env, "[Ljava/lang/Object;");
+  jobjectArray returnValues = (*env)->NewObjectArray(env,2,returnArrayClass);
   (*env)->SetObjectArrayElement(env,returnValues,0,(*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result)));
-  (*env)->SetObjectArrayElement(env,returnValues,1,(*env)->NewDirectByteBuffer(env,(*affected_rows),sizeof(monetdbe_cnt)));
+  (*env)->SetObjectArrayElement(env,returnValues,1,(*affected_rows));
 
   return returnValues;
 }
