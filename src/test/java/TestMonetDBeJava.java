@@ -29,10 +29,10 @@ public class TestMonetDBeJava {
             //c = (MonetConnection) m.connect("jdbc:monetdb://localhost:memory:",null);
             if (c!= null) {
                 MonetStatement s = (MonetStatement) c.createStatement();
-                s.execute("CREATE TABLE test(id int);");
-                s.execute("INSERT INTO test VALUES (1), (2), (3);");
-                s.execute("SELECT * FROM test;");
-                s.execute("DROP TABLE test;");
+                s.execute("CREATE TABLE testTable(id int);");
+                s.execute("INSERT INTO testTable VALUES (1), (2), (3);");
+                s.execute("SELECT * FROM testTable;");
+                s.execute("DROP TABLE testTable;");
                 c.close();
             }
             else {
