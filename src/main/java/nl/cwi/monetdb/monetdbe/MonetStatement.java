@@ -20,16 +20,16 @@ public class MonetStatement implements Statement {
         ByteBuffer nativeResultSet = resultValues.getResultSet();
         int affectedRows = resultValues.getAffectedRows();
 
-        if (nativeResultSet == null && affectedRows > 0) {
-            System.out.println("\nUpdate operation with " + affectedRows + " affected rows.");
-            this.updateCount = affectedRows;
-            return false;
-        }
-        else {
+        if (nativeResultSet != null) {
             this.updateCount = -1;
             this.resultSet = new MonetResultSet(this,nativeResultSet);
             System.out.println("\nQuery result set w/ Nrows: " + resultValues.getNrows() + "\nNcols:" + resultValues.getNcols());
             return true;
+        }
+        else {
+            System.out.println("\nUpdate operation with " + affectedRows + " affected rows.");
+            this.updateCount = affectedRows;
+            return false;
         }
     }
 

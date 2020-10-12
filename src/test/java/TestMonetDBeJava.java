@@ -31,6 +31,7 @@ public class TestMonetDBeJava {
                 System.out.println("Opened connection @ /home/bernardo/MonetDB-Jun2020/db-farm/test");
                 MonetStatement s = (MonetStatement) c.createStatement();
                 s.execute("CREATE TABLE x(id int);");
+                System.out.println("Create table");
                 s.execute("INSERT INTO x VALUES (1), (2), (3);");
                 System.out.println("Insert update count: " + s.getUpdateCount());
                 s.execute("SELECT * FROM x;");
