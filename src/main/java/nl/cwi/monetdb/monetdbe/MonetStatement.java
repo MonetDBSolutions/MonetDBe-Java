@@ -21,15 +21,14 @@ public class MonetStatement implements Statement {
         int affectedRows = resultValues.getAffectedRows();
 
         if (affectedRows > 0) {
-            System.out.println("Update operation with " + affectedRows + " affected rows.");
+            System.out.println("\nUpdate operation with " + affectedRows + " affected rows.");
             this.updateCount = affectedRows;
             return false;
         }
         else {
-            System.out.println("Query operation.");
             this.updateCount = -1;
             this.resultSet = new MonetResultSet(this,nativeResultSet);
-            System.out.println("ResultSet Name: " + resultValues.getName() + "\nNrows: " + resultValues.getNrows() + "\nNcols" + resultValues.getNcols() + "\nLast id: "+ resultValues.getLast_id());
+            System.out.println("\nQuery result set w/ Nrows: " + resultValues.getNrows() + "\nNcols:" + resultValues.getNcols());
             return true;
         }
     }

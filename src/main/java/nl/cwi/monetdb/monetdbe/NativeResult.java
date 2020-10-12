@@ -8,15 +8,11 @@ public class NativeResult {
 
     private int nrows;
     private int ncols;
-    private String name;
-    private int last_id;
 
-    public NativeResult(ByteBuffer resultSet, int nrows, int ncols, String name, int last_id) {
+    public NativeResult(ByteBuffer resultSet, int nrows, int ncols) {
         this.resultSet = resultSet;
         this.nrows = nrows;
         this.ncols = ncols;
-        this.name = name;
-        this.last_id = last_id;
     }
 
     public NativeResult(ByteBuffer resultSet, int affectedRows) {
@@ -42,13 +38,5 @@ public class NativeResult {
 
     public int getNcols() {
         return ncols;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getLast_id() {
-        return last_id;
     }
 }
