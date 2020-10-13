@@ -18,7 +18,7 @@ public class MonetResultSet implements ResultSet {
     /** The number of rows in this ResultSet */
     private final int tupleCount;
     /** The current position of the cursor for this ResultSet object */
-    private int curRow = 0;
+    private int curRow;
 
     /** The names of the columns in this ResultSet */
     //private final String[] columns;
@@ -42,27 +42,8 @@ public class MonetResultSet implements ResultSet {
         this.statement = statement;
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
-
-    }
-
-    @Override
-    public void updateObject(int columnIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-
-    }
-
-    @Override
-    public void updateObject(String columnLabel, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-
-    }
-
-    @Override
-    public void updateObject(int columnIndex, Object x, SQLType targetSqlType) throws SQLException {
-
-    }
-
-    @Override
-    public void updateObject(String columnLabel, Object x, SQLType targetSqlType) throws SQLException {
-
+        this.curRow = 1;
+        MonetNative.monetdbe_result_fetch_all(nativeResult,ncols);
     }
 
     @Override
@@ -73,6 +54,111 @@ public class MonetResultSet implements ResultSet {
     @Override
     public void close() throws SQLException {
 
+    }
+
+    @Override
+    public boolean isBeforeFirst() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean isAfterLast() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean isFirst() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean isLast() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public void beforeFirst() throws SQLException {
+
+    }
+
+    @Override
+    public void afterLast() throws SQLException {
+
+    }
+
+    @Override
+    public boolean first() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean last() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public int getRow() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public boolean absolute(int row) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean relative(int rows) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean previous() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public void setFetchDirection(int direction) throws SQLException {
+
+    }
+
+    @Override
+    public int getFetchDirection() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public void setFetchSize(int rows) throws SQLException {
+
+    }
+
+    @Override
+    public int getFetchSize() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public int getType() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public int getConcurrency() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public boolean rowUpdated() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean rowInserted() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean rowDeleted() throws SQLException {
+        return false;
     }
 
     @Override
@@ -296,108 +382,23 @@ public class MonetResultSet implements ResultSet {
     }
 
     @Override
-    public boolean isBeforeFirst() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean isAfterLast() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean isFirst() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean isLast() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public void beforeFirst() throws SQLException {
+    public void updateObject(int columnIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
 
     }
 
     @Override
-    public void afterLast() throws SQLException {
+    public void updateObject(String columnLabel, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
 
     }
 
     @Override
-    public boolean first() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean last() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public int getRow() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public boolean absolute(int row) throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean relative(int rows) throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean previous() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public void setFetchDirection(int direction) throws SQLException {
+    public void updateObject(int columnIndex, Object x, SQLType targetSqlType) throws SQLException {
 
     }
 
     @Override
-    public int getFetchDirection() throws SQLException {
-        return 0;
-    }
+    public void updateObject(String columnLabel, Object x, SQLType targetSqlType) throws SQLException {
 
-    @Override
-    public void setFetchSize(int rows) throws SQLException {
-
-    }
-
-    @Override
-    public int getFetchSize() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public int getType() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public int getConcurrency() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public boolean rowUpdated() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean rowInserted() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean rowDeleted() throws SQLException {
-        return false;
     }
 
     @Override
