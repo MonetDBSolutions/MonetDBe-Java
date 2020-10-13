@@ -87,7 +87,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
   monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
   monetdbe_column** column = malloc(sizeof(monetdbe_column*));
-  monetdbe_column* [ncols] columns;
+  monetdbe_column* columns [ncols];
   char* types[ncols];
   char* type_dict[]= {"monetdbe_bool", "monetdbe_int8_t", "monetdbe_int16_t", "monetdbe_int32_t", "monetdbe_int64_t", "monetdbe_int128_t", "monetdbe_size_t", "monetdbe_float", "monetdbe_double", "monetdbe_str", "monetdbe_blob,monetdbe_date", "monetdbe_time", "monetdbe_timestamp", "monetdbe_type_unknown"}
   int i;
