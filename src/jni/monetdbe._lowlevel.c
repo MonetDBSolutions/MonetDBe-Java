@@ -84,9 +84,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   return returnObject;
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint ncols) {
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
   monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
   monetdbe_column** column = malloc(sizeof(monetdbe_column*));
+  monetdbe_column* [ncols] columns;
+  char* [ncols] types;
+  char* [] type_dict = {"monetdbe_bool", "monetdbe_int8_t", "monetdbe_int16_t", "monetdbe_int32_t", "monetdbe_int64_t", "monetdbe_int128_t", "monetdbe_size_t", "monetdbe_float", "monetdbe_double", "monetdbe_str", "monetdbe_blob,monetdbe_date", "monetdbe_time", "monetdbe_timestamp", "monetdbe_type_unknown"}
   int i;
 
   for(i = 0; i<ncols; i++) {
@@ -94,8 +97,14 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     if(result_msg) {
       printf("Query result msg: %s\n", result_msg);
     }
-    printf("Column %s of type %d and count %d",(*column)->name,(*column)->type,(*column)->count);
+    columns[i] = (*column);
+    types[i] = type_dict[(*column)->type]
+    printf("Column %s of type %s and count %d",(*column)->name,types[i],(*column)->count);
     fflush(stdout);
+  }
+
+  for(i=0; i<nrows; i++) {
+
   }
 
   return NULL;

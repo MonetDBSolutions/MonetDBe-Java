@@ -43,7 +43,7 @@ public class MonetResultSet implements ResultSet {
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
         this.curRow = 1;
-        MonetNative.monetdbe_result_fetch_all(nativeResult,ncols);
+        MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
     }
 
     @Override
