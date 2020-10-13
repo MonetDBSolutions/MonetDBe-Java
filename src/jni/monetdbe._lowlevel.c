@@ -84,6 +84,22 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   return returnObject;
 }
 
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint ncols) {
+  monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
+  monetdbe_column** column = malloc(sizeof(monetdbe_column*));
+  int i;
+
+  for(i = 0; i<ncols; i++) {
+    char* result_msg = monetdbe_result_fetch(rs,column,i);
+    if(result_msg) {
+      printf("Query result msg: %s\n", result_msg);
+      printf("Column %s of type %d and count %d",(*column)->name,(*column)->type,(*column)->count)
+    }
+  }
+
+  return NULL;
+}
+
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
   char* result = monetdbe_error(db);
