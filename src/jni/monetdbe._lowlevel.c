@@ -94,6 +94,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     if(result_msg) {
       printf("Query result msg: %s\n", result_msg);
       printf("Column %s of type %d and count %d",(*column)->name,(*column)->type,(*column)->count);
+      fflush(stdout);
     }
   }
 
