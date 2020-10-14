@@ -25,7 +25,7 @@ public class TestMonetDBeJava {
         MonetDriver m = new MonetDriver();
         MonetConnection c;
         try {
-            c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test.mdbe",null);
+            c = (MonetConnection) m.connect("/home/bernardo/MonetDB-Jun2020/db-farm/test.mdbe",null);
             //c = (MonetConnection) m.connect("jdbc:monetdb://localhost:memory:",null);
             if (c!= null) {
                 System.out.println("Opened connection @ /home/bernardo/MonetDB-Jun2020/db-farm/test");
