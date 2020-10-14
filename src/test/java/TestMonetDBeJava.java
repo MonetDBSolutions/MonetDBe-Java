@@ -30,13 +30,13 @@ public class TestMonetDBeJava {
             if (c!= null) {
                 System.out.println("Opened connection @ /home/bernardo/MonetDB-Jun2020/db-farm/test");
                 MonetStatement s = (MonetStatement) c.createStatement();
-                s.execute("CREATE TABLE x(id int);");
+                s.execute("CREATE TABLE a(id int, name string);");
                 System.out.println("Create table");
-                s.execute("INSERT INTO x VALUES (1), (2), (3);");
+                s.execute("INSERT INTO a VALUES (1,'a'), (2,'b'), (3,'c');");
                 System.out.println("Insert update count: " + s.getUpdateCount());
-                s.execute("SELECT * FROM x;");
+                s.execute("SELECT * FROM a;");
                 System.out.println("Select resultSet: " + s.getResultSet().next());
-                s.execute("DROP TABLE x;");
+                s.execute("DROP TABLE a;");
                 System.out.println("Drop update count: " + s.getUpdateCount());
                 c.close();
                 System.out.println("Closed connection");
