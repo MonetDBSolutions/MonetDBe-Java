@@ -29,13 +29,17 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
     return array;
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open (JNIEnv* env, jclass self, jstring j_url) {
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2 (JNIEnv* env, jclass self, jstring j_url) {
+  return Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII(env,self,j_url,0,0,0,0);
+}
+
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII (JNIEnv * env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads) {
   monetdbe_database* db = malloc(sizeof(monetdbe_database));
   monetdbe_options* opts = malloc(sizeof(monetdbe_options));
-  opts->memorylimit = 0;
-  opts->querytimeout = 0;
-  opts->sessiontimeout = 0;
-  opts->nr_threads = 0;
+  opts->memorylimit = j_memorylimit;
+  opts->querytimeout = j_querytimeout;
+  opts->sessiontimeout = j_sessiontimeout;
+  opts->nr_threads = j_nr_threads;
 
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   int result = monetdbe_open(db,url,opts);
