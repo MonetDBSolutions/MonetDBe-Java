@@ -112,6 +112,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
         printf("%d",col->is_null);
     }
 
+    if((*column)->type == 3) {
+        monetdbe_column_int32_t* col = (monetdbe_column_int32_t*) (*column);
+        printf("%d",col->count);
+        printf("%d",col->is_null);
+    }
+
     columns[i] = (*column);
     types[i] = type_dict[(*column)->type];
     printf("Column %s of type %s and count %d",(*column)->name,types[i],(*column)->count);
