@@ -102,12 +102,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
 
 
     if((*column)->type == 0) {
-        monetdbe_column_bool* col = (monetdbe_column_bool) (*column);
+        monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
         printf("%d",col->(*isnull));
     }
 
     if((*column)->type == 2) {
-        monetdbe_column_int16_t* col = (monetdbe_column_int16_t) (*column);
+        monetdbe_column_int16_t* col = (monetdbe_column_int16_t*) (*column);
         printf("%d",col->count);
         printf("%d",col->(*isnull));
     }
