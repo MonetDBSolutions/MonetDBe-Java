@@ -21,9 +21,9 @@ public class MonetResultSet implements ResultSet {
     private int curRow;
 
     /** The names of the columns in this ResultSet */
-    private final String[] columns;
+    //private final String[] columns;
     /** The MonetDB types of the columns in this ResultSet */
-    private final String[] types;
+    //private final String[] types;
     /** The JDBC SQL types of the columns in this ResultSet. The content will be derived from the MonetDB types[] */
     //private final int[] JdbcSQLTypes;
 
