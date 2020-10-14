@@ -92,14 +92,13 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
   monetdbe_column* columns [ncols];
   char* types[ncols];
   char* type_dict[]= {"monetdbe_bool", "monetdbe_int8_t", "monetdbe_int16_t", "monetdbe_int32_t", "monetdbe_int64_t", "monetdbe_int128_t", "monetdbe_size_t", "monetdbe_float", "monetdbe_double", "monetdbe_str", "monetdbe_blob,monetdbe_date", "monetdbe_time", "monetdbe_timestamp", "monetdbe_type_unknown"};
-  int i;
+  int i,j;
 
   for(i = 0; i<ncols; i++) {
     char* result_msg = monetdbe_result_fetch(rs,column,i);
     if(result_msg) {
       printf("Query result msg: %s\n", result_msg);
     }
-
 
     if((*column)->type == 0) {
         monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
@@ -109,13 +108,16 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     if((*column)->type == 2) {
         monetdbe_column_int16_t* col = (monetdbe_column_int16_t*) (*column);
         printf("Int 16 Count: %d\n",col->count);
-        printf("Int 16 is null: %d\n",col->is_null);
     }
 
     if((*column)->type == 3) {
         monetdbe_column_int32_t* col = (monetdbe_column_int32_t*) (*column);
-        printf("Int 32 Count: %d\n",col->count);
-        printf("Int 32 is null: %d\n",*(col->is_null));
+        printf("Int 32 Count: %d\nInt 32 Scale : %d\n",col->count,col->scale);
+        printf("Values:\n");
+        for (j=0;j<col->count;j++) {
+          printf("%d (%d null), ",col->data[j],col->is_null(col->data+j));
+        }
+
     }
 
     columns[i] = (*column);
