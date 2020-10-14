@@ -43,7 +43,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
 
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   printf("%s %c\n",url,url[strlen(url)]);
-  if(url[strlen(url)] == "\0") { printf("Correct\n");}
+  if(url[strlen(url)] == '\0') { printf("Correct\n");}
   int result = monetdbe_open(db,url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
