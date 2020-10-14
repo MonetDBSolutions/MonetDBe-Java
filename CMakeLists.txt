@@ -39,6 +39,7 @@ target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun
 target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/sql/storage/")
 target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/sql/backends/monet5")
 target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/gdk")
+target_include_directories(monetdbe-lowlevel PRIVATE "/home/bernardo/MonetDB-Jun2020/MonetDB/monetdb5/optimizer")
 target_link_libraries(monetdbe-lowlevel monetdbe-native monetdbe)
 set_target_properties(monetdbe-lowlevel PROPERTIES SUFFIX ".so")
 set_target_properties(monetdbe-lowlevel PROPERTIES PREFIX "lib")
