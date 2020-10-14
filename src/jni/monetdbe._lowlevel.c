@@ -60,7 +60,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   (*affected_rows) = -1;
   char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
-
+  printf("Wut\n");
   char* result_msg = monetdbe_query(db, sql, result, affected_rows);
   if(result_msg) {
     printf("Query result msg: %s\n", result_msg);
