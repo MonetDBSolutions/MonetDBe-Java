@@ -30,6 +30,7 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2 (JNIEnv* env, jclass self, jstring j_url) {
+  //TODO Check if this works
   return Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII(env,self,j_url,0,0,0,0);
 }
 
@@ -41,6 +42,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   opts->sessiontimeout = j_sessiontimeout;
   opts->nr_threads = j_nr_threads;
 
+  //TODO Fix the segfault here
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   int result = monetdbe_open(db,url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
@@ -69,6 +71,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   if(result_msg) {
     printf("Query result msg: %s\n", result_msg);
   }
+
+  //TODO Change this to the actual MonetResultSet class, call constructor with result metadata
   jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
   jclass returnClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/NativeResult;");
 
@@ -104,6 +108,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
       printf("Query result msg: %s\n", result_msg);
     }
 
+
+    //TODO Finish this
     if((*column)->type == 0) {
         monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
         printf("%d",col->is_null);
