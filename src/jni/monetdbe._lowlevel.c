@@ -36,12 +36,13 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII (JNIEnv * env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads) {
   monetdbe_database* db = malloc(sizeof(monetdbe_database));
   monetdbe_options* opts = malloc(sizeof(monetdbe_options));
-  opts->memorylimit = (int)j_memorylimit;
-  opts->querytimeout = (int)j_querytimeout;
-  opts->sessiontimeout = (int)j_sessiontimeout;
-  opts->nr_threads = (int)j_nr_threads;
+  opts->memorylimit = j_memorylimit;
+  opts->querytimeout = j_querytimeout;
+  opts->sessiontimeout = j_sessiontimeout;
+  opts->nr_threads = j_nr_threads;
 
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
+  printf("%c",url[strlen(url)]);
   int result = monetdbe_open(db,url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
