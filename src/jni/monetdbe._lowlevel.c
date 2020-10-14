@@ -40,7 +40,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   opts->querytimeout = j_querytimeout;
   opts->sessiontimeout = j_sessiontimeout;
   opts->nr_threads = j_nr_threads;
-
+  printf("Wut\n");
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   printf("%s\n",url);
   int result = monetdbe_open(db,url,opts);
