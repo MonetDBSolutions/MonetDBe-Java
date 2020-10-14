@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 final public class MonetDriver implements java.sql.Driver {
     //TODO: Pedro's old code
     // the url kind will be jdbc:monetdb://<host>[:<port>]/<database>
-    static final String MONETURL = "jdbc:monetdb://localhost/";
+    //static final String MONETURL = "jdbc:monetdb://localhost/";
 
     // initialize this class: register it at the DriverManager
     static {
@@ -23,12 +23,29 @@ final public class MonetDriver implements java.sql.Driver {
         // url should be of style jdbc:monetdb://<host>/<database>
         if (!acceptsURL(url))
             return null;
-        return new MonetConnection(url.substring(24),info);
+
+        //TODO De-"hard code" this
+        final Properties props = new Properties();
+        props.setProperty("dbdir",url);
+        props.setProperty("sessiontimeout","0");
+        props.setProperty("querytimeout","0");
+        props.setProperty("memorylimit","0");
+        props.setProperty("nr_threads","0");
+        props.setProperty("autocommit","true");
+
+        //TODO
+        props.setProperty("uri","");
+        props.setProperty("port","");
+        props.setProperty("username","");
+        props.setProperty("password","");
+        props.setProperty("logging","");
+
+        return new MonetConnection(url,props);
     }
 
     @Override
     public boolean acceptsURL(final String url) {
-        return url != null && url.startsWith(MONETURL);
+        return url != null;
     }
 
     @Override

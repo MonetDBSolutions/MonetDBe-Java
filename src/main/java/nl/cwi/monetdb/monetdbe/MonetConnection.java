@@ -12,10 +12,22 @@ import java.util.concurrent.Executor;
 
 public class MonetConnection implements Connection {
     private ByteBuffer connection;
-    private boolean autoCommit = true;
+    private String dbdir;
+    private int sessiontimeout;
+    private int querytimeout;
+    private int memorylimit;
+    private int nr_threads;
+    private boolean autoCommit;
 
     MonetConnection(String dbdir, final Properties props) throws SQLException, IllegalArgumentException {
-        this.connection = MonetNative.monetdbe_open(dbdir);
+        this.dbdir = dbdir;
+        this.sessiontimeout = Integer.parseInt((String) props.getOrDefault("sessiontimeout","0"));
+        this.querytimeout = Integer.parseInt((String) props.getOrDefault("querytimeout","0"));
+        this.memorylimit = Integer.parseInt((String) props.getOrDefault("memorylimit","0"));
+        this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
+        this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
+        //this.connection = MonetNative.monetdbe_open(dbdir);
+        this.connection = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
     }
 
     public ByteBuffer getConnection() {
