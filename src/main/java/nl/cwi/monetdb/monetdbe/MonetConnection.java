@@ -27,7 +27,6 @@ public class MonetConnection implements Connection {
         this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
         //this.connection = MonetNative.monetdbe_open(dbdir);
-        System.out.println(dbdir+sessiontimeout+querytimeout+memorylimit+nr_threads);
         this.connection = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
     }
 
