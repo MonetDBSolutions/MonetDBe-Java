@@ -114,8 +114,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
 
     if((*column)->type == 3) {
         monetdbe_column_int32_t* col = (monetdbe_column_int32_t*) (*column);
-        printf("Int 32 Count: %d",col->count);
-        printf("Int 16 is null: %d",col->is_null);
+        printf("Int 32 Count: %d\n",col->count);
+        printf("Int 32 is null: %d\n",col->(*is_null));
     }
 
     columns[i] = (*column);
