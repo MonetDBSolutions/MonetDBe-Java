@@ -42,15 +42,15 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   opts->nr_threads = j_nr_threads;
 
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
+  printf("%s\n",url);
   int result = monetdbe_open(db,url,opts);
-
+  (*env)->ReleaseStringUTFChars(env, j_url, url);
 
   if (result != 0) {
      char* error = monetdbe_error(*db);
      printf("Error in monetdbe_open: %s\n",error);
      fflush(stdout);
   }
-   (*env)->ReleaseStringUTFChars(env, j_url, url);
   return (*env)->NewDirectByteBuffer(env,(*db),sizeof(monetdbe_database));
 }
 
