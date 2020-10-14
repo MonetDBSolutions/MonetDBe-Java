@@ -17,7 +17,7 @@ public class MonetStatement implements Statement {
     @Override
     public boolean execute(String sql) throws SQLException {
         NativeResult resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql);
-        System.out.println("Here?");
+
         ByteBuffer nativeResultSet = resultValues.getResultSet();
         int affectedRows = resultValues.getAffectedRows();
 
