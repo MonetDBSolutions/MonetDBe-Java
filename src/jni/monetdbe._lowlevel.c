@@ -45,7 +45,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   //TODO Fix the segfault here
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   char* test_url = strdup(url);
-  print("%s\n",test_url);
+  printf("%s\n",test_url);
   int result = monetdbe_open(db,test_url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
