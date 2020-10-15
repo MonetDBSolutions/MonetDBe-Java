@@ -115,8 +115,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
       printf("Query result msg: %s\n", result_msg);
     }
 
-
-    //TODO Finish this
     if((*column)->type == 0) {
         monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
         printf("%d",col->is_null);
@@ -135,7 +133,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
             printf("(%d), ",col->data[j]);
           }
         }
-
+        printf("\n");
     }
     else if((*column)->type == 9) {
         monetdbe_column_str* col = (monetdbe_column_str*) (*column);
@@ -144,10 +142,11 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
         for (j=0;j<col->count;j++) {
           //TODO Should this be here?
           if(!col->is_null(col->data+j)) {
+            printf("n")
             printf("(%s), ",col->data[j]);
           }
         }
-
+        printf("\n");
      }
     /*columns[i] = (*column);
     types[i] = type_dict[(*column)->type];
