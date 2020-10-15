@@ -69,8 +69,6 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1query (JNIEnv * env, jclass self, jobject j_db, jstring j_sql, jobject j_statement) {
   monetdbe_result** result = malloc(sizeof(monetdbe_result*));
   monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
-  (*affected_rows) = -1;
-
   char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
 
@@ -78,11 +76,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   if(result_msg) {
     printf("Query result msg: %s\n", result_msg);
   }
-
-  /*if((*result)!=NULL) {
-    printf("%p %p ncols:%d name:%s ",result,*result,(*result)->ncols,(*result)->name);
-    printf("Nrows: %d\n",(*result)->nrows);
-  }*/
 
   //Query with table result
   //TODO Why is result not NULL when it's an update query like Niels said? Is checking for ncols appropriate?
@@ -102,27 +95,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
     //(*env)->CallObjectMethod(j_statement,method,(jint)(*affected_rows));
     return NULL;
   }
-  /*
-  //TODO Change this to the actual MonetResultSet class, call constructor with result metadata
-
-
-  //jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;I)V");
-  //jobject returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(int) (*affected_rows));
-
-  jobject returnObject = NULL;
-  //TODO What is the condition for being a query instead on an update? Some results? Can queries not have empty results?
-  if((*result) && (*result)->ncols > 0) {
-    jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(Ljava/nio/ByteBuffer;II)V");
-    returnObject = (*env)->NewObject(env,returnClass,constructor,resultNative,(*result)->nrows,(*result)->ncols);
-  }
-  else if((*affected_rows)){
-    jmethodID constructor = (*env)->GetMethodID(env, returnClass, "<init>", "(I)V");
-    returnObject = (*env)->NewObject(env,returnClass,constructor,(int) (*affected_rows));
-  }
-  return returnObject;*/
 }
-
-
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
   monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
