@@ -10,7 +10,7 @@ void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, i
     for(int i = 0; i<size;i++) {
         if (size == 32) {
             long* data_i = (long*) data;
-            printf("%l\n",data_i[i]);
+            printf("%li\n",data_i[i]);
         }
 
     }
