@@ -4,10 +4,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
@@ -50,8 +47,14 @@ public class MonetResultSet implements ResultSet {
         ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
 
         System.out.println("Int column");
-        for(int j = 0; j <= ncols*4; j++) {
-            System.out.print(dataArray[0].get(j));
+        //byte[] buf = new byte[16];
+        //dataArray[0].get(buf);
+        IntBuffer intBuf = dataArray[0].order(ByteOrder.BIG_ENDIAN).asIntBuffer();
+        int[] array = new int[intBuf.remaining()];
+        intBuf.get(array);
+
+        for(int j = 0; j <= ncols; j++) {
+            System.out.print(array[j]);
             System.out.println("");
         }
 
