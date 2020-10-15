@@ -6,7 +6,6 @@ import java.sql.*;
 public class MonetStatement implements Statement {
     private MonetConnection conn;
     private int updateCount;
-    private int lastAffectedRows;
     private MonetResultSet resultSet;
 
     public MonetStatement(MonetConnection conn) {
@@ -17,13 +16,15 @@ public class MonetStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        MonetResultSet resultSet = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
-        if(resultSet!=null) {
-            System.out.println(resultSet);
+        this.resultSet = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
+        if(this.resultSet!=null) {
             return true;
         }
-        else {
+        else if (this.updateCount!=-1){
             return false;
+        }
+        else {
+            throw new SQLException("Query had no result or update.");
         }
         /*NativeResult resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
 
