@@ -7,6 +7,9 @@
 void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, int index) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     //jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
+    for(int i = 0; i<size;i++) {
+        printf("%d\n",data[i]);
+    }
     (*env)->SetObjectArrayElement(env,j_data_columns,index,j_data);
 }
 

@@ -51,20 +51,20 @@ public class MonetResultSet implements ResultSet {
 
         System.out.println("Int column");
         IntBuffer intBuffer = dataArray[0].asIntBuffer();
-        for(int j = 0; j < ncols; j++) {
+        for(int j = 0; j <= ncols; j++) {
             System.out.print(intBuffer.get(j));
             System.out.println("");
         }
 
         System.out.println("Bool column");
-        for(int j = 0; j < ncols; j++) {
+        for(int j = 0; j <= ncols; j++) {
             System.out.print(dataArray[1].get(j));
             System.out.println("");
         }
 
         System.out.println("Float column");
         FloatBuffer floatBuffer = dataArray[2].asFloatBuffer();
-        for(int j = 0; j < ncols; j++) {
+        for(int j = 0; j <= ncols; j++) {
             System.out.print(floatBuffer.get(j));
             System.out.println("");
         }
