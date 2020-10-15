@@ -79,13 +79,14 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
     printf("Query result msg: %s\n", result_msg);
   }
 
-  if((*result)!=NULL) {
+  /*if((*result)!=NULL) {
     printf("%p %p ncols:%d name:%s ",result,*result,(*result)->ncols,(*result)->name);
     printf("Nrows: %d\n",(*result)->nrows);
-  }
+  }*/
 
   //Query with table result
-  if(*result) {
+  //TODO Why is result not NULL when it's an update query like Niels said? Is checking for ncols appropriate?
+  if((*result) && (*result)->ncols > 0) {
     jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
     jclass resultSetClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetResultSet;");
     jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;I)V");
