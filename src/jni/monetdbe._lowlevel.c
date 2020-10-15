@@ -11,7 +11,7 @@ void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, i
     if (size/4 == 32) {
         long* data_i = (long*) data;
         for(int i = 0; i<4;i++) {
-            printf("%li\n",data_i[i]);
+            printf("%li\n",*(data_i+(i*32)));
             fflush(stdout);
         }
     }
