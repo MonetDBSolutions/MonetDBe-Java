@@ -37,7 +37,7 @@ JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close
  * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;)Lnl/cwi/monetdb/monetdbe/NativeResult;
  */
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1query
-  (JNIEnv *, jclass, jobject, jstring);
+  (JNIEnv *, jclass, jobject, jstring, jobject);
 
 /*
  * Class:     nl_cwi_monetdb_monetdbe_MonetNative

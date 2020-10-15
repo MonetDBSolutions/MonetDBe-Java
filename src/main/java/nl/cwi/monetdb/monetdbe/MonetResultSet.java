@@ -12,7 +12,7 @@ import java.util.Map;
 public class MonetResultSet implements ResultSet {
     //TODO: Pedro's code
     /** The parental Statement object */
-    private final Statement statement;
+    private final MonetStatement statement;
     /** The native monet_result pointer */
     private ByteBuffer nativeResult;
     /** The number of rows in this ResultSet */
@@ -38,12 +38,18 @@ public class MonetResultSet implements ResultSet {
     /** to store the fetchsize set. */
     private int fetchSize;
 
-    public MonetResultSet(Statement statement, ByteBuffer nativeResult, int nrows, int ncols) {
+    public MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols) {
         this.statement = statement;
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
         this.curRow = 0;
         MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
+    }
+
+    public MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows) {
+        this.statement = statement;
+        this.nativeResult = nativeResult;
+        this.tupleCount = nrows;
     }
 
     @Override

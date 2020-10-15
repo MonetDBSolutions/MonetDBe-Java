@@ -6,6 +6,7 @@ import java.sql.*;
 public class MonetStatement implements Statement {
     private MonetConnection conn;
     private int updateCount;
+    private int lastAffectedRows;
     private MonetResultSet resultSet;
 
     public MonetStatement(MonetConnection conn) {
@@ -16,7 +17,7 @@ public class MonetStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        NativeResult resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql);
+        NativeResult resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
 
         ByteBuffer nativeResultSet = resultValues.getResultSet();
         int affectedRows = resultValues.getAffectedRows();
@@ -41,6 +42,10 @@ public class MonetStatement implements Statement {
     @Override
     public int getUpdateCount() throws SQLException {
         return this.updateCount;
+    }
+
+    public void setUpdateCount(int updateCount) {
+        this.updateCount = updateCount;
     }
 
     @Override
