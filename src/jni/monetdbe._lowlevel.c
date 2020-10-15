@@ -79,6 +79,10 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
     printf("Query result msg: %s\n", result_msg);
   }
 
+  if((*result)!=NULL) {
+    printf("Nrows: %d\n",(*result)->nrows);
+  }
+
   //Query with table result
   if(*result) {
     jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
