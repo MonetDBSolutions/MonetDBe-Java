@@ -50,6 +50,7 @@ public class MonetResultSet implements ResultSet {
         this.statement = statement;
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
+        System.out.println("MonetResultSet tupleCount: " + nrows);
     }
 
     @Override

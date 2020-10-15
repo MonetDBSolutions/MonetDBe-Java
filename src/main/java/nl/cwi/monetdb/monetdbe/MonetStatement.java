@@ -17,7 +17,15 @@ public class MonetStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        NativeResult resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
+        MonetResultSet resultSet = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
+        if(resultSet!=null) {
+            System.out.println(resultSet);
+            return true;
+        }
+        else {
+            return false;
+        }
+        /*NativeResult resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
 
         ByteBuffer nativeResultSet = resultValues.getResultSet();
         int affectedRows = resultValues.getAffectedRows();
@@ -36,7 +44,7 @@ public class MonetStatement implements Statement {
         else {
             System.out.println("Operation had no results or updates.");
             return false;
-        }
+        }*/
     }
 
     @Override
