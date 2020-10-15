@@ -80,7 +80,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   }
 
   if((*result)!=NULL) {
-    printf("%p %p ncols:%d name:%s ",result,*result,(*result)->ncols,(*result)->name)
+    printf("%p %p ncols:%d name:%s ",result,*result,(*result)->ncols,(*result)->name);
     printf("Nrows: %d\n",(*result)->nrows);
   }
 
