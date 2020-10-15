@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
+
 char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 	int len = (*env)->GetArrayLength(env,array_j);
 	//Bytearray len + NULL terminator
@@ -24,14 +25,8 @@ char* byte_array_to_string(JNIEnv *env, jbyteArray array_j) {
 jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
 	int len = strlen(string);
 	jbyteArray array = (*env)->NewByteArray(env,len);
-	jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array, NULL);
-
-	memcpy(bytes,string,len);
-    for (int i = 0; i < len; i++) {
-        printf("%c\n", bytes[i]);
-    }
-    fflush(stdout);
-
+	//jbyte* bytes = (jbyte*) (*env)->GetByteArrayElements(env, array, NULL);
+	(*env)->SetByteArrayRegion(env,array,0,len,(jbyte*)string);
     return array;
 }
 
@@ -93,3 +88,43 @@ JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1
   fflush(stdout);
   return byte_array;
 }
+
+//Other old code
+
+
+
+                /*jbooleanArray j_data = (*env)->NewBooleanArray(env, col->count);
+                const jboolean* cast_data = (const jboolean *) col->data;
+                (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);*/
+
+    /*if((*column)->type == 0) {
+        monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
+        printf("%d",col->is_null);
+    }
+    else if((*column)->type == 2) {
+        monetdbe_column_int16_t* col = (monetdbe_column_int16_t*) (*column);
+        printf("Int 16 Count: %d\n",col->count);
+    }
+    else if((*column)->type == 3) {
+        monetdbe_column_int32_t* col = (monetdbe_column_int32_t*) (*column);
+        printf("Int 32 values (%d rows): ",col->count);
+        for (j=0;j<col->count;j++) {
+          //TODO Should this be here?
+          if(!col->is_null(col->data+j)) {
+            printf("(%d), ",col->data[j]);
+          }
+        }
+        printf("\n");
+    }
+    else if((*column)->type == 9) {
+        monetdbe_column_str* col = (monetdbe_column_str*) (*column);
+        printf("Str values (%d rows): ",col->count);
+        for (j=0;j<col->count;j++) {
+          //TODO Should this be here?
+          if(!col->is_null(col->data+j)) {
+            printf("(%s), ",col->data[j]);
+          }
+        }
+        printf("\n");
+     }
+    //printf("Column %s of type %s and count %d\n",(*column)->name,types[i],(*column)->count);*/
