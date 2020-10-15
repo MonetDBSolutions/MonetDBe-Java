@@ -24,10 +24,6 @@ final public class MonetDriver implements java.sql.Driver {
         if (!acceptsURL(url))
             return null;
 
-        if(url.equals(":memory:")) {
-            url = null;
-        }
-
         //TODO De-"hard code" this
         final Properties props = new Properties();
         props.setProperty("dbdir",url);
