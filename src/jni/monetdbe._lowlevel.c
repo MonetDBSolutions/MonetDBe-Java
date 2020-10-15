@@ -47,6 +47,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   char* test_url = strdup(url);
   printf("%s\n",test_url);
   int result = monetdbe_open(db,test_url,opts);
+  printf("%s\n",test_url);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
   if (result != 0) {
