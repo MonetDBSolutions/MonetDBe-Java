@@ -82,8 +82,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   if((*result) && (*result)->ncols > 0) {
     jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
     jclass resultSetClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetResultSet;");
-    jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;I)V");
-    jobject resultSetObject = (*env)->NewObject(env,resultSetClass,constructor,j_statement,resultNative,(*result)->nrows);
+    jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;II)V");
+    jobject resultSetObject = (*env)->NewObject(env,resultSetClass,constructor,j_statement,resultNative,(*result)->nrows,(*result)->ncols);
     return resultSetObject;
   }
   //Update query
@@ -100,9 +100,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
   monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
   monetdbe_column** column = malloc(sizeof(monetdbe_column*));
-  monetdbe_column* columns [ncols];
-  char* types[ncols];
-  char* type_dict[]= {"monetdbe_bool", "monetdbe_int8_t", "monetdbe_int16_t", "monetdbe_int32_t", "monetdbe_int64_t", "monetdbe_int128_t", "monetdbe_size_t", "monetdbe_float", "monetdbe_double", "monetdbe_str", "monetdbe_blob,monetdbe_date", "monetdbe_time", "monetdbe_timestamp", "monetdbe_type_unknown"};
   int i,j;
 
   for(i = 0; i<ncols; i++) {
@@ -110,8 +107,20 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     if(result_msg) {
       printf("Query result msg: %s\n", result_msg);
     }
+    else {
+        switch ((*column)->type) {
+            case monetdbe_bool:
+                monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
+                jbooleanArray j_data = (*env)->NewBooleanArray(env, col->count);
+                const jboolean* cast_data = (const jboolean *) col->data;
+                (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);
+                break;
+            default:
+                break;
+        }
+    }
 
-    if((*column)->type == 0) {
+    /*if((*column)->type == 0) {
         monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
         printf("%d",col->is_null);
     }
@@ -141,10 +150,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
         }
         printf("\n");
      }
-    /*columns[i] = (*column);
-    types[i] = type_dict[(*column)->type];
-    printf("Column %s of type %s and count %d\n",(*column)->name,types[i],(*column)->count);
-    fflush(stdout);*/
+    //printf("Column %s of type %s and count %d\n",(*column)->name,types[i],(*column)->count);*/
   }
 
 

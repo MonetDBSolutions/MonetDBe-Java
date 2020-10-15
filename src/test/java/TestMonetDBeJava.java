@@ -34,8 +34,10 @@ public class TestMonetDBeJava {
                 MonetStatement s = (MonetStatement) c.createStatement();
 
                 System.out.println("Create table");
-                s.execute("CREATE TABLE a(id int, name string);");
-                s.execute("INSERT INTO a VALUES (1,'a'), (2,'b'), (3,'c');");
+                //s.execute("CREATE TABLE a(id int, name string);");
+                //s.execute("INSERT INTO a VALUES (1,'a'), (2,'b'), (3,'c');");
+                s.execute("CREATE TABLE a(boolean b);");
+                s.execute("INSERT INTO a VALUES (true), (true), (false);");
                 System.out.println("Insert update count: " + s.getUpdateCount());
                 s.execute("SELECT * FROM a;");
                 System.out.println("Select resultSet: " + s.getResultSet().next());

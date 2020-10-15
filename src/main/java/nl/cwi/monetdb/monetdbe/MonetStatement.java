@@ -1,6 +1,5 @@
 package nl.cwi.monetdb.monetdbe;
 
-import java.nio.ByteBuffer;
 import java.sql.*;
 
 public class MonetStatement implements Statement {
