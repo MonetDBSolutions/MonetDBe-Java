@@ -40,13 +40,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   opts->memorylimit = (int) j_memorylimit;
   opts->querytimeout = (int) j_querytimeout;
   opts->sessiontimeout = (int) j_sessiontimeout;
-  opts->nr_threads = j_nr_threads;
+  opts->nr_threads = (int) j_nr_threads;
   opts->remote = NULL;
   opts->mapi_server = NULL;
 
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   int result;
-  printf("DBdir: %s\n",url);
   if(strcmp(url,":memory:")==0) {
     result = monetdbe_open(db,NULL,opts);
   }
