@@ -106,14 +106,15 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
       printf("Query result msg: %s\n", result_msg);
     }
     else {
-        monetdbe_types type = (*column)->type;
-        printf("%d %s",type,type);
-        switch (type) {
-            case monetdbe_bool:;
+        switch ((*column)->type) {
+            case 0:;
                 monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
-                jbooleanArray j_data = (*env)->NewBooleanArray(env, col->count);
+                /*jbooleanArray j_data = (*env)->NewBooleanArray(env, col->count);
                 const jboolean* cast_data = (const jboolean *) col->data;
-                (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);
+                (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);*/
+
+                jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
+                return j_data;
                 break;
             default:
                 break;
