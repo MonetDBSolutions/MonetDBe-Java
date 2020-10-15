@@ -49,7 +49,7 @@ public class MonetResultSet implements ResultSet {
         System.out.println("Int column");
         //byte[] buf = new byte[16];
         //dataArray[0].get(buf);
-        IntBuffer intBuf = dataArray[0].order(ByteOrder.BIG_ENDIAN).asIntBuffer();
+        IntBuffer intBuf = dataArray[0].order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
         int[] array = new int[intBuf.remaining()];
         intBuf.get(array);
 
