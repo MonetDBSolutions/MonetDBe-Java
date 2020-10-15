@@ -142,7 +142,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
         for (j=0;j<col->count;j++) {
           //TODO Should this be here?
           if(!col->is_null(col->data+j)) {
-            printf("n")
+            printf("n");
             printf("(%s), ",col->data[j]);
           }
         }
