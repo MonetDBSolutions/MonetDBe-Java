@@ -125,8 +125,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     }
     else if((*column)->type == 3) {
         monetdbe_column_int32_t* col = (monetdbe_column_int32_t*) (*column);
-        printf("\nInt 32 Count: %d\nInt 32 Scale : %d\n",col->count,col->scale);
-        printf("Int 32 Values:\n");
+        printf("Int 32 values (%d rows): ",col->count);
         for (j=0;j<col->count;j++) {
           //TODO Should this be here?
           if(!col->is_null(col->data+j)) {
@@ -137,12 +136,10 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     }
     else if((*column)->type == 9) {
         monetdbe_column_str* col = (monetdbe_column_str*) (*column);
-        printf("\nStr Count: %d\nStr Scale : %d\n",col->count,col->scale);
-        printf("Str Values:\n");
+        printf("Str values (%d rows): ",col->count);
         for (j=0;j<col->count;j++) {
           //TODO Should this be here?
           if(!col->is_null(col->data+j)) {
-            printf("n");
             printf("(%s), ",col->data[j]);
           }
         }
