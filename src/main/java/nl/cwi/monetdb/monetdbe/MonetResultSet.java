@@ -5,6 +5,9 @@ import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
@@ -45,11 +48,26 @@ public class MonetResultSet implements ResultSet {
         this.curRow = 0;
         System.out.println("MonetResultSet tupleCount: " + nrows);
         ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
-        for (int i = 0; i< nrows; i++) {
-            System.out.println("i="+i);
-            for(int j = 0; j < ncols; j++) {
-                System.out.println(dataArray[i].get(j));
-            }
+
+        System.out.println("Int column");
+        IntBuffer intBuffer = dataArray[0].asIntBuffer();
+        for(int j = 0; j < ncols; j++) {
+            System.out.print(intBuffer.get(j));
+            System.out.println("");
+        }
+
+        System.out.println("Bool column");
+        ShortBuffer shortBuffer = dataArray[1].asShortBuffer();
+        for(int j = 0; j < ncols; j++) {
+            System.out.print(shortBuffer.get(j));
+            System.out.println("");
+        }
+
+        System.out.println("Float column");
+        FloatBuffer floatBuffer = dataArray[2].asFloatBuffer();
+        for(int j = 0; j < ncols; j++) {
+            System.out.print(floatBuffer.get(j));
+            System.out.println("");
         }
     }
 
