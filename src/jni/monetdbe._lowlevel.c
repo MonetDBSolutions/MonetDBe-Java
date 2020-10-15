@@ -4,10 +4,10 @@
 #include <string.h>
 #include <stdio.h>
 
-void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size) {
+void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, int index) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     //jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
-    (*env)->SetObjectArrayElement(env,j_data_columns,i,j_data);
+    (*env)->SetObjectArrayElement(env,j_data_columns,index,j_data);
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2 (JNIEnv* env, jclass self, jstring j_url) {
@@ -92,7 +92,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
-                addColumn(env,j_data_columns,col->data,8*col->count);
+                addColumn(env,j_data_columns,col->data,8*col->count,i);
                 break;
             default:
                 break;
