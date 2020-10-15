@@ -83,16 +83,15 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   if(result) {
     jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
     jclass resultSetClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetResultSet;");
-    Statement statement, ByteBuffer nativeResult, int tupleCount
     jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;I)V");
     jobject resultSetObject = (*env)->NewObject(env,resultSetClass,constructor,j_statement,resultNative,(*result)->nrows);
     return resultSetObject;
   }
   //Update query
   else {
-    jclass statementClass = env->GetObjectClass(env, j_statement);
+    jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     jmethodID method = (*env)->GetMethodID(env, statementClass, "setUpdateCount", "(I)V");
-    (*env)->CallObjectMethod(j_statement,method,(*affected_rows));
+    (*env)->CallObjectMethod(j_statement,method,(jint)(*affected_rows));
     return NULL;
   }
   /*
