@@ -107,6 +107,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     }
     else {
         monetdbe_types type = (*column)->type;
+        printf("%d %s",type,type);
         switch (type) {
             case monetdbe_bool:;
                 monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
