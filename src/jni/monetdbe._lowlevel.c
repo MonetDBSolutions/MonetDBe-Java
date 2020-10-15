@@ -41,12 +41,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   opts->querytimeout = j_querytimeout;
   opts->sessiontimeout = j_sessiontimeout;
   opts->nr_threads = j_nr_threads;
-  printf("1\n");
 
   //TODO Fix the segfault here
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
-
-  int result = monetdbe_open(db,url,opts);
+  char* test_url = strdup(url);
+  print("%s\n",test_url);
+  int result = monetdbe_open(db,test_url,opts);
   (*env)->ReleaseStringUTFChars(env, j_url, url);
 
   if (result != 0) {
