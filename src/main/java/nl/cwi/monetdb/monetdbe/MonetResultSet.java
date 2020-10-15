@@ -55,7 +55,7 @@ public class MonetResultSet implements ResultSet {
         }
 
         System.out.println("Bool column");
-        for(int j = 0; j <= ncols+1; j++) {
+        for(int j = 0; j <= ncols; j++) {
             System.out.print(dataArray[1].get(j));
             System.out.println("");
         }
