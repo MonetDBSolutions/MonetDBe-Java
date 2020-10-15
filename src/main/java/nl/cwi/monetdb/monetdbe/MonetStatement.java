@@ -24,28 +24,10 @@ public class MonetStatement implements Statement {
             return false;
         }
         else {
-            throw new SQLException("Query had no result or update.");
-        }
-        /*NativeResult resultValues = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
-
-        ByteBuffer nativeResultSet = resultValues.getResultSet();
-        int affectedRows = resultValues.getAffectedRows();
-
-        if (nativeResultSet != null) {
-            this.updateCount = -1;
-            this.resultSet = new MonetResultSet(this, nativeResultSet, resultValues.getNrows(), resultValues.getNcols());
-            System.out.println("Query result set w/ Nrows: " + resultValues.getNrows() + "\nNcols:" + resultValues.getNcols());
-            return true;
-        }
-        else if (affectedRows > 0){
-            System.out.println("Update operation with " + affectedRows + " affected rows.");
-            this.updateCount = affectedRows;
+            //TODO What to do/return for queries with no result or updates (i.e. CREATE TABLE)?
             return false;
+            //throw new SQLException("Query had no result or update.");
         }
-        else {
-            System.out.println("Operation had no results or updates.");
-            return false;
-        }*/
     }
 
     @Override
