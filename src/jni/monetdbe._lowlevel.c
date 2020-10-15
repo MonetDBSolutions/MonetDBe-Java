@@ -109,8 +109,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     }
     else {
         switch ((*column)->type) {
-            case monetdbe_bool:
-                monetdbe_column_bool col* = (monetdbe_column_bool*) (*column);
+            case 'monetdbe_bool':
+                monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
                 jbooleanArray j_data = (*env)->NewBooleanArray(env, col->count);
                 const jboolean* cast_data = (const jboolean *) col->data;
                 (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);
