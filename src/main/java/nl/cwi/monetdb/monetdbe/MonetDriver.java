@@ -24,7 +24,7 @@ final public class MonetDriver implements java.sql.Driver {
         if (!acceptsURL(url))
             return null;
 
-        if(url.equals(":memory")) {
+        if(url.equals(":memory:")) {
             url = null;
         }
 

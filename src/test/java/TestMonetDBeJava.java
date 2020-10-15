@@ -5,6 +5,7 @@ import nl.cwi.monetdb.monetdbe.MonetStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class TestMonetDBeJava {
     static {
@@ -24,17 +25,16 @@ public class TestMonetDBeJava {
         }*/
         MonetDriver m = new MonetDriver();
         MonetConnection c;
+        String url = ":memory:";
+        Properties info = null;
         try {
-            //c = (MonetConnection) m.connect("/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
-            //c = (MonetConnection) m.connect(null,null);
-            c = (MonetConnection) m.connect(":memory:",null);
-            //c = (MonetConnection) m.connect("jdbc:monetdb://localhost/home/bernardo/MonetDB-Jun2020/db-farm/test",null);
-            //c = (MonetConnection) m.connect("jdbc:monetdb://localhost:memory:",null);
+            c = (MonetConnection) m.connect(url,info);
             if (c!= null) {
-                System.out.println("Opened connection @ /home/bernardo/MonetDB-Jun2020/db-farm/test");
+                System.out.println("Opened connection @ " + url);
                 MonetStatement s = (MonetStatement) c.createStatement();
-                s.execute("CREATE TABLE a(id int, name string);");
+
                 System.out.println("Create table");
+                s.execute("CREATE TABLE a(id int, name string);");
                 s.execute("INSERT INTO a VALUES (1,'a'), (2,'b'), (3,'c');");
                 System.out.println("Insert update count: " + s.getUpdateCount());
                 s.execute("SELECT * FROM a;");
