@@ -120,27 +120,30 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 addColumn(env,j_data_columns,c_float->data,32*c_float->count,i);
                 break;
             case 7:;
+                //TODO huge_int
+                break;
+            case 8:;
                 monetdbe_column_double* c_double = (monetdbe_column_double*) (*column);
                 addColumn(env,j_data_columns,c_double->data,64*c_double->count,i);
                 break;
             //TODO Check conversions below
-            case 8:;
+            case 9:;
                 monetdbe_column_str* c_str = (monetdbe_column_str*) (*column);
                 addColumn(env,j_data_columns,c_str->data,8*c_str->count,i);
                 break;
-            case 9:;
+            case 10:;
                 monetdbe_column_blob* c_blob = (monetdbe_column_blob*) (*column);
                 addColumn(env,j_data_columns,c_blob->data,sizeof(monetdbe_data_blob)*c_blob->count,i);
                 break;
-            case 10:;
+            case 11:;
                 monetdbe_column_date* c_date = (monetdbe_column_date*) (*column);
                 addColumn(env,j_data_columns,c_date->data,sizeof(monetdbe_data_date)*c_date->count,i);
                 break;
-            case 11:;
+            case 12:;
                 monetdbe_column_time* c_time = (monetdbe_column_time*) (*column);
                 addColumn(env,j_data_columns,c_time->data,sizeof(monetdbe_data_time)*c_time->count,i);
                 break;
-            case 12:;
+            case 13:;
                 monetdbe_column_timestamp* c_timestamp = (monetdbe_column_timestamp*) (*column);
                 addColumn(env,j_data_columns,c_timestamp->data,sizeof(monetdbe_data_timestamp)*c_timestamp->count,i);
                 break;
