@@ -90,8 +90,10 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   //Update query
   else {
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
-    jmethodID method = (*env)->GetMethodID(env, statementClass, "setUpdateCount", "(I)V");
-    (*env)->CallObjectMethod(j_statement,method,(jint)(*affected_rows));
+    jfieldID affectRowsField = (*env)->GetFieldID(env,statementClass,"updateCount","I");
+    (*env)->SetIntField(env,j_statement,affectRowsField,(jint)(*affected_rows))
+    //jmethodID method = (*env)->GetMethodID(env, statementClass, "setUpdateCount", "(I)V");
+    //(*env)->CallObjectMethod(j_statement,method,(jint)(*affected_rows));
     return NULL;
   }
   /*
