@@ -144,6 +144,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 addColumn(env,j_data_columns,c_timestamp->data,sizeof(monetdbe_data_timestamp)*c_timestamp->count,i);
                 break;
             default:
+                //TODO What should we do in this case?
                 break;
         }
     }

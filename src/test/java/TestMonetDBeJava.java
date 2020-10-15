@@ -36,8 +36,10 @@ public class TestMonetDBeJava {
                 System.out.println("Create table");
                 //s.execute("CREATE TABLE a(id int, name string);");
                 //s.execute("INSERT INTO a VALUES (1,'a'), (2,'b'), (3,'c');");
-                s.execute("CREATE TABLE a (b bool);");
-                s.execute("INSERT INTO a VALUES (TRUE), (TRUE), (FALSE);");
+                //s.execute("CREATE TABLE a (b bool);");
+                //s.execute("INSERT INTO a VALUES (TRUE), (TRUE), (FALSE);");
+                s.execute("CREATE TABLE a(id int, b bool, l long);");
+                s.execute("INSERT INTO a VALUES (1,true,3.7), (2,false,2.98), (3,false,2.63), (4,true,1.0);");
                 System.out.println("Insert update count: " + s.getUpdateCount());
                 s.execute("SELECT * FROM a;");
                 System.out.println("Select resultSet: " + s.getResultSet().next());
