@@ -89,19 +89,13 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
       return NULL;
     }
     else {
-    DEFAULT_STRUCT_DEFINITION(char *, str);
-    DEFAULT_STRUCT_DEFINITION(monetdbe_data_blob, blob);
-
-    DEFAULT_STRUCT_DEFINITION(monetdbe_data_date, date);
-    DEFAULT_STRUCT_DEFINITION(monetdbe_data_time, time);
-    DEFAULT_STRUCT_DEFINITION(monetdbe_data_timestamp, timestamp);
         switch ((*column)->type) {
             case 0:;
-                monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
+                monetdbe_column_bool* col_bool = (monetdbe_column_bool*) (*column);
                 addColumn(env,j_data_columns,col->data,8*col->count,i);
                 break;
             case 1:;
-                monetdbe_column_int8_t* col = (monetdbe_column_int8_t*) (*column);
+                monetdbe_column_int8_t* col_int8_t = (monetdbe_column_int8_t*) (*column);
                 addColumn(env,j_data_columns,col->data,8*col->count,i);
                 break;
             case 2:;
