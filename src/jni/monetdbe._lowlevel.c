@@ -7,13 +7,13 @@
 void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, int index) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     //jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
-    for(int i = 0; i<4;i++) {
-        if (size/4 == 32) {
-            long* data_i = (long*) data;
+
+    if (size/4 == 32) {
+        long* data_i = (long*) data;
+        for(int i = 0; i<4;i++) {
             printf("%li\n",data_i[i]);
             fflush(stdout);
         }
-
     }
     (*env)->SetObjectArrayElement(env,j_data_columns,index,j_data);
 }
