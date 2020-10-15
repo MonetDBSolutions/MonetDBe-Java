@@ -145,8 +145,6 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 break;
             default:
                 break;
-            default:
-                break;
         }
     }
   }
