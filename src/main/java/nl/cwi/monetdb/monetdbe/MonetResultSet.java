@@ -47,15 +47,11 @@ public class MonetResultSet implements ResultSet {
         ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
 
         System.out.println("Int column");
-        //byte[] buf = new byte[16];
-        //dataArray[0].get(buf);
         IntBuffer intBuf = dataArray[0].order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
-        int[] array = new int[intBuf.remaining()];
-        intBuf.get(array);
-
+        //int[] array = new int[intBuf.remaining()];
+        //intBuf.get(array);
         for(int j = 0; j <= ncols; j++) {
-            System.out.print(array[j]);
-            System.out.println("");
+            System.out.println(intBuf.get(j));
         }
 
         System.out.println("Bool column");
@@ -65,7 +61,7 @@ public class MonetResultSet implements ResultSet {
         }
 
         System.out.println("Float column");
-        FloatBuffer floatBuffer = dataArray[2].asFloatBuffer();
+        DoubleBuffer floatBuffer = dataArray[2].asDoubleBuffer();
         for(int j = 0; j <= ncols; j++) {
             System.out.print(floatBuffer.get(j));
             System.out.println("");
