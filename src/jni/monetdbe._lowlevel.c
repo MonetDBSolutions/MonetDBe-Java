@@ -138,7 +138,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
 
     }
     else if((*column)->type == 9) {
-        monetdbe_column_str_t* col = (monetdbe_column_str_t*) (*column);
+        monetdbe_column_str* col = (monetdbe_column_str*) (*column);
         printf("\nStr Count: %d\nStr Scale : %d\n",col->count,col->scale);
         printf("Str Values:\n");
         for (j=0;j<col->count;j++) {
