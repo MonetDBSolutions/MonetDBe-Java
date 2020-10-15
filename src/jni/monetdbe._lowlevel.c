@@ -89,10 +89,65 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
       return NULL;
     }
     else {
+    DEFAULT_STRUCT_DEFINITION(char *, str);
+    DEFAULT_STRUCT_DEFINITION(monetdbe_data_blob, blob);
+
+    DEFAULT_STRUCT_DEFINITION(monetdbe_data_date, date);
+    DEFAULT_STRUCT_DEFINITION(monetdbe_data_time, time);
+    DEFAULT_STRUCT_DEFINITION(monetdbe_data_timestamp, timestamp);
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
                 addColumn(env,j_data_columns,col->data,8*col->count,i);
+                break;
+            case 1:;
+                monetdbe_column_int8_t* col = (monetdbe_column_int8_t*) (*column);
+                addColumn(env,j_data_columns,col->data,8*col->count,i);
+                break;
+            case 2:;
+                monetdbe_column_int16_t* col = (monetdbe_column_int16_t*) (*column);
+                addColumn(env,j_data_columns,col->data,16*col->count,i);
+                break;
+            case 3:;
+                monetdbe_column_int32_t* col = (monetdbe_column_int32_t*) (*column);
+                addColumn(env,j_data_columns,col->data,32*col->count,i);
+                break;
+            case 4:;
+                monetdbe_column_int64_t* col = (monetdbe_column_int64_t*) (*column);
+                addColumn(env,j_data_columns,col->data,64*col->count,i);
+                break;
+            case 5:;
+                monetdbe_column_size_t* col = (monetdbe_column_size_t*) (*column);
+                addColumn(env,j_data_columns,col->data,32*col->count,i);
+                break;
+            case 6:;
+                monetdbe_column_float* col = (monetdbe_column_float*) (*column);
+                addColumn(env,j_data_columns,col->data,32*col->count,i);
+                break;
+            case 7:;
+                monetdbe_column_double* col = (monetdbe_column_double*) (*column);
+                addColumn(env,j_data_columns,col->data,64*col->count,i);
+                break;
+            //TODO Check conversions below
+            case 8:;
+                monetdbe_column_str* col = (monetdbe_column_str*) (*column);
+                addColumn(env,j_data_columns,col->data,8*col->count,i);
+                break;
+            case 9:;
+                monetdbe_column_blob* col = (monetdbe_column_blob*) (*column);
+                addColumn(env,j_data_columns,col->data,sizeof(monetdbe_data_blob)*col->count,i);
+                break;
+            case 10:;
+                monetdbe_column_date* col = (monetdbe_column_date*) (*column);
+                addColumn(env,j_data_columns,col->data,sizeof(monetdbe_data_date)*col->count,i);
+                break;
+            case 11:;
+                monetdbe_column_time* col = (monetdbe_column_time*) (*column);
+                addColumn(env,j_data_columns,col->data,sizeof(monetdbe_data_time)*col->count,i);
+                break;
+            case 12:;
+                monetdbe_column_timestamp* col = (monetdbe_column_timestamp*) (*column);
+                addColumn(env,j_data_columns,col->data,sizeof(monetdbe_data_timestamp)*col->count,i);
                 break;
             default:
                 break;
