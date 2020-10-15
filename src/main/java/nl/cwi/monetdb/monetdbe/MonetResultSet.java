@@ -57,9 +57,8 @@ public class MonetResultSet implements ResultSet {
         }
 
         System.out.println("Bool column");
-        ShortBuffer shortBuffer = dataArray[1].asShortBuffer();
         for(int j = 0; j < ncols; j++) {
-            System.out.print(shortBuffer.get(j));
+            System.out.print(dataArray[1].get(j));
             System.out.println("");
         }
 
