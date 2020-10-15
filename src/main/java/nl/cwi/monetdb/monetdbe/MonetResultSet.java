@@ -50,13 +50,13 @@ public class MonetResultSet implements ResultSet {
         ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
 
         System.out.println("Int column");
-        for(int j = 0; j <= ncols; j++) {
+        for(int j = 0; j <= ncols*4; j++) {
             System.out.print(dataArray[0].get(j));
             System.out.println("");
         }
 
         System.out.println("Bool column");
-        for(int j = 0; j <= ncols; j++) {
+        for(int j = 0; j <= ncols+1; j++) {
             System.out.print(dataArray[1].get(j));
             System.out.println("");
         }
