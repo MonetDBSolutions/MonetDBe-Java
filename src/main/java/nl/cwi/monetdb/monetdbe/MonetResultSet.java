@@ -44,8 +44,7 @@ public class MonetResultSet implements ResultSet {
         this.tupleCount = nrows;
         this.curRow = 0;
         System.out.println("MonetResultSet tupleCount: " + nrows);
-        ByteBuffer data = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
-        System.out.println(data.get(2));
+        ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
     }
 
     @Override

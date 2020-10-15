@@ -95,7 +95,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   }
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
+JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
   monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
   monetdbe_column** column = malloc(sizeof(monetdbe_column*));
   int i,j;
@@ -104,22 +104,24 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     char* result_msg = monetdbe_result_fetch(rs,column,i);
     if(result_msg) {
       printf("Query result msg: %s\n", result_msg);
+      return NULL;
     }
     else {
+
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
-                /*jbooleanArray j_data = (*env)->NewBooleanArray(env, col->count);
-                const jboolean* cast_data = (const jboolean *) col->data;
-                (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);*/
-
                 jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
-                return j_data;
                 break;
             default:
                 break;
         }
     }
+
+
+                /*jbooleanArray j_data = (*env)->NewBooleanArray(env, col->count);
+                const jboolean* cast_data = (const jboolean *) col->data;
+                (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);*/
 
     /*if((*column)->type == 0) {
         monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
