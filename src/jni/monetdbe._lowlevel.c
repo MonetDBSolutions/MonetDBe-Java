@@ -30,7 +30,6 @@ jbyteArray string_to_byte_array(JNIEnv *env, char* string) {
 }
 
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2 (JNIEnv* env, jclass self, jstring j_url) {
-  //TODO Check if this works
   return Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII(env,self,j_url,0,0,0,0);
 }
 
@@ -71,6 +70,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   monetdbe_result** result = malloc(sizeof(monetdbe_result*));
   monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
   (*affected_rows) = -1;
+
   char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
 
@@ -121,26 +121,38 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
         monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
         printf("%d",col->is_null);
     }
-
-    if((*column)->type == 2) {
+    else if((*column)->type == 2) {
         monetdbe_column_int16_t* col = (monetdbe_column_int16_t*) (*column);
         printf("Int 16 Count: %d\n",col->count);
     }
-
-    if((*column)->type == 3) {
+    else if((*column)->type == 3) {
         monetdbe_column_int32_t* col = (monetdbe_column_int32_t*) (*column);
-        printf("Int 32 Count: %d\nInt 32 Scale : %d\n",col->count,col->scale);
-        printf("Values:\n");
+        printf("\nInt 32 Count: %d\nInt 32 Scale : %d\n",col->count,col->scale);
+        printf("Int 32 Values:\n");
         for (j=0;j<col->count;j++) {
-          printf("%d (%d null), ",col->data[j],col->is_null(col->data+j));
+          //TODO Should this be here?
+          if(!col->is_null(col->data+j)) {
+            printf("(%d), ",col->data[j]);
+          }
         }
 
     }
+    else if((*column)->type == 9) {
+        monetdbe_column_str_t* col = (monetdbe_column_str_t*) (*column);
+        printf("\nStr Count: %d\nStr Scale : %d\n",col->count,col->scale);
+        printf("Str Values:\n");
+        for (j=0;j<col->count;j++) {
+          //TODO Should this be here?
+          if(!col->is_null(col->data+j)) {
+            printf("(%s), ",col->data[j]);
+          }
+        }
 
-    columns[i] = (*column);
+     }
+    /*columns[i] = (*column);
     types[i] = type_dict[(*column)->type];
     printf("Column %s of type %s and count %d\n",(*column)->name,types[i],(*column)->count);
-    fflush(stdout);
+    fflush(stdout);*/
   }
 
 
