@@ -8,7 +8,7 @@ void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, i
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     //jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
     for(int i = 0; i<size;i++) {
-        if (size == 32) {
+        if (size/4 == 32) {
             long* data_i = (long*) data;
             printf("%li\n",data_i[i]);
             fflush(stdout);
