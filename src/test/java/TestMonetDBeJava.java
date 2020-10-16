@@ -47,7 +47,7 @@ public class TestMonetDBeJava {
                 System.out.println("Select resultSet: ");
                 rs.beforeFirst();
                 while(rs.next()) {
-                    System.out.println("Int: " + rs.getInt(1));
+                    System.out.println("Int: " + rs.getInt(0));
                 }
 
                 s.execute("DROP TABLE a;");
