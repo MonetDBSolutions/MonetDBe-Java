@@ -18,7 +18,7 @@ void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, i
     (*env)->SetObjectArrayElement(env,j_data_columns,index,j_data);
 }
 
-void addColumn(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index) {
+void addJColumn(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
@@ -111,7 +111,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
             case 0:;
                 monetdbe_column_bool* c_bool = (monetdbe_column_bool*) (*column);
                 //addColumn(env,j_data_columns,c_bool->data,8*c_bool->count,i);
-                addColumn(env,j_columns,c_bool->name,0,c_bool->data,8*c_bool->count,i);
+                addJColumn(env,j_columns,c_bool->name,0,c_bool->data,8*c_bool->count,i);
                 break;
             case 1:;
                 monetdbe_column_int8_t* c_int8_t = (monetdbe_column_int8_t*) (*column);
