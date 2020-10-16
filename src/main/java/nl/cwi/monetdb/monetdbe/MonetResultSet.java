@@ -13,7 +13,8 @@ import java.util.Map;
 class MonetColumn {
     private ByteBuffer data;
     private String name;
-    private String type;
+    private int type;
+    private String typeName;
 
     //TODO Should this be here?
     private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int 64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
@@ -21,7 +22,8 @@ class MonetColumn {
     public MonetColumn(ByteBuffer data, String name, int type) {
         this.data = data;
         this.name = name;
-        this.type = monetdbeTypes[type];
+        this.type = type;
+        this.typeName = monetdbeTypes[type];
     }
 
     public ByteBuffer getData() {
@@ -32,8 +34,21 @@ class MonetColumn {
         return name;
     }
 
-    public String getType() {
+    public int getType() {
         return type;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public Integer getInt32(int row) throws SQLException {
+        if (type==3)  {
+            return data.getInt(row);
+        }
+        else {
+            throw new SQLException("Column");
+        }
     }
 }
 
@@ -49,11 +64,11 @@ public class MonetResultSet implements ResultSet {
     private int curRow;
 
 
-    private ByteBuffer[] columns;
+    private MonetColumn[] columns;
     /** The names of the columns in this ResultSet */
-    //private final String[] names;
+    private final String[] names;
     /** The MonetDB types of the columns in this ResultSet */
-    //private final String[] types;
+    private final String[] types;
     /** The JDBC SQL types of the columns in this ResultSet. The content will be derived from the MonetDB types[] */
     //private final int[] JdbcSQLTypes;
 
@@ -73,9 +88,16 @@ public class MonetResultSet implements ResultSet {
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
         this.curRow = 0;
-        System.out.println("MonetResultSet tupleCount: " + nrows);
-        MonetColumn[] columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
-        for(int i = 0; i<ncols; i++ ) System.out.println(columns[i].getName() + columns[i].getType()+ columns[i].getData());
+        this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
+        this.names = new String[ncols];
+        this.types = new String[ncols];
+        for(int i = 0; i<ncols; i++ ) {
+            names[i] = columns[i].getName();
+            types[i] = columns[i].getTypeName();
+            System.out.println(columns[i].getName() + " (" + columns[i].getTypeName()+ ") -> " + columns[i].getData());
+        }
+
+
         /*ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
 
         for (int i = 0; i< ncols; i++) {
@@ -258,7 +280,7 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public boolean wasNull() throws SQLException {
-        return false;
+        return lastReadWasNull;
     }
 
     @Override
@@ -283,7 +305,18 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        return 0;
+        checkNotClosed();
+        try {
+            Integer val = columns[columnIndex].getInt32(curRow);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override

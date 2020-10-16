@@ -1,5 +1,6 @@
 import nl.cwi.monetdb.monetdbe.MonetDriver;
 import nl.cwi.monetdb.monetdbe.MonetConnection;
+import nl.cwi.monetdb.monetdbe.MonetResultSet;
 import nl.cwi.monetdb.monetdbe.MonetStatement;
 
 import java.sql.Connection;
@@ -42,7 +43,13 @@ public class TestMonetDBeJava {
                 s.execute("INSERT INTO a VALUES (1,true,3.7), (2,false,2.98), (3,false,2.63), (4,true,1.0);");
                 System.out.println("Insert update count: " + s.getUpdateCount());
                 s.execute("SELECT * FROM a;");
-                System.out.println("Select resultSet: " + s.getResultSet().next());
+                MonetResultSet rs = (MonetResultSet) s.getResultSet();
+                System.out.println("Select resultSet: ");
+                rs.beforeFirst();
+                while(rs.next()) {
+                    System.out.println("Int: " + rs.getInt(1));
+                }
+
                 s.execute("DROP TABLE a;");
                 System.out.println("Drop update count: " + s.getUpdateCount());
                 c.close();
