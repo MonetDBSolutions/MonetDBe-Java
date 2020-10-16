@@ -180,9 +180,8 @@ public class MonetResultSet implements ResultSet {
             curRow = 0;    // before first
             return false;
         }
-        else if (row > tupleCount + 1) {
+        else if (row > tupleCount) {
             curRow = tupleCount + 1;    // after last
-            System.out.println("Row @ " + curRow);
             return false;
         }
         curRow = row;
