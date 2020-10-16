@@ -170,6 +170,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
         }
     }
   }
+  printf("Hey?");
   return j_columns;
 }
 
