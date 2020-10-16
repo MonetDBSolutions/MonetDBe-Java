@@ -59,7 +59,7 @@ class MonetColumn {
         row -=1;
         if (type==0)  {
             System.out.println(((ByteBuffer) data).get(row));
-            return true;
+            return ((ByteBuffer) data).get(row)!=0;
         }
         else {
             //TODO Check which conversions are possible
