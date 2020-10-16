@@ -20,8 +20,10 @@ public class MonetResultSet implements ResultSet {
     /** The current position of the cursor for this ResultSet object */
     private int curRow;
 
+
+    private ByteBuffer[] columns;
     /** The names of the columns in this ResultSet */
-    //private final String[] columns;
+    //private final String[] names;
     /** The MonetDB types of the columns in this ResultSet */
     //private final String[] types;
     /** The JDBC SQL types of the columns in this ResultSet. The content will be derived from the MonetDB types[] */
@@ -44,9 +46,9 @@ public class MonetResultSet implements ResultSet {
         this.tupleCount = nrows;
         this.curRow = 0;
         System.out.println("MonetResultSet tupleCount: " + nrows);
-        ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
+        ByteBuffer[][] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
 
-        System.out.println("Int column");
+        /*System.out.println("Int column");
         IntBuffer intBuf = dataArray[0].order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
         //int[] array = new int[intBuf.remaining()];
         //intBuf.get(array);
@@ -65,77 +67,114 @@ public class MonetResultSet implements ResultSet {
         for(int j = 0; j <= ncols; j++) {
             System.out.print(floatBuffer.get(j));
             System.out.println("");
-        }
+        }*/
     }
 
     @Override
-    public boolean next() throws SQLException {
+    public boolean absolute(int row) throws SQLException {
+        checkNotClosed();
+        //TODO Check this
+        //if (row < curRow + 1 && type == TYPE_FORWARD_ONLY)
+        //    throw new SQLException("ResultSet is forward only", "M1M05");
+
+        if (row < 0) {
+            row = tupleCount + row + 1;
+        }
+
+        if (row < 0) {
+            curRow = 0;    // before first
+            return false;
+        }
+        else if (row > tupleCount + 1) {
+            curRow = tupleCount + 1;    // after last
+            return false;
+        }
+        curRow = row;
+        return true;
+    }
+
+    @Override
+    public boolean relative(final int rows) throws SQLException {
+        return absolute(curRow + rows);
+    }
+
+    /**
+     * Local helper method to test whether the ResultSet object is closed
+     * When closed it throws an SQLException
+     */
+    private void checkNotClosed() throws SQLException {
+        if (isClosed())
+            throw new SQLException("ResultSet is closed", "M1M20");
+    }
+
+    @Override
+    public boolean isClosed() throws SQLException {
+        //TODO How do we know it's closed?
         return false;
     }
 
     @Override
     public void close() throws SQLException {
-
+        //TODO
     }
 
     @Override
-    public boolean isBeforeFirst() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean isAfterLast() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean isFirst() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean isLast() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public void beforeFirst() throws SQLException {
-
-    }
-
-    @Override
-    public void afterLast() throws SQLException {
-
-    }
-
-    @Override
-    public boolean first() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean last() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public int getRow() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public boolean absolute(int row) throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean relative(int rows) throws SQLException {
-        return false;
+    public boolean next() throws SQLException {
+        return relative(1);
     }
 
     @Override
     public boolean previous() throws SQLException {
-        return false;
+        return relative(-1);
+    }
+
+    @Override
+    public boolean isBeforeFirst() throws SQLException {
+        checkNotClosed();
+        return curRow == 0;
+    }
+
+    @Override
+    public boolean isAfterLast() throws SQLException {
+        checkNotClosed();
+        return curRow == tupleCount + 1;
+    }
+
+    @Override
+    public boolean isFirst() throws SQLException {
+        checkNotClosed();
+        return curRow == 1;
+    }
+
+    @Override
+    public boolean isLast() throws SQLException {
+        checkNotClosed();
+        return curRow == tupleCount;
+    }
+
+    @Override
+    public void beforeFirst() throws SQLException {
+        absolute(0);
+    }
+
+    @Override
+    public void afterLast() throws SQLException {
+        absolute(tupleCount + 1);
+    }
+
+    @Override
+    public boolean first() throws SQLException {
+        return absolute(1);
+    }
+
+    @Override
+    public boolean last() throws SQLException {
+        return absolute(tupleCount);
+    }
+
+    @Override
+    public int getRow() throws SQLException {
+        return curRow;
     }
 
     @Override
@@ -160,7 +199,7 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public int getType() throws SQLException {
-        return 0;
+        return type;
     }
 
     @Override
@@ -650,7 +689,7 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Statement getStatement() throws SQLException {
-        return null;
+        return statement;
     }
 
     @Override
@@ -806,11 +845,6 @@ public class MonetResultSet implements ResultSet {
     @Override
     public int getHoldability() throws SQLException {
         return 0;
-    }
-
-    @Override
-    public boolean isClosed() throws SQLException {
-        return false;
     }
 
     @Override
