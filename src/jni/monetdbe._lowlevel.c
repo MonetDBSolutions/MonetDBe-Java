@@ -111,7 +111,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
             case 0:;
                 monetdbe_column_bool* c_bool = (monetdbe_column_bool*) (*column);
                 //addColumn(env,j_data_columns,c_bool->data,8*c_bool->count,i);
-                addJColumn(env,j_columns,c_bool->name,0,c_bool->data,8*c_bool->count,i);
+                addJColumn(env,j_columns,c_bool->data,c_bool->name,0,8*c_bool->count,i);
                 break;
             case 1:;
                 monetdbe_column_int8_t* c_int8_t = (monetdbe_column_int8_t*) (*column);
