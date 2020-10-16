@@ -99,7 +99,6 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
   monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
   monetdbe_column** column = malloc(sizeof(monetdbe_column*));
   jobjectArray j_columns = (*env)->NewObjectArray(env,ncols,(*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;"),NULL);
-  jobjectArray j_data_columns = (*env)->NewObjectArray(env,ncols,(*env)->FindClass(env, "Ljava/nio/ByteBuffer;"),NULL);
 
   for(int i = 0; i<ncols; i++) {
     char* result_msg = monetdbe_result_fetch(rs,column,i);

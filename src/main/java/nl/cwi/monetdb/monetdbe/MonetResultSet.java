@@ -11,7 +11,7 @@ import java.util.Map;
 
 //TODO Should this class exist?
 class MonetColumn {
-    private ByteBuffer data;
+    private Buffer data;
     private String name;
     private int type;
     private String typeName;
@@ -20,13 +20,23 @@ class MonetColumn {
     private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int 64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
 
     public MonetColumn(ByteBuffer data, String name, int type) {
-        this.data = data;
+        //this.data = data;
         this.name = name;
         this.type = type;
         this.typeName = monetdbeTypes[type];
+
+        if(type == 3) {
+            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
+        }
+        else if (type == 8) {
+            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asDoubleBuffer();
+        }
+        else {
+            this.data = data.order(ByteOrder.LITTLE_ENDIAN);
+        }
     }
 
-    public ByteBuffer getData() {
+    public Buffer getData() {
         return data;
     }
 
@@ -42,14 +52,36 @@ class MonetColumn {
         return typeName;
     }
 
-    public Integer getInt32(int row) throws SQLException {
-        if (type==3)  {
-            System.out.println("Row " + row + " data " + data.getInt(row));
-            return data.getInt(row);
+    public boolean getBoolean(int row) throws SQLException {
+        if (type==0)  {
+            System.out.println("Row " + row + " data "+ ((ByteBuffer)data).get(row));
+            return true;
         }
         else {
             //TODO Check which conversions are possible
             throw new SQLException("Column is not int value");
+        }
+    }
+
+    public Integer getInt32(int row) throws SQLException {
+        if (type==3)  {
+            System.out.println("Row " + row + " data "+ ((IntBuffer) data).get(row));
+            return ((IntBuffer) data).get(row);
+        }
+        else {
+            //TODO Check which conversions are possible
+            throw new SQLException("Column is not int value");
+        }
+    }
+
+    public Double getDouble(int row) throws SQLException {
+        if (type==8)  {
+            System.out.println("Row " + row + " data "+ ((DoubleBuffer) data).get(row));
+            return ((DoubleBuffer) data).get(row);
+        }
+        else {
+            //TODO Check which conversions are possible
+            throw new SQLException("Column is not double value");
         }
     }
 }
