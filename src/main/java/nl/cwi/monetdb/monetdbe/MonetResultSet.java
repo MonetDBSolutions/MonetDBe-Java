@@ -9,6 +9,34 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
+//TODO Should this class exist?
+class MonetColumn {
+    private ByteBuffer data;
+    private String name;
+    private String type;
+
+    //TODO Should this be here?
+    private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int 64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+
+    public MonetColumn(ByteBuffer data, String name, int type) {
+        this.data = data;
+        this.name = name;
+        this.type = monetdbeTypes[type];
+    }
+
+    public ByteBuffer getData() {
+        return data;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getType() {
+        return type;
+    }
+}
+
 public class MonetResultSet implements ResultSet {
     //TODO: Pedro's code
     /** The parental Statement object */
@@ -46,11 +74,12 @@ public class MonetResultSet implements ResultSet {
         this.tupleCount = nrows;
         this.curRow = 0;
         System.out.println("MonetResultSet tupleCount: " + nrows);
-        ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
+        MonetColumn[] columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
+        /*ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
 
         for (int i = 0; i< ncols; i++) {
 
-        }
+        }*/
 
         /*System.out.println("Int column");
         IntBuffer intBuf = dataArray[0].order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();

@@ -18,6 +18,15 @@ void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, i
     (*env)->SetObjectArrayElement(env,j_data_columns,index,j_data);
 }
 
+void addColumn(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index) {
+    jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
+    jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
+    jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;Ljava/lang/String;I)V");
+    jobject j_column_object = (*env)->NewObject(env,j_column,constructor,j_data,j_name,(jint) type);
+    (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
+}
+
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2 (JNIEnv* env, jclass self, jstring j_url) {
   return Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII(env,self,j_url,0,0,0,0);
 }
@@ -87,10 +96,10 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
 JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
   monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
   monetdbe_column** column = malloc(sizeof(monetdbe_column*));
-  int i,j;
+  jobjectArray j_columns = (*env)->NewObjectArray(env,ncols,(*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;"),NULL);
   jobjectArray j_data_columns = (*env)->NewObjectArray(env,ncols,(*env)->FindClass(env, "Ljava/nio/ByteBuffer;"),NULL);
 
-  for(i = 0; i<ncols; i++) {
+  for(int i = 0; i<ncols; i++) {
     char* result_msg = monetdbe_result_fetch(rs,column,i);
     if(result_msg) {
       printf("Query result msg: %s\n", result_msg);
@@ -101,7 +110,8 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* c_bool = (monetdbe_column_bool*) (*column);
-                addColumn(env,j_data_columns,c_bool->data,8*c_bool->count,i);
+                //addColumn(env,j_data_columns,c_bool->data,8*c_bool->count,i);
+                addColumn(env,j_columns,c_bool->name,0,c_bool->data,8*c_bool->count,i);
                 break;
             case 1:;
                 monetdbe_column_int8_t* c_int8_t = (monetdbe_column_int8_t*) (*column);
@@ -161,7 +171,11 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
         }
     }
   }
-  return j_data_columns;
+  return j_columns;
+}
+
+JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1names (JNIEnv * env, jclass self, jobject j_rs, jint ncols) {
+
 }
 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
