@@ -22,7 +22,7 @@ void addJColumn(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;Ljava/lang/String;I)V");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/nio/ByteBuffer;Ljava/lang/String;I)V");
     jobject j_column_object = (*env)->NewObject(env,j_column,constructor,j_data,j_name,(jint) type);
     (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
 }
