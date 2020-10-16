@@ -59,7 +59,7 @@ class MonetColumn {
         }
         else {
             //TODO Check which conversions are possible
-            throw new SQLException("Column is not int value");
+            throw new SQLException("Column is not bool value");
         }
     }
 

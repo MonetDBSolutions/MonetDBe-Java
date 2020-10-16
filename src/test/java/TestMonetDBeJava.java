@@ -48,8 +48,8 @@ public class TestMonetDBeJava {
                 rs.beforeFirst();
                 while(rs.next()) {
                     System.out.println("Int: " + rs.getInt(0));
-                    System.out.println("Bool: " + rs.getBoolean(0));
-                    System.out.println("Double: " + rs.getDouble(0));
+                    System.out.println("Bool: " + rs.getBoolean(1));
+                    System.out.println("Double: " + rs.getDouble(2));
                 }
 
                 s.execute("DROP TABLE a;");
