@@ -391,7 +391,18 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public short getShort(int columnIndex) throws SQLException {
-        return 0;
+        checkNotClosed();
+        try {
+            Short val = columns[columnIndex].getShort(curRow);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
@@ -412,12 +423,34 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        return 0;
+        checkNotClosed();
+        try {
+            Long val = columns[columnIndex].getLong(curRow);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        return 0;
+        checkNotClosed();
+        try {
+            Float val = columns[columnIndex].getFloat(curRow);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
