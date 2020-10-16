@@ -58,6 +58,7 @@ class MonetColumn {
         //TODO Remove?
         row -=1;
         if (type==0)  {
+            System.out.println(((ByteBuffer) data).get(row));
             return true;
         }
         else {
@@ -127,42 +128,16 @@ public class MonetResultSet implements ResultSet {
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
         this.curRow = 0;
+
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
         this.names = new String[ncols];
         this.types = new String[ncols];
+
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
             types[i] = columns[i].getTypeName();
             System.out.println(columns[i].getName() + " (" + columns[i].getTypeName()+ ") -> " + columns[i].getData());
         }
-
-
-        /*ByteBuffer[] dataArray = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
-
-        for (int i = 0; i< ncols; i++) {
-
-        }*/
-
-        /*System.out.println("Int column");
-        IntBuffer intBuf = dataArray[0].order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
-        //int[] array = new int[intBuf.remaining()];
-        //intBuf.get(array);
-        for(int j = 0; j <= ncols; j++) {
-            System.out.println(intBuf.get(j));
-        }
-
-        System.out.println("Bool column");
-        for(int j = 0; j <= ncols; j++) {
-            System.out.print(dataArray[1].get(j));
-            System.out.println("");
-        }
-
-        System.out.println("Float column");
-        DoubleBuffer floatBuffer = dataArray[2].asDoubleBuffer();
-        for(int j = 0; j <= ncols; j++) {
-            System.out.print(floatBuffer.get(j));
-            System.out.println("");
-        }*/
     }
 
     @Override
