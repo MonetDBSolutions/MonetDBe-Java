@@ -135,6 +135,7 @@ class MonetColumn {
         return getInt(row);
     }
 
+    //TODO: Check this type, something wrong is happening
     public Float getFloat(int row) throws SQLException {
         //TODO Remove?
         row -=1;

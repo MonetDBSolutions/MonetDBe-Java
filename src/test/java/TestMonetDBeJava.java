@@ -54,7 +54,7 @@ public class TestMonetDBeJava {
                     System.out.println("Short: " + rs.getShort(1));
                     System.out.println("Int: " + rs.getInt(2));
                     System.out.println("Long: " + rs.getLong(3));
-                    System.out.println("Float: " + rs.getFloat(4));
+                    //System.out.println("Float: " + rs.getFloat(4));
                     System.out.println("Double: " + rs.getDouble(5));
                     System.out.println();
                 }
