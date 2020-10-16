@@ -4,20 +4,6 @@
 #include <string.h>
 #include <stdio.h>
 
-/*void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, int index) {
-    jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
-    //jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
-
-    if (size/4 == 32) {
-        int32_t* data_i = (int32_t*) data;
-        for(int i = 0; i<4;i++) {
-            printf("%li\n",data_i[i]);
-            fflush(stdout);
-        }
-    }
-    (*env)->SetObjectArrayElement(env,j_data_columns,index,j_data);
-}*/
-
 void addColumn(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);

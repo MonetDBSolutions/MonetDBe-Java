@@ -27,12 +27,37 @@ class MonetColumn {
         this.type = type;
         this.typeName = monetdbeTypes[type];
 
-        if(type == 3) {
+        //1: TINYINT (8)
+        if (type == 1) {
+            //TODO
+        }
+        //2: SMALLINT (16)
+        else if (type == 2) {
+            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+        }
+        //3: INT (32), 6: SIZE_T (32)
+        else if(type == 3 || type == 6) {
             this.data = data.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
         }
+        //4: BIGINT (64)
+        else if(type == 4) {
+            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
+        }
+        //5: HUGEINT (128)
+        else if(type == 5) {
+            //TODO
+        }
+        //7: REAL (32)
+        else if (type == 7) {
+            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
+        }
+        //8: DOUBLE (64)
         else if (type == 8) {
             this.data = data.order(ByteOrder.LITTLE_ENDIAN).asDoubleBuffer();
         }
+        //9: CHAR, 10: BLOB, 11: DATE, 12: TIME, 13: TIMESTAMP
+
+        //0: BOOL
         else {
             this.data = data.order(ByteOrder.LITTLE_ENDIAN);
         }
@@ -67,15 +92,55 @@ class MonetColumn {
         }
     }
 
-    public Integer getInt32(int row) throws SQLException {
+    public Short getShort(int row) throws SQLException {
         //TODO Remove?
         row -=1;
-        if (type==3)  {
+        if (type==2)  {
+            return ((ShortBuffer) data).get(row);
+        }
+        else {
+            //TODO Check which conversions are possible
+            throw new SQLException("Column is not int value");
+        }
+    }
+
+    public Integer getInt(int row) throws SQLException {
+        //TODO Remove?
+        row -=1;
+        if (type==3 || type == 6)  {
             return ((IntBuffer) data).get(row);
         }
         else {
             //TODO Check which conversions are possible
             throw new SQLException("Column is not int value");
+        }
+    }
+
+    public Long getLong(int row) throws SQLException {
+        //TODO Remove?
+        row -=1;
+        if (type==4)  {
+            return ((LongBuffer) data).get(row);
+        }
+        else {
+            //TODO Check which conversions are possible
+            throw new SQLException("Column is not int value");
+        }
+    }
+
+    public Integer getSize(int row) throws  SQLException {
+        return getInt(row);
+    }
+
+    public Float getFloat(int row) throws SQLException {
+        //TODO Remove?
+        row -=1;
+        if (type==8)  {
+            return ((FloatBuffer) data).get(row);
+        }
+        else {
+            //TODO Check which conversions are possible
+            throw new SQLException("Column is not double value");
         }
     }
 
@@ -333,7 +398,7 @@ public class MonetResultSet implements ResultSet {
     public int getInt(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Integer val = columns[columnIndex].getInt32(curRow);
+            Integer val = columns[columnIndex].getInt(curRow);
             if (val == null) {
                 lastReadWasNull = true;
                 return 0;
