@@ -185,6 +185,7 @@ public class MonetResultSet implements ResultSet {
             return false;
         }
         curRow = row;
+        System.out.println("Row @ " + curRow);
         return true;
     }
 
