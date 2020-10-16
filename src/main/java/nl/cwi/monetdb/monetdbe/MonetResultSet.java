@@ -44,10 +44,12 @@ class MonetColumn {
 
     public Integer getInt32(int row) throws SQLException {
         if (type==3)  {
+            System.out.println("Row " + row + " data " + data.getInt(row));
             return data.getInt(row);
         }
         else {
-            throw new SQLException("Column");
+            //TODO Check which conversions are possible
+            throw new SQLException("Column is not int value");
         }
     }
 }
