@@ -103,7 +103,7 @@ class MonetColumn {
         }
         else {
             //TODO Check which conversions are possible
-            throw new SQLException("Column is not int value");
+            throw new SQLException("Column is not short value");
         }
     }
 
@@ -138,12 +138,12 @@ class MonetColumn {
     public Float getFloat(int row) throws SQLException {
         //TODO Remove?
         row -=1;
-        if (type==8)  {
+        if (type==7)  {
             return ((FloatBuffer) data).get(row);
         }
         else {
             //TODO Check which conversions are possible
-            throw new SQLException("Column is not double value");
+            throw new SQLException("Column is not float value");
         }
     }
 
