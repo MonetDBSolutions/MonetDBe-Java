@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, int index) {
+/*void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, int index) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     //jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
 
@@ -16,9 +16,9 @@ void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, i
         }
     }
     (*env)->SetObjectArrayElement(env,j_data_columns,index,j_data);
-}
+}*/
 
-void addJColumn(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index) {
+void addColumn(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
@@ -110,60 +110,59 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* c_bool = (monetdbe_column_bool*) (*column);
-                //addColumn(env,j_data_columns,c_bool->data,8*c_bool->count,i);
-                addJColumn(env,j_columns,c_bool->data,c_bool->name,0,8*c_bool->count,i);
+                addColumn(env,j_columns,c_bool->data,c_bool->name,0,8*c_bool->count,i);
                 break;
             case 1:;
                 monetdbe_column_int8_t* c_int8_t = (monetdbe_column_int8_t*) (*column);
-                addColumn(env,j_data_columns,c_int8_t->data,8*c_int8_t->count,i);
+                addColumn(env,j_data_columns,c_int8_t->data,c_int8_t->name,1,8*c_int8_t->count,i);
                 break;
             case 2:;
                 monetdbe_column_int16_t* c_int16_t = (monetdbe_column_int16_t*) (*column);
-                addColumn(env,j_data_columns,c_int16_t->data,16*c_int16_t->count,i);
+                addColumn(env,j_data_columns,c_int16_t->data,c_int16_t->name,2,16*c_int16_t->count,i);
                 break;
             case 3:;
                 monetdbe_column_int32_t* c_int32_t = (monetdbe_column_int32_t*) (*column);
-                addColumn(env,j_data_columns,c_int32_t->data,32*c_int32_t->count,i);
+                addColumn(env,j_data_columns,c_int32_t->data,c_int32_t->name,3,32*c_int32_t->count,i);
                 break;
             case 4:;
                 monetdbe_column_int64_t* c_int64_t = (monetdbe_column_int64_t*) (*column);
-                addColumn(env,j_data_columns,c_int64_t->data,64*c_int64_t->count,i);
+                addColumn(env,j_data_columns,c_int64_t->data,c_int64_t->name,4,64*c_int64_t->count,i);
                 break;
             case 5:;
                 monetdbe_column_size_t* c_size_t = (monetdbe_column_size_t*) (*column);
-                addColumn(env,j_data_columns,c_size_t->data,32*c_size_t->count,i);
+                addColumn(env,j_data_columns,c_size_t->data,c_size_t->name,5,32*c_size_t->count,i);
                 break;
             case 6:;
                 monetdbe_column_float* c_float = (monetdbe_column_float*) (*column);
-                addColumn(env,j_data_columns,c_float->data,32*c_float->count,i);
+                addColumn(env,j_data_columns,c_float->data,c_float->name,6,32*c_float->count,i);
                 break;
             case 7:;
                 //TODO huge_int
                 break;
             case 8:;
                 monetdbe_column_double* c_double = (monetdbe_column_double*) (*column);
-                addColumn(env,j_data_columns,c_double->data,64*c_double->count,i);
+                addColumn(env,j_data_columns,c_double->data,c_double->name,8,64*c_double->count,i);
                 break;
             //TODO Check conversions below
             case 9:;
                 monetdbe_column_str* c_str = (monetdbe_column_str*) (*column);
-                addColumn(env,j_data_columns,c_str->data,8*c_str->count,i);
+                addColumn(env,j_data_columns,c_str->data,c_str->name,9,8*c_str->count,i);
                 break;
             case 10:;
                 monetdbe_column_blob* c_blob = (monetdbe_column_blob*) (*column);
-                addColumn(env,j_data_columns,c_blob->data,sizeof(monetdbe_data_blob)*c_blob->count,i);
+                addColumn(env,j_data_columns,c_blob->data,c_blob->name,10,sizeof(monetdbe_data_blob)*c_blob->count,i);
                 break;
             case 11:;
                 monetdbe_column_date* c_date = (monetdbe_column_date*) (*column);
-                addColumn(env,j_data_columns,c_date->data,sizeof(monetdbe_data_date)*c_date->count,i);
+                addColumn(env,j_data_columns,c_date->data,c_date->name,11,sizeof(monetdbe_data_date)*c_date->count,i);
                 break;
             case 12:;
                 monetdbe_column_time* c_time = (monetdbe_column_time*) (*column);
-                addColumn(env,j_data_columns,c_time->data,sizeof(monetdbe_data_time)*c_time->count,i);
+                addColumn(env,j_data_columns,c_time->data,c_time->name,12,sizeof(monetdbe_data_time)*c_time->count,i);
                 break;
             case 13:;
                 monetdbe_column_timestamp* c_timestamp = (monetdbe_column_timestamp*) (*column);
-                addColumn(env,j_data_columns,c_timestamp->data,sizeof(monetdbe_data_timestamp)*c_timestamp->count,i);
+                addColumn(env,j_data_columns,c_timestamp->data,c_timestamp->name,13,sizeof(monetdbe_data_timestamp)*c_timestamp->count,i);
                 break;
             default:
                 //TODO What should we do in this case?
