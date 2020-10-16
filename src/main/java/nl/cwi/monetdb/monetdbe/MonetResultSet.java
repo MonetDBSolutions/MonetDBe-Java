@@ -9,6 +9,8 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
+//TODO Row number in JDBC ResultSet API indexes at 1, while the buffers for data from C index at 0. Where should I implement this?
+
 //TODO Should this class exist?
 class MonetColumn {
     private Buffer data;
@@ -53,8 +55,9 @@ class MonetColumn {
     }
 
     public boolean getBoolean(int row) throws SQLException {
+        //TODO Remove?
+        row -=1;
         if (type==0)  {
-            System.out.println("Row " + row + " data "+ ((ByteBuffer)data).get(row));
             return true;
         }
         else {
@@ -64,8 +67,9 @@ class MonetColumn {
     }
 
     public Integer getInt32(int row) throws SQLException {
+        //TODO Remove?
+        row -=1;
         if (type==3)  {
-            System.out.println("Row " + row + " data "+ ((IntBuffer) data).get(row));
             return ((IntBuffer) data).get(row);
         }
         else {
@@ -75,8 +79,9 @@ class MonetColumn {
     }
 
     public Double getDouble(int row) throws SQLException {
+        //TODO Remove?
+        row -=1;
         if (type==8)  {
-            System.out.println("Row " + row + " data "+ ((DoubleBuffer) data).get(row));
             return ((DoubleBuffer) data).get(row);
         }
         else {
