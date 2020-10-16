@@ -55,7 +55,11 @@ class MonetColumn {
         else if (type == 8) {
             this.data = data.order(ByteOrder.LITTLE_ENDIAN).asDoubleBuffer();
         }
-        //9: CHAR, 10: BLOB, 11: DATE, 12: TIME, 13: TIMESTAMP
+        //9: CHAR
+        else if (type == 9) {
+
+        }
+        //10: BLOB, 11: DATE, 12: TIME, 13: TIMESTAMP
 
         //0: BOOL
         else {
@@ -83,7 +87,6 @@ class MonetColumn {
         //TODO Remove?
         row -=1;
         if (type==0)  {
-            System.out.println(((ByteBuffer) data).get(row));
             return ((ByteBuffer) data).get(row)!=0;
         }
         else {

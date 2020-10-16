@@ -116,15 +116,15 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 addColumn(env,j_columns,c_int64_t->data,c_int64_t->name,4,64*c_int64_t->count,i);
                 break;
             case 5:;
+                //TODO huge_int
+                break;
+            case 6:;
                 monetdbe_column_size_t* c_size_t = (monetdbe_column_size_t*) (*column);
                 addColumn(env,j_columns,c_size_t->data,c_size_t->name,5,32*c_size_t->count,i);
                 break;
-            case 6:;
+            case 7:;
                 monetdbe_column_float* c_float = (monetdbe_column_float*) (*column);
                 addColumn(env,j_columns,c_float->data,c_float->name,6,32*c_float->count,i);
-                break;
-            case 7:;
-                //TODO huge_int
                 break;
             case 8:;
                 monetdbe_column_double* c_double = (monetdbe_column_double*) (*column);
@@ -158,10 +158,6 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
     }
   }
   return j_columns;
-}
-
-JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1names (JNIEnv * env, jclass self, jobject j_rs, jint ncols) {
-
 }
 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
