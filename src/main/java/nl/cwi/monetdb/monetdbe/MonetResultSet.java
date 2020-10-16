@@ -182,10 +182,11 @@ public class MonetResultSet implements ResultSet {
         }
         else if (row > tupleCount + 1) {
             curRow = tupleCount + 1;    // after last
+            System.out.println("Row @ " + curRow);
             return false;
         }
         curRow = row;
-        System.out.println("Row @ " + curRow);
+
         return true;
     }
 
