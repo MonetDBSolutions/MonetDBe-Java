@@ -16,7 +16,7 @@ jobject getColumnJavaVar (JNIEnv *env, void* data, char* name, int type, int row
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
 
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava.lang.String;)V");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/String;)V");
     return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
 }
 
