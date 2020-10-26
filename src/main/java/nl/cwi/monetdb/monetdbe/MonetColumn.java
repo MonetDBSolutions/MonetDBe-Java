@@ -11,20 +11,24 @@ public class MonetColumn {
     private String name;
     private int type;
     private String typeName;
+    private String sqlType;
 
     //TODO Should this be here?
     private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int 64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+    private final String[] sqlTypes = {"BOOLEAN","TINYINT","SMALLINT","INTEGER","BIGINT","HUGEINT","SIZE_T","REAL","FLOAT","STRING","BLOB","DATE","TIME","TIMESTAMP","UNKOWN"};
 
     public MonetColumn(String name, int type) {
         this.name = name;
         this.type = type;
         this.typeName = monetdbeTypes[type];
+        this.sqlType = sqlTypes[type];
     }
 
     public MonetColumn(String name, int type, ByteBuffer constData) {
         this.name = name;
         this.type = type;
         this.typeName = monetdbeTypes[type];
+        this.sqlType = sqlTypes[type];
         this.constData = constData.order(ByteOrder.LITTLE_ENDIAN);
     }
 
@@ -32,6 +36,7 @@ public class MonetColumn {
         this.name = name;
         this.type = type;
         this.typeName = monetdbeTypes[type];
+        this.sqlType = sqlTypes[type];
         this.varData = varData;
     }
 
@@ -40,6 +45,7 @@ public class MonetColumn {
         this.name = name;
         this.type = type;
         this.typeName = monetdbeTypes[type];
+        this.sqlType = sqlTypes[type];
         this.varData = varData;
     }
 
@@ -61,6 +67,10 @@ public class MonetColumn {
 
     public String getTypeName() {
         return typeName;
+    }
+
+    public String getSqlType() {
+        return sqlType;
     }
 
     //Constant length types

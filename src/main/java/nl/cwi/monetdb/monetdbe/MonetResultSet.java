@@ -3,6 +3,7 @@ package nl.cwi.monetdb.monetdbe;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.*;
 import java.sql.*;
@@ -24,12 +25,14 @@ public class MonetResultSet implements ResultSet {
 
 
     private MonetColumn[] columns;
+
+    //TODO CHECK what's necessary here and what we should remove
     /** The names of the columns in this ResultSet */
     private final String[] names;
     /** The MonetDB types of the columns in this ResultSet */
-    private final String[] types;
-    /** The JDBC SQL types of the columns in this ResultSet. The content will be derived from the MonetDB types[] */
-    //private final int[] JdbcSQLTypes;
+    private final String[] monetTypes;
+    /** The JDBC SQL types of the columns in this ResultSet.*/
+    private final String[] sqlTypes;
 
     /** The type of this ResultSet (forward or scrollable) */
     //TODO Is it forward only or scrollable?
@@ -51,15 +54,14 @@ public class MonetResultSet implements ResultSet {
 
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
         this.names = new String[ncols];
-        this.types = new String[ncols];
+        this.monetTypes = new String[ncols];
+        this.sqlTypes = new String[ncols];
 
-        //TODO CLEAN
-        /*System.out.println("Columns:");
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
-            types[i] = columns[i].getTypeName();
-            System.out.println(columns[i].getName() + " (" + columns[i].getTypeName()+ ")");
-        }*/
+            monetTypes[i] = columns[i].getTypeName();
+            sqlTypes[i] = columns[i].getSqlType();
+        }
     }
 
     @Override
@@ -198,12 +200,51 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Object getObject(int columnIndex) throws SQLException {
-        return null;
+        checkNotClosed();
+        int type = columns[columnIndex].getType();
+        switch (type) {
+            case 0:
+                return getBoolean(columnIndex);
+            case 1:
+                //TODO TINYINT
+                return null;
+            case 2:
+                return getShort(columnIndex);
+            case 3:
+                return getInt(columnIndex);
+            case 4:
+                return getLong(columnIndex);
+            case 5:
+                //TODO HUGEINT
+                return null;
+            case 6:
+                return getInt(columnIndex);
+            case 7:
+                return getFloat(columnIndex);
+            case 8:
+                return getDouble(columnIndex);
+            case 9:
+                return getString(columnIndex);
+            case 10:
+                //TODO BLOB
+                return null;
+            case 11:
+                //TODO DATE
+                return null;
+            case 12:
+                //TODO TIME
+                return null;
+            case 13:
+                //TODO TIMESTAMP
+                return null;
+            default:
+                return null;
+        }
     }
 
     @Override
     public Object getObject(String columnLabel) throws SQLException {
-        return null;
+        return getObject(findColumn(columnLabel));
     }
 
     @Override
@@ -404,12 +445,25 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Array getArray(int columnIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getArray");
     }
 
     @Override
     public URL getURL(int columnIndex) throws SQLException {
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return new URL(val);
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        } catch (MalformedURLException e) {
+            throw new SQLException("column is not a valid URL");
+        }
     }
 
     @Override
@@ -511,7 +565,7 @@ public class MonetResultSet implements ResultSet {
     public RowId getRowId(String columnLabel) throws SQLException {
         return null;
     }
-    
+
     @Override
     public void setFetchDirection(int direction) throws SQLException {
         //TODO FETCH
@@ -650,7 +704,7 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Array getArray(String columnLabel) throws SQLException {
-        return getArray(findColumn(columnLabel));
+        throw new SQLFeatureNotSupportedException("getArray");
     }
 
     @Override
