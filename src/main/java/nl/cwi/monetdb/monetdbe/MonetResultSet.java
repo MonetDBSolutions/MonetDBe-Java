@@ -9,157 +9,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-//TODO Row number in JDBC ResultSet API indexes at 1, while the buffers for data from C index at 0. Where should I implement this?
-
-//TODO Should this class exist?
-class MonetColumn {
-    private Buffer data;
-    private String name;
-    private int type;
-    private String typeName;
-
-    //TODO Should this be here?
-    private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int 64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
-
-    public MonetColumn(ByteBuffer data, String name, int type) {
-        //this.data = data;
-        this.name = name;
-        this.type = type;
-        this.typeName = monetdbeTypes[type];
-
-        //1: TINYINT (8)
-        if (type == 1) {
-            //TODO
-        }
-        //2: SMALLINT (16)
-        else if (type == 2) {
-            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-        }
-        //3: INT (32), 6: SIZE_T (32)
-        else if(type == 3 || type == 6) {
-            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asIntBuffer();
-        }
-        //4: BIGINT (64)
-        else if(type == 4) {
-            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
-        }
-        //5: HUGEINT (128)
-        else if(type == 5) {
-            //TODO
-        }
-        //7: REAL (32)
-        else if (type == 7) {
-            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer();
-        }
-        //8: DOUBLE (64)
-        else if (type == 8) {
-            this.data = data.order(ByteOrder.LITTLE_ENDIAN).asDoubleBuffer();
-        }
-        //9: CHAR
-        else if (type == 9) {
-
-        }
-        //10: BLOB, 11: DATE, 12: TIME, 13: TIMESTAMP
-
-        //0: BOOL
-        else {
-            this.data = data.order(ByteOrder.LITTLE_ENDIAN);
-        }
-    }
-
-    public Buffer getData() {
-        return data;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public boolean getBoolean(int row) throws SQLException {
-        //TODO Remove?
-        row -=1;
-        if (type==0)  {
-            return ((ByteBuffer) data).get(row)!=0;
-        }
-        else {
-            //TODO Check which conversions are possible
-            throw new SQLException("Column is not bool value");
-        }
-    }
-
-    public Short getShort(int row) throws SQLException {
-        //TODO Remove?
-        row -=1;
-        if (type==2)  {
-            return ((ShortBuffer) data).get(row);
-        }
-        else {
-            //TODO Check which conversions are possible
-            throw new SQLException("Column is not short value");
-        }
-    }
-
-    public Integer getInt(int row) throws SQLException {
-        //TODO Remove?
-        row -=1;
-        if (type==3 || type == 6)  {
-            return ((IntBuffer) data).get(row);
-        }
-        else {
-            //TODO Check which conversions are possible
-            throw new SQLException("Column is not int value");
-        }
-    }
-
-    public Long getLong(int row) throws SQLException {
-        //TODO Remove?
-        row -=1;
-        if (type==4)  {
-            return ((LongBuffer) data).get(row);
-        }
-        else {
-            //TODO Check which conversions are possible
-            throw new SQLException("Column is not int value");
-        }
-    }
-
-    public Integer getSize(int row) throws  SQLException {
-        return getInt(row);
-    }
-
-    //TODO: Check this type, something wrong is happening
-    public Float getFloat(int row) throws SQLException {
-        //TODO Remove?
-        row -=1;
-        if (type==7)  {
-            return ((FloatBuffer) data).get(row);
-        }
-        else {
-            //TODO Check which conversions are possible
-            throw new SQLException("Column is not float value");
-        }
-    }
-
-    public Double getDouble(int row) throws SQLException {
-        //TODO Remove?
-        row -=1;
-        if (type==8)  {
-            return ((DoubleBuffer) data).get(row);
-        }
-        else {
-            //TODO Check which conversions are possible
-            throw new SQLException("Column is not double value");
-        }
-    }
-}
+//TODO Row number in JDBC ResultSet API indexes at 1, while the buffers for constData from C index at 0. Where should I implement this?
 
 public class MonetResultSet implements ResultSet {
     //TODO: Pedro's code
@@ -205,7 +55,7 @@ public class MonetResultSet implements ResultSet {
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
             types[i] = columns[i].getTypeName();
-            System.out.println(columns[i].getName() + " (" + columns[i].getTypeName()+ ") -> " + columns[i].getData());
+            System.out.println(columns[i].getName() + " (" + columns[i].getTypeName()+ ") -> " + columns[i].getConstData());
         }
     }
 
@@ -369,7 +219,18 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override

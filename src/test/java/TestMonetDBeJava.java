@@ -41,8 +41,9 @@ public class TestMonetDBeJava {
                 //s.execute("INSERT INTO a VALUES (TRUE), (TRUE), (FALSE);");
                 /*s.execute("CREATE TABLE a(id int, b boolean, l float);");
                 s.execute("INSERT INTO a VALUES (1,true,3.7), (2,false,2.98), (3,false,2.63), (4,true,1.0);");*/
-                s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, f real, d double);");
-                s.execute("INSERT INTO a VALUES (true, 2, 3, 5, 1.0, 1.66), (true, 4, 6, 10, 2.5, 3.643), (false, 8, 12, 20, 25.25, 372.325), (false, 16, 24, 40, 255.255, 2434.432);");
+
+                s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, f real, d double, s string);");
+                s.execute("INSERT INTO a VALUES (true, 2, 3, 5, 1.0, 1.66,'hey1'), (true, 4, 6, 10, 2.5, 3.643,'hey2'), (false, 8, 12, 20, 25.25, 372.325,'hey3'), (false, 16, 24, 40, 255.255, 2434.432,'hey4');");
                 System.out.println("Insert update count: " + s.getUpdateCount());
                 s.execute("SELECT * FROM a;");
                 MonetResultSet rs = (MonetResultSet) s.getResultSet();
@@ -56,6 +57,7 @@ public class TestMonetDBeJava {
                     System.out.println("Long: " + rs.getLong(3));
                     //System.out.println("Float: " + rs.getFloat(4));
                     System.out.println("Double: " + rs.getDouble(5));
+                    System.out.println("String: " + rs.getString(6));
                     System.out.println();
                 }
 

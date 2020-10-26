@@ -5,12 +5,12 @@
 #include <stdio.h>
 
 
-void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* data, int size, int index) {
-    jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
-    //jobject j_data = (*env)->NewDirectByteBuffer(env,col->data,8*col->count);
+void addColumn(JNIEnv *env, jobjectArray j_data_columns, void* constData, int size, int index) {
+    jobject j_data = (*env)->NewDirectByteBuffer(env,constData,size);
+    //jobject j_data = (*env)->NewDirectByteBuffer(env,col->constData,8*col->count);
 
     if (size/4 == 32) {
-        int32_t* data_i = (int32_t*) data;
+        int32_t* data_i = (int32_t*) constData;
         for(int i = 0; i<4;i++) {
             printf("%li\n",data_i[i]);
             fflush(stdout);
@@ -108,7 +108,7 @@ JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1
 
 
                 /*jbooleanArray j_data = (*env)->NewBooleanArray(env, col->count);
-                const jboolean* cast_data = (const jboolean *) col->data;
+                const jboolean* cast_data = (const jboolean *) col->constData;
                 (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);*/
 
     /*if((*column)->type == 0) {
@@ -124,8 +124,8 @@ JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1
         printf("Int 32 values (%d rows): ",col->count);
         for (j=0;j<col->count;j++) {
           //TODO Should this be here?
-          if(!col->is_null(col->data+j)) {
-            printf("(%d), ",col->data[j]);
+          if(!col->is_null(col->constData+j)) {
+            printf("(%d), ",col->constData[j]);
           }
         }
         printf("\n");
@@ -135,8 +135,8 @@ JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1
         printf("Str values (%d rows): ",col->count);
         for (j=0;j<col->count;j++) {
           //TODO Should this be here?
-          if(!col->is_null(col->data+j)) {
-            printf("(%s), ",col->data[j]);
+          if(!col->is_null(col->constData+j)) {
+            printf("(%s), ",col->constData[j]);
           }
         }
         printf("\n");
