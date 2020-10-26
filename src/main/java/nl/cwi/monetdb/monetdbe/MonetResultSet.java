@@ -52,10 +52,11 @@ public class MonetResultSet implements ResultSet {
         this.names = new String[ncols];
         this.types = new String[ncols];
 
+        System.out.println("Columns:");
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
             types[i] = columns[i].getTypeName();
-            System.out.println(columns[i].getName() + " (" + columns[i].getTypeName()+ ") -> " + columns[i].getConstData());
+            System.out.println(columns[i].getName() + " (" + columns[i].getTypeName()+ ")");
         }
     }
 

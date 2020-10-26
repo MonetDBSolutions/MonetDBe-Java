@@ -119,7 +119,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
       return NULL;
     }
     else {
-        printf("Column of type %d\n",(*column)->type);
+        //printf("Column of type %d\n",(*column)->type);
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* c_bool = (monetdbe_column_bool*) (*column);
