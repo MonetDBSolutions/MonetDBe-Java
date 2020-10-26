@@ -32,6 +32,7 @@ public class MonetResultSet implements ResultSet {
     //private final int[] JdbcSQLTypes;
 
     /** The type of this ResultSet (forward or scrollable) */
+    //TODO Is it forward only or scrollable?
     private int type = ResultSet.TYPE_FORWARD_ONLY;
     /** The concurrency of this ResultSet (currently only read-only) */
     private int concurrency = ResultSet.CONCUR_READ_ONLY;
@@ -52,12 +53,13 @@ public class MonetResultSet implements ResultSet {
         this.names = new String[ncols];
         this.types = new String[ncols];
 
-        System.out.println("Columns:");
+        //TODO CLEAN
+        /*System.out.println("Columns:");
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
             types[i] = columns[i].getTypeName();
             System.out.println(columns[i].getName() + " (" + columns[i].getTypeName()+ ")");
-        }
+        }*/
     }
 
     @Override
@@ -169,305 +171,24 @@ public class MonetResultSet implements ResultSet {
     }
 
     @Override
-    public void setFetchDirection(int direction) throws SQLException {
-
-    }
-
-    @Override
-    public int getFetchDirection() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public void setFetchSize(int rows) throws SQLException {
-
-    }
-
-    @Override
-    public int getFetchSize() throws SQLException {
-        return 0;
-    }
-
-    @Override
     public int getType() throws SQLException {
         return type;
     }
 
     @Override
     public int getConcurrency() throws SQLException {
-        return 0;
+        return concurrency;
     }
 
     @Override
     public boolean rowUpdated() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean rowInserted() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public boolean rowDeleted() throws SQLException {
+        //TODO UPDATES
         return false;
     }
 
     @Override
     public boolean wasNull() throws SQLException {
         return lastReadWasNull;
-    }
-
-    @Override
-    public String getString(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            String val = columns[columnIndex].getString(curRow);
-            if (val == null) {
-                lastReadWasNull = true;
-                return null;
-            }
-            lastReadWasNull = false;
-            return val;
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
-
-    @Override
-    public boolean getBoolean(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            Boolean val = columns[columnIndex].getBoolean(curRow);
-            if (val == null) {
-                lastReadWasNull = true;
-                return false;
-            }
-            lastReadWasNull = false;
-            return val;
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
-
-    @Override
-    public byte getByte(int columnIndex) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public short getShort(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            Short val = columns[columnIndex].getShort(curRow);
-            if (val == null) {
-                lastReadWasNull = true;
-                return 0;
-            }
-            lastReadWasNull = false;
-            return val;
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
-
-    @Override
-    public int getInt(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            Integer val = columns[columnIndex].getInt(curRow);
-            if (val == null) {
-                lastReadWasNull = true;
-                return 0;
-            }
-            lastReadWasNull = false;
-            return val;
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
-
-    @Override
-    public long getLong(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            Long val = columns[columnIndex].getLong(curRow);
-            if (val == null) {
-                lastReadWasNull = true;
-                return 0;
-            }
-            lastReadWasNull = false;
-            return val;
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
-
-    @Override
-    public float getFloat(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            Float val = columns[columnIndex].getFloat(curRow);
-            if (val == null) {
-                lastReadWasNull = true;
-                return 0;
-            }
-            lastReadWasNull = false;
-            return val;
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
-
-    @Override
-    public double getDouble(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            Double val = columns[columnIndex].getDouble(curRow);
-            if (val == null) {
-                lastReadWasNull = true;
-                return 0;
-            }
-            lastReadWasNull = false;
-            return val;
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
-
-    @Override
-    public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public byte[] getBytes(int columnIndex) throws SQLException {
-        return new byte[0];
-    }
-
-    @Override
-    public Date getDate(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Time getTime(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getAsciiStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getUnicodeStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getBinaryStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public String getString(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public boolean getBoolean(String columnLabel) throws SQLException {
-        return false;
-    }
-
-    @Override
-    public byte getByte(String columnLabel) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public short getShort(String columnLabel) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public int getInt(String columnLabel) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public long getLong(String columnLabel) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public float getFloat(String columnLabel) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public double getDouble(String columnLabel) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public byte[] getBytes(String columnLabel) throws SQLException {
-        return new byte[0];
-    }
-
-    @Override
-    public Date getDate(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Time getTime(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Timestamp getTimestamp(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getAsciiStream(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getUnicodeStream(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getBinaryStream(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public SQLWarning getWarnings() throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void clearWarnings() throws SQLException {
-
-    }
-
-    @Override
-    public String getCursorName() throws SQLException {
-        return null;
     }
 
     @Override
@@ -487,16 +208,153 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public int findColumn(String columnLabel) throws SQLException {
-        return 0;
+        checkNotClosed();
+        if (columnLabel != null) {
+            final int array_size = names.length;
+            for (int i = 0; i < array_size; i++) {
+                if (columnLabel.equals(names[i]))
+                    return i + 1;
+            }
+            /* if an exact match did not succeed try a case insensitive match */
+            for (int i = 0; i < array_size; i++) {
+                if (columnLabel.equalsIgnoreCase(names[i]))
+                    return i + 1;
+            }
+        }
+        throw new SQLException("No such column name: " + columnLabel, "M1M05");
     }
 
     @Override
-    public Reader getCharacterStream(int columnIndex) throws SQLException {
-        return null;
+    public String getString(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
-    public Reader getCharacterStream(String columnLabel) throws SQLException {
+    public boolean getBoolean(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            Boolean val = columns[columnIndex].getBoolean(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return false;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    @Override
+    public byte getByte(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            byte val = columns[columnIndex].getByte(curRow-1);
+            if (val == 0) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    @Override
+    public short getShort(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            Short val = columns[columnIndex].getShort(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    @Override
+    public int getInt(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            Integer val = columns[columnIndex].getInt(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    @Override
+    public long getLong(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            Long val = columns[columnIndex].getLong(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    @Override
+    public float getFloat(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            Float val = columns[columnIndex].getFloat(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    @Override
+    public double getDouble(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            Double val = columns[columnIndex].getDouble(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return 0;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    @Override
+    public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
+        //TODO BIG DECIMAL
         return null;
     }
 
@@ -506,10 +364,342 @@ public class MonetResultSet implements ResultSet {
     }
 
     @Override
-    public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
+    public byte[] getBytes(int columnIndex) throws SQLException {
+        //TODO BYTES
         return null;
     }
 
+    @Override
+    public Date getDate(int columnIndex) throws SQLException {
+        //TODO DATETIME
+        return null;
+    }
+
+    @Override
+    public Time getTime(int columnIndex) throws SQLException {
+        //TODO DATETIME
+        return null;
+    }
+
+    @Override
+    public Timestamp getTimestamp(int columnIndex) throws SQLException {
+        //TODO DATETIME
+        return null;
+    }
+
+    @Override
+    public Ref getRef(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Blob getBlob(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Clob getClob(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Array getArray(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public URL getURL(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public NClob getNClob(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public SQLXML getSQLXML(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public String getNString(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Reader getNCharacterStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public InputStream getAsciiStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public InputStream getUnicodeStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public InputStream getBinaryStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Reader getCharacterStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Statement getStatement() throws SQLException {
+        return statement;
+    }
+
+    @Override
+    public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Date getDate(int columnIndex, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Date getDate(String columnLabel, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Time getTime(int columnIndex, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Time getTime(String columnLabel, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public int getHoldability() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public RowId getRowId(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public RowId getRowId(String columnLabel) throws SQLException {
+        return null;
+    }
+    
+    @Override
+    public void setFetchDirection(int direction) throws SQLException {
+        //TODO FETCH
+    }
+
+    @Override
+    public int getFetchDirection() throws SQLException {
+        //TODO FETCH
+        return 0;
+    }
+
+    @Override
+    public void setFetchSize(int rows) throws SQLException {
+        //TODO FETCH
+    }
+
+    @Override
+    public int getFetchSize() throws SQLException {
+        //TODO FETCH
+        return 0;
+    }
+
+    @Override
+    public boolean rowInserted() throws SQLException {
+        //TODO UPDATES
+        return false;
+    }
+
+    @Override
+    public boolean rowDeleted() throws SQLException {
+        //TODO UPDATES
+        return false;
+    }
+
+    @Override
+    public SQLWarning getWarnings() throws SQLException {
+        return null;
+    }
+
+    @Override
+    public void clearWarnings() throws SQLException {
+
+    }
+
+    @Override
+    public String getCursorName() throws SQLException {
+        return null;
+    }
+
+
+    //Column name gets
+    @Override
+    public String getString(String columnLabel) throws SQLException {
+        return getString(findColumn(columnLabel));
+    }
+
+    @Override
+    public boolean getBoolean(String columnLabel) throws SQLException {
+        return getBoolean(findColumn(columnLabel));
+    }
+
+    @Override
+    public byte getByte(String columnLabel) throws SQLException {
+        return getByte(findColumn(columnLabel));
+    }
+
+    @Override
+    public short getShort(String columnLabel) throws SQLException {
+        return getShort(findColumn(columnLabel));
+    }
+
+    @Override
+    public int getInt(String columnLabel) throws SQLException {
+        return getInt(findColumn(columnLabel));
+    }
+
+    @Override
+    public long getLong(String columnLabel) throws SQLException {
+        return getLong(findColumn(columnLabel));
+    }
+
+    @Override
+    public float getFloat(String columnLabel) throws SQLException {
+        return getFloat(findColumn(columnLabel));
+    }
+
+    @Override
+    public double getDouble(String columnLabel) throws SQLException {
+        return getDouble(findColumn(columnLabel));
+    }
+
+    @Override
+    public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
+        return getBigDecimal(findColumn(columnLabel),scale);
+    }
+
+    @Override
+    public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
+        return getBigDecimal(findColumn(columnLabel));
+    }
+
+    @Override
+    public byte[] getBytes(String columnLabel) throws SQLException {
+        return getBytes(findColumn(columnLabel));
+    }
+
+    @Override
+    public Date getDate(String columnLabel) throws SQLException {
+        return getDate(findColumn(columnLabel));
+    }
+
+    @Override
+    public Time getTime(String columnLabel) throws SQLException {
+        return getTime(findColumn(columnLabel));
+    }
+
+    @Override
+    public Timestamp getTimestamp(String columnLabel) throws SQLException {
+        return getTimestamp(findColumn(columnLabel));
+    }
+
+    @Override
+    public Ref getRef(String columnLabel) throws SQLException {
+        return getRef(findColumn(columnLabel));
+    }
+
+    @Override
+    public Blob getBlob(String columnLabel) throws SQLException {
+        return getBlob(findColumn(columnLabel));
+    }
+
+    @Override
+    public Clob getClob(String columnLabel) throws SQLException {
+        return getClob(findColumn(columnLabel));
+    }
+
+    @Override
+    public Array getArray(String columnLabel) throws SQLException {
+        return getArray(findColumn(columnLabel));
+    }
+
+    @Override
+    public URL getURL(String columnLabel) throws SQLException {
+        return getURL(findColumn(columnLabel));
+    }
+
+    @Override
+    public NClob getNClob(String columnLabel) throws SQLException {
+        return getNClob(findColumn(columnLabel));
+    }
+
+    @Override
+    public SQLXML getSQLXML(String columnLabel) throws SQLException {
+        return getSQLXML(findColumn(columnLabel));
+    }
+
+    @Override
+    public String getNString(String columnLabel) throws SQLException {
+        return getNString(findColumn(columnLabel));
+    }
+
+    @Override
+    public InputStream getAsciiStream(String columnLabel) throws SQLException {
+        return getAsciiStream(findColumn(columnLabel));
+    }
+
+    @Override
+    public InputStream getUnicodeStream(String columnLabel) throws SQLException {
+        return getUnicodeStream(findColumn(columnLabel));
+    }
+
+    @Override
+    public InputStream getBinaryStream(String columnLabel) throws SQLException {
+        return getBinaryStream(findColumn(columnLabel));
+    }
+
+    @Override
+    public Reader getCharacterStream(String columnLabel) throws SQLException {
+        return getCharacterStream(findColumn(columnLabel));
+    }
+
+    @Override
+    public Reader getNCharacterStream(String columnLabel) throws SQLException {
+        return getNCharacterStream(findColumn(columnLabel));
+    }
+
+
+    //Update
     @Override
     public void updateObject(int columnIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
 
@@ -756,101 +946,6 @@ public class MonetResultSet implements ResultSet {
     }
 
     @Override
-    public Statement getStatement() throws SQLException {
-        return statement;
-    }
-
-    @Override
-    public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Ref getRef(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Blob getBlob(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Clob getClob(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Array getArray(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Ref getRef(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Blob getBlob(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Clob getClob(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Array getArray(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Date getDate(int columnIndex, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Date getDate(String columnLabel, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Time getTime(int columnIndex, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Time getTime(String columnLabel, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public URL getURL(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public URL getURL(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
     public void updateRef(int columnIndex, Ref x) throws SQLException {
 
     }
@@ -891,16 +986,6 @@ public class MonetResultSet implements ResultSet {
     }
 
     @Override
-    public RowId getRowId(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public RowId getRowId(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
     public void updateRowId(int columnIndex, RowId x) throws SQLException {
 
     }
@@ -908,11 +993,6 @@ public class MonetResultSet implements ResultSet {
     @Override
     public void updateRowId(String columnLabel, RowId x) throws SQLException {
 
-    }
-
-    @Override
-    public int getHoldability() throws SQLException {
-        return 0;
     }
 
     @Override
@@ -936,26 +1016,6 @@ public class MonetResultSet implements ResultSet {
     }
 
     @Override
-    public NClob getNClob(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public NClob getNClob(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public SQLXML getSQLXML(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public SQLXML getSQLXML(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {
 
     }
@@ -963,26 +1023,6 @@ public class MonetResultSet implements ResultSet {
     @Override
     public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
 
-    }
-
-    @Override
-    public String getNString(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public String getNString(String columnLabel) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Reader getNCharacterStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Reader getNCharacterStream(String columnLabel) throws SQLException {
-        return null;
     }
 
     @Override

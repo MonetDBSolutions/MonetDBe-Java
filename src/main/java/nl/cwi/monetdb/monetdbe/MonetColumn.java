@@ -66,7 +66,7 @@ public class MonetColumn {
     //Constant length types
     public boolean getBoolean(int row) throws SQLException {
         if (type==0)  {
-            return ((ByteBuffer) constData).get(row-1)!=0;
+            return ((ByteBuffer) constData).get(row)!=0;
         }
         else {
             //TODO Check which conversions are possible
@@ -76,7 +76,7 @@ public class MonetColumn {
 
     public Short getShort(int row) throws SQLException {
         if (type==2)  {
-            return ((ByteBuffer) constData).asShortBuffer().get(row-1);
+            return ((ByteBuffer) constData).asShortBuffer().get(row);
         }
         else {
             //TODO Check which conversions are possible
@@ -86,7 +86,7 @@ public class MonetColumn {
 
     public Integer getInt(int row) throws SQLException {
         if (type==3 || type == 6)  {
-            return ((ByteBuffer) constData).asIntBuffer().get(row-1);
+            return ((ByteBuffer) constData).asIntBuffer().get(row);
         }
         else {
             //TODO Check which conversions are possible
@@ -96,7 +96,7 @@ public class MonetColumn {
 
     public Long getLong(int row) throws SQLException {
         if (type==4)  {
-            return ((ByteBuffer) constData).asLongBuffer().get(row-1);
+            return ((ByteBuffer) constData).asLongBuffer().get(row);
         }
         else {
             //TODO Check which conversions are possible
@@ -111,7 +111,7 @@ public class MonetColumn {
     //TODO: Check this type, something wrong is happening
     public Float getFloat(int row) throws SQLException {
         if (type==7)  {
-            return ((ByteBuffer) constData).asFloatBuffer().get(row-1);
+            return ((ByteBuffer) constData).asFloatBuffer().get(row);
         }
         else {
             //TODO Check which conversions are possible
@@ -121,7 +121,7 @@ public class MonetColumn {
 
     public Double getDouble(int row) throws SQLException {
         if (type==8)  {
-            return ((ByteBuffer) constData).asDoubleBuffer().get(row-1);
+            return ((ByteBuffer) constData).asDoubleBuffer().get(row);
         }
         else {
             //TODO Check which conversions are possible
@@ -132,11 +132,21 @@ public class MonetColumn {
     //Variable length types
     public String getString(int row) throws SQLException {
         if(type==9) {
-            return (String) varData[row-1];
+            return (String) varData[row];
         }
         else {
             //TODO Check which conversions are possible
             throw new SQLException("Column is not string value");
+        }
+    }
+
+    public byte getByte(int row) throws  SQLException {
+        if(type < 9) {
+            return ((ByteBuffer) constData).get(row);
+        }
+        else {
+            //TODO
+            return 0;
         }
     }
 }
