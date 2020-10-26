@@ -35,6 +35,14 @@ public class MonetColumn {
         this.varData = varData;
     }
 
+    //TODO Do we need this here? If we use the C string[] for calling the Object[] constructor, JNI throws an expection
+    public MonetColumn(String name, int type, String[] varData) {
+        this.name = name;
+        this.type = type;
+        this.typeName = monetdbeTypes[type];
+        this.varData = varData;
+    }
+
     public Buffer getConstData() {
         return constData;
     }
