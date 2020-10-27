@@ -152,7 +152,7 @@ public class MonetColumn {
     //TYPE MAPPINGS
 
     //TODO Should this be here?
-    private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int 64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+    private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int_64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
     private final String[] sqlTypes = {"CHAR","VARCHAR","LONGVARCHAR","NUMERIC","DECIMAL","BOOLEAN","BIT","TINYINT","SMALLINT","INTEGER","BIGINT","REAL","FLOAT","DOUBLE","BINARY","VARBINARY","LONGVARBINARY","DATE","TIME","TIMESTAMP","CLOB","BLOB"};
     private final Class[] javaTypes = {String.class,BigDecimal.class,Boolean.class,Short.class,Integer.class,Long.class,Float.class,Double.class,byte[].class,java.sql.Date.class,Time.class,Timestamp.class,Clob.class,Blob.class};
 
