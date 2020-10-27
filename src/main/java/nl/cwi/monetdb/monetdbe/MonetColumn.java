@@ -158,7 +158,6 @@ public class MonetColumn {
 
 
     /** A static Map containing the mapping between MonetDB types and Java SQL types */
-    //The commented lines are type that I'm not sure are in monetdbe
     private static final java.util.Map<String, Integer> typeMap = new java.util.HashMap<String, Integer>();
     static {
         // typeMap.put("any", Integer.valueOf(Types.???));
@@ -190,8 +189,29 @@ public class MonetColumn {
         typeMap.put("varchar", Integer.valueOf(Types.VARCHAR));
     }
 
+    /** A static Map containing the mapping between MonetDB types and Java SQL types */
+    private static final java.util.Map<String, Integer> typeMapMonetdbe = new java.util.HashMap<String, Integer>();
+    static {
+        typeMapMonetdbe.put("monetdbe_bool", Integer.valueOf(Types.BOOLEAN));
+        typeMapMonetdbe.put("monetdbe_int8_t", Integer.valueOf(Types.TINYINT));
+        typeMapMonetdbe.put("monetdbe_int16_t", Integer.valueOf(Types.SMALLINT));
+        typeMapMonetdbe.put("monetdbe_int32_t", Integer.valueOf(Types.INTEGER));
+        typeMapMonetdbe.put("monetdbe_int64_t", Integer.valueOf(Types.BIGINT));
+        typeMapMonetdbe.put("monetdbe_size_t", Integer.valueOf(Types.INTEGER));
+        typeMapMonetdbe.put("monetdbe_float", Integer.valueOf(Types.REAL));
+        typeMapMonetdbe.put("monetdbe_double", Integer.valueOf(Types.DOUBLE));
+        typeMapMonetdbe.put("monetdbe_str", Integer.valueOf(Types.VARCHAR));
+        typeMapMonetdbe.put("monetdbe_blob", Integer.valueOf(Types.BLOB));
+        typeMapMonetdbe.put("monetdbe_date", Integer.valueOf(Types.DATE));
+        typeMapMonetdbe.put("monetdbe_time", Integer.valueOf(Types.TIME));
+        typeMapMonetdbe.put("monetdbe_timestamp", Integer.valueOf(Types.TIMESTAMP));
+        //TODO
+        typeMapMonetdbe.put("monetdbe_int128_t", 0);
+        typeMapMonetdbe.put("monetdbe_unknown", 0);
+    }
+
     final static int getSQLType(final String monetdbetype) {
-        return typeMap.get(monetdbetype);
+        return typeMapMonetdbe.get(monetdbetype);
     }
 
     //Pedro's Code
