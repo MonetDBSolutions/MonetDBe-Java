@@ -11,21 +11,19 @@ jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int ro
 
     for(int i = 0; i < rows; i++) {
         char year[4], month[2], day[2];
-        sprintf(year,"%d",(int)dates[i].year);
-        sprintf(month,"%d",(int)dates[i].month);
-        sprintf(day,"%d",(int)dates[i].day);
-        printf("%s-%s-%s",year,month,day);
+        char date_str[10];
+        snprintf(date_str,10,"%d-%d-%d",(int)dates[i].year,(int)dates[i].month,(int)dates[i].day);
+        printf("%s\n",date_str);
         fflush(stdout);
 
-        //jobject j_date = (*env)->NewStringUTF(env,(const char*) );
-        //(*env)->SetObjectArrayElement(env,j_data,i,j_string);
+        jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
+        (*env)->SetObjectArrayElement(env,j_data,i,j_date);
     }
-    return NULL;
-    /*jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
+    jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
 
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
-    return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);*/
+    return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
 }
 
 jobject getColumnJavaString (JNIEnv *env, void* data, char* name, int type, int rows) {
