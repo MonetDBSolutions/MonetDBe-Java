@@ -221,7 +221,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 break;
             case 12:;
                 monetdbe_column_time* c_time = (monetdbe_column_time*) (*column);
-                //addColumn(env,j_columns,c_time->data,c_time->name,12,sizeof(monetdbe_data_time)*c_time->count,i);
+                addColumnVar(env,j_columns,c_time->data,c_time->name,12,c_time->count,i);
                 break;
             case 13:;
                 monetdbe_column_timestamp* c_timestamp = (monetdbe_column_timestamp*) (*column);
