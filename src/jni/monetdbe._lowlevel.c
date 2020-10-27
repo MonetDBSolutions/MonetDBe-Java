@@ -11,16 +11,16 @@ jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int ro
 
     for(int i = 0; i < rows; i++) {
         char year[4], month[2], day[2];
-        itoa((int)dates[i].year,year);
-        itoa((int)dates[i].month,month);
-        itoa((int)dates[i].day,day);
+        sprintf(year,"%d",(int)dates[i].year);
+        sprintf(month,"%d",(int)dates[i].month);
+        sprintf(day,"%d",(int)dates[i].day);
         printf("%s-%s-%s",year,month,day);
         fflush(stdout);
 
         //jobject j_date = (*env)->NewStringUTF(env,(const char*) );
         //(*env)->SetObjectArrayElement(env,j_data,i,j_string);
     }
-    return null;
+    return NULL;
     /*jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
 
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
