@@ -11,9 +11,9 @@ jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int ro
 
     for(int i = 0; i < rows; i++) {
         char year[4], month[2], day[2];
-        year = itoa(dates[i]->year);
-        month = itoa((int)dates[i]->month);
-        day = itoa((int)dates[i]->day);
+        year = itoa((int)dates[i].year);
+        month = itoa((int)dates[i].month);
+        day = itoa((int)dates[i].day);
         printf("%s-%s-%s",year,month,day);
         fflush(stdout);
 
