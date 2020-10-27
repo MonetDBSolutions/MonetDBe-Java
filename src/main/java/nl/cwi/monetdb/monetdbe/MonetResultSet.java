@@ -432,7 +432,6 @@ public class MonetResultSet implements ResultSet {
                 return null;
             }
             lastReadWasNull = false;
-            System.out.println(val);
             return Time.valueOf(val);
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
