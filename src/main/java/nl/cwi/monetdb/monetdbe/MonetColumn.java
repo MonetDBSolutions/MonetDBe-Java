@@ -32,7 +32,6 @@ public class MonetColumn {
         this.monetdbeType = monetdbeType;
         this.typeName = monetdbeTypes[monetdbeType];
         this.varData = varData;
-        System.out.println(typeName);
     }
 
     //TODO Do we need this here?
@@ -212,6 +211,7 @@ public class MonetColumn {
     }
 
     final static int getSQLType(final String monetdbetype) {
+        System.out.println(monetdbetype);
         return typeMapMonetdbe.get(monetdbetype);
     }
 
