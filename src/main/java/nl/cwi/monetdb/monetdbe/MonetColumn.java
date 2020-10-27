@@ -1,51 +1,44 @@
 package nl.cwi.monetdb.monetdbe;
 
+import java.math.BigDecimal;
 import java.nio.*;
-import java.sql.SQLException;
+import java.sql.*;
 
-//TODO What conversion methods do we have when a type which is not the column's type is requested? What types can be converted to other types?
+//TODO What conversion methods do we have when a monetdbeType which is not the column's monetdbeType is requested? What types can be converted to other types?
 
 public class MonetColumn {
     private Buffer constData;
     private Object[] varData;
     private String name;
-    private int type;
+    private int monetdbeType;
     private String typeName;
-    private String sqlType;
 
-    //TODO Should this be here?
-    private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int 64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
-    private final String[] sqlTypes = {"BOOLEAN","TINYINT","SMALLINT","INTEGER","BIGINT","HUGEINT","SIZE_T","REAL","FLOAT","STRING","BLOB","DATE","TIME","TIMESTAMP","UNKOWN"};
 
-    public MonetColumn(String name, int type) {
+    public MonetColumn(String name, int monetdbeType) {
         this.name = name;
-        this.type = type;
-        this.typeName = monetdbeTypes[type];
-        this.sqlType = sqlTypes[type];
+        this.monetdbeType = monetdbeType;
+        this.typeName = monetdbeTypes[monetdbeType];
     }
 
-    public MonetColumn(String name, int type, ByteBuffer constData) {
+    public MonetColumn(String name, int monetdbeType, ByteBuffer constData) {
         this.name = name;
-        this.type = type;
-        this.typeName = monetdbeTypes[type];
-        this.sqlType = sqlTypes[type];
+        this.monetdbeType = monetdbeType;
+        this.typeName = monetdbeTypes[monetdbeType];
         this.constData = constData.order(ByteOrder.LITTLE_ENDIAN);
     }
 
-    public MonetColumn(String name, int type, Object[] varData) {
+    public MonetColumn(String name, int monetdbeType, Object[] varData) {
         this.name = name;
-        this.type = type;
-        this.typeName = monetdbeTypes[type];
-        this.sqlType = sqlTypes[type];
+        this.monetdbeType = monetdbeType;
+        this.typeName = monetdbeTypes[monetdbeType];
         this.varData = varData;
     }
 
-    //TODO Do we need this here? If we use the C string[] for calling the Object[] constructor, JNI throws an expection
-    public MonetColumn(String name, int type, String[] varData) {
+    //TODO Do we need this here?
+    public MonetColumn(String name, int monetdbeType, String[] varData) {
         this.name = name;
-        this.type = type;
-        this.typeName = monetdbeTypes[type];
-        this.sqlType = sqlTypes[type];
+        this.monetdbeType = monetdbeType;
+        this.typeName = monetdbeTypes[monetdbeType];
         this.varData = varData;
     }
 
@@ -61,21 +54,17 @@ public class MonetColumn {
         return name;
     }
 
-    public int getType() {
-        return type;
+    public int getMonetdbeType() {
+        return monetdbeType;
     }
 
     public String getTypeName() {
         return typeName;
     }
 
-    public String getSqlType() {
-        return sqlType;
-    }
-
     //Constant length types
     public boolean getBoolean(int row) throws SQLException {
-        if (type==0)  {
+        if (monetdbeType ==0)  {
             return ((ByteBuffer) constData).get(row)!=0;
         }
         else {
@@ -85,7 +74,7 @@ public class MonetColumn {
     }
 
     public Short getShort(int row) throws SQLException {
-        if (type==2)  {
+        if (monetdbeType == 1 || monetdbeType == 2)  {
             return ((ByteBuffer) constData).asShortBuffer().get(row);
         }
         else {
@@ -95,7 +84,7 @@ public class MonetColumn {
     }
 
     public Integer getInt(int row) throws SQLException {
-        if (type==3 || type == 6)  {
+        if (monetdbeType ==3 || monetdbeType == 6)  {
             return ((ByteBuffer) constData).asIntBuffer().get(row);
         }
         else {
@@ -105,7 +94,7 @@ public class MonetColumn {
     }
 
     public Long getLong(int row) throws SQLException {
-        if (type==4)  {
+        if (monetdbeType ==4)  {
             return ((ByteBuffer) constData).asLongBuffer().get(row);
         }
         else {
@@ -118,9 +107,9 @@ public class MonetColumn {
         return getInt(row);
     }
 
-    //TODO: Check this type, something wrong is happening
+    //TODO: Check this monetdbeType, something wrong is happening
     public Float getFloat(int row) throws SQLException {
-        if (type==7)  {
+        if (monetdbeType ==7)  {
             return ((ByteBuffer) constData).asFloatBuffer().get(row);
         }
         else {
@@ -130,7 +119,7 @@ public class MonetColumn {
     }
 
     public Double getDouble(int row) throws SQLException {
-        if (type==8)  {
+        if (monetdbeType ==8)  {
             return ((ByteBuffer) constData).asDoubleBuffer().get(row);
         }
         else {
@@ -141,7 +130,7 @@ public class MonetColumn {
 
     //Variable length types
     public String getString(int row) throws SQLException {
-        if(type==9) {
+        if(monetdbeType ==9) {
             return (String) varData[row];
         }
         else {
@@ -151,12 +140,103 @@ public class MonetColumn {
     }
 
     public byte getByte(int row) throws  SQLException {
-        if(type < 9) {
+        if(monetdbeType < 9) {
             return ((ByteBuffer) constData).get(row);
         }
         else {
             //TODO
             return 0;
+        }
+    }
+
+    //TYPE MAPPINGS
+
+    //TODO Should this be here?
+    private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int 64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+    private final String[] sqlTypes = {"CHAR","VARCHAR","LONGVARCHAR","NUMERIC","DECIMAL","BOOLEAN","BIT","TINYINT","SMALLINT","INTEGER","BIGINT","REAL","FLOAT","DOUBLE","BINARY","VARBINARY","LONGVARBINARY","DATE","TIME","TIMESTAMP","CLOB","BLOB"};
+    private final Class[] javaTypes = {String.class,BigDecimal.class,Boolean.class,Short.class,Integer.class,Long.class,Float.class,Double.class,byte[].class,java.sql.Date.class,Time.class,Timestamp.class,Clob.class,Blob.class};
+
+
+    /** A static Map containing the mapping between MonetDB types and Java SQL types */
+    //The commented lines are type that I'm not sure are in monetdbe
+    private static final java.util.Map<String, Integer> typeMap = new java.util.HashMap<String, Integer>();
+    static {
+        // typeMap.put("any", Integer.valueOf(Types.???));
+        typeMap.put("bigint", Integer.valueOf(Types.BIGINT));
+        typeMap.put("blob", Integer.valueOf(Types.BLOB));
+        typeMap.put("boolean", Integer.valueOf(Types.BOOLEAN));
+        typeMap.put("char", Integer.valueOf(Types.CHAR));
+        typeMap.put("clob", Integer.valueOf(Types.CLOB));
+        typeMap.put("date", Integer.valueOf(Types.DATE));
+        typeMap.put("decimal", Integer.valueOf(Types.DECIMAL));
+        typeMap.put("double", Integer.valueOf(Types.DOUBLE));
+        typeMap.put("hugeint", Integer.valueOf(Types.NUMERIC));
+        typeMap.put("inet", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("int", Integer.valueOf(Types.INTEGER));
+        typeMap.put("json", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("month_interval", Integer.valueOf(Types.INTEGER));
+        typeMap.put("oid", Integer.valueOf(Types.BIGINT));
+        typeMap.put("real", Integer.valueOf(Types.REAL));
+        typeMap.put("sec_interval", Integer.valueOf(Types.DECIMAL));
+        typeMap.put("smallint", Integer.valueOf(Types.SMALLINT));
+        typeMap.put("str", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("time", Integer.valueOf(Types.TIME));
+        typeMap.put("timestamp", Integer.valueOf(Types.TIMESTAMP));
+        typeMap.put("timestamptz", Integer.valueOf(Types.TIMESTAMP));
+        typeMap.put("timetz", Integer.valueOf(Types.TIME));
+        typeMap.put("tinyint", Integer.valueOf(Types.TINYINT));
+        typeMap.put("url", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("uuid", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("varchar", Integer.valueOf(Types.VARCHAR));
+    }
+
+    final static int getSQLType(final String monetdbetype) {
+        return typeMap.get(monetdbetype);
+    }
+
+    //Pedro's Code
+    final static Class<?> getClassForType(final int type) {
+        switch(type) {
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+                return String.class;
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+                return BigDecimal.class;
+            case Types.BOOLEAN:
+                return Boolean.class;
+            case Types.BIT: // MonetDB doesn't support type BIT, it's here for completeness
+            case Types.TINYINT:
+            case Types.SMALLINT:
+                return Short.class;
+            case Types.INTEGER:
+                return Integer.class;
+            case Types.BIGINT:
+                return Long.class;
+            case Types.REAL:
+                return Float.class;
+            case Types.FLOAT:
+            case Types.DOUBLE:
+                return Double.class;
+            case Types.BINARY:      // MonetDB currently does not support these
+            case Types.VARBINARY:   // see treat_blob_as_binary property
+            case Types.LONGVARBINARY:
+                return byte[].class;
+            case Types.DATE:
+                return java.sql.Date.class;
+            case Types.TIME:
+                return Time.class;
+            case Types.TIMESTAMP:
+                return Timestamp.class;
+            case Types.CLOB:
+                return Clob.class;
+            case Types.BLOB:
+                return Blob.class;
+
+            // all the rest are currently not implemented and used
+            default:
+                return String.class;
         }
     }
 }

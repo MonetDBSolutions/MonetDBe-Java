@@ -111,15 +111,15 @@ JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1
                 const jboolean* cast_data = (const jboolean *) col->constData;
                 (*env)->SetBooleanArrayRegion(env,j_data,0,col->count,cast_data);*/
 
-    /*if((*column)->type == 0) {
+    /*if((*column)->monetdbeType == 0) {
         monetdbe_column_bool* col = (monetdbe_column_bool*) (*column);
         printf("%d",col->is_null);
     }
-    else if((*column)->type == 2) {
+    else if((*column)->monetdbeType == 2) {
         monetdbe_column_int16_t* col = (monetdbe_column_int16_t*) (*column);
         printf("Int 16 Count: %d\n",col->count);
     }
-    else if((*column)->type == 3) {
+    else if((*column)->monetdbeType == 3) {
         monetdbe_column_int32_t* col = (monetdbe_column_int32_t*) (*column);
         printf("Int 32 values (%d rows): ",col->count);
         for (j=0;j<col->count;j++) {
@@ -130,7 +130,7 @@ JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1
         }
         printf("\n");
     }
-    else if((*column)->type == 9) {
+    else if((*column)->monetdbeType == 9) {
         monetdbe_column_str* col = (monetdbe_column_str*) (*column);
         printf("Str values (%d rows): ",col->count);
         for (j=0;j<col->count;j++) {
@@ -141,4 +141,4 @@ JNIEXPORT jbyteArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1
         }
         printf("\n");
      }
-    //printf("Column %s of type %s and count %d\n",(*column)->name,types[i],(*column)->count);*/
+    //printf("Column %s of monetdbeType %s and count %d\n",(*column)->name,types[i],(*column)->count);*/

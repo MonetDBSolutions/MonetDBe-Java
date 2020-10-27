@@ -32,7 +32,7 @@ public class MonetResultSet implements ResultSet {
     /** The MonetDB types of the columns in this ResultSet */
     private final String[] monetTypes;
     /** The JDBC SQL types of the columns in this ResultSet.*/
-    private final String[] sqlTypes;
+    private final int[] sqlTypes;
 
     /** The type of this ResultSet (forward or scrollable) */
     //TODO Is it forward only or scrollable?
@@ -55,12 +55,12 @@ public class MonetResultSet implements ResultSet {
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
         this.names = new String[ncols];
         this.monetTypes = new String[ncols];
-        this.sqlTypes = new String[ncols];
+        this.sqlTypes = new int[ncols];
 
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
             monetTypes[i] = columns[i].getTypeName();
-            sqlTypes[i] = columns[i].getSqlType();
+            sqlTypes[i] = MonetColumn.getSQLType(columns[i].getTypeName());
         }
     }
 
@@ -201,13 +201,12 @@ public class MonetResultSet implements ResultSet {
     @Override
     public Object getObject(int columnIndex) throws SQLException {
         checkNotClosed();
-        int type = columns[columnIndex].getType();
+        int type = columns[columnIndex].getMonetdbeType();
         switch (type) {
             case 0:
                 return getBoolean(columnIndex);
             case 1:
-                //TODO TINYINT
-                return null;
+                return getShort(columnIndex);
             case 2:
                 return getShort(columnIndex);
             case 3:
@@ -412,8 +411,18 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-        //TODO DATETIME
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return Date.valueOf(val);
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
@@ -429,12 +438,8 @@ public class MonetResultSet implements ResultSet {
     }
 
     @Override
-    public Ref getRef(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
     public Blob getBlob(int columnIndex) throws SQLException {
+        //TODO BLOB
         return null;
     }
 
@@ -445,6 +450,11 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Array getArray(int columnIndex) throws SQLException {
+        throw new SQLFeatureNotSupportedException("getArray");
+    }
+
+    @Override
+    public Ref getRef(int columnIndex) throws SQLException {
         throw new SQLFeatureNotSupportedException("getArray");
     }
 

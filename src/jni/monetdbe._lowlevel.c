@@ -4,7 +4,31 @@
 #include <string.h>
 #include <stdio.h>
 
-jobject getColumnJavaVar (JNIEnv *env, void* data, char* name, int type, int rows) {
+jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int rows) {
+    jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
+    monetdbe_data_date* dates = (monetdbe_data_date*) data;
+    monetdbe_data_date date;
+
+    for(int i = 0; i < rows; i++) {
+        char year[4], month[2], day[2];
+        year = itoa(dates[i]->year);
+        month = itoa((int)dates[i]->month);
+        day = itoa((int)dates[i]->day);
+        printf("%s-%s-%s",year,month,day);
+        fflush(stdout);
+
+        //jobject j_date = (*env)->NewStringUTF(env,(const char*) );
+        //(*env)->SetObjectArrayElement(env,j_data,i,j_string);
+    }
+    return null;
+    /*jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
+
+    jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
+    return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);*/
+}
+
+jobject getColumnJavaString (JNIEnv *env, void* data, char* name, int type, int rows) {
     char** strings = (char**) data;
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
 
@@ -16,7 +40,7 @@ jobject getColumnJavaVar (JNIEnv *env, void* data, char* name, int type, int row
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
 
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/String;)V");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
     return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
 }
 
@@ -30,7 +54,14 @@ jobject getColumnJavaConst(JNIEnv *env, void* data, char* name, int type, int si
 }
 
 void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int rows, int index) {
-    jobject j_column_object = getColumnJavaVar(env,data,name,type,rows);
+    jobject j_column_object;
+    if (type == 9) {
+        j_column_object = getColumnJavaString(env,data,name,type,rows);
+    }
+    else if (type==11) {
+        j_column_object = getColumnJavaDate(env,data,name,type,rows);
+    }
+
     (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
 }
 
@@ -168,7 +199,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 break;
             case 11:;
                 monetdbe_column_date* c_date = (monetdbe_column_date*) (*column);
-                //addColumn(env,j_columns,c_date->data,c_date->name,11,sizeof(monetdbe_data_date)*c_date->count,i);
+                addColumnVar(env,j_columns,c_date->data,c_date->name,11,c_date->count,i);
                 break;
             case 12:;
                 monetdbe_column_time* c_time = (monetdbe_column_time*) (*column);
