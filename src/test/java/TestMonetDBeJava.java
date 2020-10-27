@@ -59,7 +59,7 @@ public class TestMonetDBeJava {
                     System.out.println("Double: " + rs.getDouble(5));
                     System.out.println("String: " + rs.getString(6));
                     System.out.println("Date: " + rs.getDate(7));
-                    System.out.println("Time: " + rs.getTime(7));
+                    System.out.println("Time: " + rs.getTime(8));
                     System.out.println();
                 }
 
