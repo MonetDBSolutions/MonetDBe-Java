@@ -26,9 +26,10 @@ jobject getColumnJavaTime (JNIEnv *env, void* data, char* name, int type, int ro
     monetdbe_data_time* times = (monetdbe_data_time*) data;
 
     for(int i = 0; i < rows; i++) {
-        char time_str[16];
+        char time_str[8];
         //TODO MILLISECONDS
-        snprintf(time_str,16,"%d:%d:%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds);
+        //TODO HEAD ZEROS FOR ONE DIGIT TIMES
+        snprintf(time_str,8,"%d:%d:%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds);
         jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_time);
         printf("%s %d\n",time_str,strlen(time_str));
