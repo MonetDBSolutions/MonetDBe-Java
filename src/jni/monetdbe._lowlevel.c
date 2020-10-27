@@ -4,7 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
-jobject getColumnJavaTime (JNIEnv *env, void* data, char* name, int type, int rows) {
+jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
     monetdbe_data_date* dates = (monetdbe_data_date*) data;
 
@@ -21,7 +21,7 @@ jobject getColumnJavaTime (JNIEnv *env, void* data, char* name, int type, int ro
     return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
 }
 
-jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int rows) {
+jobject getColumnJavaTime (JNIEnv *env, void* data, char* name, int type, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
     monetdbe_data_time* times = (monetdbe_data_time*) data;
 
