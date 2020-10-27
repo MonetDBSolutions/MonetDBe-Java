@@ -228,14 +228,11 @@ public class MonetResultSet implements ResultSet {
                 //TODO BLOB
                 return null;
             case 11:
-                //TODO DATE
-                return null;
+                return getDate(columnIndex);
             case 12:
-                //TODO TIME
-                return null;
+                return getTime(columnIndex);
             case 13:
-                //TODO TIMESTAMP
-                return null;
+                return getTimestamp(columnIndex);
             default:
                 return null;
         }
@@ -427,14 +424,34 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Time getTime(int columnIndex) throws SQLException {
-        //TODO DATETIME
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return Time.valueOf(val);
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        //TODO DATETIME
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return Timestamp.valueOf(val);
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override

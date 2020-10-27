@@ -4,20 +4,34 @@
 #include <string.h>
 #include <stdio.h>
 
-jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int rows) {
+jobject getColumnJavaTime (JNIEnv *env, void* data, char* name, int type, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
     monetdbe_data_date* dates = (monetdbe_data_date*) data;
-    monetdbe_data_date date;
 
     for(int i = 0; i < rows; i++) {
-        char year[4], month[2], day[2];
         char date_str[10];
         snprintf(date_str,10,"%d-%d-%d",(int)dates[i].year,(int)dates[i].month,(int)dates[i].day);
-        printf("%s\n",date_str);
-        fflush(stdout);
-
         jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_date);
+    }
+    jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
+
+    jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
+    return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
+}
+
+jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int rows) {
+    jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
+    monetdbe_data_time* times = (monetdbe_data_time*) data;
+
+    for(int i = 0; i < rows; i++) {
+        char time_str[16];
+        //TODO MILLISECONDS
+        snprintf(time_str,16,"%d:%d:%d",(int)times[i].hour,(int)times[i].minutes,(int)times[i].seconds);
+        jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
+        (*env)->SetObjectArrayElement(env,j_data,i,j_date);
+        printf("%s %d\n",time_str,strlen(time_str));
     }
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
 
@@ -59,6 +73,12 @@ void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, i
     else if (type==11) {
         j_column_object = getColumnJavaDate(env,data,name,type,rows);
     }
+    else if (type==12) {
+        j_column_object = getColumnJavaTime(env,data,name,type,rows);
+    }
+    /*else if (type==13) {
+        j_column_object = getColumnJavaTimestamp(env,data,name,type,rows);
+    }*/
 
     (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
 }
