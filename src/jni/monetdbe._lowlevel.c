@@ -28,9 +28,9 @@ jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int ro
     for(int i = 0; i < rows; i++) {
         char time_str[16];
         //TODO MILLISECONDS
-        snprintf(time_str,16,"%d:%d:%d",(int)times[i].hour,(int)times[i].minutes,(int)times[i].seconds);
-        jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
-        (*env)->SetObjectArrayElement(env,j_data,i,j_date);
+        snprintf(time_str,16,"%d:%d:%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds);
+        jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
+        (*env)->SetObjectArrayElement(env,j_data,i,j_time);
         printf("%s %d\n",time_str,strlen(time_str));
     }
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
