@@ -35,7 +35,7 @@ include_directories(${PREFIX}/include/monetdb/)
 link_directories(${PREFIX}/lib64)
 set_target_properties(monetdbe-lowlevel PROPERTIES SUFFIX ".so")
 set_target_properties(monetdbe-lowlevel PROPERTIES PREFIX "lib")
-target_link_libraries(monetdbe-lowlevel monetdbe-native monetdbe)
+target_link_libraries(monetdbe-lowlevel monetdbe-native ${PREFIX}/lib64/libmonetdbe.so)
 
 add_custom_command(OUTPUT monetdbe-jdbc
                    DEPENDS monetdbe-lowlevel monetdbe-java
