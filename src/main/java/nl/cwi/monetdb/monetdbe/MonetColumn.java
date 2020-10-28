@@ -109,7 +109,7 @@ public class MonetColumn {
 
     //TODO: Check this monetdbeType, something wrong is happening
     public Float getFloat(int row) throws SQLException {
-        if (monetdbeType ==7)  {
+        if (monetdbeType == 7)  {
             return ((ByteBuffer) constData).asFloatBuffer().get(row);
         }
         else {

@@ -10,8 +10,6 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-//TODO Row number in JDBC ResultSet API indexes at 1, while the buffers for constData from C index at 0. Where should I implement this?
-
 public class MonetResultSet implements ResultSet {
     //TODO: Pedro's code
     /** The parental Statement object */
@@ -34,11 +32,15 @@ public class MonetResultSet implements ResultSet {
     /** The JDBC SQL types of the columns in this ResultSet.*/
     private final int[] sqlTypes;
 
-    /** The type of this ResultSet (forward or scrollable) */
-    //TODO Is it forward only or scrollable?
-    private int type = ResultSet.TYPE_FORWARD_ONLY;
+    //TODO Check these values
+    /** The resultSetType of this ResultSet (forward or scrollable) */
+    private int resultSetType = ResultSet.TYPE_FORWARD_ONLY;
     /** The concurrency of this ResultSet (currently only read-only) */
     private int concurrency = ResultSet.CONCUR_READ_ONLY;
+    /** The suggested direction of fetching data (implemented but not used) */
+    private int fetchDirection = ResultSet.FETCH_FORWARD;
+
+
     /** The warnings for this ResultSet object */
     private SQLWarning warnings;
     /** whether the last read field (via some getXyz() method) was NULL */
@@ -68,7 +70,7 @@ public class MonetResultSet implements ResultSet {
     public boolean absolute(int row) throws SQLException {
         checkNotClosed();
         //TODO Check this
-        //if (row < curRow + 1 && type == TYPE_FORWARD_ONLY)
+        //if (row < curRow + 1 && resultSetType == TYPE_FORWARD_ONLY)
         //    throw new SQLException("ResultSet is forward only", "M1M05");
 
         if (row < 0) {
@@ -174,7 +176,7 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public int getType() throws SQLException {
-        return type;
+        return resultSetType;
     }
 
     @Override
@@ -462,17 +464,8 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Clob getClob(int columnIndex) throws SQLException {
+        //TODO CLOB
         return null;
-    }
-
-    @Override
-    public Array getArray(int columnIndex) throws SQLException {
-        throw new SQLFeatureNotSupportedException("getArray");
-    }
-
-    @Override
-    public Ref getRef(int columnIndex) throws SQLException {
-        throw new SQLFeatureNotSupportedException("getArray");
     }
 
     @Override
@@ -491,46 +484,6 @@ public class MonetResultSet implements ResultSet {
         } catch (MalformedURLException e) {
             throw new SQLException("column is not a valid URL");
         }
-    }
-
-    @Override
-    public NClob getNClob(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public SQLXML getSQLXML(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public String getNString(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Reader getNCharacterStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getAsciiStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getUnicodeStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getBinaryStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Reader getCharacterStream(int columnIndex) throws SQLException {
-        return null;
     }
 
     @Override
@@ -578,19 +531,11 @@ public class MonetResultSet implements ResultSet {
         return null;
     }
 
+    //Meta gets
     @Override
     public int getHoldability() throws SQLException {
+        //TODO HOLDABILITY
         return 0;
-    }
-
-    @Override
-    public RowId getRowId(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public RowId getRowId(String columnLabel) throws SQLException {
-        return null;
     }
 
     @Override
@@ -629,17 +574,84 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
+        //TODO WARNINGS
         return null;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-
+        //TODO WARNINGS
+        this.warnings = new SQLWarning();
     }
 
     @Override
     public String getCursorName() throws SQLException {
+        //TODO
         return null;
+    }
+
+    //Other gets
+
+    @Override
+    public NClob getNClob(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public SQLXML getSQLXML(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public String getNString(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Reader getNCharacterStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public InputStream getAsciiStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public InputStream getUnicodeStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public InputStream getBinaryStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Reader getCharacterStream(int columnIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public RowId getRowId(int columnIndex) throws SQLException {
+        //TODO ROW ID
+        return null;
+    }
+
+    @Override
+    public RowId getRowId(String columnLabel) throws SQLException {
+        //TODO ROW ID
+        return null;
+    }
+
+    @Override
+    public Array getArray(int columnIndex) throws SQLException {
+        throw new SQLFeatureNotSupportedException("getArray");
+    }
+
+    @Override
+    public Ref getRef(int columnIndex) throws SQLException {
+        throw new SQLFeatureNotSupportedException("getArray");
     }
 
 

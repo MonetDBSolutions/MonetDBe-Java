@@ -65,6 +65,7 @@ public class TestMonetDBeJava {
                     System.out.println("Date: " + rs.getDate(7));
                     System.out.println("Time: " + rs.getTime(8));
                     System.out.println("Timestamp: " + rs.getTimestamp(9));
+                    System.out.println("");
                 }
 
                 s.execute("DROP TABLE a;");
