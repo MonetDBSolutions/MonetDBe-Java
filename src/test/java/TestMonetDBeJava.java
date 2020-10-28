@@ -42,7 +42,7 @@ public class TestMonetDBeJava {
                 /*s.execute("CREATE TABLE a(id int, b boolean, l float);");
                 s.execute("INSERT INTO a VALUES (1,true,3.7), (2,false,2.98), (3,false,2.63), (4,true,1.0);");*/
 
-                
+
 
                 s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, f real, d double, st string, da date, t time);");
                 s.execute("INSERT INTO a VALUES " +
@@ -66,7 +66,7 @@ public class TestMonetDBeJava {
                     System.out.println("String: " + rs.getString(6));
                     System.out.println("Date: " + rs.getDate(7));
                     System.out.println("Time: " + rs.getTime(8));
-                    System.out.println("timestamp: " + rs.getTimestamp(9));
+                    //System.out.println("Timestamp: " + rs.getTimestamp(9));
                 }
 
                 s.execute("DROP TABLE a;");
