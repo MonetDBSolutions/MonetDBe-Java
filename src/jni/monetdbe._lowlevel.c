@@ -4,25 +4,23 @@
 #include <string.h>
 #include <stdio.h>
 
-//TODO JOIN VARDATA FUNCTIONS
-jobject getColumnJavaDate (JNIEnv *env, void* data, char* name, int type, int rows) {
+jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
-    monetdbe_data_date* dates = (monetdbe_data_date*) data;
+    monetdbe_data_timestamp* timestamps = (monetdbe_data_timestamp*) data;
 
     for(int i = 0; i < rows; i++) {
-        char date_str[10];
-        snprintf(date_str,10,"%d-%d-%d",(int)dates[i].year,(int)dates[i].month,(int)dates[i].day);
-        jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
-        (*env)->SetObjectArrayElement(env,j_data,i,j_date);
+        char timestamp_str[20];
+        //TODO MILLISECONDS
+        //TODO HEAD ZEROS FOR ONE DIGIT TIMES
+        //TODO Can I parse to ints like this?
+        snprintf(timestamp_str,19,"%d-%d-%d %d:%d:%d",(int)timestamps[i].year,(int)timestamps[i].month,(int)timestamps[i].day,(int)timestamps[i].hours,(int)timestamps[i].minutes,(int)timestamps[i].seconds);
+        jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
+        (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
     }
-    jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
-
-    jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
-    return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
+    return j_data;
 }
 
-jobject getColumnJavaTime (JNIEnv *env, void* data, char* name, int type, int rows) {
+jobjectArray parseColumnTime (JNIEnv *env, void* data, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
     monetdbe_data_time* times = (monetdbe_data_time*) data;
 
@@ -30,28 +28,56 @@ jobject getColumnJavaTime (JNIEnv *env, void* data, char* name, int type, int ro
         char time_str[9];
         //TODO MILLISECONDS
         //TODO HEAD ZEROS FOR ONE DIGIT TIMES
+        //TODO Can I parse to ints like this?
         snprintf(time_str,9,"%d:%d:%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds);
         jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_time);
     }
-    jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
-
-    jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
-    return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
+    return j_data;
 }
 
-jobject getColumnJavaString (JNIEnv *env, void* data, char* name, int type, int rows) {
-    char** strings = (char**) data;
+jobjectArray parseColumnDate (JNIEnv *env, void* data, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
+    monetdbe_data_date* dates = (monetdbe_data_date*) data;
+
+    for(int i = 0; i < rows; i++) {
+        char date_str[10];
+        //TODO Can I parse to ints like this?
+        snprintf(date_str,10,"%d-%d-%d",(int)dates[i].year,(int)dates[i].month,(int)dates[i].day);
+        jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
+        (*env)->SetObjectArrayElement(env,j_data,i,j_date);
+    }
+    return j_data;
+}
+
+jobjectArray parseColumnString (JNIEnv *env, void* data, int rows) {
+    jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
+    char** strings = (char**) data;
 
     for(int i = 0; i < rows; i++) {
         jobject j_string = (*env)->NewStringUTF(env,(const char*) (strings[i]));
         (*env)->SetObjectArrayElement(env,j_data,i,j_string);
     }
+    return j_data;
+}
+
+jobject getColumnJavaVar (JNIEnv *env, void* data, char* name, int type, int rows) {
+    jobjectArray j_data;
+
+    if(type == 9) {
+        j_data = parseColumnString(env,data,rows);
+    }
+    else if(type == 11) {
+        j_data = parseColumnString(env,data,rows);
+    }
+    else if(type == 12) {
+        j_data = parseColumnString(env,data,rows);
+    }
+    else if(type == 13) {
+        j_data = parseColumnString(env,data,rows);
+    }
 
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
-
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
     return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
@@ -67,20 +93,7 @@ jobject getColumnJavaConst(JNIEnv *env, void* data, char* name, int type, int si
 }
 
 void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int rows, int index) {
-    jobject j_column_object;
-    if (type == 9) {
-        j_column_object = getColumnJavaString(env,data,name,type,rows);
-    }
-    else if (type==11) {
-        j_column_object = getColumnJavaDate(env,data,name,type,rows);
-    }
-    else if (type==12) {
-        j_column_object = getColumnJavaTime(env,data,name,type,rows);
-    }
-    /*else if (type==13) {
-        j_column_object = getColumnJavaTimestamp(env,data,name,type,rows);
-    }*/
-
+    jobject j_column_object = getColumnJavaVar(env,data,name,type,rows);
     (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
 }
 
@@ -206,10 +219,8 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 monetdbe_column_double* c_double = (monetdbe_column_double*) (*column);
                 addColumnConst(env,j_columns,c_double->data,c_double->name,8,64*c_double->count,i);
                 break;
-            //TODO Check conversions below
             case 9:;
                 monetdbe_column_str* c_str = (monetdbe_column_str*) (*column);
-                //addColumn(env,j_columns,c_str->data,c_str->name,9,8*c_str->count,i);
                 addColumnVar(env,j_columns,c_str->data,c_str->name,9,c_str->count,i);
                 break;
             case 10:;
@@ -226,7 +237,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 break;
             case 13:;
                 monetdbe_column_timestamp* c_timestamp = (monetdbe_column_timestamp*) (*column);
-                //addColumn(env,j_columns,c_timestamp->data,c_timestamp->name,13,sizeof(monetdbe_data_timestamp)*c_timestamp->count,i);
+                addColumnVar(env,j_columns,c_timestamp->data,c_timestamp->name,13,c_timestamp->count,i);
                 break;
             default:
                 //TODO What should we do in this case?
