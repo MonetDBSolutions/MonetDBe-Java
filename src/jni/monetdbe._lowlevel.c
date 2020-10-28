@@ -1,6 +1,6 @@
 #include <jni.h>
 #include "nl_cwi_monetdb_monetdbe_MonetNative.h"
-#include "monetdbe"
+#include <monetdbe.h>
 #include <string.h>
 #include <stdio.h>
 
