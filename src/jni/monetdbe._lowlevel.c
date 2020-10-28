@@ -9,13 +9,17 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     monetdbe_data_timestamp* timestamps = (monetdbe_data_timestamp*) data;
 
     for(int i = 0; i < rows; i++) {
+        monetdbe_data_time time = timestamps[i].time;
+        monetdbe_data_date date = timestamps[i].date;
         char timestamp_str[20];
         //TODO MILLISECONDS
         //TODO HEAD ZEROS FOR ONE DIGIT TIMES
         //TODO Can I parse to ints like this?
-        snprintf(timestamp_str,19,"%d-%d-%d %d:%d:%d",(int)timestamps[i].year,(int)timestamps[i].month,(int)timestamps[i].day,(int)timestamps[i].hours,(int)timestamps[i].minutes,(int)timestamps[i].seconds);
+        snprintf(timestamp_str,19,"%d-%d-%d %d:%d:%d",(int)date.year,(int)date.month,(int)date.day,(int)time.hours,(int)time.minutes,(int)time.seconds);
         jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
+        printf("%s Lenght:%d\n",timestamp_str,strlen(timestamp_str));
+        fflush(stdout);
     }
     return j_data;
 }
