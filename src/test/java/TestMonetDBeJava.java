@@ -45,8 +45,6 @@ public class TestMonetDBeJava {
                 s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, f real, d double, st string, da date, t time, ts timestamp);");
                 s.execute("INSERT INTO a VALUES " +
                         "(true, 2, 3, 5, 1.0, 1.66,'hey1',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40:30', '%d-%m-%Y %H:%M:S')), " +
-                        "(true, 4, 6, 10, 2.5, 3.643,'hey2',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40:35', '%d-%m-%Y %H:%M:S')), " +
-                        "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2007', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01:59', '%d-%m-%Y %H:%M:S')), " +
                         "(false, 16, 24, 40, 255.255, 2434.432,'hey4',str_to_date('24-12-2007', '%d-%m-%Y'),str_to_time('14:11:29', '%H:%M:%S'),str_to_timestamp('24-12-2007 14:11:29', '%d-%m-%Y %H:%M:S'));");
                 System.out.println("Insert update count: " + s.getUpdateCount());
                 s.execute("SELECT * FROM a;");
