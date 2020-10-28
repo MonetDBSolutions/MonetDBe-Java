@@ -42,7 +42,7 @@ public class TestMonetDBeJava {
                 /*s.execute("CREATE TABLE a(id int, b boolean, l float);");
                 s.execute("INSERT INTO a VALUES (1,true,3.7), (2,false,2.98), (3,false,2.63), (4,true,1.0);");*/
 
-                s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, f real, d double, st string, da date, t time);");
+                s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, f real, d double, st string, da date, t time, ts timestamp);");
                 s.execute("INSERT INTO a VALUES " +
                         "(true, 2, 3, 5, 1.0, 1.66,'hey1',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40:30', '%d-%m-%Y %H:%M:S')), " +
                         "(true, 4, 6, 10, 2.5, 3.643,'hey2',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40:35', '%d-%m-%Y %H:%M:S')), " +
@@ -64,7 +64,7 @@ public class TestMonetDBeJava {
                     System.out.println("String: " + rs.getString(6));
                     System.out.println("Date: " + rs.getDate(7));
                     System.out.println("Time: " + rs.getTime(8));
-                    System.out.println();
+                    System.out.println("timestamp: " + rs.getTimestamp(9));
                 }
 
                 s.execute("DROP TABLE a;");
