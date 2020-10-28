@@ -72,13 +72,13 @@ jobject getColumnJavaVar (JNIEnv *env, void* data, char* name, int type, int row
         j_data = parseColumnString(env,data,rows);
     }
     else if(type == 11) {
-        j_data = parseColumnString(env,data,rows);
+        j_data = parseColumnDate(env,data,rows);
     }
     else if(type == 12) {
-        j_data = parseColumnString(env,data,rows);
+        j_data = parseColumnTime(env,data,rows);
     }
     else if(type == 13) {
-        j_data = parseColumnString(env,data,rows);
+        j_data = parseColumnTimestamp(env,data,rows);
     }
 
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
