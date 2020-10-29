@@ -32,14 +32,6 @@ public class MonetColumn {
         this.varData = varData;
     }
 
-    //TODO Do we need this here?
-    public MonetColumn(String name, int monetdbeType, String[] varData) {
-        this.name = name;
-        this.monetdbeType = monetdbeType;
-        this.typeName = monetdbeTypes[monetdbeType];
-        this.varData = varData;
-    }
-
     public Buffer getConstData() {
         return constData;
     }
@@ -141,9 +133,9 @@ public class MonetColumn {
     //TYPE MAPPINGS
 
     //TODO Should this be here?
-    private final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
-    private final String[] sqlTypes = {"CHAR","VARCHAR","LONGVARCHAR","NUMERIC","DECIMAL","BOOLEAN","BIT","TINYINT","SMALLINT","INTEGER","BIGINT","REAL","FLOAT","DOUBLE","BINARY","VARBINARY","LONGVARBINARY","DATE","TIME","TIMESTAMP","CLOB","BLOB"};
-    private final Class[] javaTypes = {String.class,BigDecimal.class,Boolean.class,Short.class,Integer.class,Long.class,Float.class,Double.class,byte[].class,java.sql.Date.class,Time.class,Timestamp.class,Clob.class,Blob.class};
+    private static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+    private static final String[] sqlTypes = {"CHAR","VARCHAR","LONGVARCHAR","NUMERIC","DECIMAL","BOOLEAN","BIT","TINYINT","SMALLINT","INTEGER","BIGINT","REAL","FLOAT","DOUBLE","BINARY","VARBINARY","LONGVARBINARY","DATE","TIME","TIMESTAMP","CLOB","BLOB"};
+    private static final Class[] javaTypes = {String.class,BigDecimal.class,Boolean.class,Short.class,Integer.class,Long.class,Float.class,Double.class,byte[].class,java.sql.Date.class,Time.class,Timestamp.class,Clob.class,Blob.class};
 
 
     /** A static Map containing the mapping between MonetDB types and Java SQL types */
@@ -221,6 +213,11 @@ public class MonetColumn {
 
     final static int getMonetSize(final String monetdbetype) {
         return sizeMapMonetdbe.get(monetdbetype);
+    }
+
+    //TODO Fix this (Wrong for str and blobs)
+    final static int getMonetSize(final int monetdbetype) {
+        return sizeMapMonetdbe.get(monetdbeTypes[monetdbetype]);
     }
 
     final static int getSQLType(final String monetdbetype) {

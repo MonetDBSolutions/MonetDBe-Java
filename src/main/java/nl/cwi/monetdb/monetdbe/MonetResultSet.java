@@ -53,6 +53,17 @@ public class MonetResultSet implements ResultSet {
         this.metaData = new MonetResultSetMetaData(columns,ncols);
     }
 
+    public MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name) {
+        this.statement = statement;
+        this.nativeResult = nativeResult;
+        this.tupleCount = nrows;
+        this.curRow = 0;
+        this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
+        //TODO Should this be created when the resultSet is, or only in the getMetadata method?
+        this.metaData = new MonetResultSetMetaData(columns,ncols);
+        System.out.println("ResultSet name: " + name);
+    }
+
     private void checkNotClosed() throws SQLException {
         if (isClosed())
             throw new SQLException("ResultSet is closed", "M1M20");
@@ -134,6 +145,7 @@ public class MonetResultSet implements ResultSet {
     @Override
     public int findColumn(String columnLabel) throws SQLException {
         checkNotClosed();
+        //TODO Check this
         String[] names = ((MonetResultSetMetaData)this.getMetaData()).getNames();
         if (columnLabel != null) {
             final int array_size = names.length;
