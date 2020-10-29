@@ -25,14 +25,11 @@ add_jar(monetdbe-java
         monetdbe-native)
 
 #Link libraries (Java generated header, JNI wrapper and C library)
-#link_directories("/home/bernardo/MonetDB-Jun2020/build/tools/monetdbe")
-#find_package(MonetDB CONFIG REQUIRED)
-
 add_library(monetdbe-lowlevel SHARED src/jni/monetdbe._lowlevel.c)
 target_compile_options(monetdbe-lowlevel PRIVATE -fPIC)
 include_directories(${PREFIX}/include/monetdb/)
 
-find_library(MONETDBE_DIR monetdbe HINTS ${PREFIX}/lib64/)
+find_library(MONETDBE_DIR monetdbe HINTS ${PREFIX}/lib64/ ${PREFIX}/lib/)
 set_target_properties(monetdbe-lowlevel PROPERTIES SUFFIX ".so")
 set_target_properties(monetdbe-lowlevel PROPERTIES PREFIX "lib")
 target_link_libraries(monetdbe-lowlevel monetdbe-native ${MONETDBE_DIR})

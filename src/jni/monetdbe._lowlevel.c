@@ -1,6 +1,6 @@
 #include <jni.h>
 #include "nl_cwi_monetdb_monetdbe_MonetNative.h"
-#include <monetdbe.h>
+#include "monetdbe.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -11,14 +11,12 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     for(int i = 0; i < rows; i++) {
         monetdbe_data_time time = timestamps[i].time;
         monetdbe_data_date date = timestamps[i].date;
-        char timestamp_str[20];
+        char timestamp_str[10];
         //TODO MILLISECONDS
         //TODO HEAD ZEROS FOR ONE DIGIT TIMES
-        //TODO Can I parse to ints like this?
         snprintf(timestamp_str,19,"%d-%d-%d %d:%d:%d",(int)date.year,(int)date.month,(int)date.day,(int)time.hours,(int)time.minutes,(int)time.seconds);
         jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
-        printf("%s Lenght:%d\n",timestamp_str,strlen(timestamp_str));
         fflush(stdout);
     }
     return j_data;
@@ -29,11 +27,10 @@ jobjectArray parseColumnTime (JNIEnv *env, void* data, int rows) {
     monetdbe_data_time* times = (monetdbe_data_time*) data;
 
     for(int i = 0; i < rows; i++) {
-        char time_str[9];
+        char time_str[8];
         //TODO MILLISECONDS
         //TODO HEAD ZEROS FOR ONE DIGIT TIMES
-        //TODO Can I parse to ints like this?
-        snprintf(time_str,9,"%d:%d:%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds);
+        snprintf(time_str,8,"%d:%d:%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds);
         jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_time);
     }
@@ -46,7 +43,6 @@ jobjectArray parseColumnDate (JNIEnv *env, void* data, int rows) {
 
     for(int i = 0; i < rows; i++) {
         char date_str[10];
-        //TODO Can I parse to ints like this?
         snprintf(date_str,10,"%d-%d-%d",(int)dates[i].year,(int)dates[i].month,(int)dates[i].day);
         jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_date);
@@ -95,6 +91,10 @@ jobject getColumnJavaConst(JNIEnv *env, void* data, char* name, int type, int si
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;)V");
     return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
 }
+
+//Free monetdbe_result (and BB)
+//Free MonetColumn name?
+//Free MonetColumn strings from vardata array?
 
 void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int rows, int index) {
     jobject j_column_object = getColumnJavaVar(env,data,name,type,rows);
@@ -150,6 +150,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
 
   char* result_msg = monetdbe_query(db, sql, result, affected_rows);
+  (*env)->ReleaseStringUTFChars(env,j_sql,sql);
   if(result_msg) {
     printf("Query result msg: %s\n", result_msg);
     fflush(stdout);
@@ -162,6 +163,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
     jclass resultSetClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetResultSet;");
     jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;II)V");
     jobject resultSetObject = (*env)->NewObject(env,resultSetClass,constructor,j_statement,resultNative,(*result)->nrows,(*result)->ncols);
+    free(affected_rows);
+    //TODO What happens if we free result here? Does the DirectByteBuffer reference die?
     return resultSetObject;
   }
   //Update query
@@ -169,6 +172,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     jfieldID affectRowsField = (*env)->GetFieldID(env,statementClass,"updateCount","I");
     (*env)->SetIntField(env,j_statement,affectRowsField,(jint)(*affected_rows));
+    free(affected_rows);
+    free(result);
     return NULL;
   }
 }
@@ -249,6 +254,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
         }
     }
   }
+  //TODO Should we free the monetdbe_result here?
   return j_columns;
 }
 

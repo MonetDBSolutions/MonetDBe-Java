@@ -12,5 +12,6 @@ public class MonetNative {
     protected static native int monetdbe_close(ByteBuffer db);
     protected static native MonetResultSet monetdbe_query(ByteBuffer db, String sql, MonetStatement statement);
     protected static native MonetColumn[] monetdbe_result_fetch_all(ByteBuffer nativeResult, int nrows, int ncols);
+    protected static native MonetColumn[] monetdbe_result_cleanup(ByteBuffer db, ByteBuffer nativeResult);
     protected static native String monetdbe_error(ByteBuffer db);
 }

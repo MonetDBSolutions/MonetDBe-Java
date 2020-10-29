@@ -4,6 +4,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 public class MonetResultSetMetaData implements ResultSetMetaData {
+    public MonetResultSetMetaData() {
+    }
+
     @Override
     public int getColumnCount() throws SQLException {
         return 0;
