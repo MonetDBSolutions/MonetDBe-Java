@@ -29,11 +29,11 @@ add_jar(monetdbe-java
 #find_package(MonetDB CONFIG REQUIRED)
 
 add_library(monetdbe-lowlevel SHARED src/jni/monetdbe._lowlevel.c)
+target_compile_options(monetdbe-lowlevel PRIVATE -fexceptions)
 
-include_directories(${PREFIX}/lib64)
+#include_directories(${PREFIX}/lib64)
 include_directories(${PREFIX}/include/monetdb/)
 link_directories(${PREFIX}/lib64)
-target_compile_options(monetdbe-lowlevel PRIVATE -fexceptions)
 set_target_properties(monetdbe-lowlevel PROPERTIES SUFFIX ".so")
 set_target_properties(monetdbe-lowlevel PROPERTIES PREFIX "lib")
 target_link_libraries(monetdbe-lowlevel monetdbe-native monetdbe)
