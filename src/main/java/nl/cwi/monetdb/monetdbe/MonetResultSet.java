@@ -24,6 +24,8 @@ public class MonetResultSet implements ResultSet {
     private int curRow;
 
     private MonetColumn[] columns;
+    /** Name defined in monetdbe_result C struct */
+    private String name;
 
     //TODO Check these values
     /** The resultSetType of this ResultSet (forward or scrollable) */
@@ -51,39 +53,6 @@ public class MonetResultSet implements ResultSet {
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
         //TODO Should this be created when the resultSet is, or only in the getMetadata method?
         this.metaData = new MonetResultSetMetaData(columns,ncols);
-    }
-
-    public MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name) {
-        this.statement = statement;
-        this.nativeResult = nativeResult;
-        this.tupleCount = nrows;
-        this.curRow = 0;
-        this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
-        //TODO Should this be created when the resultSet is, or only in the getMetadata method?
-        this.metaData = new MonetResultSetMetaData(columns,ncols);
-        System.out.println("ResultSet name: " + name);
-    }
-
-    private void checkNotClosed() throws SQLException {
-        if (isClosed())
-            throw new SQLException("ResultSet is closed", "M1M20");
-    }
-
-    @Override
-    public boolean isClosed() throws SQLException {
-        return this.closed;
-    }
-
-    @Override
-    public void close() throws SQLException {
-        this.closed = true;
-        MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDbNative(),nativeResult);
-        this.columns = null;
-    }
-
-    @Override
-    public ResultSetMetaData getMetaData() throws SQLException {
-        return metaData;
     }
 
     //Get Object / Type Object
@@ -134,11 +103,13 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
+        //TODO
         return null;
     }
 
     @Override
     public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
+        //TODO
         return null;
     }
 
@@ -422,6 +393,28 @@ public class MonetResultSet implements ResultSet {
     }
 
     //Meta sets/gets
+    private void checkNotClosed() throws SQLException {
+        if (isClosed())
+            throw new SQLException("ResultSet is closed", "M1M20");
+    }
+
+    @Override
+    public boolean isClosed() throws SQLException {
+        return this.closed;
+    }
+
+    @Override
+    public void close() throws SQLException {
+        this.closed = true;
+        MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDbNative(),nativeResult);
+        this.columns = null;
+    }
+
+    @Override
+    public ResultSetMetaData getMetaData() throws SQLException {
+        return metaData;
+    }
+
     @Override
     public boolean absolute(int row) throws SQLException {
         checkNotClosed();

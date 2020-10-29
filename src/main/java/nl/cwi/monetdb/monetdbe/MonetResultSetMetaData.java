@@ -86,7 +86,7 @@ public class MonetResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int isNullable(int column) throws SQLException {
-        //TODO
+        //TODO NULLABLE
         return 0;
     }
 
@@ -144,6 +144,7 @@ public class MonetResultSetMetaData implements ResultSetMetaData {
     @Override
     public String getSchemaName(int column) throws SQLException {
         //TODO TABLE NAMES
+        //Where do I get table and schema names in the resultset?
         return null;
     }
 
