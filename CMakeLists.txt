@@ -32,7 +32,6 @@ add_library(monetdbe-lowlevel SHARED src/jni/monetdbe._lowlevel.c)
 
 #include_directories(${PREFIX}/lib64/)
 include_directories(${PREFIX}/include/monetdb/)
-add_library(monetdbe-lowlevel SHARED src/jni/monetdbe._lowlevel.c)
 find_library(MONETDBE_DIR monetdbe HINTS ${PREFIX}/lib64/)
 link_directories(monetdbe-lowlevel ${PREFIX}/lib64/)
 set_target_properties(monetdbe-lowlevel PROPERTIES SUFFIX ".so")
