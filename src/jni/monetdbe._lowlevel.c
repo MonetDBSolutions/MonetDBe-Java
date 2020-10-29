@@ -92,9 +92,15 @@ jobject getColumnJavaConst(JNIEnv *env, void* data, char* name, int type, int si
     return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
 }
 
-//Free monetdbe_result (and BB)
+//Free monetdbe_result (and BB?)
 //Free MonetColumn name?
 //Free MonetColumn strings from vardata array?
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1cleanup (JNIEnv * env, jclass self, jobject j_db, jobject j_rs) {
+    monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
+    monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
+    char* result = monetdbe_cleanup_result(db,rs);
+    return (*env)->NewStringUTF(env,(const char*) result);
+}
 
 void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int rows, int index) {
     jobject j_column_object = getColumnJavaVar(env,data,name,type,rows);

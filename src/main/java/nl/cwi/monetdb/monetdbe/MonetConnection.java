@@ -1,17 +1,13 @@
 package nl.cwi.monetdb.monetdbe;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.util.Calendar;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
 public class MonetConnection implements Connection {
-    private ByteBuffer connection;
+    private ByteBuffer dbNative;
     private String dbdir;
     private int sessiontimeout;
     private int querytimeout;
@@ -26,12 +22,12 @@ public class MonetConnection implements Connection {
         this.memorylimit = Integer.parseInt((String) props.getOrDefault("memorylimit","0"));
         this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
-        //this.connection = MonetNative.monetdbe_open(dbdir);
-        this.connection = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
+        //this.dbNative = MonetNative.monetdbe_open(dbdir);
+        this.dbNative = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
     }
 
-    public ByteBuffer getConnection() {
-        return connection;
+    public ByteBuffer getDbNative() {
+        return dbNative;
     }
 
     @Override
@@ -82,13 +78,13 @@ public class MonetConnection implements Connection {
         if(isClosed()) {
             throw new SQLException("Connection already closed.");
         }
-        MonetNative.monetdbe_close(connection);
-        connection = null;
+        MonetNative.monetdbe_close(dbNative);
+        dbNative = null;
     }
 
     @Override
     public boolean isClosed() throws SQLException {
-        return connection == null;
+        return dbNative == null;
     }
 
     @Override

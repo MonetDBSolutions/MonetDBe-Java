@@ -23,16 +23,7 @@ public class MonetResultSet implements ResultSet {
     /** The current position of the cursor for this ResultSet object */
     private int curRow;
 
-
     private MonetColumn[] columns;
-
-    //TODO CHECK what's necessary here and what we should remove
-    /** The names of the columns in this ResultSet */
-    private final String[] names;
-    /** The MonetDB types of the columns in this ResultSet */
-    private final String[] monetTypes;
-    /** The JDBC SQL types of the columns in this ResultSet.*/
-    private final int[] sqlTypes;
 
     //TODO Check these values
     /** The resultSetType of this ResultSet (forward or scrollable) */
@@ -57,18 +48,9 @@ public class MonetResultSet implements ResultSet {
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
         this.curRow = 0;
-        this.metaData = new MonetResultSetMetaData();
-
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
-        this.names = new String[ncols];
-        this.monetTypes = new String[ncols];
-        this.sqlTypes = new int[ncols];
-
-        for(int i = 0; i<ncols; i++ ) {
-            names[i] = columns[i].getName();
-            monetTypes[i] = columns[i].getTypeName();
-            sqlTypes[i] = MonetColumn.getSQLType(columns[i].getTypeName());
-        }
+        //TODO Should this be created when the resultSet is, or only in the getMetadata method?
+        this.metaData = new MonetResultSetMetaData(columns,ncols);
     }
 
     private void checkNotClosed() throws SQLException {
@@ -84,7 +66,8 @@ public class MonetResultSet implements ResultSet {
     @Override
     public void close() throws SQLException {
         this.closed = true;
-        //TODO CLEAN AND FREE
+        MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDbNative(),nativeResult);
+        this.columns = null;
     }
 
     @Override
@@ -151,6 +134,7 @@ public class MonetResultSet implements ResultSet {
     @Override
     public int findColumn(String columnLabel) throws SQLException {
         checkNotClosed();
+        String[] names = ((MonetResultSetMetaData)this.getMetaData()).getNames();
         if (columnLabel != null) {
             final int array_size = names.length;
             for (int i = 0; i < array_size; i++) {

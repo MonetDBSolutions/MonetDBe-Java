@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.nio.*;
 import java.sql.*;
 
-//TODO What conversion methods do we have when a monetdbeType which is not the column's monetdbeType is requested? What types can be converted to other types?
-
 public class MonetColumn {
     private Buffer constData;
     private Object[] varData;
@@ -64,11 +62,10 @@ public class MonetColumn {
 
     //Constant length types
     public boolean getBoolean(int row) throws SQLException {
-        if (monetdbeType ==0)  {
+        if (monetdbeType == 0)  {
             return ((ByteBuffer) constData).get(row)!=0;
         }
         else {
-            //TODO Check which conversions are possible
             throw new SQLException("Column is not bool value");
         }
     }
@@ -78,7 +75,6 @@ public class MonetColumn {
             return ((ByteBuffer) constData).asShortBuffer().get(row);
         }
         else {
-            //TODO Check which conversions are possible
             throw new SQLException("Column is not short value");
         }
     }
@@ -88,7 +84,6 @@ public class MonetColumn {
             return ((ByteBuffer) constData).asIntBuffer().get(row);
         }
         else {
-            //TODO Check which conversions are possible
             throw new SQLException("Column is not int value");
         }
     }
@@ -98,8 +93,7 @@ public class MonetColumn {
             return ((ByteBuffer) constData).asLongBuffer().get(row);
         }
         else {
-            //TODO Check which conversions are possible
-            throw new SQLException("Column is not int value");
+            throw new SQLException("Column is not long value");
         }
     }
 
@@ -107,23 +101,20 @@ public class MonetColumn {
         return getInt(row);
     }
 
-    //TODO: Check this monetdbeType, something wrong is happening
     public Float getFloat(int row) throws SQLException {
         if (monetdbeType == 7)  {
             return ((ByteBuffer) constData).asFloatBuffer().get(row);
         }
         else {
-            //TODO Check which conversions are possible
             throw new SQLException("Column is not float value");
         }
     }
 
     public Double getDouble(int row) throws SQLException {
-        if (monetdbeType ==8)  {
+        if (monetdbeType == 8)  {
             return ((ByteBuffer) constData).asDoubleBuffer().get(row);
         }
         else {
-            //TODO Check which conversions are possible
             throw new SQLException("Column is not double value");
         }
     }
@@ -134,8 +125,7 @@ public class MonetColumn {
             return (String) varData[row];
         }
         else {
-            //TODO Check which conversions are possible
-            throw new SQLException("Column is not string value");
+            throw new SQLException("Column is not string or date value");
         }
     }
 
@@ -144,7 +134,6 @@ public class MonetColumn {
             return ((ByteBuffer) constData).get(row);
         }
         else {
-            //TODO
             return 0;
         }
     }
@@ -208,6 +197,30 @@ public class MonetColumn {
         //TODO
         typeMapMonetdbe.put("monetdbe_int128_t", 0);
         typeMapMonetdbe.put("monetdbe_unknown", 0);
+    }
+
+    /** A static Map containing the mapping between MonetDB types and Java SQL types */
+    private static final java.util.Map<String, Integer> sizeMapMonetdbe = new java.util.HashMap<String, Integer>();
+    static {
+        sizeMapMonetdbe.put("monetdbe_bool", 8);
+        sizeMapMonetdbe.put("monetdbe_int8_t", 8);
+        sizeMapMonetdbe.put("monetdbe_int16_t", 16);
+        sizeMapMonetdbe.put("monetdbe_int32_t", 32);
+        sizeMapMonetdbe.put("monetdbe_int64_t", 64);
+        sizeMapMonetdbe.put("monetdbe_int128_t", 128);
+        sizeMapMonetdbe.put("monetdbe_size_t", 32);
+        sizeMapMonetdbe.put("monetdbe_float", 32);
+        sizeMapMonetdbe.put("monetdbe_double", 64);
+        sizeMapMonetdbe.put("monetdbe_str", 0);
+        sizeMapMonetdbe.put("monetdbe_blob", 0);
+        sizeMapMonetdbe.put("monetdbe_date", 10);
+        sizeMapMonetdbe.put("monetdbe_time", 8);
+        sizeMapMonetdbe.put("monetdbe_timestamp", 19);
+        typeMapMonetdbe.put("monetdbe_unknown", 0);
+    }
+
+    final static int getMonetSize(final String monetdbetype) {
+        return sizeMapMonetdbe.get(monetdbetype);
     }
 
     final static int getSQLType(final String monetdbetype) {

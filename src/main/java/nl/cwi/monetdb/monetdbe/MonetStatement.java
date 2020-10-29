@@ -15,7 +15,7 @@ public class MonetStatement implements Statement {
 
     @Override
     public boolean execute(String sql) throws SQLException {
-        this.resultSet = MonetNative.monetdbe_query(conn.getConnection(),sql,this);
+        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this);
         if(this.resultSet!=null) {
             return true;
         }

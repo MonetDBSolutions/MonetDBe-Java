@@ -20,7 +20,7 @@ public class TestMonetDBeJava {
     public static void main (String[] args) {
         /*try {
             System.out.println(DriverManager.getDrivers().nextElement().toString());
-            Connection conn = DriverManager.getConnection("jdbc:monetdb://localhost/test");
+            Connection conn = DriverManager.getDbNative("jdbc:monetdb://localhost/test");
         } catch (SQLException e) {
             e.printStackTrace();
         }*/

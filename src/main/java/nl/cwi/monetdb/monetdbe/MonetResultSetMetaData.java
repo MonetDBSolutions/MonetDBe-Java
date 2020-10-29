@@ -4,12 +4,43 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 public class MonetResultSetMetaData implements ResultSetMetaData {
-    public MonetResultSetMetaData() {
+    /** The names of the columns in this ResultSet */
+    private final String[] names;
+    /** The MonetDB types of the columns in this ResultSet */
+    private final String[] monetTypes;
+    /** The JDBC SQL types of the columns in this ResultSet.*/
+    private final int[] sqlTypes;
+    /** The number of columns in this ResultSet */
+    private final int columnCount;
+
+    public MonetResultSetMetaData(MonetColumn[] columns, int ncols) {
+        this.names = new String[ncols];
+        this.monetTypes = new String[ncols];
+        this.sqlTypes = new int[ncols];
+        this.columnCount = ncols;
+
+        for(int i = 0; i<ncols; i++ ) {
+            names[i] = columns[i].getName();
+            monetTypes[i] = columns[i].getTypeName();
+            sqlTypes[i] = MonetColumn.getSQLType(columns[i].getTypeName());
+        }
+    }
+
+    public String[] getNames() {
+        return names;
+    }
+
+    public String[] getMonetTypes() {
+        return monetTypes;
+    }
+
+    public int[] getSqlTypes() {
+        return sqlTypes;
     }
 
     @Override
     public int getColumnCount() throws SQLException {
-        return 0;
+        return columnCount;
     }
 
     @Override
@@ -24,6 +55,7 @@ public class MonetResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public boolean isSearchable(int column) throws SQLException {
+        //TODO
         return false;
     }
 
@@ -34,17 +66,26 @@ public class MonetResultSetMetaData implements ResultSetMetaData {
 
     @Override
     public int isNullable(int column) throws SQLException {
+        //TODO
         return 0;
     }
 
     @Override
     public boolean isSigned(int column) throws SQLException {
+        //TODO
         return false;
     }
 
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        return 0;
+        String type = monetTypes[column];
+        if(type.equals("monetdbe_str") || type.equals("monetdbe_blob")) {
+            //TODO What to return here?
+            return 255;
+        }
+        else {
+            return MonetColumn.getMonetSize(type);
+        }
     }
 
     @Override
