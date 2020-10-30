@@ -129,6 +129,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   int result;
   if(strcmp(url,":memory:")==0) {
+    printf("Memory"); fflush(stdout);
     result = monetdbe_open(db,NULL,opts);
   }
   else {
@@ -170,7 +171,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
     jclass resultSetClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetResultSet;");
     jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;IILjava/lang/String;)V");
     jobject resultSetObject = (*env)->NewObject(env,resultSetClass,constructor,j_statement,resultNative,(*result)->nrows,(*result)->ncols,resultSetName);
-    //free(affected_rows);
+    free(affected_rows);
     //TODO What happens if we free result here? Does the DirectByteBuffer reference die?
     return resultSetObject;
   }
@@ -179,8 +180,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     jfieldID affectRowsField = (*env)->GetFieldID(env,statementClass,"updateCount","I");
     (*env)->SetIntField(env,j_statement,affectRowsField,(jint)(*affected_rows));
-    //free(affected_rows);
-    //free(result);
+    free(affected_rows);
+    free(result);
     return NULL;
   }
 }
