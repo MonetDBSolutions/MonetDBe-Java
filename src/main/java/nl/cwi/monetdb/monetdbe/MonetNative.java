@@ -15,5 +15,5 @@ public class MonetNative {
     protected static native String monetdbe_result_cleanup(ByteBuffer db, ByteBuffer nativeResult);
     protected static native String monetdbe_error(ByteBuffer db);
     protected static native String monetdbe_set_autocommit(ByteBuffer db, int value);
-    protected static native int monetdbe_get_autocommit(ByteBuffer db);
+    protected static native boolean monetdbe_get_autocommit(ByteBuffer db);
 }

@@ -271,3 +271,23 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1err
   char* result = monetdbe_error(db);
   return (*env)->NewStringUTF(env,(const char*) result);
 }
+
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1set_1autocommit (JNIEnv * env, jclass self, jobject j_db, jint j_auto_commit) {
+    monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
+    char* result = monetdbe_set_autocommit(db,(int) j_auto_commit);
+    return (*env)->NewStringUTF(env,(const char*) result);
+}
+
+JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1get_1autocommit (JNIEnv * env, jclass self, jobject j_db) {
+    monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
+    int result;
+    char* result_msg = monetdbe_get_autocommit(db, &result);
+    if(result_msg) {
+        printf("Set_autocommit result msg: %s\n", result_msg);
+        return -1;
+    }
+    else {
+        return (jboolean) result == 1;
+    }
+
+}

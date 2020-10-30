@@ -30,8 +30,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         //this.dbNative = MonetNative.monetdbe_open(dbdir);
         this.dbNative = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
         MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
-        int autocommit = MonetNative.monetdbe_get_autocommit(dbNative);
-        System.out.println("Autocommit value set: " + autocommit);
+        System.out.println("Autocommit value set: " + MonetNative.monetdbe_get_autocommit(dbNative));
         this.metaData = new MonetDatabaseMetadata();
         this.properties = props;
         this.statements = new ArrayList<>();

@@ -76,7 +76,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1set
  * Method:    monetdbe_get_autocommit
  * Signature: (Ljava/nio/ByteBuffer;)I
  */
-JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1get_1autocommit
+JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1get_1autocommit
   (JNIEnv *, jclass, jobject);
 
 #ifdef __cplusplus
