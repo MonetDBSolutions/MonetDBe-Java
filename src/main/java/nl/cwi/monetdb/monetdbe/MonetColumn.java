@@ -23,7 +23,6 @@ public class MonetColumn {
         this.monetdbeType = monetdbeType;
         this.typeName = monetdbeTypes[monetdbeType];
         this.constData = constData.order(ByteOrder.LITTLE_ENDIAN);
-        System.out.println(name + " with type " + typeName);
     }
 
     public MonetColumn(String name, int monetdbeType, Object[] varData) {
