@@ -19,7 +19,6 @@ public class TestMonetDBeJava {
             MonetStatement s = (MonetStatement) c.createStatement();
 
             System.out.println("Create table");
-            s.execute("CREATE TABLE a(id int, name string);");
             //s.execute("INSERT INTO a VALUES (1,'a'), (2,'b'), (3,'c');");
             //s.execute("CREATE TABLE a (b bool);");
             //s.execute("INSERT INTO a VALUES (TRUE), (TRUE), (FALSE);");
