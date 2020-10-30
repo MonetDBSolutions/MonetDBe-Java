@@ -94,6 +94,7 @@ public class MonetColumn {
     }
 
     public Float getFloat(int row) throws SQLException {
+        System.out.println(monetdbeType + " " + MonetColumn.getClassForType(monetdbeType));
         if (monetdbeType == 7)  {
             return ((ByteBuffer) constData).asFloatBuffer().get(row);
         }
