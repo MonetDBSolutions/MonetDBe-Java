@@ -155,10 +155,9 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
   char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
-  printf("%s\n",sql);
 
   char* result_msg = monetdbe_query(db, sql, result, affected_rows);
-  //(*env)->ReleaseStringUTFChars(env,j_sql,sql);
+  (*env)->ReleaseStringUTFChars(env,j_sql,sql);
   if(result_msg) {
     printf("Query result msg: %s\n", result_msg);
     fflush(stdout);
