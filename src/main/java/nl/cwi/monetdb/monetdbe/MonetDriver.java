@@ -25,7 +25,6 @@ final public class MonetDriver implements java.sql.Driver {
         final Properties props = new Properties();
         //Remove leading jdbc:monetdb://
         //TODO: If dbdir is an uri, we should parse it differently
-        System.out.println(url.substring(15));
         props.setProperty("dbdir",url.substring(15));
         props.setProperty("sessiontimeout","0");
         props.setProperty("querytimeout","0");
@@ -45,7 +44,7 @@ final public class MonetDriver implements java.sql.Driver {
             info = props;
         }
 
-        return new MonetConnection(url,info);
+        return new MonetConnection(url.substring(15),info);
     }
 
     @Override
