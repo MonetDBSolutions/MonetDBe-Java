@@ -428,6 +428,11 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public boolean absolute(int row) throws SQLException {
         checkNotClosed();
+        if (fetchDirection == ResultSet.FETCH_FORWARD) {
+            throw new SQLException("(Absolute) positioning not allowed on forward " +
+                    " only result sets!", "M1M05");
+        }
+
         if (row < 0) {
             row = tupleCount + row + 1;
         }
@@ -552,13 +557,12 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public void setFetchSize(int rows) throws SQLException {
-        //TODO FETCH
+        this.fetchSize = rows;
     }
 
     @Override
     public int getFetchSize() throws SQLException {
-        //TODO FETCH
-        return 0;
+        return fetchSize;
     }
 
     @Override

@@ -28,10 +28,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
         //this.dbNative = MonetNative.monetdbe_open(dbdir);
-        this.autoCommit = false;
         this.dbNative = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
         MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
-        System.out.println("Autocommit value set: " + MonetNative.monetdbe_get_autocommit(dbNative));
         this.metaData = new MonetDatabaseMetadata();
         this.properties = props;
         this.statements = new ArrayList<>();
@@ -42,11 +40,11 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     private final void addWarning(final String reason, final String sqlstate) {
-        final SQLWarning warng = new SQLWarning(reason, sqlstate);
+        final SQLWarning warn = new SQLWarning(reason, sqlstate);
         if (warnings == null) {
-            warnings = warng;
+            warnings = warn;
         } else {
-            warnings.setNextWarning(warng);
+            warnings.setNextWarning(warn);
         }
     }
 
@@ -308,7 +306,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkNotClosed();
         try {
-            MonetStatement s = new MonetStatement(this);
+            MonetStatement s = new MonetStatement(this,resultSetType,resultSetConcurrency,resultSetHoldability);
             statements.add(s);
             return s;
         } catch (IllegalArgumentException e) {

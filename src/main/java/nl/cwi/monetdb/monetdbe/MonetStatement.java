@@ -6,13 +6,77 @@ public class MonetStatement extends MonetWrapper implements Statement {
     private MonetConnection conn;
     private int updateCount;
     private MonetResultSet resultSet;
+    private SQLWarning warnings;
+
+    private int maxRows=0;
+
+    //TODO Are these actually used?
+    private int fetchDirection;
+    private int fetchSize;
+    private int resultSetType;
+    private int resultSetConcurrency;
+    private int resultSetHoldability;
+    private boolean poolable = false;
 
     public MonetStatement(MonetConnection conn) {
         this.conn = conn;
         this.updateCount = -1;
         this.resultSet = null;
+        this.fetchDirection = ResultSet.FETCH_UNKNOWN;
     }
 
+    public MonetStatement(MonetConnection conn, int resultSetType, int resultSetConcurrency, int resultSetHoldability) {
+        this.conn = conn;
+        this.updateCount = -1;
+        this.resultSet = null;
+        this.fetchDirection = ResultSet.FETCH_UNKNOWN;
+        this.resultSetType = resultSetType;
+        this.resultSetConcurrency = resultSetConcurrency;
+        this.resultSetHoldability = resultSetHoldability;
+    }
+
+    private final void addWarning(final String reason, final String sqlstate) {
+        final SQLWarning warn = new SQLWarning(reason, sqlstate);
+        if (warnings == null) {
+            warnings = warn;
+        } else {
+            warnings.setNextWarning(warn);
+        }
+    }
+
+    //TODO Add this check to functions to verify connection is not closed
+    private void checkNotClosed() throws SQLException {
+        if (isClosed())
+            throw new SQLException("Connection is closed", "M1M20");
+    }
+
+    //Close
+    @Override
+    public void close() throws SQLException {
+
+    }
+
+    @Override
+    public void cancel() throws SQLException {
+
+    }
+
+    @Override
+    public boolean isClosed() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public void closeOnCompletion() throws SQLException {
+
+    }
+
+    @Override
+    public boolean isCloseOnCompletion() throws SQLException {
+        return false;
+    }
+
+    //Executes
     @Override
     public boolean execute(String sql) throws SQLException {
         this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this);
@@ -30,32 +94,38 @@ public class MonetStatement extends MonetWrapper implements Statement {
     }
 
     @Override
-    public int getUpdateCount() throws SQLException {
-        return this.updateCount;
-    }
-
-    public void setUpdateCount(int updateCount) {
-        this.updateCount = updateCount;
-    }
-
-    @Override
-    public ResultSet getResultSet() throws SQLException {
-        return resultSet;
-    }
-
-    @Override
-    public long getLargeUpdateCount() throws SQLException {
+    public int executeUpdate(String sql) throws SQLException {
         return 0;
     }
 
     @Override
-    public void setLargeMaxRows(long max) throws SQLException {
+    public ResultSet executeQuery(String sql) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public boolean getMoreResults() throws SQLException {
+        return false;
+    }
+
+    @Override
+    public boolean getMoreResults(int current) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public void addBatch(String sql) throws SQLException {
 
     }
 
     @Override
-    public long getLargeMaxRows() throws SQLException {
-        return 0;
+    public void clearBatch() throws SQLException {
+
+    }
+
+    @Override
+    public int[] executeBatch() throws SQLException {
+        return new int[0];
     }
 
     @Override
@@ -81,141 +151,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public long executeLargeUpdate(String sql, String[] columnNames) throws SQLException {
         return 0;
-    }
-
-    @Override
-    public ResultSet executeQuery(String sql) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public int executeUpdate(String sql) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public void close() throws SQLException {
-
-    }
-
-    @Override
-    public int getMaxFieldSize() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public void setMaxFieldSize(int max) throws SQLException {
-
-    }
-
-    @Override
-    public int getMaxRows() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public void setMaxRows(int max) throws SQLException {
-
-    }
-
-    @Override
-    public void setEscapeProcessing(boolean enable) throws SQLException {
-
-    }
-
-    @Override
-    public int getQueryTimeout() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public void setQueryTimeout(int seconds) throws SQLException {
-
-    }
-
-    @Override
-    public void cancel() throws SQLException {
-
-    }
-
-    @Override
-    public SQLWarning getWarnings() throws SQLException {
-        return null;
-    }
-
-    @Override
-    public void clearWarnings() throws SQLException {
-
-    }
-
-    @Override
-    public void setCursorName(String name) throws SQLException {
-
-    }
-
-    @Override
-    public boolean getMoreResults() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public void setFetchDirection(int direction) throws SQLException {
-
-    }
-
-    @Override
-    public int getFetchDirection() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public void setFetchSize(int rows) throws SQLException {
-
-    }
-
-    @Override
-    public int getFetchSize() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public int getResultSetConcurrency() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public int getResultSetType() throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public void addBatch(String sql) throws SQLException {
-
-    }
-
-    @Override
-    public void clearBatch() throws SQLException {
-
-    }
-
-    @Override
-    public int[] executeBatch() throws SQLException {
-        return new int[0];
-    }
-
-    @Override
-    public Connection getConnection() throws SQLException {
-        return null;
-    }
-
-    @Override
-    public boolean getMoreResults(int current) throws SQLException {
-        return false;
-    }
-
-    @Override
-    public ResultSet getGeneratedKeys() throws SQLException {
-        return null;
     }
 
     @Override
@@ -248,33 +183,158 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return false;
     }
 
+    //Meta gets/sets
     @Override
-    public int getResultSetHoldability() throws SQLException {
-        return 0;
+    public int getUpdateCount() throws SQLException {
+        return this.updateCount;
     }
 
     @Override
-    public boolean isClosed() throws SQLException {
-        return false;
+    public ResultSet getResultSet() throws SQLException {
+        return resultSet;
+    }
+
+    @Override
+    public ResultSet getGeneratedKeys() throws SQLException {
+        //TODO Generated Keys
+        return null;
+    }
+
+    //Pedro's code
+    @Override
+    public void setEscapeProcessing(boolean enable) throws SQLException {
+        if (enable)
+            addWarning("setEscapeProcessing: JDBC escape syntax is not supported by this driver", "01M22");
+    }
+
+    //TODO Verify: are these the same?
+    @Override
+    public int getQueryTimeout() throws SQLException {
+        return conn.getNetworkTimeout();
+    }
+
+    @Override
+    public void setQueryTimeout(int seconds) throws SQLException {
+        //TODO Can you change the query timeout with the current API? We only pass the monetdbe_options struct on opening the database
+    }
+
+    @Override
+    public SQLWarning getWarnings() throws SQLException {
+        return warnings;
+    }
+
+    @Override
+    public void clearWarnings() throws SQLException {
+        warnings = null;
+    }
+
+    //Pedro's Code
+    @Override
+    public void setCursorName(String name) throws SQLException {
+        addWarning("setCursorName: positioned updates/deletes not supported", "01M21");
+    }
+
+    @Override
+    public void setFetchDirection(int direction) throws SQLException {
+        checkNotClosed();
+        if (direction == ResultSet.FETCH_FORWARD ||
+                direction == ResultSet.FETCH_REVERSE ||
+                direction == ResultSet.FETCH_UNKNOWN)
+        {
+            fetchDirection = direction;
+        } else {
+            throw new SQLException("Illegal direction: " + direction, "M1M05");
+        }
+    }
+
+    @Override
+    public int getFetchDirection() throws SQLException {
+        return fetchDirection;
+    }
+
+    @Override
+    public void setFetchSize(int rows) throws SQLException {
+        if (rows >= 0 && !(getMaxRows() != 0 && rows > getMaxRows())) {
+            this.fetchSize = rows;
+        } else {
+            throw new SQLException("Illegal fetch size value: " + rows, "M1M05");
+        }
+    }
+
+    @Override
+    public int getFetchSize() throws SQLException {
+        return fetchSize;
+    }
+
+    @Override
+    public int getResultSetConcurrency() throws SQLException {
+        return resultSetConcurrency;
+    }
+
+    @Override
+    public int getResultSetType() throws SQLException {
+        return resultSetType;
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        return conn;
+    }
+
+    @Override
+    public int getResultSetHoldability() throws SQLException {
+        return resultSetHoldability;
     }
 
     @Override
     public void setPoolable(boolean poolable) throws SQLException {
-
+        this.poolable = poolable;
     }
 
     @Override
     public boolean isPoolable() throws SQLException {
-        return false;
+        return this.poolable;
     }
 
     @Override
-    public void closeOnCompletion() throws SQLException {
+    public long getLargeUpdateCount() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public void setLargeMaxRows(long max) throws SQLException {
 
     }
 
     @Override
-    public boolean isCloseOnCompletion() throws SQLException {
-        return false;
+    public long getLargeMaxRows() throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public int getMaxFieldSize() throws SQLException {
+        return 0;
+    }
+
+    //Pedro's code
+    @Override
+    public void setMaxFieldSize(final int max) throws SQLException {
+        if (max < 0)
+            throw new SQLException("Illegal max value: " + max, "M1M05");
+        if (max > 0)
+            addWarning("setMaxFieldSize: field size limitation not supported", "01M23");
+    }
+
+    @Override
+    public int getMaxRows() throws SQLException {
+        return maxRows;
+    }
+
+    //Pedro's code
+    @Override
+    public void setMaxRows(int max) throws SQLException {
+        if (max < 0)
+            throw new SQLException("Illegal max value: " + max, "M1M05");
+        maxRows = max;
     }
 }
