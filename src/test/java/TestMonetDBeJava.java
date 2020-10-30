@@ -63,7 +63,6 @@ public class TestMonetDBeJava {
 
     public static void main(String[] args) {
         try {
-            System.out.println(DriverManager.getDrivers().nextElement().toString());
             Properties info = null;
             String url = "jdbc:monetdb://:memory:";
 
