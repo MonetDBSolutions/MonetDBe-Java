@@ -50,9 +50,9 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
 /*
  * Class:     nl_cwi_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_result_cleanup
- * Signature: (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)[Lnl/cwi/monetdb/monetdbe/MonetColumn;
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)Ljava/lang/String;
  */
-JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1cleanup
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1cleanup
   (JNIEnv *, jclass, jobject, jobject);
 
 /*
@@ -61,6 +61,22 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
  * Signature: (Ljava/nio/ByteBuffer;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error
+  (JNIEnv *, jclass, jobject);
+
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_set_autocommit
+ * Signature: (Ljava/nio/ByteBuffer;I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1set_1autocommit
+  (JNIEnv *, jclass, jobject, jint);
+
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_get_autocommit
+ * Signature: (Ljava/nio/ByteBuffer;)I
+ */
+JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1get_1autocommit
   (JNIEnv *, jclass, jobject);
 
 #ifdef __cplusplus
