@@ -28,6 +28,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
         //this.dbNative = MonetNative.monetdbe_open(dbdir);
+        this.autoCommit = false;
         this.dbNative = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
         MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
         System.out.println("Autocommit value set: " + MonetNative.monetdbe_get_autocommit(dbNative));
