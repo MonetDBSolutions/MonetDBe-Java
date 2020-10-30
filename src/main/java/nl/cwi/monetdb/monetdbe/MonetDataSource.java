@@ -1,0 +1,69 @@
+package nl.cwi.monetdb.monetdbe;
+
+import javax.sql.DataSource;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+//TODO I think I'm not defining this correctly
+public class MonetDataSource extends MonetWrapper implements DataSource {
+    private String url;
+    private final MonetDriver driver;
+
+    //TODO not used
+    private int loginTimeout = 0;
+    private String user;
+    private String password;
+
+    public MonetDataSource() {
+        user = "";
+        password = "";
+        url = "jdbc:monetdb://:memory:";
+        driver = new MonetDriver();
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        return getConnection(user,password);
+    }
+
+    @Override
+    public Connection getConnection(String username, String password) throws SQLException {
+        if (loginTimeout > 0) {
+            /// could enable Socket.setSoTimeout(int timeout) here...
+        }
+        final Properties props = new Properties();
+        props.put("user", username);
+        props.put("password", password);
+
+        return driver.connect(url, props);
+    }
+
+    @Override
+    public void setLoginTimeout(int seconds) throws SQLException {
+        this.loginTimeout = seconds;
+    }
+
+    @Override
+    public int getLoginTimeout() throws SQLException {
+        return loginTimeout;
+    }
+
+    @Override
+    public PrintWriter getLogWriter() throws SQLException {
+        return null;
+    }
+
+    @Override
+    public void setLogWriter(PrintWriter out) throws SQLException {
+
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw  new SQLFeatureNotSupportedException("getParentLogger");
+    }
+}

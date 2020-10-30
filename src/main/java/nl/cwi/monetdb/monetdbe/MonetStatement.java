@@ -2,7 +2,7 @@ package nl.cwi.monetdb.monetdbe;
 
 import java.sql.*;
 
-public class MonetStatement implements Statement {
+public class MonetStatement extends MonetWrapper implements Statement {
     private MonetConnection conn;
     private int updateCount;
     private MonetResultSet resultSet;
@@ -41,16 +41,6 @@ public class MonetStatement implements Statement {
     @Override
     public ResultSet getResultSet() throws SQLException {
         return resultSet;
-    }
-
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return false;
     }
 
     @Override

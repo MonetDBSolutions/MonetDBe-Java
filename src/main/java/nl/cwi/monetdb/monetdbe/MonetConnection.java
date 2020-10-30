@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-public class MonetConnection implements Connection {
+public class MonetConnection extends MonetWrapper implements Connection {
     private ByteBuffer dbNative;
     private String dbdir;
     private int sessiontimeout;
@@ -295,15 +295,5 @@ public class MonetConnection implements Connection {
     @Override
     public int getNetworkTimeout() throws SQLException {
         return 0;
-    }
-
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return false;
     }
 }

@@ -10,8 +10,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-public class MonetResultSet implements ResultSet {
-    //TODO: Pedro's code
+public class MonetResultSet extends MonetWrapper implements ResultSet {
     /** The parental Statement object */
     private final MonetStatement statement;
     /** The native monet_result pointer */
@@ -45,7 +44,7 @@ public class MonetResultSet implements ResultSet {
     /** whether the ResultSet is closed */
     private boolean closed = false;
 
-    public MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols) {
+    public MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name) {
         this.statement = statement;
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
@@ -53,6 +52,7 @@ public class MonetResultSet implements ResultSet {
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
         //TODO Should this be created when the resultSet is, or only in the getMetadata method?
         this.metaData = new MonetResultSetMetaData(columns,ncols);
+        this.name = name;
     }
 
     //Get Object / Type Object
@@ -110,6 +110,16 @@ public class MonetResultSet implements ResultSet {
     @Override
     public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
         //TODO
+        return null;
+    }
+
+    @Override
+    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
         return null;
     }
 
@@ -565,8 +575,7 @@ public class MonetResultSet implements ResultSet {
 
     @Override
     public String getCursorName() throws SQLException {
-        //TODO
-        return null;
+        return name;
     }
 
     //Other gets
@@ -1240,26 +1249,5 @@ public class MonetResultSet implements ResultSet {
     @Override
     public void updateNClob(String columnLabel, Reader reader) throws SQLException {
         throw new SQLFeatureNotSupportedException("update");
-    }
-
-    //TODO WRAPPER?
-    @Override
-    public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return false;
     }
 }

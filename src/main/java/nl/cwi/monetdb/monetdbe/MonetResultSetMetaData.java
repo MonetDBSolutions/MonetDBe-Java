@@ -4,7 +4,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class MonetResultSetMetaData implements ResultSetMetaData {
+public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMetaData {
     /** The names of the columns in this ResultSet */
     private final String[] names;
     /** The MonetDB types of the columns in this ResultSet as integers */
@@ -209,15 +209,5 @@ public class MonetResultSetMetaData implements ResultSetMetaData {
     @Override
     public String getColumnClassName(int column) throws SQLException {
         return MonetColumn.getClassForType(getColumnType(column)).getName();
-    }
-
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return false;
     }
 }
