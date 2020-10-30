@@ -94,8 +94,8 @@ public class MonetColumn {
     }
 
     public Float getFloat(int row) throws SQLException {
-        System.out.println(monetdbeType + " " + MonetColumn.getClassForType(monetdbeType));
-        if (monetdbeType == 7)  {
+        System.out.println(monetdbeType + " " + monetdbeTypes[monetdbeType] + " " + getSQLType(monetdbeTypes[monetdbeType]) + " " + MonetColumn.getClassForType(getSQLType(monetdbeTypes[monetdbeType])));
+        if (monetdbeType == 6)  {
             return ((ByteBuffer) constData).asFloatBuffer().get(row);
         }
         else {
@@ -104,6 +104,7 @@ public class MonetColumn {
     }
 
     public Double getDouble(int row) throws SQLException {
+        System.out.println(monetdbeType + " " + MonetColumn.getClassForType(monetdbeType));
         if (monetdbeType == 8)  {
             return ((ByteBuffer) constData).asDoubleBuffer().get(row);
         }
