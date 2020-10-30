@@ -29,6 +29,9 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
         //this.dbNative = MonetNative.monetdbe_open(dbdir);
         this.dbNative = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
+        MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
+        int autocommit = MonetNative.monetdbe_get_autocommit(dbNative);
+        System.out.println("Autocommit value set: " + autocommit);
         this.metaData = new MonetDatabaseMetadata();
         this.properties = props;
         this.statements = new ArrayList<>();
@@ -132,7 +135,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //Metadata sets and gets
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
-        this.autoCommit = autoCommit;
+        if (autoCommit != this.autoCommit) {
+            this.autoCommit = autoCommit;
+            MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
+        }
     }
 
     @Override
