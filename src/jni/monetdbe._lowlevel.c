@@ -129,7 +129,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   int result;
   if(strcmp(url,":memory:")==0) {
-    printf("Memory"); fflush(stdout);
     result = monetdbe_open(db,NULL,opts);
   }
   else {
