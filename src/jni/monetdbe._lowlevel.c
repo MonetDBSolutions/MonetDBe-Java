@@ -135,7 +135,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   else {
     result = monetdbe_open(db,url,opts);
   }
-  (*env)->ReleaseStringUTFChars(env, j_url, url);
+  //(*env)->ReleaseStringUTFChars(env, j_url, url);
 
   if (result != 0) {
      char* error = monetdbe_error(*db);
