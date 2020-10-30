@@ -3,9 +3,7 @@ package nl.cwi.monetdb.monetdbe;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.Executor;
 
 public class MonetConnection extends MonetWrapper implements Connection {
@@ -20,6 +18,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     private SQLWarning warnings;
     private Map<String,Class<?>> typeMap = new HashMap<String,Class<?>>();
     private Properties properties;
+    private List<MonetStatement> statements;
 
     MonetConnection(String dbdir, Properties props) throws SQLException, IllegalArgumentException {
         this.dbdir = dbdir;
@@ -32,6 +31,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.dbNative = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
         this.metaData = new MonetDatabaseMetadata();
         this.properties = props;
+        this.statements = new ArrayList<>();
     }
 
     public ByteBuffer getDbNative() {
@@ -80,6 +80,9 @@ public class MonetConnection extends MonetWrapper implements Connection {
     public void close() throws SQLException {
         if(isClosed()) {
             throw new SQLException("Connection already closed.");
+        }
+        for(MonetStatement s : statements) {
+            s.close();
         }
         MonetNative.monetdbe_close(dbNative);
         dbNative = null;
@@ -286,68 +289,89 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //Statements
     @Override
     public Statement createStatement() throws SQLException {
-        if(isClosed()) {
-            throw new SQLException("Connection is closed.");
-        }
-        return new MonetStatement(this);
-    }
-
-    @Override
-    public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public CallableStatement prepareCall(String sql) throws SQLException {
-        return null;
+        return createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
     }
 
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-        return null;
+        return createStatement(resultSetType,resultSetConcurrency,ResultSet.HOLD_CURSORS_OVER_COMMIT);
+    }
+
+    //TODO Do we need to use these configurations? It seems like they were all hardcoded configs in Pedro's code
+    @Override
+    public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+        checkNotClosed();
+        try {
+            MonetStatement s = new MonetStatement(this);
+            statements.add(s);
+            return s;
+        } catch (IllegalArgumentException e) {
+            throw new SQLException(e.toString(), "M0M03");
+        }
     }
 
     @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        return null;
+    public CallableStatement prepareCall(String sql) throws SQLException {
+        return prepareCall(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return null;
+        return prepareCall(sql,resultSetType,resultSetConcurrency,ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        return null;
+        checkNotClosed();
+        try {
+            MonetCallableStatement s = new MonetCallableStatement(this,sql);
+            statements.add(s);
+            return s;
+        } catch (IllegalArgumentException e) {
+            throw new SQLException(e.toString(), "M0M03");
+        }
     }
 
     @Override
+    public PreparedStatement prepareStatement(String sql) throws SQLException {
+        return prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
+        return prepareStatement(sql,resultSetType,resultSetConcurrency,ResultSet.HOLD_CURSORS_OVER_COMMIT);
+    }
+
+    @Override
+    public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+        checkNotClosed();
+        try {
+            MonetPreparedStatement s = new MonetPreparedStatement(this,sql);
+            statements.add(s);
+            return s;
+        } catch (IllegalArgumentException e) {
+            throw new SQLException(e.toString(), "M0M03");
+        }
+    }
+
+    //TODO Verify these 3 functions (followed what Pedro did)
+    @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
-        return null;
+        return prepareStatement(sql);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("prepareStatement(String sql, int[] columnIndexes)");
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("prepareStatement(String sql, String[] columnNames)");
     }
 
     //Savepoints
+    //TODO Savepoints
     @Override
     public Savepoint setSavepoint() throws SQLException {
         return null;
@@ -369,6 +393,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     //Types
+    //TODO Create types
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         return null;
