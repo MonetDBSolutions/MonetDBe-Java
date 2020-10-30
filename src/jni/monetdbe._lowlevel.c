@@ -226,11 +226,11 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 break;
             case 6:;
                 monetdbe_column_size_t* c_size_t = (monetdbe_column_size_t*) (*column);
-                addColumnConst(env,j_columns,c_size_t->data,c_size_t->name,5,32*c_size_t->count,i);
+                addColumnConst(env,j_columns,c_size_t->data,c_size_t->name,6,32*c_size_t->count,i);
                 break;
             case 7:;
                 monetdbe_column_float* c_float = (monetdbe_column_float*) (*column);
-                addColumnConst(env,j_columns,c_float->data,c_float->name,6,32*c_float->count,i);
+                addColumnConst(env,j_columns,c_float->data,c_float->name,7,32*c_float->count,i);
                 break;
             case 8:;
                 monetdbe_column_double* c_double = (monetdbe_column_double*) (*column);
