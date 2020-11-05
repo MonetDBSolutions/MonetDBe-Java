@@ -416,6 +416,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public void close() throws SQLException {
         this.closed = true;
+        //TODO Check for errors
         MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDbNative(),nativeResult);
         this.columns = null;
     }
