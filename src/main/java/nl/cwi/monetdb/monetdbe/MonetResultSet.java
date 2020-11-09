@@ -11,15 +11,10 @@ import java.util.Calendar;
 import java.util.Map;
 
 public class MonetResultSet extends MonetWrapper implements ResultSet {
-    /** The parental Statement object */
     private final MonetStatement statement;
-    /** The native monet_result pointer */
     private ByteBuffer nativeResult;
-    /** The metadata object */
     private MonetResultSetMetaData metaData;
-    /** The number of rows in this ResultSet */
     private final int tupleCount;
-    /** The current position of the cursor for this ResultSet object */
     private int curRow;
 
     private MonetColumn[] columns;
@@ -27,21 +22,14 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private String name;
 
     //TODO Check these values
-    /** The resultSetType of this ResultSet (forward or scrollable) */
     private int resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
-    /** The concurrency of this ResultSet (currently only read-only) */
     private int concurrency = ResultSet.CONCUR_READ_ONLY;
-    /** The suggested direction of fetching data (implemented but not used) */
     private int fetchDirection = ResultSet.FETCH_FORWARD;
 
 
-    /** The warnings for this ResultSet object */
     private SQLWarning warnings;
-    /** whether the last read field (via some getXyz() method) was NULL */
     private boolean lastReadWasNull = true;
-    /** to store the fetchsize set. */
     private int fetchSize;
-    /** whether the ResultSet is closed */
     private boolean closed = false;
 
     public MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name) {
@@ -427,6 +415,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         return metaData;
     }
 
+    //Pedro's Code
     @Override
     public boolean absolute(int row) throws SQLException {
         checkNotClosed();
