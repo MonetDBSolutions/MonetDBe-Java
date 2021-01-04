@@ -4,25 +4,22 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.Calendar;
 
 //TODO Check if the statement is closed before doing actions which depend on it
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
-    //TODO Do we need to override the execute methods with a String argument from Statement to throw an exception like in the old version?
+    //TODO Check if necessary
     private Object[] params;
-    private String sql;
-
     private String[] monetdbType;
     private int[] javaType;
 
-    public MonetPreparedStatement(MonetConnection conn) {
-        super(conn);
-    }
+    private ByteBuffer statementNative;
 
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
-        MonetNative.monetdbe_prepare(conn.getDbNative(),sql);
+        this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql);
     }
 
 

@@ -291,3 +291,31 @@ JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ge
     }
 
 }
+
+//TODO Test
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1prepare (JNIEnv * env, jclass self, jobject j_db, jstring j_sql) {
+    monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
+    monetdbe_statement** stmt = malloc(sizeof(monetdbe_statement*));
+    char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
+
+    char* result = monetdbe_prepare(db,sql,stmt);
+    printf("%s",result);
+
+    return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
+}
+
+//TODO Change header for converting Java object into void*
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint parameter_nr) {
+    monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
+
+}
+
+//TODO Change header
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt) {
+
+}
+
+//TODO Change header
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1cleanup_1statement (JNIEnv * env, jclass self, jobject j_db, jobject j_stmt) {
+
+}

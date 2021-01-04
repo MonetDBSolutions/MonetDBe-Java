@@ -79,6 +79,38 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1set
 JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1get_1autocommit
   (JNIEnv *, jclass, jobject);
 
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_prepare
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;)Ljava/nio/ByteBuffer;
+ */
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1prepare
+  (JNIEnv *, jclass, jobject, jstring);
+
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind
+ * Signature: (Lnl/cwi/monetdb/monetdbe/MonetPreparedStatement;Ljava/lang/Object;I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind
+  (JNIEnv *, jclass, jobject, jobject, jint);
+
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_execute
+ * Signature: (Lnl/cwi/monetdb/monetdbe/MonetPreparedStatement;)Lnl/cwi/monetdb/monetdbe/MonetResultSet;
+ */
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute
+  (JNIEnv *, jclass, jobject);
+
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_cleanup_statement
+ * Signature: (Ljava/nio/ByteBuffer;Lnl/cwi/monetdb/monetdbe/MonetPreparedStatement;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1cleanup_1statement
+  (JNIEnv *, jclass, jobject, jobject);
+
 #ifdef __cplusplus
 }
 #endif
