@@ -11,6 +11,7 @@ import java.util.Calendar;
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     //TODO Do we need to override the execute methods with a String argument from Statement to throw an exception like in the old version?
     private Object[] params;
+    private String sql;
 
     private String[] monetdbType;
     private int[] javaType;
@@ -21,7 +22,9 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
+        MonetNative.monetdbe_prepare(conn.getDbNative(),sql);
     }
+
 
     //Executes
     @Override
@@ -29,14 +32,32 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         return false;
     }
 
+    /** override the execute from the Statement to throw an SQLException */
+    @Override
+    public boolean execute(final String q) throws SQLException {
+        throw new SQLException("This method is not available in a PreparedStatement!", "M1M05");
+    }
+
     @Override
     public ResultSet executeQuery() throws SQLException {
         return null;
     }
 
+    /** override the executeQuery from the Statement to throw an SQLException */
+    @Override
+    public ResultSet executeQuery(final String q) throws SQLException {
+        throw new SQLException("This method is not available in a PreparedStatement!", "M1M05");
+    }
+
     @Override
     public int executeUpdate() throws SQLException {
         return 0;
+    }
+
+    /** override the executeUpdate from the Statement to throw an SQLException */
+    @Override
+    public int executeUpdate(final String q) throws SQLException {
+        throw new SQLException("This method is not available in a PreparedStatement!", "M1M05");
     }
 
     @Override

@@ -119,7 +119,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     public ResultSet executeQuery(final String sql) throws SQLException {
         if (!execute(sql))
             throw new SQLException("Query did not produce a result set", "M1M19");
-
         return getResultSet();
     }
 
@@ -127,7 +126,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     public int executeUpdate(final String sql) throws SQLException {
         if (execute(sql))
             throw new SQLException("Query produced a result set", "M1M17");
-
         return getUpdateCount();
     }
 
@@ -353,20 +351,22 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public long getLargeUpdateCount() throws SQLException {
+        //TODO
         return 0;
     }
 
     @Override
     public void setLargeMaxRows(long max) throws SQLException {
-
+        //TODO
     }
 
     @Override
     public long getLargeMaxRows() throws SQLException {
+        //TODO
         return 0;
     }
 
-    //TODO: Check this (Pedro's code)
+    //TODO: Check this (Pedro's code) - Seems to overflow the int value
     @Override
     public int getMaxFieldSize() throws SQLException {
         return 2*1024*1024*1024 - 2;	// MonetDB supports null terminated strings of max 2GB, see function: int UTF8_strlen();

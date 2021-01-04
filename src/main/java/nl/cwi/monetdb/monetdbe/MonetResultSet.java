@@ -25,7 +25,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private int resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
     private int concurrency = ResultSet.CONCUR_READ_ONLY;
     private int fetchDirection = ResultSet.FETCH_FORWARD;
-
+    private int resultSetHoldability = ResultSet.HOLD_CURSORS_OVER_COMMIT;
 
     private SQLWarning warnings;
     private boolean lastReadWasNull = true;
@@ -91,23 +91,25 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-        //TODO
+        //TODO GETOBJECT
         return null;
     }
 
     @Override
     public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
-        //TODO
+        //TODO GETOBJECT
         return null;
     }
 
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+        //TODO GETOBJECT
         return null;
     }
 
     @Override
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+        //TODO GETOBJECT
         return null;
     }
 
@@ -357,6 +359,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
+        //TODO CALENDAR
         return null;
     }
 
@@ -532,8 +535,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public int getHoldability() throws SQLException {
-        //TODO HOLDABILITY
-        return 0;
+        return resultSetHoldability;
     }
 
     @Override
@@ -558,13 +560,11 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
-        //TODO WARNINGS
-        return null;
+        return warnings;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-        //TODO WARNINGS
         this.warnings = new SQLWarning();
     }
 
@@ -574,6 +574,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     }
 
     //Other gets
+    //TODO Other get types
     @Override
     public NClob getNClob(int columnIndex) throws SQLException {
         return null;
