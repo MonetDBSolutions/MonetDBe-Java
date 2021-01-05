@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class MonetCallableStatement extends MonetPreparedStatement implements CallableStatement {
     public MonetCallableStatement(MonetConnection conn) {
-        super(conn);
+        super(conn,"");
     }
 
     public MonetCallableStatement(MonetConnection conn, String sql) {
