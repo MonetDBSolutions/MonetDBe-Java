@@ -289,7 +289,6 @@ JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ge
     else {
         return (jboolean) result == 1;
     }
-
 }
 
 //TODO Test
@@ -301,21 +300,55 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
     char* result = monetdbe_prepare(db,sql,stmt);
     printf("%s",result);
 
+    (*env)->ReleaseStringUTFChars(env,j_sql,sql);
     return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
 }
 
-//TODO Change header for converting Java object into void*
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
 
+    if (type<9 && type != 5) {
+        //Primitive types can be directly used
+        monetdbe_bind(stmt,(void*)j_data,(int)parameter_nr);
+    }
 }
 
-//TODO Change header
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt) {
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt, jobject j_statement) {
+    monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
+    monetdbe_result** result = malloc(sizeof(monetdbe_result*));
+    monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
 
+    char* result_msg = monetdbe_execute(stmt,result,affected_rows);
+    if(result_msg) {
+        printf("Query result msg: %s\n", result_msg);
+        fflush(stdout);
+    }
+
+    //Query with table result
+    if((*result) && (*result)->ncols > 0) {
+        jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
+        jstring resultSetName = (*env)->NewStringUTF(env,(const char*) (*result)->name);
+        jclass resultSetClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetResultSet;");
+        jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;IILjava/lang/String;)V");
+        jobject resultSetObject = (*env)->NewObject(env,resultSetClass,constructor,j_statement,resultNative,(*result)->nrows,(*result)->ncols,resultSetName);
+        free(affected_rows);
+        return resultSetObject;
+    }
+    //Update query
+    else {
+        jclass statementClass = (*env)->GetObjectClass(env, j_statement);
+        jfieldID affectRowsField = (*env)->GetFieldID(env,statementClass,"updateCount","I");
+        (*env)->SetIntField(env,j_statement,affectRowsField,(jint)(*affected_rows));
+        free(affected_rows);
+        free(result);
+        return NULL;
+    }
 }
 
-//TODO Change header
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1cleanup_1statement (JNIEnv * env, jclass self, jobject j_db, jobject j_stmt) {
-
+    monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
+    monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
+    char* result = monetdbe_cleanup_statement(db,stmt);
+    printf("%s",result);
+    return (*env)->NewStringUTF(env,(const char*) result);
 }

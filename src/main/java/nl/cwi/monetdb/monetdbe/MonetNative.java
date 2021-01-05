@@ -21,6 +21,6 @@ public class MonetNative {
 
     protected static native ByteBuffer monetdbe_prepare(ByteBuffer db, String sql);
     protected static native String monetdbe_bind(ByteBuffer stmt, Object data, int type, int param);
-    protected static native MonetResultSet monetdbe_execute(ByteBuffer stmt);
+    protected static native MonetResultSet monetdbe_execute(ByteBuffer stmt, MonetStatement statement);
     protected static native String monetdbe_cleanup_statement (ByteBuffer db, ByteBuffer stmt);
 }

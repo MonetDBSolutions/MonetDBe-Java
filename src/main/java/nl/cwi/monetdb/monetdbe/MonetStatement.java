@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MonetStatement extends MonetWrapper implements Statement {
-    private MonetConnection conn;
-    private int updateCount;
-    private MonetResultSet resultSet;
-    private SQLWarning warnings;
-    private List<String> batch;
+    protected MonetConnection conn;
+    protected int updateCount;
+    protected MonetResultSet resultSet;
+    protected SQLWarning warnings;
+    protected List<String> batch;
 
     private int maxRows = 0;
     private boolean closed = false;
