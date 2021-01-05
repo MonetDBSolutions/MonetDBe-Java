@@ -93,7 +93,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
  * Signature: (Lnl/cwi/monetdb/monetdbe/MonetPreparedStatement;Ljava/lang/Object;I)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind
-  (JNIEnv *, jclass, jobject, jobject, jint);
+  (JNIEnv *, jclass, jobject, jobject, jint, jint);
 
 /*
  * Class:     nl_cwi_monetdb_monetdbe_MonetNative
