@@ -100,7 +100,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     //Executes
     @Override
     public boolean execute(String sql) throws SQLException {
-        //TODO Set query timeout
         this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this);
         if (this.resultSet!=null) {
             return true;
@@ -260,7 +259,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
             addWarning("setEscapeProcessing: JDBC escape syntax is not supported by this driver", "01M22");
     }
 
-    //TODO Verify: are these the same?
     @Override
     public int getQueryTimeout() throws SQLException {
         return conn.getNetworkTimeout();

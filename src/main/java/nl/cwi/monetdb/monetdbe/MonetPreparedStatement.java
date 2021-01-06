@@ -17,7 +17,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql);
     }
 
-
     //Executes
     @Override
     public boolean execute() throws SQLException {
@@ -65,7 +64,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void addBatch() throws SQLException {
-        //TODO BATCH
+        //TODO
+        //Don't understand what this is supposed to do
     }
 
     @Override
@@ -222,7 +222,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
 
     //Set other objects (Ref, Clob, Array, NString, NClob, XML
-    //TODO
+    //TODO Other objects
     @Override
     public void setRef(int parameterIndex, Ref x) throws SQLException {
 

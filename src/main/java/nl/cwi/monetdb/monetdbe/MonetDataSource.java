@@ -52,11 +52,13 @@ public class MonetDataSource extends MonetWrapper implements DataSource {
         return loginTimeout;
     }
 
+    //TODO LogWriter
     @Override
     public PrintWriter getLogWriter() throws SQLException {
         return null;
     }
 
+    //TODO LogWriter
     @Override
     public void setLogWriter(PrintWriter out) throws SQLException {
 

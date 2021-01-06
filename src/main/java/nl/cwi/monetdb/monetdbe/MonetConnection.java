@@ -94,6 +94,9 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return dbNative == null;
     }
 
+    //TODO
+    //It is possible that the aborting and releasing of the resources that are held by the connection can take an extended period of time.
+    //When the abort method returns, the connection will have been marked as closed and the Executor that was passed as a parameter to abort may still be executing tasks to release resources.
     @Override
     public void abort(Executor executor) throws SQLException {
         if (isClosed())
@@ -104,6 +107,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     //Pedro's Code
+    //TODO Check this
     @Override
     public boolean isValid(int timeout) throws SQLException {
         if (timeout < 0)
@@ -170,7 +174,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     @Override
     public String getCatalog() throws SQLException {
         // MonetDB does NOT support catalogs
-        return null;
+        throw new SQLFeatureNotSupportedException("getCatalog");
     }
 
     @Override
@@ -202,6 +206,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return typeMap;
     }
 
+    //TODO Implement UDTs?
+    //A user may enter a custom mapping for a UDT in this type map.
+    //When a UDT is retrieved from a data source with the method ResultSet.getObject, the getObject method will check the connection's type map to see if there is an entry for that UDT.
+    //If so, the getObject method will map the UDT to the class indicated. If there is no entry, the UDT will be mapped using the standard mapping.
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
         typeMap = map;
@@ -282,6 +290,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return querytimeout;
     }
 
+    //TODO Verify this
     //Pedro's code
     @Override
     public String nativeSQL(final String sql) {

@@ -304,6 +304,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
     return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
 }
 
+//TODO Test
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
 
@@ -313,6 +314,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     }
 }
 
+//TODO Test
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt, jobject j_statement) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
     monetdbe_result** result = malloc(sizeof(monetdbe_result*));
@@ -345,6 +347,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1exe
     }
 }
 
+//TODO Test
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1cleanup_1statement (JNIEnv * env, jclass self, jobject j_db, jobject j_stmt) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);

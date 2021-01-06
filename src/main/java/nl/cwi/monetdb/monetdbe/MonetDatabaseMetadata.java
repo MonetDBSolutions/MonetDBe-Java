@@ -2,6 +2,7 @@ package nl.cwi.monetdb.monetdbe;
 
 import java.sql.*;
 
+//TODO Implement
 public class MonetDatabaseMetadata extends MonetWrapper implements DatabaseMetaData {
     public MonetDatabaseMetadata() {
     }

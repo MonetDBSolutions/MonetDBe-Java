@@ -26,11 +26,14 @@ final public class MonetDriver implements java.sql.Driver {
         //Remove leading jdbc:monetdb://
         //TODO: If dbdir is an uri, we should parse it differently
         props.setProperty("dbdir",url.substring(15));
-        props.setProperty("sessiontimeout","0");
-        props.setProperty("querytimeout","0");
-        props.setProperty("memorylimit","0");
-        props.setProperty("nr_threads","0");
-        props.setProperty("autocommit","true");
+
+        //props.setProperty("sessiontimeout","0");
+        //props.setProperty("querytimeout","0");
+        //props.setProperty("memorylimit","0");
+        //props.setProperty("nr_threads","0");
+        //props.setProperty("autocommit","true");
+
+        //TODO Are these used?
         props.setProperty("uri","");
         props.setProperty("port","");
         props.setProperty("username","");
@@ -71,7 +74,7 @@ final public class MonetDriver implements java.sql.Driver {
         prop.description = "The password to use when authenticating on the database server";
         dpi[1] = prop;
 
-        //TODO Verify this
+        //TODO Change this
         prop = new DriverPropertyInfo("session_timeout", "0");
         prop.required = false;
         prop.description = "Graceful terminate the session after a few seconds";
