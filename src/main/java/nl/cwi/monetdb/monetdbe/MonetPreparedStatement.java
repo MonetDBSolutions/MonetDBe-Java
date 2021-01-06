@@ -20,7 +20,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //Executes
     @Override
     public boolean execute() throws SQLException {
-        //TODO Set query timeout
         this.resultSet = MonetNative.monetdbe_execute(statementNative,this);
         if (this.resultSet!=null) {
             return true;
@@ -65,7 +64,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void addBatch() throws SQLException {
         //TODO
-        //Don't understand what this is supposed to do
+        //This allows us to add multiple "versions" of the same query, using different parameters
     }
 
     @Override

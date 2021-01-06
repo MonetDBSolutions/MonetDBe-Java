@@ -27,8 +27,8 @@ public class TestMonetDBeJava {
     private static void queryDBPreparedStatement (MonetConnection c) {
         try {
             MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st FROM a WHERE i < ? AND r < ?");
-            ps.setInt(0,8);
-            ps.setFloat(1,2.2f);
+            ps.setInt(1,8);
+            ps.setFloat(2,2.2f);
             ps.execute();
             MonetResultSet rs = (MonetResultSet) ps.getResultSet();
 

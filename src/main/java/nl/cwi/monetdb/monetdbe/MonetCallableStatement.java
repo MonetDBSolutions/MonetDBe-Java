@@ -8,25 +8,13 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
+//TODO Check if the statement is closed before doing actions which depend on it
 public class MonetCallableStatement extends MonetPreparedStatement implements CallableStatement {
-    public MonetCallableStatement(MonetConnection conn) {
-        super(conn,"");
-    }
-
     public MonetCallableStatement(MonetConnection conn, String sql) {
         super(conn,sql);
     }
 
-    @Override
-    public void setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-
-    }
-
-    @Override
-    public void setObject(String parameterName, Object x, SQLType targetSqlType) throws SQLException {
-
-    }
-
+    //Out parameter
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType) throws SQLException {
 
@@ -68,126 +56,6 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
     }
 
     @Override
-    public boolean wasNull() throws SQLException {
-        return false;
-    }
-
-    @Override
-    public String getString(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public boolean getBoolean(int parameterIndex) throws SQLException {
-        return false;
-    }
-
-    @Override
-    public byte getByte(int parameterIndex) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public short getShort(int parameterIndex) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public int getInt(int parameterIndex) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public long getLong(int parameterIndex) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public float getFloat(int parameterIndex) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public double getDouble(int parameterIndex) throws SQLException {
-        return 0;
-    }
-
-    @Override
-    public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public byte[] getBytes(int parameterIndex) throws SQLException {
-        return new byte[0];
-    }
-
-    @Override
-    public Date getDate(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Time getTime(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Timestamp getTimestamp(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Object getObject(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public BigDecimal getBigDecimal(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Object getObject(int parameterIndex, Map<String, Class<?>> map) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Ref getRef(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Blob getBlob(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Clob getClob(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Array getArray(int parameterIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Time getTime(int parameterIndex, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Timestamp getTimestamp(int parameterIndex, Calendar cal) throws SQLException {
-        return null;
-    }
-
-    @Override
     public void registerOutParameter(int parameterIndex, int sqlType, String typeName) throws SQLException {
 
     }
@@ -208,8 +76,20 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
     }
 
     @Override
-    public URL getURL(int parameterIndex) throws SQLException {
-        return null;
+    public boolean wasNull() throws SQLException {
+        return false;
+    }
+
+
+    //Set object
+    @Override
+    public void setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
+
+    }
+
+    @Override
+    public void setObject(String parameterName, Object x, SQLType targetSqlType) throws SQLException {
+
     }
 
     @Override
@@ -338,6 +218,222 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
     }
 
     @Override
+    public void setBlob(String parameterName, Blob x) throws SQLException {
+
+    }
+
+    @Override
+    public void setClob(String parameterName, Clob x) throws SQLException {
+
+    }
+
+    @Override
+    public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
+
+    }
+
+    @Override
+    public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
+
+    }
+
+    @Override
+    public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
+
+    }
+
+    @Override
+    public void setAsciiStream(String parameterName, InputStream x) throws SQLException {
+
+    }
+
+    @Override
+    public void setBinaryStream(String parameterName, InputStream x) throws SQLException {
+
+    }
+
+    @Override
+    public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
+
+    }
+
+    @Override
+    public void setNCharacterStream(String parameterName, Reader value) throws SQLException {
+
+    }
+
+    @Override
+    public void setClob(String parameterName, Reader reader) throws SQLException {
+
+    }
+
+    @Override
+    public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
+
+    }
+
+    @Override
+    public void setNClob(String parameterName, Reader reader) throws SQLException {
+
+    }
+
+    @Override
+    public void setRowId(String parameterName, RowId x) throws SQLException {
+
+    }
+
+    @Override
+    public void setNString(String parameterName, String value) throws SQLException {
+
+    }
+
+    @Override
+    public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException {
+
+    }
+
+    @Override
+    public void setNClob(String parameterName, NClob value) throws SQLException {
+
+    }
+
+    @Override
+    public void setClob(String parameterName, Reader reader, long length) throws SQLException {
+
+    }
+
+    @Override
+    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
+
+    }
+
+    @Override
+    public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
+
+    }
+
+    //Get object
+    @Override
+    public String getString(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public boolean getBoolean(int parameterIndex) throws SQLException {
+        return false;
+    }
+
+    @Override
+    public byte getByte(int parameterIndex) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public short getShort(int parameterIndex) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public int getInt(int parameterIndex) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public long getLong(int parameterIndex) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public float getFloat(int parameterIndex) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public double getDouble(int parameterIndex) throws SQLException {
+        return 0;
+    }
+
+    @Override
+    public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public byte[] getBytes(int parameterIndex) throws SQLException {
+        return new byte[0];
+    }
+
+    @Override
+    public Date getDate(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Time getTime(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Timestamp getTimestamp(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Object getObject(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public BigDecimal getBigDecimal(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Object getObject(int parameterIndex, Map<String, Class<?>> map) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Ref getRef(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Blob getBlob(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Clob getClob(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Array getArray(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Time getTime(int parameterIndex, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Timestamp getTimestamp(int parameterIndex, Calendar cal) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public URL getURL(int parameterIndex) throws SQLException {
+        return null;
+    }
+
+    @Override
     public String getString(String parameterName) throws SQLException {
         return null;
     }
@@ -463,41 +559,6 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
     }
 
     @Override
-    public void setRowId(String parameterName, RowId x) throws SQLException {
-
-    }
-
-    @Override
-    public void setNString(String parameterName, String value) throws SQLException {
-
-    }
-
-    @Override
-    public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setNClob(String parameterName, NClob value) throws SQLException {
-
-    }
-
-    @Override
-    public void setClob(String parameterName, Reader reader, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
-
-    }
-
-    @Override
     public NClob getNClob(int parameterIndex) throws SQLException {
         return null;
     }
@@ -550,66 +611,6 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
     @Override
     public Reader getCharacterStream(String parameterName) throws SQLException {
         return null;
-    }
-
-    @Override
-    public void setBlob(String parameterName, Blob x) throws SQLException {
-
-    }
-
-    @Override
-    public void setClob(String parameterName, Clob x) throws SQLException {
-
-    }
-
-    @Override
-    public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setAsciiStream(String parameterName, InputStream x) throws SQLException {
-
-    }
-
-    @Override
-    public void setBinaryStream(String parameterName, InputStream x) throws SQLException {
-
-    }
-
-    @Override
-    public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
-
-    }
-
-    @Override
-    public void setNCharacterStream(String parameterName, Reader value) throws SQLException {
-
-    }
-
-    @Override
-    public void setClob(String parameterName, Reader reader) throws SQLException {
-
-    }
-
-    @Override
-    public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
-
-    }
-
-    @Override
-    public void setNClob(String parameterName, Reader reader) throws SQLException {
-
     }
 
     @Override
