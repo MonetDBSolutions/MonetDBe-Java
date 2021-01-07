@@ -11,7 +11,7 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     for(int i = 0; i < rows; i++) {
         monetdbe_data_time time = timestamps[i].time;
         monetdbe_data_date date = timestamps[i].date;
-        char timestamp_str[10];
+        char timestamp_str[19];
         //TODO MILLISECONDS
         //TODO HEAD ZEROS FOR ONE DIGIT TIMES
         snprintf(timestamp_str,19,"%d-%d-%d %d:%d:%d",(int)date.year,(int)date.month,(int)date.day,(int)time.hours,(int)time.minutes,(int)time.seconds);
@@ -123,14 +123,15 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   opts->querytimeout = (int) j_querytimeout;
   opts->sessiontimeout = (int) j_sessiontimeout;
   opts->nr_threads = (int) j_nr_threads;
-  //opts->remote = NULL;
-  //opts->mapi_server = NULL;
+  opts->remote = NULL;
+  opts->mapi_server = NULL;
 
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   int result;
   if(strcmp(url,":memory:")==0) {
+    printf("%s",url);
     fflush(stdout);
-    result = monetdbe_open(db,NULL,opts);
+    result = monetdbe_open(db,url,opts);
   }
   else {
     result = monetdbe_open(db,url,opts);
@@ -299,6 +300,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
 
     char* result = monetdbe_prepare(db,sql,stmt);
     printf("%s",result);
+    fflush(stdout);
 
     (*env)->ReleaseStringUTFChars(env,j_sql,sql);
     return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
@@ -307,11 +309,14 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
 //TODO Test
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
-
+    char* result;
     if (type<9 && type != 5) {
         //Primitive types can be directly used
-        monetdbe_bind(stmt,(void*)j_data,(int)parameter_nr);
+        result = monetdbe_bind(stmt,(void*)j_data,(int)parameter_nr);
+        printf("%s",result);
+        fflush(stdout);
     }
+    return (*env)->NewStringUTF(env,(const char*) result);
 }
 
 //TODO Test

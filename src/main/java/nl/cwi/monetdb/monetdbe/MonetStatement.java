@@ -6,12 +6,16 @@ import java.util.List;
 
 public class MonetStatement extends MonetWrapper implements Statement {
     protected MonetConnection conn;
-    protected int updateCount;
+
     protected MonetResultSet resultSet;
     protected SQLWarning warnings;
     protected List<String> batch;
 
     private int maxRows = 0;
+    private long largeMaxRows = 0;
+    protected int updateCount = -1;
+    protected long largeUpdateCount = -1;
+
     private boolean closed = false;
     private boolean closeOnCompletion = false;
 
@@ -25,14 +29,12 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     public MonetStatement(MonetConnection conn) {
         this.conn = conn;
-        this.updateCount = -1;
         this.resultSet = null;
         this.batch = new ArrayList<>();
     }
 
     public MonetStatement(MonetConnection conn, int resultSetType, int resultSetConcurrency, int resultSetHoldability) {
         this.conn = conn;
-        this.updateCount = -1;
         this.resultSet = null;
         this.resultSetType = resultSetType;
         this.resultSetConcurrency = resultSetConcurrency;
@@ -128,6 +130,17 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return getUpdateCount();
     }
 
+    @Override
+    public long executeLargeUpdate(String sql) throws SQLException {
+        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true);
+        if (this.resultSet!=null) {
+            throw new SQLException("Query produced a result set", "M1M17");
+        }
+        else {
+            return getLargeUpdateCount();
+        }
+    }
+
     //TODO GETMORERESULTS
     @Override
     public boolean getMoreResults() throws SQLException {
@@ -138,13 +151,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public boolean getMoreResults(int current) throws SQLException {
         return false;
-    }
-
-    //TODO LARGEUPDATE
-    @Override
-    public long executeLargeUpdate(String sql) throws SQLException {
-        //Same as executeUpdate, but updateCounts are longs
-        return 0;
     }
 
     //Batch executes
@@ -349,19 +355,17 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public long getLargeUpdateCount() throws SQLException {
-        //TODO
-        return 0;
+        return largeUpdateCount;
     }
 
     @Override
     public void setLargeMaxRows(long max) throws SQLException {
-        //TODO
+        this.largeMaxRows = max;
     }
 
     @Override
     public long getLargeMaxRows() throws SQLException {
-        //TODO
-        return 0;
+        return largeMaxRows;
     }
 
     //TODO: Check this (Pedro's code) - Seems to overflow the int value

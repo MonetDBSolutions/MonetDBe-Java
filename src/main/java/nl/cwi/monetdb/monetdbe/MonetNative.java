@@ -4,7 +4,8 @@ import java.nio.ByteBuffer;
 
 public class MonetNative {
     static {
-        System.load("/home/bernardo/MonetDBe-Java/build/libmonetdbe-lowlevel.so");
+        //System.load("/home/bernardo/MonetDBe-Java/build/libmonetdbe-lowlevel.so");
+        System.load("/Users/bernardo/Monet/MonetDBe-Java/build/libmonetdbe-lowlevel.so");
     }
 
     protected static native ByteBuffer monetdbe_open(String dbdir);
@@ -12,6 +13,7 @@ public class MonetNative {
     protected static native int monetdbe_close(ByteBuffer db);
 
     protected static native MonetResultSet monetdbe_query(ByteBuffer db, String sql, MonetStatement statement);
+    protected static native MonetResultSet monetdbe_query(ByteBuffer db, String sql, MonetStatement statement, boolean largeUpdate);
     protected static native MonetColumn[] monetdbe_result_fetch_all(ByteBuffer nativeResult, int nrows, int ncols);
     protected static native String monetdbe_result_cleanup(ByteBuffer db, ByteBuffer nativeResult);
 
