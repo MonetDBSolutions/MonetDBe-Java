@@ -11,15 +11,18 @@ import java.util.Calendar;
 //TODO Check if the statement is closed before doing actions which depend on it
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     private ByteBuffer statementNative;
+    private boolean[] parameters;
 
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
         this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql);
+        //TODO Get number of parameters and then initialize the this.parameters variable
     }
 
     //Executes
     @Override
     public boolean execute() throws SQLException {
+        //TODO If all parameters are set, execute. Else, throw SQLException
         this.resultSet = MonetNative.monetdbe_execute(statementNative,this);
         if (this.resultSet!=null) {
             return true;

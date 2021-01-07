@@ -136,39 +136,6 @@ public class MonetColumn {
     private static final String[] sqlTypes = {"CHAR","VARCHAR","LONGVARCHAR","NUMERIC","DECIMAL","BOOLEAN","BIT","TINYINT","SMALLINT","INTEGER","BIGINT","REAL","FLOAT","DOUBLE","BINARY","VARBINARY","LONGVARBINARY","DATE","TIME","TIMESTAMP","CLOB","BLOB"};
     private static final Class[] javaTypes = {String.class,BigDecimal.class,Boolean.class,Short.class,Integer.class,Long.class,Float.class,Double.class,byte[].class,java.sql.Date.class,Time.class,Timestamp.class,Clob.class,Blob.class};
 
-
-    /** A static Map containing the mapping between MonetDB types and Java SQL types */
-    private static final java.util.Map<String, Integer> typeMap = new java.util.HashMap<String, Integer>();
-    static {
-        // typeMap.put("any", Integer.valueOf(Types.???));
-        typeMap.put("bigint", Integer.valueOf(Types.BIGINT));
-        typeMap.put("blob", Integer.valueOf(Types.BLOB));
-        typeMap.put("boolean", Integer.valueOf(Types.BOOLEAN));
-        typeMap.put("char", Integer.valueOf(Types.CHAR));
-        typeMap.put("clob", Integer.valueOf(Types.CLOB));
-        typeMap.put("date", Integer.valueOf(Types.DATE));
-        typeMap.put("decimal", Integer.valueOf(Types.DECIMAL));
-        typeMap.put("double", Integer.valueOf(Types.DOUBLE));
-        typeMap.put("hugeint", Integer.valueOf(Types.NUMERIC));
-        typeMap.put("inet", Integer.valueOf(Types.VARCHAR));
-        typeMap.put("int", Integer.valueOf(Types.INTEGER));
-        typeMap.put("json", Integer.valueOf(Types.VARCHAR));
-        typeMap.put("month_interval", Integer.valueOf(Types.INTEGER));
-        typeMap.put("oid", Integer.valueOf(Types.BIGINT));
-        typeMap.put("real", Integer.valueOf(Types.REAL));
-        typeMap.put("sec_interval", Integer.valueOf(Types.DECIMAL));
-        typeMap.put("smallint", Integer.valueOf(Types.SMALLINT));
-        typeMap.put("str", Integer.valueOf(Types.VARCHAR));
-        typeMap.put("time", Integer.valueOf(Types.TIME));
-        typeMap.put("timestamp", Integer.valueOf(Types.TIMESTAMP));
-        typeMap.put("timestamptz", Integer.valueOf(Types.TIMESTAMP));
-        typeMap.put("timetz", Integer.valueOf(Types.TIME));
-        typeMap.put("tinyint", Integer.valueOf(Types.TINYINT));
-        typeMap.put("url", Integer.valueOf(Types.VARCHAR));
-        typeMap.put("uuid", Integer.valueOf(Types.VARCHAR));
-        typeMap.put("varchar", Integer.valueOf(Types.VARCHAR));
-    }
-
     /** A static Map containing the mapping between MonetDB types and Java SQL types */
     private static final java.util.Map<String, Integer> typeMapMonetdbe = new java.util.HashMap<String, Integer>();
     static {
@@ -222,6 +189,12 @@ public class MonetColumn {
     final static int getSQLType(final String monetdbetype) {
         return typeMapMonetdbe.get(monetdbetype);
     }
+
+    final static int getSQLType(final int monetdbetype) {
+        return typeMapMonetdbe.get(monetdbeTypes[monetdbetype]);
+    }
+
+    final static Class<?> getClassForMonetType(final int monetdbeType) { return getClassForType(getSQLType(monetdbeType));}
 
     //Pedro's Code
     final static Class<?> getClassForType(final int type) {

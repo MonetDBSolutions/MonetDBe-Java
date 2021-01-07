@@ -8,12 +8,302 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
-//TODO Check if the statement is closed before doing actions which depend on it
 public class MonetCallableStatement extends MonetPreparedStatement implements CallableStatement {
     public MonetCallableStatement(MonetConnection conn, String sql) {
-        super(conn,sql);
+        super(conn,removeEscapes(sql));
     }
 
+    /** parse call query string on
+     *  { [?=] call <procedure-name> [(<arg1>,<arg2>, ...)] }
+     * and remove the JDBC escapes pairs: { and }
+     */
+    //TODO Check if I can use this in this state or if I should change something
+    final private static String removeEscapes(final String query) {
+        if (query == null)
+            return null;
+
+        final int firstAccOpen = query.indexOf("{");
+        if (firstAccOpen == -1)
+            // nothing to remove
+            return query;
+
+        final int len = query.length();
+        final StringBuilder buf = new StringBuilder(len);
+        int countAccolades = 0;
+        // simple scanner which copies all characters except the first '{' and matching '}' character
+        // we currently do not check if 'call' appears after the first '{' and before the '}' character
+        // we currently also do not deal correctly with { or } appearing as comment or as part of a string value
+        for (int i = 0; i < len; i++) {
+            char c = query.charAt(i);
+            switch (c) {
+                case '{':
+                    countAccolades++;
+                    if (i == firstAccOpen)
+                        continue;
+                    else
+                        buf.append(c);
+                    break;
+                case '}':
+                    countAccolades--;
+                    if (i > firstAccOpen && countAccolades == 0)
+                        continue;
+                    else
+                        buf.append(c);
+                    break;
+                default:
+                    buf.append(c);
+            }
+        }
+        return buf.toString();
+    }
+
+    /** utility method to convert a parameter name to an int (which represents the parameter index)
+     *  this will only succeed for strings like: "1", "2", "3", etc
+     *  throws SQLException if it cannot convert the string to an integer number
+     */
+    //TODO Check if I can use this in this state or if I should change something
+    final private int nameToIndex(final String parameterName) throws SQLException {
+        if (parameterName == null)
+            throw new SQLException("Missing parameterName value", "22002");
+        try {
+            return Integer.parseInt(parameterName);
+        } catch (NumberFormatException nfe) {
+            throw new SQLException("Cannot convert parameterName '" + parameterName + "' to integer value", "22010");
+        }
+    }
+
+    //Set object
+    @Override
+    public void setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
+        setObject(nameToIndex(parameterName),x,targetSqlType,scaleOrLength);
+    }
+
+    @Override
+    public void setObject(String parameterName, Object x, SQLType targetSqlType) throws SQLException {
+        setObject(nameToIndex(parameterName),x,targetSqlType);
+    }
+
+    @Override
+    public void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException {
+        setObject(nameToIndex(parameterName),x,targetSqlType,scale);
+    }
+
+    @Override
+    public void setObject(String parameterName, Object x, int targetSqlType) throws SQLException {
+        setObject(nameToIndex(parameterName),x,targetSqlType);
+    }
+
+    @Override
+    public void setObject(String parameterName, Object x) throws SQLException {
+        setObject(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setURL(String parameterName, URL val) throws SQLException {
+        setURL(nameToIndex(parameterName),val);
+    }
+
+    @Override
+    public void setNull(String parameterName, int sqlType) throws SQLException {
+        setNull(nameToIndex(parameterName),sqlType);
+    }
+
+    @Override
+    public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
+        setNull(nameToIndex(parameterName),sqlType,typeName);
+    }
+
+    @Override
+    public void setBoolean(String parameterName, boolean x) throws SQLException {
+        setBoolean(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setByte(String parameterName, byte x) throws SQLException {
+        setByte(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setShort(String parameterName, short x) throws SQLException {
+        setShort(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setInt(String parameterName, int x) throws SQLException {
+        setInt(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setLong(String parameterName, long x) throws SQLException {
+        setLong(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setFloat(String parameterName, float x) throws SQLException {
+        setFloat(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setDouble(String parameterName, double x) throws SQLException {
+        setDouble(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setBigDecimal(String parameterName, BigDecimal x) throws SQLException {
+        setBigDecimal(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setString(String parameterName, String x) throws SQLException {
+        setString(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setBytes(String parameterName, byte[] x) throws SQLException {
+        setBytes(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setDate(String parameterName, Date x) throws SQLException {
+        setDate(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setTime(String parameterName, Time x) throws SQLException {
+        setTime(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setTimestamp(String parameterName, Timestamp x) throws SQLException {
+        setTimestamp(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setDate(String parameterName, Date x, Calendar cal) throws SQLException {
+        setDate(nameToIndex(parameterName),x,cal);
+    }
+
+    @Override
+    public void setTime(String parameterName, Time x, Calendar cal) throws SQLException {
+        setTime(nameToIndex(parameterName),x,cal);
+    }
+
+    @Override
+    public void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException {
+        setTimestamp(nameToIndex(parameterName),x,cal);
+    }
+
+    @Override
+    public void setBlob(String parameterName, Blob x) throws SQLException {
+        setBlob(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setClob(String parameterName, Clob x) throws SQLException {
+        setClob(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setClob(String parameterName, Reader reader) throws SQLException {
+        setClob(nameToIndex(parameterName),reader);
+    }
+
+    @Override
+    public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
+        setBlob(nameToIndex(parameterName),inputStream);
+    }
+
+    @Override
+    public void setNClob(String parameterName, Reader reader) throws SQLException {
+        setNClob(nameToIndex(parameterName),reader);
+    }
+
+    @Override
+    public void setRowId(String parameterName, RowId x) throws SQLException {
+        setRowId(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setNString(String parameterName, String value) throws SQLException {
+        setNString(nameToIndex(parameterName),value);
+    }
+
+    @Override
+    public void setNClob(String parameterName, NClob value) throws SQLException {
+        setNClob(nameToIndex(parameterName),value);
+    }
+
+    @Override
+    public void setClob(String parameterName, Reader reader, long length) throws SQLException {
+        setNClob(nameToIndex(parameterName),reader,length);
+    }
+
+    @Override
+    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
+        setBlob(nameToIndex(parameterName),inputStream,length);
+    }
+
+    @Override
+    public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
+        setNClob(nameToIndex(parameterName),reader,length);
+    }
+
+    @Override
+    public void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException {
+        setAsciiStream(nameToIndex(parameterName),x,length);
+    }
+
+    @Override
+    public void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException {
+        setBinaryStream(nameToIndex(parameterName),x,length);
+    }
+
+    @Override
+    public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
+        setCharacterStream(nameToIndex(parameterName),reader,length);
+    }
+
+    @Override
+    public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
+        setAsciiStream(nameToIndex(parameterName),x,length);
+    }
+
+    @Override
+    public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
+        setBinaryStream(nameToIndex(parameterName),x,length);
+    }
+
+    @Override
+    public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
+        setCharacterStream(nameToIndex(parameterName),reader,length);
+    }
+
+    @Override
+    public void setAsciiStream(String parameterName, InputStream x) throws SQLException {
+        setAsciiStream(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setBinaryStream(String parameterName, InputStream x) throws SQLException {
+        setBinaryStream(nameToIndex(parameterName),x);
+    }
+
+    @Override
+    public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
+        setCharacterStream(nameToIndex(parameterName),reader);
+    }
+
+    @Override
+    public void setNCharacterStream(String parameterName, Reader value) throws SQLException {
+        setNCharacterStream(nameToIndex(parameterName),value);
+    }
+
+    @Override
+    public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException {
+        setNCharacterStream(nameToIndex(parameterName),value,length);
+    }
+
+    //TODO Check if we now can support these functions. If not, add the SQLFeatureNotSupportedException to the functions below
     //Out parameter
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType) throws SQLException {
@@ -77,239 +367,7 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
 
     @Override
     public boolean wasNull() throws SQLException {
-        return false;
-    }
-
-
-    //Set object
-    @Override
-    public void setObject(String parameterName, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-
-    }
-
-    @Override
-    public void setObject(String parameterName, Object x, SQLType targetSqlType) throws SQLException {
-
-    }
-
-    @Override
-    public void setURL(String parameterName, URL val) throws SQLException {
-
-    }
-
-    @Override
-    public void setNull(String parameterName, int sqlType) throws SQLException {
-
-    }
-
-    @Override
-    public void setBoolean(String parameterName, boolean x) throws SQLException {
-
-    }
-
-    @Override
-    public void setByte(String parameterName, byte x) throws SQLException {
-
-    }
-
-    @Override
-    public void setShort(String parameterName, short x) throws SQLException {
-
-    }
-
-    @Override
-    public void setInt(String parameterName, int x) throws SQLException {
-
-    }
-
-    @Override
-    public void setLong(String parameterName, long x) throws SQLException {
-
-    }
-
-    @Override
-    public void setFloat(String parameterName, float x) throws SQLException {
-
-    }
-
-    @Override
-    public void setDouble(String parameterName, double x) throws SQLException {
-
-    }
-
-    @Override
-    public void setBigDecimal(String parameterName, BigDecimal x) throws SQLException {
-
-    }
-
-    @Override
-    public void setString(String parameterName, String x) throws SQLException {
-
-    }
-
-    @Override
-    public void setBytes(String parameterName, byte[] x) throws SQLException {
-
-    }
-
-    @Override
-    public void setDate(String parameterName, Date x) throws SQLException {
-
-    }
-
-    @Override
-    public void setTime(String parameterName, Time x) throws SQLException {
-
-    }
-
-    @Override
-    public void setTimestamp(String parameterName, Timestamp x) throws SQLException {
-
-    }
-
-    @Override
-    public void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException {
-
-    }
-
-    @Override
-    public void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException {
-
-    }
-
-    @Override
-    public void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException {
-
-    }
-
-    @Override
-    public void setObject(String parameterName, Object x, int targetSqlType) throws SQLException {
-
-    }
-
-    @Override
-    public void setObject(String parameterName, Object x) throws SQLException {
-
-    }
-
-    @Override
-    public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
-
-    }
-
-    @Override
-    public void setDate(String parameterName, Date x, Calendar cal) throws SQLException {
-
-    }
-
-    @Override
-    public void setTime(String parameterName, Time x, Calendar cal) throws SQLException {
-
-    }
-
-    @Override
-    public void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException {
-
-    }
-
-    @Override
-    public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
-
-    }
-
-    @Override
-    public void setBlob(String parameterName, Blob x) throws SQLException {
-
-    }
-
-    @Override
-    public void setClob(String parameterName, Clob x) throws SQLException {
-
-    }
-
-    @Override
-    public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setCharacterStream(String parameterName, Reader reader, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setAsciiStream(String parameterName, InputStream x) throws SQLException {
-
-    }
-
-    @Override
-    public void setBinaryStream(String parameterName, InputStream x) throws SQLException {
-
-    }
-
-    @Override
-    public void setCharacterStream(String parameterName, Reader reader) throws SQLException {
-
-    }
-
-    @Override
-    public void setNCharacterStream(String parameterName, Reader value) throws SQLException {
-
-    }
-
-    @Override
-    public void setClob(String parameterName, Reader reader) throws SQLException {
-
-    }
-
-    @Override
-    public void setBlob(String parameterName, InputStream inputStream) throws SQLException {
-
-    }
-
-    @Override
-    public void setNClob(String parameterName, Reader reader) throws SQLException {
-
-    }
-
-    @Override
-    public void setRowId(String parameterName, RowId x) throws SQLException {
-
-    }
-
-    @Override
-    public void setNString(String parameterName, String value) throws SQLException {
-
-    }
-
-    @Override
-    public void setNCharacterStream(String parameterName, Reader value, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setNClob(String parameterName, NClob value) throws SQLException {
-
-    }
-
-    @Override
-    public void setClob(String parameterName, Reader reader, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setBlob(String parameterName, InputStream inputStream, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setNClob(String parameterName, Reader reader, long length) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("wasNull");
     }
 
     //Get object

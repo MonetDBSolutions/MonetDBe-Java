@@ -91,32 +91,31 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-        //TODO GETOBJECT
+        //TODO getObject Conversions
         return null;
     }
 
     @Override
     public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
-        //TODO GETOBJECT
+        //TODO getObject Conversions
         return null;
     }
 
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        //TODO GETOBJECT
+        //TODO getObject Conversions
         return null;
     }
 
     @Override
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-        //TODO GETOBJECT
+        //TODO getObject Conversions
         return null;
     }
 
     @Override
     public int findColumn(String columnLabel) throws SQLException {
         checkNotClosed();
-        //TODO Check this
         String[] names = ((MonetResultSetMetaData)this.getMetaData()).getNames();
         if (columnLabel != null) {
             final int array_size = names.length;
