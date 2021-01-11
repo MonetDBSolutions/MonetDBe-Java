@@ -73,6 +73,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public long executeLargeUpdate() throws SQLException {
+        //TODO If all parameters are set, execute. Else, throw SQLException
         this.resultSet = MonetNative.monetdbe_execute(statementNative,this, true);
         if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
@@ -100,42 +101,72 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void clearParameters() throws SQLException {
         MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
+        //TODO Also clear local copies (for making sure all parameters are set)
     }
 
     //Set objects
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
-        //TODO Object
+        int monetType = MonetTypes.getMonetTypeInt(targetSqlType);
+        switch (monetType) {
+            case 0:
+                setBoolean(parameterIndex,(boolean) x);
+            case 1:
+                setShort(parameterIndex,(short) x);
+            case 2:
+                setShort(parameterIndex,(short) x);
+            case 3:
+                setInt(parameterIndex,(int) x);
+            case 4:
+                setLong(parameterIndex,(long) x);
+            case 5:
+                //TODO HUGEINT
+            case 6:
+                setInt(parameterIndex,(int) x);
+            case 7:
+                setFloat(parameterIndex,(float) x);
+            case 8:
+                setDouble(parameterIndex,(double) x);
+            case 9:
+                setString(parameterIndex,(String) x);
+            case 10:
+                //TODO BLOB
+            case 11:
+                setDate(parameterIndex,(Date) x);
+            case 12:
+                setTime(parameterIndex,(Time) x);
+            case 13:
+                setTimestamp(parameterIndex,(Timestamp) x);
+            default:
+                //TODO Should this be the default?
+                setNull(parameterIndex,targetSqlType);
+        }
     }
 
     @Override
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-        //TODO Object
+        //TODO SQLTYPE?
     }
 
     @Override
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
-        //TODO Object
+        //TODO SQLTYPE?
     }
 
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-        //TODO Object
+        setObject(parameterIndex,x,targetSqlType,0);
     }
 
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
-        //TODO Object
+        int sqltype = MonetTypes.getTypeForClass(x.getClass());
+        setObject(parameterIndex,x,sqltype);
     }
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,null,MonetColumn.getMonetTypeInt(sqlType),parameterIndex);
-    }
-
-    @Override
-    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        //TODO Ref and UDFs
+        MonetNative.monetdbe_bind(statementNative,null,MonetTypes.getMonetTypeInt(sqlType),parameterIndex);
     }
 
     @Override
@@ -220,7 +251,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setURL(int parameterIndex, URL x) throws SQLException {
-        //TODO URL
+        setString(parameterIndex,x.toString());
     }
 
     @Override
@@ -228,8 +259,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         //TODO BLOB
     }
 
+    @Override
+    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
+        //TODO Ref and UDFs
+    }
 
-    //Set other objects (Ref, Clob, Array, NString, NClob, XML
+    //Set other objects (Ref, Clob, Array, NString, NClob, XML)
     //TODO Other objects
     @Override
     public void setRef(int parameterIndex, Ref x) throws SQLException {

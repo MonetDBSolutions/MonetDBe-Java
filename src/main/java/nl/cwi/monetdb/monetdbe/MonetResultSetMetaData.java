@@ -25,7 +25,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
             names[i] = columns[i].getName();
             types[i] = columns[i].getMonetdbeType();
             monetTypes[i] = columns[i].getTypeName();
-            sqlTypes[i] = MonetColumn.getSQLType(columns[i].getTypeName());
+            sqlTypes[i] = MonetTypes.getSQLType(columns[i].getTypeName());
         }
     }
 
@@ -124,7 +124,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
 
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        return MonetColumn.getMonetSize(getColumnType(column));
+        return MonetTypes.getMonetSize(getColumnType(column));
     }
 
     @Override
@@ -208,6 +208,6 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
 
     @Override
     public String getColumnClassName(int column) throws SQLException {
-        return MonetColumn.getClassForType(getColumnType(column)).getName();
+        return MonetTypes.getClassForType(getColumnType(column)).getName();
     }
 }
