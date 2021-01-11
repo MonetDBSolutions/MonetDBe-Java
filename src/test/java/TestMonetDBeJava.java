@@ -3,6 +3,7 @@ import nl.cwi.monetdb.monetdbe.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Properties;
 
 public class TestMonetDBeJava {
@@ -27,9 +28,10 @@ public class TestMonetDBeJava {
     private static void queryDBPreparedStatement (MonetConnection c) {
         try {
             System.out.println("Preparing statement");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st, i, r FROM a WHERE i < ? AND r < ?");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st, i, r FROM a WHERE i < ? AND r < ? AND st <> ?");
             ps.setInt(1,20);
             ps.setFloat(2,20.2f);
+            ps.setString(3,"hey2");
             ps.execute();
             MonetResultSet rs = (MonetResultSet) ps.getResultSet();
 

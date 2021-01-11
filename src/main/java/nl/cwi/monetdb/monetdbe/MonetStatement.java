@@ -102,7 +102,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     //Executes
     @Override
     public boolean execute(String sql) throws SQLException {
-        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this);
+        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false);
         if (this.resultSet!=null) {
             return true;
         }

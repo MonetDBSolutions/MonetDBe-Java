@@ -3,6 +3,7 @@ package nl.cwi.monetdb.monetdbe;
 import java.math.BigDecimal;
 import java.nio.*;
 import java.sql.*;
+import java.util.Map;
 
 public class MonetColumn {
     private Buffer constData;
@@ -188,6 +189,33 @@ public class MonetColumn {
 
     final static int getSQLType(final String monetdbetype) {
         return typeMapMonetdbe.get(monetdbetype);
+    }
+
+    final static int getMonetTypeFromTypeString (final String monetdbetype) {
+        for (int i = 0; i < monetdbeTypes.length; i++) {
+            if (monetdbeTypes[i].equals(monetdbetype)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    final static String getMonetTypeString(final int sqltype) {
+        for (Map.Entry<String, Integer> entry : typeMapMonetdbe.entrySet()) {
+            if (entry.getValue() == sqltype) {
+                return entry.getKey();
+            }
+        }
+        return "";
+    }
+
+    final static int getMonetTypeInt(final int sqltype) {
+        for (Map.Entry<String, Integer> entry : typeMapMonetdbe.entrySet()) {
+            if (entry.getValue() == sqltype) {
+                return getMonetTypeFromTypeString(entry.getKey());
+            }
+        }
+        return -1;
     }
 
     final static int getSQLType(final int monetdbetype) {

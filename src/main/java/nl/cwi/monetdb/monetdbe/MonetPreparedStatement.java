@@ -17,13 +17,14 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         super(conn);
         this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql);
         //TODO Get number of parameters and then initialize the this.parameters variable
+        //TODO How should I get the parameters?
     }
 
     //Executes
     @Override
     public boolean execute() throws SQLException {
         //TODO If all parameters are set, execute. Else, throw SQLException
-        this.resultSet = MonetNative.monetdbe_execute(statementNative,this);
+        this.resultSet = MonetNative.monetdbe_execute(statementNative,this, false);
         if (this.resultSet!=null) {
             return true;
         }
@@ -72,8 +73,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public long executeLargeUpdate() throws SQLException {
-        //TODO LARGE
-        return 0;
+        this.resultSet = MonetNative.monetdbe_execute(statementNative,this, true);
+        if (this.resultSet!=null) {
+            throw new SQLException("Query produced a result set", "M1M17");
+        }
+        else {
+            return getLargeUpdateCount();
+        }
     }
 
     //Metadata
@@ -124,12 +130,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        //TODO NULL
+        MonetNative.monetdbe_bind(statementNative,null,MonetColumn.getMonetTypeInt(sqlType),parameterIndex);
     }
 
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        //TODO NULL
+        //TODO Ref and UDFs
     }
 
     @Override
