@@ -26,17 +26,22 @@ public class TestMonetDBeJava {
 
     private static void queryDBPreparedStatement (MonetConnection c) {
         try {
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st FROM a WHERE i < ? AND r < ?");
-            ps.setInt(1,8);
-            ps.setFloat(2,2.2f);
+            System.out.println("Preparing statement");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st, i, r FROM a WHERE i < ? AND r < ?");
+            ps.setInt(1,20);
+            ps.setFloat(2,20.2f);
             ps.execute();
             MonetResultSet rs = (MonetResultSet) ps.getResultSet();
 
-            System.out.println("Select resultSet: ");
             rs.beforeFirst();
+            System.out.println("\nPrepared statement resultSet:");
             while (rs.next()) {
-                System.out.println("String: " + rs.getString(6));
+                System.out.println("String: " + rs.getString(0));
+                System.out.println("Int: " + rs.getInt(1));
+                System.out.println("Float: " + rs.getFloat(2));
+                System.out.println();
             }
+            System.out.println();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -45,7 +50,7 @@ public class TestMonetDBeJava {
     private static void queryDBStatement (MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
-            s.execute("SELECT * FROM a;");
+            s.execute("SELECT * FROM a WHERE i < 60;");
             MonetResultSet rs = (MonetResultSet) s.getResultSet();
             System.out.println("Select resultSet: ");
             rs.beforeFirst();

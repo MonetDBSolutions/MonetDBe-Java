@@ -24,7 +24,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     //TODO Check these values
     private int resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
     private int concurrency = ResultSet.CONCUR_READ_ONLY;
-    private int fetchDirection = ResultSet.FETCH_FORWARD;
+    private int fetchDirection = ResultSet.FETCH_UNKNOWN;
     private int resultSetHoldability = ResultSet.HOLD_CURSORS_OVER_COMMIT;
 
     private SQLWarning warnings;
@@ -425,12 +425,10 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             throw new SQLException("(Absolute) positioning not allowed on forward " +
                     " only result sets!", "M1M05");
         }
-
         if (row < 0) {
             row = tupleCount + row + 1;
         }
-
-        if (row < 0) {
+        else if (row == 0) {
             curRow = 0;    // before first
             return false;
         }
@@ -439,7 +437,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             return false;
         }
         curRow = row;
-
         return true;
     }
 

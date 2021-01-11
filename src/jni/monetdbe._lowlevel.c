@@ -128,15 +128,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
 
   char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
   int result;
-  if(strcmp(url,":memory:")==0) {
-    printf("%s",url);
-    fflush(stdout);
-    result = monetdbe_open(db,url,opts);
-  }
-  else {
-    result = monetdbe_open(db,url,opts);
-  }
-  //(*env)->ReleaseStringUTFChars(env, j_url, url);
+  result = monetdbe_open(db,url,opts);
 
   if (result != 0) {
      char* error = monetdbe_error(*db);
@@ -292,15 +284,16 @@ JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ge
     }
 }
 
-//TODO Test
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1prepare (JNIEnv * env, jclass self, jobject j_db, jstring j_sql) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_statement** stmt = malloc(sizeof(monetdbe_statement*));
     char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
 
     char* result = monetdbe_prepare(db,sql,stmt);
-    printf("%s",result);
-    fflush(stdout);
+    if(result) {
+        printf("Prepare: %s\n",result);
+        fflush(stdout);
+    }
 
     (*env)->ReleaseStringUTFChars(env,j_sql,sql);
     return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
@@ -309,13 +302,58 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
 //TODO Test
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
+    //JDBC indexes parameter numbers at 1, MonetDB at 0
+    parameter_nr -= 1;
     char* result;
-    if (type<9 && type != 5) {
-        //Primitive types can be directly used
-        result = monetdbe_bind(stmt,(void*)j_data,(int)parameter_nr);
-        printf("%s",result);
+
+    if (parameter_nr >= 0) {
+        jclass param_class = (*env)->GetObjectClass(env, j_data);
+        if (type == 0) {
+            bool bind_data = (bool) (*env)->CallBooleanMethod(env,j_data,(*env)->GetMethodID(env,param_class,"booleanValue","()Z"));
+            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 1 || type == 2) {
+            short bind_data = (short) (*env)->CallShortMethod(env,j_data,(*env)->GetMethodID(env,param_class,"shortValue","()S"));
+            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 3 || type == 6) {
+            int bind_data = (int) (*env)->CallIntMethod(env,j_data,(*env)->GetMethodID(env,param_class,"intValue","()I"));
+            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 4) {
+            long bind_data = (long) (*env)->CallLongMethod(env,j_data,(*env)->GetMethodID(env,param_class,"longValue","()L"));
+            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 5) {
+            //TODO BIGINT 128int
+        }
+        else if (type == 7) {
+            float bind_data = (float) (*env)->CallFloatMethod(env,j_data,(*env)->GetMethodID(env,param_class,"floatValue","()F"));
+            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 8) {
+            double bind_data = (double) (*env)->CallDoubleMethod(env,j_data,(*env)->GetMethodID(env,param_class,"doubleValue","()D"));
+            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
+        }
+    }
+    if(result) {
+        printf("Bind: %s\n",result);
         fflush(stdout);
     }
+    else {
+        printf("Bind sucessful\n");
+        fflush(stdout);
+    }
+
+    /*if (type<9 && type != 5) {
+
+        printf("%d\n",(int)j_data);
+        result = monetdbe_bind(stmt,(void*)j_data,(int)(parameter_nr - 1));
+        if(result) {
+            printf("Bind: %s\n",result);
+            fflush(stdout);
+        }
+    }*/
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 
