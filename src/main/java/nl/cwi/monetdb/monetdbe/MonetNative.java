@@ -20,8 +20,8 @@ public class MonetNative {
     protected static native String monetdbe_set_autocommit(ByteBuffer db, int value);
     protected static native boolean monetdbe_get_autocommit(ByteBuffer db);
 
-    protected static native ByteBuffer monetdbe_prepare(ByteBuffer db, String sql);
+    protected static native ByteBuffer monetdbe_prepare(ByteBuffer db, String sql, MonetPreparedStatement statement);
     protected static native String monetdbe_bind(ByteBuffer stmt, Object data, int type, int param);
-    protected static native MonetResultSet monetdbe_execute(ByteBuffer stmt, MonetStatement statement, boolean largeUpdate);
+    protected static native MonetResultSet monetdbe_execute(ByteBuffer stmt, MonetPreparedStatement statement, boolean largeUpdate);
     protected static native String monetdbe_cleanup_statement (ByteBuffer db, ByteBuffer stmt);
 }

@@ -291,7 +291,7 @@ JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ge
     }
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1prepare (JNIEnv * env, jclass self, jobject j_db, jstring j_sql) {
+JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1prepare (JNIEnv * env, jclass self, jobject j_db, jstring j_sql, jobject j_statement) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_statement** stmt = malloc(sizeof(monetdbe_statement*));
     char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
@@ -301,6 +301,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
         printf("Prepare: %s\n",result);
         fflush(stdout);
     }
+
+    //Set parameter number
+    //TODO Set parameter types
+    jclass statementClass = (*env)->GetObjectClass(env, j_statement);
+    jfieldID paramsField = (*env)->GetFieldID(env,statementClass,"nParams","I");
+    (*env)->SetIntField(env,j_statement,paramsField,(jint)(stmt->nparam));
 
     (*env)->ReleaseStringUTFChars(env,j_sql,sql);
     return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
@@ -354,6 +360,22 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
             result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
         }
         else if (type == 9) {
+            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
+            result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
+        }
+        else if (type == 10) {
+            //TODO Blob
+        }
+        else if (type == 11) {
+
+            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
+            result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
+        }
+        else if (type == 12) {
+            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
+            result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
+        }
+        else if (type == 13) {
             char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
             result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
         }

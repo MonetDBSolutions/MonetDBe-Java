@@ -9,21 +9,21 @@ import java.sql.*;
 import java.util.Calendar;
 
 //TODO Check if the statement is closed before doing actions which depend on it
+//TODO Maybe change all bind functions to a general bind object, get jobject type in native C bind function
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     private ByteBuffer statementNative;
-    private boolean[] parameters;
+    protected int nParams;
 
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
-        this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql);
-        //TODO Get number of parameters and then initialize the this.parameters variable
-        //TODO How should I get the parameters?
+        //nParams is set within monetdbe_prepare
+        this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
     }
 
     //Executes
     @Override
     public boolean execute() throws SQLException {
-        //TODO If all parameters are set, execute. Else, throw SQLException
+        //TODO Should I test if all parameters are set?
         this.resultSet = MonetNative.monetdbe_execute(statementNative,this, false);
         if (this.resultSet!=null) {
             return true;
@@ -73,7 +73,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public long executeLargeUpdate() throws SQLException {
-        //TODO If all parameters are set, execute. Else, throw SQLException
         this.resultSet = MonetNative.monetdbe_execute(statementNative,this, true);
         if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
@@ -101,7 +100,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void clearParameters() throws SQLException {
         MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
-        //TODO Also clear local copies (for making sure all parameters are set)
     }
 
     //Set objects
