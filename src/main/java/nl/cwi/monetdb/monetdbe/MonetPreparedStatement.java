@@ -10,6 +10,7 @@ import java.util.Calendar;
 
 //TODO Check if the statement is closed before doing actions which depend on it
 //TODO Maybe change all bind functions to a general bind object, get jobject type in native C bind function
+//TODO Add check to verify Statement is not closed and parameter number is valid before bind/executes
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     private ByteBuffer statementNative;
     protected int nParams;
@@ -219,17 +220,17 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,x,11,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x.toString(),11,parameterIndex);
     }
 
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,x,12,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x.toString(),12,parameterIndex);
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,x,13,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x.toString(),13,parameterIndex);
     }
 
     @Override

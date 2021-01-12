@@ -79,6 +79,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   return returnResult(env, j_statement, largeUpdate, result, affected_rows);
 }
 
+//TODO Time and Timestamp parse functions aren't returning the ms value
 jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
     monetdbe_data_timestamp* timestamps = (monetdbe_data_timestamp*) data;
@@ -367,7 +368,6 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
             //TODO Blob
         }
         else if (type == 11) {
-
             char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
             result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
         }

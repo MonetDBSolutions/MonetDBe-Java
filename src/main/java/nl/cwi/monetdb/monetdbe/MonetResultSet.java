@@ -7,8 +7,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.*;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class MonetResultSet extends MonetWrapper implements ResultSet {
     private final MonetStatement statement;
@@ -113,6 +115,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         return null;
     }
 
+    //Gets
     @Override
     public int findColumn(String columnLabel) throws SQLException {
         checkNotClosed();
@@ -278,88 +281,159 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         return null;
     }
 
-    @Override
-    public Date getDate(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            String val = columns[columnIndex].getString(curRow-1);
-            if (val == null) {
-                lastReadWasNull = true;
-                return null;
-            }
-            lastReadWasNull = false;
-            return Date.valueOf(val);
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
+    //TODO Add ms to time and timestamp, after parsing it to the dateStr with the lowlevel parse function
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+    private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    @Override
-    public Time getTime(int columnIndex) throws SQLException {
+    /**
+     * Helper method which parses the date/time value for columns of type
+     * TIME, DATE and TIMESTAMP.  For the types CHAR, VARCHAR and
+     * LONGVARCHAR an attempt is made to parse the date according to the
+     * given type.  The given Calender object is filled with the parsed
+     * data.  Optional fractional seconds (nanos) are returned by this
+     * method.  If the underlying type of the column is none of the
+     * mentioned six, January 1st 1970 0:00:00 GMT is returned.<br />
+     * The dates are parsed with the given Calendar.
+     *
+     * @param cal the Calendar to use/fill when parsing the date/time
+     * @param dateStr the String containing the date to parse
+     * @param type the corresponding java.sql.Types type of the calling function
+     * @return the fractional seconds (nanos) or -1 if the value is NULL
+     * @throws SQLException if a database error occurs
+     */
+    //TODO Add ms to time and timestamp, after parsing it to the dateStr with the lowlevel parse function
+    private int getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
         checkNotClosed();
-        try {
-            String val = columns[columnIndex].getString(curRow-1);
-            if (val == null) {
-                lastReadWasNull = true;
-                return null;
-            }
-            lastReadWasNull = false;
-            return Time.valueOf(val);
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
+        if (cal == null)
+            throw new IllegalArgumentException("No Calendar object given!");
 
-    @Override
-    public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        checkNotClosed();
-        try {
-            String val = columns[columnIndex].getString(curRow-1);
-            if (val == null) {
-                lastReadWasNull = true;
-                return null;
-            }
-            lastReadWasNull = false;
-            return Timestamp.valueOf(val);
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
+        TimeZone ptz = cal.getTimeZone();
+        //TODO Set Timezone
+
+        java.util.Date pdate = null;
+        final java.text.ParsePosition ppos = new java.text.ParsePosition(0);
+        switch(type) {
+            case Types.DATE:
+                dateFormat.setTimeZone(ptz);
+                pdate = dateFormat.parse(dateStr,ppos);
+                break;
+            case Types.TIME:
+                timeFormat.setTimeZone(ptz);
+                pdate = timeFormat.parse(dateStr,ppos);
+                break;
+            case Types.TIMESTAMP:
+                if (timestampFormat == null) {
+                    // first time usage, create and keep the timestampFormat object for next usage
+                    timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                }
+                timestampFormat.setTimeZone(ptz);
+                pdate = timestampFormat.parse(dateStr,ppos);
+
+                //TODO Verify this
+                // if parsing with timestampFormat failed try to parse it in dateFormat
+                if (pdate == null && dateStr.length() <= 10 && dateStr.contains("-")) {
+                    dateFormat.setTimeZone(ptz);
+                    pdate = dateFormat.parse(dateStr,ppos);
+                }
+                break;
+            default:
+                throw new SQLException("Internal error, unsupported data type: " + type, "01M03");
         }
+        if (pdate == null) {
+            //TODO Parsing fail, return error
+            throw new SQLException("");
+        }
+        cal.setTime(pdate);
+
+        //TODO Negative year
+
+        //TODO Parse nanos
+
+        //No nanoseconds to return
+        return 0;
     }
 
     @Override
     public Date getDate(int columnIndex, Calendar cal) throws SQLException {
-        //TODO CALENDAR
-        return null;
-    }
-
-    @Override
-    public Date getDate(String columnLabel, Calendar cal) throws SQLException {
-        //TODO CALENDAR
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            if (cal == null) {
+                try {
+                    return Date.valueOf(val);
+                } catch (IllegalArgumentException iae) {
+                    // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
+                    // in those cases just continue and use slower getJavaDate method
+                }
+                cal = Calendar.getInstance();
+            }
+            //Calendar not null or simple parse failed
+            final int ret = getJavaDate(cal, val, Types.DATE);
+            return ret == -1 ? null : new Date(cal.getTimeInMillis());
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
-        //TODO CALENDAR
-        return null;
-    }
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            if (cal == null) {
+                try {
+                    return Time.valueOf(val);
+                } catch (IllegalArgumentException iae) {
+                    // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
+                    // in those cases just continue and use slower getJavaDate method
+                }
+                cal = Calendar.getInstance();
+            }
+            //Calendar not null or simple parse failed
+            final int ret = getJavaDate(cal, val, Types.TIME);
+            return ret == -1 ? null : new Time(cal.getTimeInMillis());
 
-    @Override
-    public Time getTime(String columnLabel, Calendar cal) throws SQLException {
-        //TODO CALENDAR
-        return null;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-        //TODO CALENDAR
-        return null;
-    }
-
-    @Override
-    public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
-        //TODO CALENDAR
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            if (cal == null) {
+                try {
+                    return Timestamp.valueOf(val);
+                } catch (IllegalArgumentException iae) {
+                    // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
+                    // in those cases just continue and use slower getJavaDate method
+                }
+                cal = Calendar.getInstance();
+            }
+            //Calendar not null or simple parse failed
+            final int ret = getJavaDate(cal, val, Types.TIME);
+            return ret == -1 ? null : new Timestamp(cal.getTimeInMillis());
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
@@ -390,6 +464,33 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         } catch (MalformedURLException e) {
             throw new SQLException("column is not a valid URL");
         }
+    }
+
+    @Override
+    public InputStream getBinaryStream(int columnIndex) throws SQLException {
+        //TODO Binary stream
+        return null;
+    }
+
+    @Override
+    public Reader getCharacterStream(int columnIndex) throws SQLException {
+        //TODO Character stream
+        return null;
+    }
+
+    @Override
+    public Date getDate(int columnIndex) throws SQLException {
+        return getDate(columnIndex,null);
+    }
+
+    @Override
+    public Time getTime(int columnIndex) throws SQLException {
+        return getTime(columnIndex,null);
+    }
+
+    @Override
+    public Timestamp getTimestamp(int columnIndex) throws SQLException {
+        return getTimestamp(columnIndex,null);
     }
 
     //Meta sets/gets
@@ -520,11 +621,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     }
 
     @Override
-    public boolean rowUpdated() throws SQLException {
-        throw new SQLFeatureNotSupportedException("update");
-    }
-
-    @Override
     public boolean wasNull() throws SQLException {
         return lastReadWasNull;
     }
@@ -570,45 +666,34 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     }
 
     //Other gets
-    //TODO Other get types
-    @Override
-    public NClob getNClob(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public SQLXML getSQLXML(int columnIndex) throws SQLException {
-        return null;
-    }
-
     @Override
     public String getNString(int columnIndex) throws SQLException {
-        return null;
+        return getString(columnIndex);
     }
 
     @Override
     public Reader getNCharacterStream(int columnIndex) throws SQLException {
-        return null;
+        return getCharacterStream(columnIndex);
+    }
+
+    @Override
+    public NClob getNClob(int columnIndex) throws SQLException {
+        throw new SQLFeatureNotSupportedException("getNClob");
+    }
+
+    @Override
+    public SQLXML getSQLXML(int columnIndex) throws SQLException {
+        throw new SQLFeatureNotSupportedException("getSQLXML");
     }
 
     @Override
     public InputStream getAsciiStream(int columnIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getAsciiStream");
     }
 
     @Override
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public InputStream getBinaryStream(int columnIndex) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Reader getCharacterStream(int columnIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getUnicodeStream");
     }
 
     @Override
@@ -625,7 +710,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Ref getRef(int columnIndex) throws SQLException {
         throw new SQLFeatureNotSupportedException("getRef");
     }
-
 
     //Column name gets
     @Override
@@ -768,7 +852,27 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         return getNCharacterStream(findColumn(columnLabel));
     }
 
+    @Override
+    public Date getDate(String columnLabel, Calendar cal) throws SQLException {
+        return getDate(findColumn(columnLabel),cal);
+    }
+
+    @Override
+    public Time getTime(String columnLabel, Calendar cal) throws SQLException {
+        return getTime(findColumn(columnLabel),cal);
+    }
+
+    @Override
+    public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
+        return getTimestamp(findColumn(columnLabel),cal);
+    }
+
     //Update
+    @Override
+    public boolean rowUpdated() throws SQLException {
+        throw new SQLFeatureNotSupportedException("update");
+    }
+
     @Override
     public boolean rowInserted() throws SQLException {
         throw new SQLFeatureNotSupportedException("update");

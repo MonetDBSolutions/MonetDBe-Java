@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+//TODO Add checkNotClosed to functions to verify connection is not closed
 public class MonetStatement extends MonetWrapper implements Statement {
     protected MonetConnection conn;
 
