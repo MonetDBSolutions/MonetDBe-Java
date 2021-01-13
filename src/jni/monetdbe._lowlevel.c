@@ -87,10 +87,9 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     for(int i = 0; i < rows; i++) {
         monetdbe_data_time time = timestamps[i].time;
         monetdbe_data_date date = timestamps[i].date;
-        char timestamp_str[19];
-        //TODO MILLISECONDS
+        char timestamp_str[23];
         //TODO HEAD ZEROS FOR ONE DIGIT TIMES
-        snprintf(timestamp_str,19,"%d-%d-%d %d:%d:%d",(int)date.year,(int)date.month,(int)date.day,(int)time.hours,(int)time.minutes,(int)time.seconds);
+        snprintf(timestamp_str,23,"%d-%d-%d %d:%d:%d.%d",(int)date.year,(int)date.month,(int)date.day,(int)time.hours,(int)time.minutes,(int)time.seconds,(int)time.ms);
         jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
         fflush(stdout);
@@ -104,8 +103,8 @@ jobjectArray parseColumnTime (JNIEnv *env, void* data, int rows) {
 
     for(int i = 0; i < rows; i++) {
         char time_str[8];
-        //TODO MILLISECONDS
         //TODO HEAD ZEROS FOR ONE DIGIT TIMES
+        //TODO MS? Time.valueOf() doesn't accept ms
         snprintf(time_str,8,"%d:%d:%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds);
         jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_time);
@@ -122,6 +121,7 @@ jobjectArray parseColumnDate (JNIEnv *env, void* data, int rows) {
         snprintf(date_str,10,"%d-%d-%d",(int)dates[i].year,(int)dates[i].month,(int)dates[i].day);
         jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_date);
+        printf("Column Date: %d-%d-%d\n", dates[i].year,dates[i].month,dates[i].day);
     }
     return j_data;
 }
@@ -376,17 +376,22 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
         }
         else if (type == 10) {
             //TODO Blob
+            return "";
+        }
+        else {
+            return "";
         }
         //Date types are handled in other functions
     }
 }
 
+//TODO Fix these functions (problem with data types)
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1date (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day) {
     monetdbe_data_date* date_bind = malloc(sizeof(monetdbe_data_date));
     date_bind->year = (short) year;
     date_bind->month = (unsigned char) month;
     date_bind->day = (unsigned char) day;
-    printf("Parsed: %d-%d-%d\n", (int)date_bind->year,(int)date_bind->month,(int)date_bind->day);
+    printf("Parsed Date: %hi-%d-%d\n", date_bind->year,date_bind->month,date_bind->day);
     return bind_parsed_data(env,j_stmt,date_bind,(int)parameter_nr);
 }
 
@@ -396,22 +401,20 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     time_bind->minutes = (unsigned char) minutes;
     time_bind->seconds = (unsigned char) seconds;
     time_bind->ms = (unsigned int) ms;
-    printf("Parsed: %d:%d:%d.%d\n", (int)time_bind->hours,(int)time_bind->minutes,(int)time_bind->seconds,(int)time_bind->ms);
+    printf("Parsed Time: %d:%d:%d.%d\n", (int)time_bind->hours,(int)time_bind->minutes,(int)time_bind->seconds,(int)time_bind->ms);
     return bind_parsed_data(env,j_stmt,time_bind,(int)parameter_nr);
 }
 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1timestamp (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day, jint hours, jint minutes, jint seconds, jint ms) {
     monetdbe_data_timestamp* timestamp_bind = malloc(sizeof(monetdbe_data_timestamp));
-    //timestamp_bind->date = malloc(sizeof(monetdbe_data_date));
-    //timestamp_bind->time = malloc(sizeof(monetdbe_data_time));
     (timestamp_bind->date).year = (short) year;
     (timestamp_bind->date).month = (unsigned char) month;
     (timestamp_bind->date).day = (unsigned char) day;
     (timestamp_bind->time).hours = (unsigned char) hours;
     (timestamp_bind->time).minutes = (unsigned char) minutes;
     (timestamp_bind->time).seconds = (unsigned char) seconds;
-    (timestamp_bind->time).ms = (unsigned int) hours;
-    printf("Parsed: %d-%d-%d %d:%d:%d.%d\n", (int)(timestamp_bind->date).year,(int)(timestamp_bind->date).month,(int)(timestamp_bind->date).day,(int)(timestamp_bind->time).hours,(int)(timestamp_bind->time).minutes,(int)(timestamp_bind->time).seconds,(int)(timestamp_bind->time).ms);
+    (timestamp_bind->time).ms = (unsigned int) ms;
+    printf("Parsed Timestamp: %d-%d-%d %d:%d:%d.%d\n", (int)(timestamp_bind->date).year,(int)(timestamp_bind->date).month,(int)(timestamp_bind->date).day,(int)(timestamp_bind->time).hours,(int)(timestamp_bind->time).minutes,(int)(timestamp_bind->time).seconds,(int)(timestamp_bind->time).ms);
     return bind_parsed_data(env,j_stmt,timestamp_bind,(int)parameter_nr);
 }
 

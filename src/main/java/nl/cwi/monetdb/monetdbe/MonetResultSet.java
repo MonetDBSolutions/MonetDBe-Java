@@ -342,7 +342,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
         if (pdate == null) {
             //TODO Parsing fail, return error
-            throw new SQLException("");
+            return -1;
         }
         cal.setTime(pdate);
 
@@ -370,6 +370,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 } catch (IllegalArgumentException iae) {
                     // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
                     // in those cases just continue and use slower getJavaDate method
+                    System.out.println(val + " couldn't be parsed as Date!");
                 }
                 cal = Calendar.getInstance();
             }
@@ -397,6 +398,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 } catch (IllegalArgumentException iae) {
                     // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
                     // in those cases just continue and use slower getJavaDate method
+                    System.out.println(val + " couldn't be parsed as Time!");
                 }
                 cal = Calendar.getInstance();
             }
@@ -425,6 +427,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 } catch (IllegalArgumentException iae) {
                     // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
                     // in those cases just continue and use slower getJavaDate method
+                    System.out.println(val + " couldn't be parsed as Timestamp!");
                 }
                 cal = Calendar.getInstance();
             }
