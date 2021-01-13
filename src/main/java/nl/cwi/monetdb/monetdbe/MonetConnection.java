@@ -94,7 +94,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return dbNative == null;
     }
 
-    //TODO
+    //TODO The old implementation didn't use the executor. Should this one?
     //It is possible that the aborting and releasing of the resources that are held by the connection can take an extended period of time.
     //When the abort method returns, the connection will have been marked as closed and the Executor that was passed as a parameter to abort may still be executing tasks to release resources.
     @Override

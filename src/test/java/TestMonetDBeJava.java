@@ -145,8 +145,8 @@ public class TestMonetDBeJava {
             if (c != null) {
                 System.out.println("Opened connection @ " + url.substring(15));
                 populateDB(c);
-                insertDBPreparedStatementDate(c);
-                queryDBStatement(c);
+                //insertDBPreparedStatementDate(c);
+                //queryDBStatement(c);
                 //queryDBPreparedStatement(c);
                 queryDBPreparedStatementDate(c);
                 dropDB(c);

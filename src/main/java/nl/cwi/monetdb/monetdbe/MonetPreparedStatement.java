@@ -15,7 +15,6 @@ import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 
 //TODO Check if the statement is closed before doing actions which depend on it
-//TODO Maybe change all bind functions to a general bind object, get jobject type in native C bind function
 //TODO Add check to verify Statement is not closed and parameter number is valid before bind/executes
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     private ByteBuffer statementNative;
@@ -187,7 +186,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
-        //TODO Byte (is this type 1 -> int8 or char?)
+        //TODO Test
+        MonetNative.monetdbe_bind(statementNative,x,1,parameterIndex);
     }
 
     @Override
@@ -239,7 +239,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
         LocalTime localTime = x.toLocalTime();
-        //TODO ms
         MonetNative.monetdbe_bind_time(statementNative,parameterIndex,localTime.getHour(),localTime.getMinute(),localTime.getSecond(),localTime.getNano()*1000);
     }
 

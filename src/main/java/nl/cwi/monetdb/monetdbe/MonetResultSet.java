@@ -303,6 +303,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
      * @throws SQLException if a database error occurs
      */
     //TODO Add ms to time and timestamp, after parsing it to the dateStr with the lowlevel parse function
+    //TODO Review this function
     private int getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
         checkNotClosed();
         if (cal == null)

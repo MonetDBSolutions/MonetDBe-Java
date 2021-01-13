@@ -121,7 +121,7 @@ jobjectArray parseColumnDate (JNIEnv *env, void* data, int rows) {
         snprintf(date_str,10,"%d-%d-%d",(int)dates[i].year,(int)dates[i].month,(int)dates[i].day);
         jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_date);
-        printf("Column Date: %d-%d-%d\n", dates[i].year,dates[i].month,dates[i].day);
+        //printf("Column Date: %d-%d-%d\n", dates[i].year,dates[i].month,dates[i].day);
     }
     return j_data;
 }
@@ -376,11 +376,9 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
         }
         else if (type == 10) {
             //TODO Blob
-            return "";
+            return NULL;
         }
-        else {
-            return "";
-        }
+        return NULL;
         //Date types are handled in other functions
     }
 }
