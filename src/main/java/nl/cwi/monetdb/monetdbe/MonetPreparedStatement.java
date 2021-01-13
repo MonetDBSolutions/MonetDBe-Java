@@ -6,6 +6,12 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.temporal.TemporalField;
+import java.time.temporal.TemporalUnit;
 import java.util.Calendar;
 
 //TODO Check if the statement is closed before doing actions which depend on it
@@ -24,13 +30,17 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //Executes
     @Override
     public boolean execute() throws SQLException {
-        //TODO Should I test if all parameters are set?
+        //TODO Should I test if all parameters are set? Or leave the server to respond with an error?
         this.resultSet = MonetNative.monetdbe_execute(statementNative,this, false);
         if (this.resultSet!=null) {
             return true;
         }
-        else {
+        else if (this.updateCount != -1){
             return false;
+        }
+        else {
+            //TODO Improve this (happens when an error message is sent by the server)
+            throw new SQLException("Server error");
         }
     }
 
@@ -100,6 +110,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void clearParameters() throws SQLException {
+        //TODO Verify if I should use the cleanup function or if I should set every parameter to NULL (and use the cleanup function on close method inherited from Statement)
+        //This also cleans up the Prepared Statement
         MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
     }
 
@@ -220,17 +232,22 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,x.toString(),11,parameterIndex);
+        LocalDate localDate = x.toLocalDate();
+        MonetNative.monetdbe_bind_date(statementNative,parameterIndex,localDate.getYear(),localDate.getMonthValue(),localDate.getDayOfMonth());
     }
 
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,x.toString(),12,parameterIndex);
+        LocalTime localTime = x.toLocalTime();
+        //TODO ms
+        MonetNative.monetdbe_bind_time(statementNative,parameterIndex,localTime.getHour(),localTime.getMinute(),localTime.getSecond(),localTime.getNano()*1000);
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,x.toString(),13,parameterIndex);
+        LocalDateTime localDateTime = x.toLocalDateTime();
+        //TODO ms
+        MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),0);
     }
 
     @Override

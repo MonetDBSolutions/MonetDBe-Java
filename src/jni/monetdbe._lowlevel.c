@@ -307,14 +307,13 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
     //TODO Set parameter types
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     jfieldID paramsField = (*env)->GetFieldID(env,statementClass,"nParams","I");
-    (*env)->SetIntField(env,j_statement,paramsField,(jint)(stmt->nparam));
+    (*env)->SetIntField(env,j_statement,paramsField,(jint)((*stmt)->nparam));
 
     (*env)->ReleaseStringUTFChars(env,j_sql,sql);
     return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
 }
 
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
-    monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
+jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int parameter_nr) {
     if (parameter_nr > 0) {
         //JDBC indexes parameter numbers at 1, MonetDB at 0
         parameter_nr -= 1;
@@ -322,64 +321,8 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     else {
         return (*env)->NewStringUTF(env,(const char*) "Parameter number is not valid.");
     }
-
-    char* result;
-
-    //NULL values
-    if ((*env)->IsSameObject(env, j_data, NULL)) {
-        //TODO Is this correct? Am I giving a pointer to a NULL value?
-        result = monetdbe_bind(stmt,(void*)0,(int)parameter_nr);
-    }
-    //Non-NULL
-    else {
-        jclass param_class = (*env)->GetObjectClass(env, j_data);
-        if (type == 0) {
-            bool bind_data = (bool) (*env)->CallBooleanMethod(env,j_data,(*env)->GetMethodID(env,param_class,"booleanValue","()Z"));
-            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 1 || type == 2) {
-            short bind_data = (short) (*env)->CallShortMethod(env,j_data,(*env)->GetMethodID(env,param_class,"shortValue","()S"));
-            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 3 || type == 6) {
-            int bind_data = (int) (*env)->CallIntMethod(env,j_data,(*env)->GetMethodID(env,param_class,"intValue","()I"));
-            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 4) {
-            long bind_data = (long) (*env)->CallLongMethod(env,j_data,(*env)->GetMethodID(env,param_class,"longValue","()L"));
-            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 5) {
-            //TODO BIGINT 128int
-        }
-        else if (type == 7) {
-            float bind_data = (float) (*env)->CallFloatMethod(env,j_data,(*env)->GetMethodID(env,param_class,"floatValue","()F"));
-            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 8) {
-            double bind_data = (double) (*env)->CallDoubleMethod(env,j_data,(*env)->GetMethodID(env,param_class,"doubleValue","()D"));
-            result = monetdbe_bind(stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 9) {
-            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
-            result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
-        }
-        else if (type == 10) {
-            //TODO Blob
-        }
-        else if (type == 11) {
-            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
-            result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
-        }
-        else if (type == 12) {
-            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
-            result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
-        }
-        else if (type == 13) {
-            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
-            result = monetdbe_bind(stmt,bind_data,(int)parameter_nr);
-        }
-    }
+    monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
+    char* result = monetdbe_bind(stmt,parsed_data,(int)parameter_nr);
 
     if(result) {
         printf("Bind: %s\n",result);
@@ -392,6 +335,86 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
+    if ((*env)->IsSameObject(env, j_data, NULL)) {
+        //TODO Is this correct? Am I giving a pointer to a NULL value?
+        return bind_parsed_data(env,j_stmt,(void*)0,(int)parameter_nr);
+    }
+    //Non-NULL
+    else {
+        jclass param_class = (*env)->GetObjectClass(env, j_data);
+        if (type == 0) {
+            bool bind_data = (bool) (*env)->CallBooleanMethod(env,j_data,(*env)->GetMethodID(env,param_class,"booleanValue","()Z"));
+            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 1 || type == 2) {
+            short bind_data = (short) (*env)->CallShortMethod(env,j_data,(*env)->GetMethodID(env,param_class,"shortValue","()S"));
+            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 3 || type == 6) {
+            int bind_data = (int) (*env)->CallIntMethod(env,j_data,(*env)->GetMethodID(env,param_class,"intValue","()I"));
+            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 4) {
+            long bind_data = (long) (*env)->CallLongMethod(env,j_data,(*env)->GetMethodID(env,param_class,"longValue","()L"));
+            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 5) {
+            //TODO BIGINT 128int
+        }
+        else if (type == 7) {
+            float bind_data = (float) (*env)->CallFloatMethod(env,j_data,(*env)->GetMethodID(env,param_class,"floatValue","()F"));
+            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 8) {
+            double bind_data = (double) (*env)->CallDoubleMethod(env,j_data,(*env)->GetMethodID(env,param_class,"doubleValue","()D"));
+            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+        }
+        else if (type == 9) {
+            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
+            return bind_parsed_data(env,j_stmt,bind_data,(int)parameter_nr);
+        }
+        else if (type == 10) {
+            //TODO Blob
+        }
+        //Date types are handled in other functions
+    }
+}
+
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1date (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day) {
+    monetdbe_data_date* date_bind = malloc(sizeof(monetdbe_data_date));
+    date_bind->year = (short) year;
+    date_bind->month = (unsigned char) month;
+    date_bind->day = (unsigned char) day;
+    printf("Parsed: %d-%d-%d\n", (int)date_bind->year,(int)date_bind->month,(int)date_bind->day);
+    return bind_parsed_data(env,j_stmt,date_bind,(int)parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1time (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint hours, jint minutes, jint seconds, jint ms) {
+    monetdbe_data_time* time_bind = malloc(sizeof(monetdbe_data_time));
+    time_bind->hours = (unsigned char) hours;
+    time_bind->minutes = (unsigned char) minutes;
+    time_bind->seconds = (unsigned char) seconds;
+    time_bind->ms = (unsigned int) ms;
+    printf("Parsed: %d:%d:%d.%d\n", (int)time_bind->hours,(int)time_bind->minutes,(int)time_bind->seconds,(int)time_bind->ms);
+    return bind_parsed_data(env,j_stmt,time_bind,(int)parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1timestamp (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day, jint hours, jint minutes, jint seconds, jint ms) {
+    monetdbe_data_timestamp* timestamp_bind = malloc(sizeof(monetdbe_data_timestamp));
+    //timestamp_bind->date = malloc(sizeof(monetdbe_data_date));
+    //timestamp_bind->time = malloc(sizeof(monetdbe_data_time));
+    (timestamp_bind->date).year = (short) year;
+    (timestamp_bind->date).month = (unsigned char) month;
+    (timestamp_bind->date).day = (unsigned char) day;
+    (timestamp_bind->time).hours = (unsigned char) hours;
+    (timestamp_bind->time).minutes = (unsigned char) minutes;
+    (timestamp_bind->time).seconds = (unsigned char) seconds;
+    (timestamp_bind->time).ms = (unsigned int) hours;
+    printf("Parsed: %d-%d-%d %d:%d:%d.%d\n", (int)(timestamp_bind->date).year,(int)(timestamp_bind->date).month,(int)(timestamp_bind->date).day,(int)(timestamp_bind->time).hours,(int)(timestamp_bind->time).minutes,(int)(timestamp_bind->time).seconds,(int)(timestamp_bind->time).ms);
+    return bind_parsed_data(env,j_stmt,timestamp_bind,(int)parameter_nr);
+}
+
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
     monetdbe_result** result = malloc(sizeof(monetdbe_result*));
@@ -401,8 +424,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1exe
     if(result_msg) {
         printf("Query result msg: %s\n", result_msg);
         fflush(stdout);
+        return NULL;
     }
-    return returnResult(env, j_statement, largeUpdate, result, affected_rows);
+    //TODO Verify that messages are only sent if it's an error
+    else {
+        return returnResult(env, j_statement, largeUpdate, result, affected_rows);
+    }
 }
 
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1cleanup_1statement (JNIEnv * env, jclass self, jobject j_db, jobject j_stmt) {

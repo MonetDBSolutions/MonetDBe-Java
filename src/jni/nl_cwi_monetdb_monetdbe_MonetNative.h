@@ -82,10 +82,10 @@ JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ge
 /*
  * Class:     nl_cwi_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_prepare
- * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;)Ljava/nio/ByteBuffer;
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;Lnl/cwi/monetdb/monetdbe/MonetPreparedStatement;)Ljava/nio/ByteBuffer;
  */
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1prepare
-  (JNIEnv *, jclass, jobject, jstring);
+  (JNIEnv *, jclass, jobject, jstring, jobject);
 
 /*
  * Class:     nl_cwi_monetdb_monetdbe_MonetNative
@@ -97,8 +97,32 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
 
 /*
  * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_date
+ * Signature: (Ljava/nio/ByteBuffer;IIII)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1date
+  (JNIEnv *, jclass, jobject, jint, jint, jint, jint);
+
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_time
+ * Signature: (Ljava/nio/ByteBuffer;IIIII)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1time
+  (JNIEnv *, jclass, jobject, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_timestamp
+ * Signature: (Ljava/nio/ByteBuffer;IIIIIIII)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1timestamp
+  (JNIEnv *, jclass, jobject, jint, jint, jint, jint, jint, jint, jint, jint);
+
+/*
+ * Class:     nl_cwi_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_execute
- * Signature: (Ljava/nio/ByteBuffer;Lnl/cwi/monetdb/monetdbe/MonetStatement;Z)Lnl/cwi/monetdb/monetdbe/MonetResultSet;
+ * Signature: (Ljava/nio/ByteBuffer;Lnl/cwi/monetdb/monetdbe/MonetPreparedStatement;Z)Lnl/cwi/monetdb/monetdbe/MonetResultSet;
  */
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute
   (JNIEnv *, jclass, jobject, jobject, jboolean);

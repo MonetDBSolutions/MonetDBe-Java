@@ -1,9 +1,6 @@
 import nl.cwi.monetdb.monetdbe.*;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.Properties;
 
 public class TestMonetDBeJava {
@@ -28,10 +25,19 @@ public class TestMonetDBeJava {
     private static void queryDBPreparedStatement (MonetConnection c) {
         try {
             System.out.println("Preparing statement");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st, i, r FROM a WHERE i < ? AND r < ? AND st <> ?");
+            /*MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st, i, r, da FROM a WHERE i < ? AND r < ? AND st <> ? AND da < ?");
             ps.setInt(1,20);
-            ps.setFloat(2,20.2f);
+            ps.setFloat(2,30.2f);
             ps.setString(3,"hey2");
+            Date da = new Date(System.currentTimeMillis());
+            ps.setDate(4,da);*/
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT da, t, ts FROM a WHERE da = ? AND t = ? AND ts = ?");
+            Date da = Date.valueOf("2015-03-31");
+            ps.setDate(1,da);
+            Time t = Time.valueOf("14:11:29");
+            ps.setTime(2,t);
+            Timestamp ts = Timestamp.valueOf("2007-12-24 14:11:04.32");
+            ps.setTimestamp(3,ts);
             ps.execute();
             MonetResultSet rs = (MonetResultSet) ps.getResultSet();
 
@@ -39,8 +45,9 @@ public class TestMonetDBeJava {
             System.out.println("\nPrepared statement resultSet:");
             while (rs.next()) {
                 System.out.println("String: " + rs.getString(0));
-                System.out.println("Int: " + rs.getInt(1));
+                /*System.out.println("Int: " + rs.getInt(1));
                 System.out.println("Float: " + rs.getFloat(2));
+                System.out.println("Date: " + rs.getDate(3));*/
                 System.out.println();
             }
             System.out.println();
@@ -86,8 +93,8 @@ public class TestMonetDBeJava {
             s.execute("INSERT INTO a VALUES " +
                     "(true, 2, 3, 5, 1.0, 1.66,'hey1',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), " +
                     "(true, 4, 6, 10, 2.5, 3.643,'hey2',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M')), " +
-                    "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2007', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01', '%d-%m-%Y %H:%M')), " +
-                    "(false, 16, 24, 40, 255.255, 2434.432,'hey4',str_to_date('24-12-2007', '%d-%m-%Y'),str_to_time('14:11:29', '%H:%M:%S'),str_to_timestamp('24-12-2007 14:11', '%d-%m-%Y %H:%M'));");
+                    "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2020', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01', '%d-%m-%Y %H:%M')), " +
+                    "(false, 16, 24, 40, 255.255, 2434.432,'hey4',str_to_date('31-3-2015', '%d-%m-%Y'),str_to_time('14:11:29', '%H:%M:%S'),str_to_timestamp('24-12-2007 14:11:04.32', '%d-%m-%Y %H:%M'));");
         } catch (SQLException e) {
             e.printStackTrace();
         }
