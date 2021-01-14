@@ -213,7 +213,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 addColumnConst(env,j_columns,c_int64_t->data,c_int64_t->name,4,64*c_int64_t->count,i);
                 break;
             case 5:;
-                monetdbe_column_int128_t* c_int128_t = (monetdbe_column_int64_t*) (*column);
+                monetdbe_column_int128_t* c_int128_t = (monetdbe_column_int128_t*) (*column);
                 addColumnConst(env,j_columns,c_int128_t->data,c_int128_t->name,5,128*c_int128_t->count,i);
                 break;
             case 6:;

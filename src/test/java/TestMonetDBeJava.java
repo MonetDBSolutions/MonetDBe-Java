@@ -116,6 +116,25 @@ public class TestMonetDBeJava {
         }
     }
 
+    private static void queryDBLongQuery (MonetConnection c) {
+        try {
+            MonetStatement s = (MonetStatement) c.createStatement();
+            s.executeQuery("SELECT sql_mul(i,s), radians(degrees(radians(i))), tan(i) FROM a;");
+            MonetResultSet rs = (MonetResultSet) s.getResultSet();
+            System.out.println("Select resultSet: ");
+            rs.beforeFirst();
+            while (rs.next()) {
+                System.out.println("Row " + rs.getRow());
+                System.out.println("Int: " + rs.getLong(0));
+                System.out.println("Double: " + rs.getDouble(1));
+                System.out.println("Double: " + rs.getDouble(2));
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void populateDB(MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
@@ -136,18 +155,21 @@ public class TestMonetDBeJava {
 
     public static void main(String[] args) {
         try {
-            Properties info = null;
+            Properties info = new Properties();
             String url = "jdbc:monetdb://:memory:";
+            info.setProperty("querytimeout","1");
 
             Connection conn = DriverManager.getConnection(url, info);
             MonetConnection c = (MonetConnection) conn;
 
             if (c != null) {
                 System.out.println("Opened connection @ " + url.substring(15));
+                System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
                 populateDB(c);
                 //insertDBPreparedStatementDate(c);
-                //queryDBStatement(c);
+                queryDBStatement(c);
                 //queryDBPreparedStatement(c);
+                //queryDBLongQuery(c);
                 queryDBPreparedStatementDate(c);
                 dropDB(c);
                 c.close();

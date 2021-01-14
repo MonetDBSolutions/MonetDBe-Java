@@ -83,11 +83,11 @@ public class MonetColumn {
     }
 
     public Long getLong(int row) throws SQLException {
-        if (monetdbeType ==4)  {
+        if (monetdbeType == 4)  {
             return ((ByteBuffer) constData).asLongBuffer().get(row);
         }
         else {
-            throw new SQLException("Column is not long value");
+            throw new SQLException("Column is not long value (type " + monetdbeType + ")");
         }
     }
 
@@ -139,7 +139,7 @@ public class MonetColumn {
 
     //Variable length types
     public String getString(int row) throws SQLException {
-        if(monetdbeType == 9 || monetdbeType == 11 || monetdbeType == 12 || monetdbeType == 13) {
+        if(monetdbeType > 9) {
             return (String) varData[row];
         }
         else {

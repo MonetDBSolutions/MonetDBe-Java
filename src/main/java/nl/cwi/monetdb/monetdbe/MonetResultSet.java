@@ -463,16 +463,38 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
+    //TODO Test
     @Override
     public Blob getBlob(int columnIndex) throws SQLException {
-        //TODO BLOB
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return new MonetBlob(val);
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
+    //TODO Test
     @Override
     public Clob getClob(int columnIndex) throws SQLException {
-        //TODO CLOB
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return new MonetClob(val);
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override

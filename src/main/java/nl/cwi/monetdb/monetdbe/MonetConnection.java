@@ -227,14 +227,16 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
+    //TODO Update configurations instead of only changing the properties argument
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
-        //Not possible currently, may be a future feature
+        this.properties.setProperty(name,value);
     }
 
+    //TODO Update configurations instead of only changing the properties argument
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        //Not possible currently, may be a future feature
+        this.properties = properties;
     }
 
     @Override
@@ -410,35 +412,34 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     }
 
-    //Types
-    //TODO Create types
-    @Override
-    public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
-        return null;
-    }
-
-    @Override
-    public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
-        return null;
-    }
-
+    //Create Complex Types
     @Override
     public Clob createClob() throws SQLException {
-        return null;
+        return new MonetClob("");
     }
 
     @Override
     public Blob createBlob() throws SQLException {
-        return null;
+        return new MonetBlob(new byte[1]);
+    }
+
+    @Override
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
+        throw new SQLFeatureNotSupportedException("createArrayOf");
+    }
+
+    @Override
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
+        throw new SQLFeatureNotSupportedException("createStruct");
     }
 
     @Override
     public NClob createNClob() throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("createNClob");
     }
 
     @Override
     public SQLXML createSQLXML() throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("createSQLXML");
     }
 }
