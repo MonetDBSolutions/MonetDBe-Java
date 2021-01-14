@@ -22,6 +22,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
+        try {
+            setPoolable(true);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
         //nParams is set within monetdbe_prepare
         this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
     }
