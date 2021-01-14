@@ -213,7 +213,8 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 addColumnConst(env,j_columns,c_int64_t->data,c_int64_t->name,4,64*c_int64_t->count,i);
                 break;
             case 5:;
-                //TODO huge_int
+                monetdbe_column_int128_t* c_int128_t = (monetdbe_column_int64_t*) (*column);
+                addColumnConst(env,j_columns,c_int128_t->data,c_int128_t->name,5,128*c_int128_t->count,i);
                 break;
             case 6:;
                 monetdbe_column_size_t* c_size_t = (monetdbe_column_size_t*) (*column);
@@ -335,6 +336,7 @@ jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int p
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 
+//TODO Rethink this method, shouldn't use the monetdbe_type in the condition, as a monetdbe_type can have multiple associated JDBC types
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
     if ((*env)->IsSameObject(env, j_data, NULL)) {
         //TODO Is this correct? Am I giving a pointer to a NULL value?
@@ -360,7 +362,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
             return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
         }
         else if (type == 5) {
-            //TODO BIGINT 128int
+            //TODO Parse a BigDecimal/BigInteger to int128
         }
         else if (type == 7) {
             float bind_data = (float) (*env)->CallFloatMethod(env,j_data,(*env)->GetMethodID(env,param_class,"floatValue","()F"));

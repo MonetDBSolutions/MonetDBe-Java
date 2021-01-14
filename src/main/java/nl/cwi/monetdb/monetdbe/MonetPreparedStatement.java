@@ -3,6 +3,7 @@ package nl.cwi.monetdb.monetdbe;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.sql.*;
@@ -169,6 +170,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     //Set objects
     //TODO setObject conversions
+    //TODO Rethink this method, shouldn't use the monetdbe_type in the switch, as a monetdbe_type can have multiple associated JDBC types
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
         int monetType = MonetTypes.getMonetTypeInt(targetSqlType);
@@ -184,7 +186,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             case 4:
                 setLong(parameterIndex,(long) x);
             case 5:
-                //TODO HUGEINT
+                //TODO Add BigDecimal as well
+                setHugeInt(parameterIndex,(BigInteger) x);
             case 6:
                 setInt(parameterIndex,(int) x);
             case 7:
@@ -280,7 +283,14 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //TODO BIG DECIMAL
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
+        MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex);
+        parameters[parameterIndex-1] = x;
+    }
 
+    //TODO BIG INT
+    public void setHugeInt(int parameterIndex, BigInteger x) throws SQLException {
+        MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex);
+        parameters[parameterIndex-1] = x;
     }
 
     @Override
@@ -341,36 +351,36 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-    //TODO BLOB
+
     @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
-
+        //TODO BLOB
     }
 
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
-
+        //TODO BLOB
     }
 
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-
+        //TODO BLOB
     }
 
-    //TODO CLOB
+
     @Override
     public void setClob(int parameterIndex, Clob x) throws SQLException {
-
+        //TODO CLOB
     }
 
     @Override
     public void setClob(int parameterIndex, Reader reader) throws SQLException {
-
+        //TODO CLOB
     }
 
     @Override
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-
+        //TODO CLOB
     }
 
     @Override
@@ -420,20 +430,20 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     //Set stream object
-    //TODO
+
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-
+        //TODO
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
-
+        //TODO
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-
+        //TODO
     }
 
     @Override
