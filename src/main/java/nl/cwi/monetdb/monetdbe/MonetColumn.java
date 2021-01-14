@@ -1,6 +1,7 @@
 package nl.cwi.monetdb.monetdbe;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.*;
 import java.sql.*;
 import java.util.Map;
@@ -109,6 +110,30 @@ public class MonetColumn {
         }
         else {
             throw new SQLException("Column is not double value");
+        }
+    }
+
+    //TODO Test
+    public BigInteger getBigInteger(int row) throws SQLException {
+        if (monetdbeType == 5)  {
+            byte[] byteData = new byte[16];
+            ((ByteBuffer) constData).get(byteData,row*16,16);
+            return new BigInteger(byteData);
+        }
+        else {
+            throw new SQLException("Column is not BigInteger value");
+        }
+    }
+
+    //TODO Test
+    public BigDecimal getBigDecimal(int row) throws SQLException {
+        if (monetdbeType == 5)  {
+            byte[] byteData = new byte[16];
+            ((ByteBuffer) constData).get(byteData,row*16,16);
+            return new BigDecimal(new BigInteger(byteData));
+        }
+        else {
+            throw new SQLException("Column is not BigDecimal value");
         }
     }
 

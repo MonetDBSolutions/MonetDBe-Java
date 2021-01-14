@@ -3,6 +3,7 @@ package nl.cwi.monetdb.monetdbe;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.*;
@@ -263,22 +264,44 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    @Override
-    public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        //TODO BIG DECIMAL
-        return null;
-    }
-
-    @Override
-    public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        //TODO BIG DECIMAL
-        return null;
-    }
-
+    //TODO getBytes
     @Override
     public byte[] getBytes(int columnIndex) throws SQLException {
-        //TODO GET BYTES
-        return null;
+        return new byte[0];
+    }
+
+    //TODO Does the BigDecimal represented in the database contain the scale? Is part of the int_128 the 32 bit scale or only the integer unscaled value?
+    //TODO Test
+    @Override
+    public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            BigDecimal val = columns[columnIndex].getBigDecimal(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return BigDecimal.ZERO;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    //TODO Test
+    public BigInteger getHugeInt (int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            BigInteger val = columns[columnIndex].getBigInteger(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return BigInteger.ZERO;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     //TODO Add ms to time and timestamp, after parsing it to the dateStr with the lowlevel parse function
@@ -664,12 +687,33 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         this.warnings = new SQLWarning();
     }
 
+    private final void addWarning(final String reason, final String sqlstate) {
+        final SQLWarning warn = new SQLWarning(reason, sqlstate);
+        if (warnings == null) {
+            warnings = warn;
+        } else {
+            warnings.setNextWarning(warn);
+        }
+    }
+
     @Override
     public String getCursorName() throws SQLException {
         return name;
     }
 
     //Other gets
+    @Override
+    @Deprecated
+    public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
+        if (scale != 0) {
+            addWarning("getBigDecimal(int columnIndex, int scale) is deprecated. Please use getBigDecimal(int columnIndex).setScale(int scale)", "");
+            return null;
+        }
+        else {
+            return getBigDecimal(columnIndex);
+        }
+    }
+
     @Override
     public String getNString(int columnIndex) throws SQLException {
         return getString(columnIndex);
@@ -869,6 +913,9 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
         return getTimestamp(findColumn(columnLabel),cal);
+    }
+    public BigInteger getHugeInt (String columnLabel) throws SQLException {
+        return getHugeInt(findColumn(columnLabel));
     }
 
     //Update
