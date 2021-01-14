@@ -372,7 +372,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
 
     }
-    
+
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         //TODO Ref and UDFs?
@@ -422,37 +422,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //Set stream object
     //TODO
     @Override
-    public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
-
-    }
-
-    @Override
-    public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
-
-    }
-
-    @Override
-    public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
-
-    }
-
-    @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-
-    }
-
-    @Override
-    public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
-
-    }
-
-    @Override
-    public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
 
     }
 
@@ -462,22 +432,52 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     @Override
-    public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
-
-    }
-
-    @Override
-    public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
-
-    }
-
-    @Override
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
 
     }
 
     @Override
-    public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
+    public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setAsciiStream");
+    }
 
+    @Override
+    public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setAsciiStream");
+    }
+
+    @Override
+    public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setAsciiStream");
+    }
+
+    @Override
+    public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setUnicodeStream");
+    }
+
+    @Override
+    public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setBinaryStream");
+    }
+
+    @Override
+    public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setBinaryStream");
+    }
+
+    @Override
+    public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setBinaryStream");
+    }
+
+    @Override
+    public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
+        setCharacterStream(parameterIndex,value);
+    }
+
+    @Override
+    public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
+        setCharacterStream(parameterIndex,value,length);
     }
 }

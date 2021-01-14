@@ -522,7 +522,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         return metaData;
     }
 
-    //Pedro's Code
+    //Old Code
     @Override
     public boolean absolute(int row) throws SQLException {
         checkNotClosed();
