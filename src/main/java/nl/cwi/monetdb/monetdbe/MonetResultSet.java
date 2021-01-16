@@ -19,6 +19,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private MonetResultSetMetaData metaData;
     private final int tupleCount;
     private int curRow;
+    private int columnCount;
 
     private MonetColumn[] columns;
     /** Name defined in monetdbe_result C struct */
@@ -39,6 +40,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         this.statement = statement;
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
+        this.columnCount = ncols;
         this.curRow = 0;
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
         //TODO Should this be created when the resultSet is, or only in the getMetadata method?
@@ -50,12 +52,15 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public Object getObject(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (columnIndex > columnCount) {
+            throw new SQLException("columnIndex is not valid");
+        }
         int type = columns[columnIndex].getMonetdbeType();
         switch (type) {
             case 0:
                 return getBoolean(columnIndex);
             case 1:
-                return getShort(columnIndex);
+                return getByte(columnIndex);
             case 2:
                 return getShort(columnIndex);
             case 3:
@@ -63,7 +68,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             case 4:
                 return getLong(columnIndex);
             case 5:
-                //TODO HUGEINT
+                //TODO BIGDECIMAL/HUGEINT
                 return null;
             case 6:
                 return getInt(columnIndex);
@@ -74,8 +79,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             case 9:
                 return getString(columnIndex);
             case 10:
-                //TODO BLOB
-                return null;
+                return getBlob(columnIndex);
             case 11:
                 return getDate(columnIndex);
             case 12:
@@ -88,32 +92,38 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     }
 
     @Override
-    public Object getObject(String columnLabel) throws SQLException {
-        return getObject(findColumn(columnLabel));
-    }
-
-    @Override
     public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-        //TODO getObject Conversions
+        checkNotClosed();
+        if (columnIndex > columnCount) {
+            throw new SQLException("columnIndex is not valid");
+        }
+        int monetdbeType = columns[columnIndex].getMonetdbeType();
+        //TODO Get sqlType name from monetdbetype
+        /*String sqlType = MonetTypes.;
+        Class<?> convertClass = map.get(sqlType);
+        getObject(columnIndex,convertClass);*/
         return null;
     }
 
-    @Override
-    public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
-        //TODO getObject Conversions
-        return null;
-    }
-
+    //TODO This object conversion probably doesn't work well. We can't simply cast from the default Java object associated with the monetdbetype. Improve.
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-        //TODO getObject Conversions
-        return null;
-    }
+        checkNotClosed();
+        if (type == null) {
+            throw new SQLException("type is null");
+        }
+        else if (columnIndex > columnCount) {
+            throw new SQLException("columnIndex is not valid");
+        }
 
-    @Override
-    public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
-        //TODO getObject Conversions
-        return null;
+        int monetdbeType = columns[columnIndex].getMonetdbeType();
+        if (MonetTypes.convertTojavaClass(monetdbeType,type)) {
+            Object defaultValue = getObject(columnIndex);
+            return type.cast(defaultValue);
+        }
+        else {
+            throw new SQLException("Conversion is not supported");
+        }
     }
 
     //Gets
@@ -556,7 +566,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public void close() throws SQLException {
         this.closed = true;
-        //TODO Check for errors
         MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDbNative(),nativeResult);
         this.columns = null;
         statement.closeIfComplete();
@@ -567,7 +576,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         return metaData;
     }
 
-    //Old Code
     @Override
     public boolean absolute(int row) throws SQLException {
         checkNotClosed();
@@ -931,13 +939,28 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Time getTime(String columnLabel, Calendar cal) throws SQLException {
         return getTime(findColumn(columnLabel),cal);
     }
-
+    
     @Override
     public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
         return getTimestamp(findColumn(columnLabel),cal);
     }
     public BigInteger getHugeInt (String columnLabel) throws SQLException {
         return getHugeInt(findColumn(columnLabel));
+    }
+
+    @Override
+    public Object getObject(String columnLabel) throws SQLException {
+        return getObject(findColumn(columnLabel));
+    }
+
+    @Override
+    public Object getObject(String columnLabel, Map<String, Class<?>> map) throws SQLException {
+        return getObject(findColumn(columnLabel),map);
+    }
+
+    @Override
+    public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+        return getObject(findColumn(columnLabel),type);
     }
 
     //Update

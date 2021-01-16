@@ -6,7 +6,7 @@ import java.sql.*;
 public final class MonetTypes {
     public static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
     public static final String[] sqlTypes = {"CHAR","VARCHAR","LONGVARCHAR","NUMERIC","DECIMAL","BOOLEAN","BIT","TINYINT","SMALLINT","INTEGER","BIGINT","REAL","FLOAT","DOUBLE","BINARY","VARBINARY","LONGVARBINARY","DATE","TIME","TIMESTAMP","CLOB","BLOB"};
-    public static final Class[] javaTypes = {String.class,BigDecimal.class,Boolean.class,Short.class,Integer.class,Long.class,Float.class,Double.class,byte[].class,java.sql.Date.class,Time.class,Timestamp.class,Clob.class,Blob.class};
+    public static final Class[] javaClasss = {String.class,BigDecimal.class,Boolean.class,Short.class,Integer.class,Long.class,Float.class,Double.class,byte[].class,java.sql.Date.class,Time.class,Timestamp.class,Clob.class,Blob.class};
 
     final static String getMonetTypeString(final int monetdbetype) {
         return monetdbeTypes[monetdbetype];
@@ -153,7 +153,6 @@ public final class MonetTypes {
                 return Clob.class;
             case Types.BLOB:
                 return Blob.class;
-
             // all the rest are currently not implemented and used
             default:
                 return String.class;
@@ -162,51 +161,76 @@ public final class MonetTypes {
 
     final static Class<?> getClassForMonetType(final int monetdbeType) { return getClassForSQLType(getSQLTypeFromMonet(monetdbeType));}
 
-    final static int getSQLTypeForClass(final Class<?> cl) {
-        if (cl == String.class) {
+    final static int getDefaultSQLTypeForClass(final Class<?> javaClass) {
+        if (javaClass == String.class) {
             return Types.VARCHAR;
         }
-        else if (cl == Boolean.class) {
+        else if (javaClass == Boolean.class) {
             return Types.BOOLEAN;
         }
-        else if (cl == Short.class) {
+        else if (javaClass == Short.class) {
             return Types.SMALLINT;
         }
-        else if (cl == Integer.class) {
+        else if (javaClass == Integer.class) {
             return Types.INTEGER;
         }
-        else if (cl == Long.class) {
+        else if (javaClass == Long.class) {
             return Types.BIGINT;
         }
-        else if (cl == Float.class) {
+        else if (javaClass == Float.class) {
             return Types.REAL;
         }
-        else if (cl == Double.class) {
+        else if (javaClass == Double.class) {
             return Types.DOUBLE;
         }
-        else if (cl == byte[].class) {
+        else if (javaClass == byte[].class) {
             return Types.BINARY;
         }
-        else if (cl == Date.class) {
+        else if (javaClass == Date.class) {
             return Types.DATE;
         }
-        else if (cl == Time.class) {
+        else if (javaClass == Time.class) {
             return Types.TIME;
         }
-        else if (cl == Timestamp.class) {
+        else if (javaClass == Timestamp.class) {
             return Types.TIMESTAMP;
         }
-        else if (cl == Clob.class) {
+        else if (javaClass == Clob.class) {
             return Types.CLOB;
         }
-        else if (cl == Blob.class) {
+        else if (javaClass == Blob.class) {
             return Types.BLOB;
         }
-        else if (cl == BigDecimal.class) {
+        else if (javaClass == BigDecimal.class) {
             return Types.NUMERIC;
         }
         else {
             return Types.VARCHAR;
+        }
+    }
+    
+    final static boolean convertTojavaClass (final int monetdbetype, final Class<?> javaClass) {
+        //TODO missing byte[], BigInteger and Clob
+        if (javaClass == String.class) {
+            return (monetdbetype != 10 && monetdbetype >= 0 && monetdbetype <= 13);
+        }
+        else if (javaClass == Boolean.class || javaClass == Short.class || javaClass == Integer.class || javaClass == Long.class || javaClass == Float.class || javaClass == Double.class || javaClass == BigDecimal.class) {
+            return (monetdbetype >= 0 && monetdbetype <= 9);
+        }
+        else if (javaClass == Date.class) {
+            return (monetdbetype == 9 || monetdbetype == 11 || monetdbetype == 13);
+        }
+        else if (javaClass == Time.class) {
+            return (monetdbetype == 9 || monetdbetype == 12 || monetdbetype == 13);
+        }
+        else if (javaClass == Timestamp.class) {
+            return (monetdbetype >= 9 && monetdbetype <= 13);
+        }
+        else if (javaClass == Blob.class) {
+            return (monetdbetype == 10);
+        }
+        else {
+            return false;
         }
     }
 

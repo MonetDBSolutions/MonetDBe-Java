@@ -13,24 +13,23 @@ public class MonetColumn {
     private int monetdbeType;
     private String typeName;
 
-
     public MonetColumn(String name, int monetdbeType) {
         this.name = name;
         this.monetdbeType = monetdbeType;
-        this.typeName = MonetTypes.monetdbeTypes[monetdbeType];
+        this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
     }
 
     public MonetColumn(String name, int monetdbeType, ByteBuffer constData) {
         this.name = name;
         this.monetdbeType = monetdbeType;
-        this.typeName = MonetTypes.monetdbeTypes[monetdbeType];
+        this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
         this.constData = constData.order(ByteOrder.LITTLE_ENDIAN);
     }
 
     public MonetColumn(String name, int monetdbeType, Object[] varData) {
         this.name = name;
         this.monetdbeType = monetdbeType;
-        this.typeName = MonetTypes.monetdbeTypes[monetdbeType];
+        this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
         this.varData = varData;
     }
 
@@ -54,105 +53,54 @@ public class MonetColumn {
         return typeName;
     }
 
-    //Constant length types
-    public boolean getBoolean(int row) throws SQLException {
-        if (monetdbeType == 0)  {
-            return ((ByteBuffer) constData).get(row)!=0;
-        }
-        else {
-            throw new SQLException("Column is not bool value");
-        }
+    public boolean getBoolean(int row) {
+        return ((ByteBuffer) constData).get(row)!=0;
     }
 
-    public Short getShort(int row) throws SQLException {
-        if (monetdbeType == 1 || monetdbeType == 2)  {
-            return ((ByteBuffer) constData).asShortBuffer().get(row);
-        }
-        else {
-            throw new SQLException("Column is not short value");
-        }
+    public Short getShort(int row) {
+        return ((ByteBuffer) constData).asShortBuffer().get(row);
     }
 
-    public Integer getInt(int row) throws SQLException {
-        if (monetdbeType ==3 || monetdbeType == 6)  {
-            return ((ByteBuffer) constData).asIntBuffer().get(row);
-        }
-        else {
-            throw new SQLException("Column is not int value");
-        }
+    public Integer getInt(int row) {
+        return ((ByteBuffer) constData).asIntBuffer().get(row);
     }
 
-    public Long getLong(int row) throws SQLException {
-        if (monetdbeType == 4)  {
-            return ((ByteBuffer) constData).asLongBuffer().get(row);
-        }
-        else {
-            throw new SQLException("Column is not long value (type " + monetdbeType + ")");
-        }
+    public Long getLong(int row) {
+        return ((ByteBuffer) constData).asLongBuffer().get(row);
     }
 
-    public Integer getSize(int row) throws  SQLException {
+    public Integer getSize(int row) {
         return getInt(row);
     }
 
-    public Float getFloat(int row) throws SQLException {
-        if (monetdbeType == 7)  {
-            return ((ByteBuffer) constData).asFloatBuffer().get(row);
-        }
-        else {
-            throw new SQLException("Column is not float value");
-        }
+    public Float getFloat(int row) {
+        return ((ByteBuffer) constData).asFloatBuffer().get(row);
     }
 
-    public Double getDouble(int row) throws SQLException {
-        if (monetdbeType == 8)  {
-            return ((ByteBuffer) constData).asDoubleBuffer().get(row);
-        }
-        else {
-            throw new SQLException("Column is not double value");
-        }
+    public Double getDouble(int row) {
+        return ((ByteBuffer) constData).asDoubleBuffer().get(row);
+    }
+
+    public byte getByte(int row) {
+        return ((ByteBuffer) constData).get(row);
     }
 
     //TODO Test
-    public BigInteger getBigInteger(int row) throws SQLException {
-        if (monetdbeType == 5)  {
-            byte[] byteData = new byte[16];
-            ((ByteBuffer) constData).get(byteData,row*16,16);
-            return new BigInteger(byteData);
-        }
-        else {
-            throw new SQLException("Column is not BigInteger value");
-        }
+    public BigInteger getBigInteger(int row) {
+        byte[] byteData = new byte[16];
+        ((ByteBuffer) constData).get(byteData,row*16,16);
+        return new BigInteger(byteData);
     }
 
     //TODO Test
-    public BigDecimal getBigDecimal(int row) throws SQLException {
-        if (monetdbeType == 5)  {
-            byte[] byteData = new byte[16];
-            ((ByteBuffer) constData).get(byteData,row*16,16);
-            return new BigDecimal(new BigInteger(byteData));
-        }
-        else {
-            throw new SQLException("Column is not BigDecimal value");
-        }
+    public BigDecimal getBigDecimal(int row) {
+        byte[] byteData = new byte[16];
+        ((ByteBuffer) constData).get(byteData,row*16,16);
+        return new BigDecimal(new BigInteger(byteData));
     }
 
-    //Variable length types
-    public String getString(int row) throws SQLException {
-        if(monetdbeType >= 9) {
-            return (String) varData[row];
-        }
-        else {
-            throw new SQLException("Column is not string or date value");
-        }
+    public String getString(int row) {
+        return (String) varData[row];
     }
 
-    public byte getByte(int row) throws  SQLException {
-        if(monetdbeType < 9) {
-            return ((ByteBuffer) constData).get(row);
-        }
-        else {
-            return 0;
-        }
-    }
 }

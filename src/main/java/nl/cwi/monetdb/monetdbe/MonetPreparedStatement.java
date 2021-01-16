@@ -227,7 +227,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
-        int sqltype = MonetTypes.getSQLTypeForClass(x.getClass());
+        int sqltype = MonetTypes.getDefaultSQLTypeForClass(x.getClass());
         setObject(parameterIndex,x,sqltype);
     }
 
