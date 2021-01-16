@@ -2,70 +2,14 @@ package nl.cwi.monetdb.monetdbe;
 
 import java.math.BigDecimal;
 import java.sql.*;
-import java.util.Map;
 
 public final class MonetTypes {
-    //TYPE MAPPINGS
     public static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
     public static final String[] sqlTypes = {"CHAR","VARCHAR","LONGVARCHAR","NUMERIC","DECIMAL","BOOLEAN","BIT","TINYINT","SMALLINT","INTEGER","BIGINT","REAL","FLOAT","DOUBLE","BINARY","VARBINARY","LONGVARBINARY","DATE","TIME","TIMESTAMP","CLOB","BLOB"};
     public static final Class[] javaTypes = {String.class,BigDecimal.class,Boolean.class,Short.class,Integer.class,Long.class,Float.class,Double.class,byte[].class,java.sql.Date.class,Time.class,Timestamp.class,Clob.class,Blob.class};
 
-    /** A static Map containing the mapping between MonetDB types and Java SQL types */
-    public static final java.util.Map<String, Integer> typeMapMonetdbe = new java.util.HashMap<String, Integer>();
-    static {
-        typeMapMonetdbe.put("monetdbe_bool", Types.BOOLEAN);
-        typeMapMonetdbe.put("monetdbe_int8_t",Types.TINYINT);
-        typeMapMonetdbe.put("monetdbe_int16_t", Types.SMALLINT);
-        typeMapMonetdbe.put("monetdbe_int32_t", Types.INTEGER);
-        typeMapMonetdbe.put("monetdbe_int64_t", Types.BIGINT);
-        typeMapMonetdbe.put("monetdbe_size_t", Types.INTEGER);
-        typeMapMonetdbe.put("monetdbe_float", Types.REAL);
-        typeMapMonetdbe.put("monetdbe_double", Types.DOUBLE);
-        typeMapMonetdbe.put("monetdbe_str", Types.VARCHAR);
-        typeMapMonetdbe.put("monetdbe_blob", Types.BLOB);
-        typeMapMonetdbe.put("monetdbe_date", Types.DATE);
-        typeMapMonetdbe.put("monetdbe_time", Types.TIME);
-        typeMapMonetdbe.put("monetdbe_timestamp", Types.TIMESTAMP);
-        typeMapMonetdbe.put("monetdbe_unknown", Types.NULL);
-        //TODO
-        typeMapMonetdbe.put("monetdbe_int128_t", 0);
-    }
-
-    /** A static Map containing the mapping between MonetDB types and Java SQL types */
-    public static final java.util.Map<String, Integer> sizeMapMonetdbe = new java.util.HashMap<String, Integer>();
-    static {
-        sizeMapMonetdbe.put("monetdbe_bool", 8);
-        sizeMapMonetdbe.put("monetdbe_int8_t", 8);
-        sizeMapMonetdbe.put("monetdbe_int16_t", 16);
-        sizeMapMonetdbe.put("monetdbe_int32_t", 32);
-        sizeMapMonetdbe.put("monetdbe_int64_t", 64);
-        sizeMapMonetdbe.put("monetdbe_int128_t", 128);
-        sizeMapMonetdbe.put("monetdbe_size_t", 32);
-        sizeMapMonetdbe.put("monetdbe_float", 32);
-        sizeMapMonetdbe.put("monetdbe_double", 64);
-        sizeMapMonetdbe.put("monetdbe_str", 0);
-        sizeMapMonetdbe.put("monetdbe_blob", 0);
-        sizeMapMonetdbe.put("monetdbe_date", 10);
-        sizeMapMonetdbe.put("monetdbe_time", 8);
-        sizeMapMonetdbe.put("monetdbe_timestamp", 19);
-        typeMapMonetdbe.put("monetdbe_unknown", 0);
-    }
-
-    final static int getMonetSize(final String monetdbetype) {
-        return sizeMapMonetdbe.get(monetdbetype);
-    }
-
-    final static String getMonetTypeName(final int monetdbetype) {
+    final static String getMonetTypeString(final int monetdbetype) {
         return monetdbeTypes[monetdbetype];
-    }
-
-    //TODO Fix this (Wrong for str and blobs)
-    final static int getMonetSize(final int monetdbetype) {
-        return sizeMapMonetdbe.get(monetdbeTypes[monetdbetype]);
-    }
-
-    final static int getSQLType(final String monetdbetype) {
-        return typeMapMonetdbe.get(monetdbetype);
     }
 
     final static int getMonetTypeFromTypeString (final String monetdbetype) {
@@ -77,33 +21,102 @@ public final class MonetTypes {
         return -1;
     }
 
-    final static String getMonetTypeString(final int sqltype) {
-        for (Map.Entry<String, Integer> entry : typeMapMonetdbe.entrySet()) {
-            if (entry.getValue() == sqltype) {
-                return entry.getKey();
-            }
-        }
-        return "";
+    /** A static Map containing the mapping between MonetDB types and Java SQL types */
+    public static final java.util.Map<Integer, Integer> typeMapMonetToSQL = new java.util.HashMap<Integer, Integer>();
+    static {
+        typeMapMonetToSQL.put(0, Types.BOOLEAN);
+        typeMapMonetToSQL.put(1,Types.TINYINT);
+        typeMapMonetToSQL.put(2, Types.SMALLINT);
+        typeMapMonetToSQL.put(3, Types.INTEGER);
+        typeMapMonetToSQL.put(4, Types.BIGINT);
+        typeMapMonetToSQL.put(6, Types.INTEGER);
+        typeMapMonetToSQL.put(7, Types.REAL);
+        typeMapMonetToSQL.put(8, Types.DOUBLE);
+        typeMapMonetToSQL.put(9, Types.VARCHAR);
+        typeMapMonetToSQL.put(10, Types.BLOB);
+        typeMapMonetToSQL.put(11, Types.DATE);
+        typeMapMonetToSQL.put(12, Types.TIME);
+        typeMapMonetToSQL.put(13, Types.TIMESTAMP);
+        typeMapMonetToSQL.put(14, Types.NULL);
+        //TODO Verify this
+        typeMapMonetToSQL.put(5, Types.NUMERIC);
     }
 
-    final static int getMonetTypeInt(final int sqltype) {
-        for (Map.Entry<String, Integer> entry : typeMapMonetdbe.entrySet()) {
-            if (entry.getValue() == sqltype) {
-                return getMonetTypeFromTypeString(entry.getKey());
-            }
-        }
-        return -1;
+    final static int getSQLTypeFromMonet(final int monetdbetype) {
+        return typeMapMonetToSQL.get(monetdbetype);
     }
 
-    final static int getSQLType(final int monetdbetype) {
-        return typeMapMonetdbe.get(monetdbeTypes[monetdbetype]);
+    final static int getSQLTypeFromMonet(final String monetdbetype) {
+        return typeMapMonetToSQL.get(getMonetTypeFromTypeString(monetdbetype));
     }
 
-    final static Class<?> getClassForMonetType(final int monetdbeType) { return getClassForType(getSQLType(monetdbeType));}
+    /** A static Map containing the mapping between Java SQL types and MonetDB types */
+    public static final java.util.Map<Integer, Integer> typeMapSQLToMonet = new java.util.HashMap<Integer, Integer>();
+    static {
+        typeMapSQLToMonet.put(Types.BOOLEAN,0);
+        typeMapSQLToMonet.put(Types.BIT,0);
+        typeMapSQLToMonet.put(Types.TINYINT,1);
+        typeMapSQLToMonet.put(Types.SMALLINT,2);
+        typeMapSQLToMonet.put(Types.INTEGER,3);
+        typeMapSQLToMonet.put(Types.BIGINT,4);
+        typeMapSQLToMonet.put(Types.REAL,7);
+        typeMapSQLToMonet.put(Types.FLOAT,7);
+        typeMapSQLToMonet.put(Types.DOUBLE,8);
+        typeMapSQLToMonet.put(Types.CHAR,9);
+        typeMapSQLToMonet.put(Types.VARCHAR,9);
+        typeMapSQLToMonet.put(Types.LONGVARCHAR,9);
+        typeMapSQLToMonet.put(Types.BLOB,10);
+        typeMapSQLToMonet.put(Types.DATE,11);
+        typeMapSQLToMonet.put(Types.TIME,12);
+        typeMapSQLToMonet.put(Types.TIMESTAMP,13);
 
-    //Pedro's Code
-    final static Class<?> getClassForType(final int type) {
-        switch(type) {
+        //TODO Verify
+        typeMapSQLToMonet.put(Types.NUMERIC,5);
+        typeMapSQLToMonet.put(Types.DECIMAL,5);
+        //typeMapSQLToMonet.put(Types.VARBINARY,);
+        //typeMapSQLToMonet.put(Types.LONGVARBINARY,);
+        //typeMapSQLToMonet.put(Types.CLOB,);
+    }
+
+    final static String getMonetTypeStringFromSQL(final int sqltype) {
+        return getMonetTypeString(typeMapSQLToMonet.get(sqltype));
+    }
+
+    final static int getMonetTypeIntFromSQL(final int sqltype) {
+        return typeMapSQLToMonet.get(sqltype);
+    }
+
+    /** A static Map containing the mapping between MonetDB types and Java SQL types */
+    public static final java.util.Map<Integer, Integer> sizeMapMonetInt = new java.util.HashMap<Integer, Integer>();
+    static {
+        sizeMapMonetInt.put(0, 8);
+        sizeMapMonetInt.put(1, 8);
+        sizeMapMonetInt.put(2, 16);
+        sizeMapMonetInt.put(3, 32);
+        sizeMapMonetInt.put(4, 64);
+        sizeMapMonetInt.put(5, 128);
+        sizeMapMonetInt.put(6, 32);
+        sizeMapMonetInt.put(7, 32);
+        sizeMapMonetInt.put(8, 64);
+        sizeMapMonetInt.put(9, 0);
+        sizeMapMonetInt.put(10, 0);
+        sizeMapMonetInt.put(11, 10);
+        sizeMapMonetInt.put(12, 8);
+        sizeMapMonetInt.put(13, 19);
+        sizeMapMonetInt.put(14, 0);
+    }
+
+    //For static size types
+    final static int getMonetSize(final int monetdbetype) {
+        return sizeMapMonetInt.get(monetdbetype);
+    }
+
+    final static int getMonetSize(final String monetdbetype) {
+        return sizeMapMonetString.get(monetdbetype);
+    }
+
+    final static Class<?> getClassForSQLType(final int sqlType) {
+        switch(sqlType) {
             case Types.CHAR:
             case Types.VARCHAR:
             case Types.LONGVARCHAR:
@@ -147,7 +160,9 @@ public final class MonetTypes {
         }
     }
 
-    final static int getTypeForClass(final Class<?> cl) {
+    final static Class<?> getClassForMonetType(final int monetdbeType) { return getClassForSQLType(getSQLTypeFromMonet(monetdbeType));}
+
+    final static int getSQLTypeForClass(final Class<?> cl) {
         if (cl == String.class) {
             return Types.VARCHAR;
         }
@@ -172,7 +187,7 @@ public final class MonetTypes {
         else if (cl == byte[].class) {
             return Types.BINARY;
         }
-        else if (cl == java.sql.Date.class) {
+        else if (cl == Date.class) {
             return Types.DATE;
         }
         else if (cl == Time.class) {
@@ -187,8 +202,31 @@ public final class MonetTypes {
         else if (cl == Blob.class) {
             return Types.BLOB;
         }
+        else if (cl == BigDecimal.class) {
+            return Types.NUMERIC;
+        }
         else {
             return Types.VARCHAR;
         }
+    }
+
+    /** A static Map containing the mapping between MonetDB types and Java SQL types */
+    public static final java.util.Map<String, Integer> sizeMapMonetString = new java.util.HashMap<String, Integer>();
+    static {
+        sizeMapMonetString.put("monetdbe_bool", 8);
+        sizeMapMonetString.put("monetdbe_int8_t", 8);
+        sizeMapMonetString.put("monetdbe_int16_t", 16);
+        sizeMapMonetString.put("monetdbe_int32_t", 32);
+        sizeMapMonetString.put("monetdbe_int64_t", 64);
+        sizeMapMonetString.put("monetdbe_int128_t", 128);
+        sizeMapMonetString.put("monetdbe_size_t", 32);
+        sizeMapMonetString.put("monetdbe_float", 32);
+        sizeMapMonetString.put("monetdbe_double", 64);
+        sizeMapMonetString.put("monetdbe_str", 0);
+        sizeMapMonetString.put("monetdbe_blob", 0);
+        sizeMapMonetString.put("monetdbe_date", 10);
+        sizeMapMonetString.put("monetdbe_time", 8);
+        sizeMapMonetString.put("monetdbe_timestamp", 19);
+        sizeMapMonetString.put("monetdbe_unknown", 0);
     }
 }

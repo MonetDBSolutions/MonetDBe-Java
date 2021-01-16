@@ -10,9 +10,6 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.temporal.TemporalField;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -174,10 +171,9 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     //Set objects
     //TODO setObject conversions
-    //TODO Rethink this method, shouldn't use the monetdbe_type in the switch, as a monetdbe_type can have multiple associated JDBC types
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
-        int monetType = MonetTypes.getMonetTypeInt(targetSqlType);
+        int monetType = MonetTypes.getMonetTypeIntFromSQL(targetSqlType);
         switch (monetType) {
             case 0:
                 setBoolean(parameterIndex,(boolean) x);
@@ -231,13 +227,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
-        int sqltype = MonetTypes.getTypeForClass(x.getClass());
+        int sqltype = MonetTypes.getSQLTypeForClass(x.getClass());
         setObject(parameterIndex,x,sqltype);
     }
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,null,MonetTypes.getMonetTypeInt(sqlType),parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,null,MonetTypes.getMonetTypeIntFromSQL(sqlType),parameterIndex);
         parameters[parameterIndex-1] = null;
     }
 

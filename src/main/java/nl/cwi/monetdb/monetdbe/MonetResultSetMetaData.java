@@ -224,6 +224,6 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
 
     @Override
     public String getColumnClassName(int column) throws SQLException {
-        return MonetTypes.getClassForType(getColumnType(column)).getName();
+        return MonetTypes.getClassForSQLType(getColumnType(column)).getName();
     }
 }
