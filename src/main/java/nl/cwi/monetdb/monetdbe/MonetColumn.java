@@ -139,7 +139,7 @@ public class MonetColumn {
 
     //Variable length types
     public String getString(int row) throws SQLException {
-        if(monetdbeType > 9) {
+        if(monetdbeType >= 9) {
             return (String) varData[row];
         }
         else {

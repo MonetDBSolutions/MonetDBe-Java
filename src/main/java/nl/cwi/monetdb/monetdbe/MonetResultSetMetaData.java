@@ -14,13 +14,29 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     /** The JDBC SQL types of the columns in this ResultSet.*/
     private final int[] sqlTypes;
 
+    //TODO Is this useful?
+    //Constructor for PreparedStatement without query execution
+    public MonetResultSetMetaData(String[] resultNames, int[] resultMonetTypes, int ncols) {
+        this.names = new String[ncols];
+        this.monetTypes = new String[ncols];
+        this.sqlTypes = new int[ncols];
+        this.types = new int[ncols];
+
+        for(int i = 0; i<ncols; i++ ) {
+            names[i] = resultNames[i];
+            types[i] = resultMonetTypes[i];
+            monetTypes[i] = MonetTypes.getMonetTypeName(resultMonetTypes[i]);
+            sqlTypes[i] = MonetTypes.getSQLType(MonetTypes.getMonetTypeName(resultMonetTypes[i]));
+        }
+    }
+
+    //Constructor for ResultSet returned from a query
     public MonetResultSetMetaData(MonetColumn[] columns, int ncols) {
         this.names = new String[ncols];
         this.monetTypes = new String[ncols];
         this.sqlTypes = new int[ncols];
         this.types = new int[ncols];
 
-        //TODO Review this
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
             types[i] = columns[i].getMonetdbeType();
@@ -46,9 +62,9 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         return names.length;
     }
 
+    //TODO Verify. Should we call getColumns to check if it is an auto-increment numerical column*
     @Override
     public boolean isAutoIncrement(int column) throws SQLException {
-        //TODO
         return false;
     }
 
@@ -84,10 +100,10 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         return false;
     }
 
+    //TODO Verify this
     @Override
     public int isNullable(int column) throws SQLException {
-        //TODO NULLABLE
-        return 0;
+        return ResultSetMetaData.columnNullableUnknown;
     }
 
     //Pedro's Code
@@ -141,28 +157,28 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         }
     }
 
+    //TODO TABLE NAMES
     @Override
     public String getSchemaName(int column) throws SQLException {
-        //TODO TABLE NAMES
         //Where do I get table and schema names in the resultset?
         return null;
     }
 
+    //TODO TABLE NAMES
     @Override
     public String getTableName(int column) throws SQLException {
-        //TODO TABLE NAMES
         return null;
     }
 
+    //TODO SCALE
     @Override
     public int getPrecision(int column) throws SQLException {
-        //TODO SCALE
         return 0;
     }
 
+    //TODO SCALE
     @Override
     public int getScale(int column) throws SQLException {
-        //TODO SCALE
         return 0;
     }
 

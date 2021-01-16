@@ -168,9 +168,9 @@ public class TestMonetDBeJava {
                 populateDB(c);
                 //insertDBPreparedStatementDate(c);
                 queryDBStatement(c);
-                //queryDBPreparedStatement(c);
+                queryDBPreparedStatement(c);
                 //queryDBLongQuery(c);
-                queryDBPreparedStatementDate(c);
+                //queryDBPreparedStatementDate(c);
                 dropDB(c);
                 c.close();
                 System.out.println("Closed connection");

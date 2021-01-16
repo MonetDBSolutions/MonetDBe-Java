@@ -4,17 +4,21 @@ import java.sql.ParameterMetaData;
 import java.sql.SQLException;
 
 public class MonetParameterMetaData extends MonetWrapper implements ParameterMetaData {
+    protected int parameterCount;
+
+
     public MonetParameterMetaData() {
     }
 
     @Override
     public int getParameterCount() throws SQLException {
-        return 0;
+        return parameterCount;
     }
 
+    //TODO Verify this
     @Override
     public int isNullable(int param) throws SQLException {
-        return 0;
+        return ParameterMetaData.parameterNullableUnknown;
     }
 
     @Override
@@ -49,6 +53,6 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
 
     @Override
     public int getParameterMode(int param) throws SQLException {
-        return 0;
+        return ParameterMetaData.parameterModeIn;
     }
 }

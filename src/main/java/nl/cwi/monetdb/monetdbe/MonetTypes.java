@@ -55,6 +55,10 @@ public final class MonetTypes {
         return sizeMapMonetdbe.get(monetdbetype);
     }
 
+    final static String getMonetTypeName(final int monetdbetype) {
+        return monetdbeTypes[monetdbetype];
+    }
+
     //TODO Fix this (Wrong for str and blobs)
     final static int getMonetSize(final int monetdbetype) {
         return sizeMapMonetdbe.get(monetdbeTypes[monetdbetype]);

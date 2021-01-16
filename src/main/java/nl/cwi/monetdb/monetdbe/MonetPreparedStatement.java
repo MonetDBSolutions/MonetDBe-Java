@@ -21,6 +21,7 @@ import java.util.List;
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     private ByteBuffer statementNative;
     protected int nParams;
+    protected int[] monetdbetypes;
     private Object[] parameters;
     private List<Object[]> parametersBatch = null;
 
@@ -33,6 +34,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         }
         //nParams is set within monetdbe_prepare
         this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
+
         if (nParams > 0) {
             this.parameters = new Object[nParams];
         }
@@ -147,9 +149,11 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     //Metadata
+    //TODO METADATA
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        //TODO METADATA
+        //How do I get the column names and types to construct the ResultSetMetaData object?
+        //
         //Because a PreparedStatement object is precompiled, it is possible to know about the ResultSet object that it will return without having to execute it.
         //Consequently, it is possible to invoke the method getMetaData on a PreparedStatement object rather than waiting to execute i
         return null;

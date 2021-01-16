@@ -305,10 +305,12 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1pre
     }
 
     //Set parameter number
-    //TODO Set parameter types
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     jfieldID paramsField = (*env)->GetFieldID(env,statementClass,"nParams","I");
     (*env)->SetIntField(env,j_statement,paramsField,(jint)((*stmt)->nparam));
+
+    printf("Prepared statement first parameter type: %d\n", (*(*stmt)->type));
+    fflush(stdout);
 
     (*env)->ReleaseStringUTFChars(env,j_sql,sql);
     return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
@@ -339,7 +341,7 @@ jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int p
 //TODO Rethink this method, shouldn't use the monetdbe_type in the condition, as a monetdbe_type can have multiple associated JDBC types
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
     if ((*env)->IsSameObject(env, j_data, NULL)) {
-        //TODO Is this correct? Am I giving a pointer to a NULL value?
+        //TODO Correct this with the monetdbe_null function
         return bind_parsed_data(env,j_stmt,(void*)0,(int)parameter_nr);
     }
     //Non-NULL
