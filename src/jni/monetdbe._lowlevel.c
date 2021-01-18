@@ -87,7 +87,7 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
         monetdbe_data_time time = timestamps[i].time;
         monetdbe_data_date date = timestamps[i].date;
         char timestamp_str[23];
-        snprintf(timestamp_str,23,"%d-%d-%d %d:%d:%d.%d",(int)date.year,(int)date.month,(int)date.day,(int)time.hours,(int)time.minutes,(int)time.seconds,(int)time.ms);
+        snprintf(timestamp_str,23,"%hi-%d-%d %d:%d:%d.%d",date.year,date.month,date.day,time.hours,time.minutes,time.seconds,time.ms);
         jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
         fflush(stdout);
@@ -101,7 +101,7 @@ jobjectArray parseColumnTime (JNIEnv *env, void* data, int rows) {
 
     for(int i = 0; i < rows; i++) {
         char time_str[12];
-        snprintf(time_str,12,"%d:%d:%d.%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds,(int)times[i].ms);
+        snprintf(time_str,12,"%d:%d:%d.%d",times[i].hours,times[i].minutes,times[i].seconds,times[i].ms);
         jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_time);
     }
@@ -114,7 +114,7 @@ jobjectArray parseColumnDate (JNIEnv *env, void* data, int rows) {
 
     for(int i = 0; i < rows; i++) {
         char date_str[10];
-        snprintf(date_str,10,"%d-%d-%d",(int)dates[i].year,(int)dates[i].month,(int)dates[i].day);
+        snprintf(date_str,10,"%hi-%d-%d",dates[i].year,dates[i].month,dates[i].day);
         jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_date);
         //printf("Column Date: %d-%d-%d\n", dates[i].year,dates[i].month,dates[i].day);
@@ -333,53 +333,57 @@ jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int p
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 
-//TODO Rethink this method, shouldn't use the monetdbe_type in the condition, as a monetdbe_type can have multiple associated JDBC types
+//TODO Why is null returning the type's minimum value instead of a null? (e.g. null for SMALLINT is -32768)
+JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null (JNIEnv * env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr) {
+    monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
+    monetdbe_types null_type = (monetdbe_types) type;
+    const void* null_ptr = monetdbe_null(db,null_type);
+    return bind_parsed_data(env,j_stmt,(void*)null_ptr,parameter_nr);
+}
+
 JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
-    if ((*env)->IsSameObject(env, j_data, NULL)) {
-        //TODO Correct this with the monetdbe_null function
-        return bind_parsed_data(env,j_stmt,(void*)0,(int)parameter_nr);
+    jclass param_class = (*env)->GetObjectClass(env, j_data);
+    if (type == 0) {
+        bool bind_data = (bool) (*env)->CallBooleanMethod(env,j_data,(*env)->GetMethodID(env,param_class,"booleanValue","()Z"));
+        return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
     }
-    //Non-NULL
-    else {
-        jclass param_class = (*env)->GetObjectClass(env, j_data);
-        if (type == 0) {
-            bool bind_data = (bool) (*env)->CallBooleanMethod(env,j_data,(*env)->GetMethodID(env,param_class,"booleanValue","()Z"));
-            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 1 || type == 2) {
-            short bind_data = (short) (*env)->CallShortMethod(env,j_data,(*env)->GetMethodID(env,param_class,"shortValue","()S"));
-            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 3 || type == 6) {
-            int bind_data = (int) (*env)->CallIntMethod(env,j_data,(*env)->GetMethodID(env,param_class,"intValue","()I"));
-            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 4) {
-            long bind_data = (long) (*env)->CallLongMethod(env,j_data,(*env)->GetMethodID(env,param_class,"longValue","()L"));
-            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 5) {
-            //TODO Parse a BigDecimal/BigInteger to int128
-        }
-        else if (type == 7) {
-            float bind_data = (float) (*env)->CallFloatMethod(env,j_data,(*env)->GetMethodID(env,param_class,"floatValue","()F"));
-            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 8) {
-            double bind_data = (double) (*env)->CallDoubleMethod(env,j_data,(*env)->GetMethodID(env,param_class,"doubleValue","()D"));
-            return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
-        }
-        else if (type == 9) {
-            char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
-            return bind_parsed_data(env,j_stmt,bind_data,(int)parameter_nr);
-        }
-        else if (type == 10) {
-            //TODO Blob
-            return NULL;
-        }
+    //TODO Is this correct for int_8?
+    else if (type == 1) {
+        char bind_data = (char) (*env)->CallByteMethod(env,j_data,(*env)->GetMethodID(env,param_class,"byteValue","()B"));
+        return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+    }
+    else if (type == 2) {
+        short bind_data = (short) (*env)->CallShortMethod(env,j_data,(*env)->GetMethodID(env,param_class,"shortValue","()S"));
+        return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+    }
+    else if (type == 3 || type == 6) {
+        int bind_data = (int) (*env)->CallIntMethod(env,j_data,(*env)->GetMethodID(env,param_class,"intValue","()I"));
+        return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+    }
+    else if (type == 4) {
+        long bind_data = (long) (*env)->CallLongMethod(env,j_data,(*env)->GetMethodID(env,param_class,"longValue","()L"));
+        return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+    }
+    else if (type == 5) {
+        //TODO Parse a BigDecimal/BigInteger to int128
+    }
+    else if (type == 7) {
+        float bind_data = (float) (*env)->CallFloatMethod(env,j_data,(*env)->GetMethodID(env,param_class,"floatValue","()F"));
+        return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+    }
+    else if (type == 8) {
+        double bind_data = (double) (*env)->CallDoubleMethod(env,j_data,(*env)->GetMethodID(env,param_class,"doubleValue","()D"));
+        return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
+    }
+    else if (type == 9) {
+        char* bind_data = (char*) (*env)->GetStringUTFChars(env,j_data,NULL);
+        return bind_parsed_data(env,j_stmt,bind_data,(int)parameter_nr);
+    }
+    else if (type == 10) {
+        //TODO Blob
         return NULL;
-        //Date types are handled in other functions
     }
+    return NULL;
 }
 
 //TODO Fix these functions (problem with data types)
@@ -398,7 +402,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     time_bind->minutes = (unsigned char) minutes;
     time_bind->seconds = (unsigned char) seconds;
     time_bind->ms = (unsigned int) ms;
-    printf("Parsed Time: %d:%d:%d.%d\n", (int)time_bind->hours,(int)time_bind->minutes,(int)time_bind->seconds,(int)time_bind->ms);
+    printf("Parsed Time: %d:%d:%d.%d\n", time_bind->hours,time_bind->minutes,time_bind->seconds,time_bind->ms);
     return bind_parsed_data(env,j_stmt,time_bind,(int)parameter_nr);
 }
 
@@ -411,7 +415,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     (timestamp_bind->time).minutes = (unsigned char) minutes;
     (timestamp_bind->time).seconds = (unsigned char) seconds;
     (timestamp_bind->time).ms = (unsigned int) ms;
-    printf("Parsed Timestamp: %d-%d-%d %d:%d:%d.%d\n", (int)(timestamp_bind->date).year,(int)(timestamp_bind->date).month,(int)(timestamp_bind->date).day,(int)(timestamp_bind->time).hours,(int)(timestamp_bind->time).minutes,(int)(timestamp_bind->time).seconds,(int)(timestamp_bind->time).ms);
+    printf("Parsed Timestamp: %hi-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year,(timestamp_bind->date).month,(timestamp_bind->date).day,(timestamp_bind->time).hours,(timestamp_bind->time).minutes,(timestamp_bind->time).seconds,(timestamp_bind->time).ms);
     return bind_parsed_data(env,j_stmt,timestamp_bind,(int)parameter_nr);
 }
 

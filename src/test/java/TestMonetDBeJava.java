@@ -25,13 +25,15 @@ public class TestMonetDBeJava {
     private static void insertDBPreparedStatementDate (MonetConnection c) {
         try {
             System.out.println("Preparing statement (Insert query)");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("INSERT INTO a VALUES (false, 32, 243, 49, 2235.255, 243434.432,'hey5',?,?,?)");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("INSERT INTO a VALUES (false, ?, 1, 49, 29.255, 243434.432,'hey6',?,?,?)");
+            ps.setNull(1,Types.SMALLINT);
+            //ps.setShort(1,(short)23);
             Date da = Date.valueOf("2015-10-31");
-            ps.setDate(1,da);
+            ps.setDate(2,da);
             Time t = Time.valueOf("14:11:29");
-            ps.setTime(2,t);
+            ps.setTime(3,t);
             Timestamp ts = Timestamp.valueOf("2007-12-24 14:11:40");
-            ps.setTimestamp(3,ts);
+            ps.setTimestamp(4,ts);
             ps.executeUpdate();
             int affected_rows = ps.getUpdateCount();
             System.out.println("Prepared statement update count: " + affected_rows + "\n");
@@ -70,7 +72,7 @@ public class TestMonetDBeJava {
     private static void queryDBPreparedStatement (MonetConnection c) {
         try {
             System.out.println("Preparing statement (Normal query)");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st, i, r FROM a WHERE i < ? AND r < ? AND st <> ?");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st, i, r FROM a WHERE i < ? AND r < ? AND st <> ? AND s IS NOT NULL");
             ps.setInt(1,20);
             ps.setFloat(2,30.2f);
             ps.setString(3,"hey2");
@@ -147,7 +149,8 @@ public class TestMonetDBeJava {
                     "(true, 2, 3, 5, 1.0, 1.66,'hey1',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), " +
                     "(true, 4, 6, 10, 2.5, 3.643,'hey2',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M')), " +
                     "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2020', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01', '%d-%m-%Y %H:%M')), " +
-                    "(false, 16, 24, 40, 255.255, 2434.432,'hey4',current_date,current_time,current_timestamp);");
+                    "(false, 16, 24, 40, 255.255, 2434.432,'hey4',current_date,current_time,current_timestamp)," +
+                    "(false, null, 1, 1, 1, null,'hey5',current_date,current_time,current_timestamp);");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -166,7 +169,7 @@ public class TestMonetDBeJava {
                 System.out.println("Opened connection @ " + url.substring(15));
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
                 populateDB(c);
-                //insertDBPreparedStatementDate(c);
+                insertDBPreparedStatementDate(c);
                 queryDBStatement(c);
                 queryDBPreparedStatement(c);
                 //queryDBLongQuery(c);

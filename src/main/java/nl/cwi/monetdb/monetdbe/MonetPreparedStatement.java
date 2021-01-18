@@ -238,7 +238,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,null,MonetTypes.getMonetTypeIntFromSQL(sqlType),parameterIndex);
+        int monettype = MonetTypes.getMonetTypeIntFromSQL(sqlType);
+        MonetNative.monetdbe_bind_null(conn.getDbNative(),monettype,statementNative,parameterIndex);
         parameters[parameterIndex-1] = null;
     }
 
@@ -327,8 +328,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
         LocalDateTime localDateTime = x.toLocalDateTime();
-        //TODO ms
-        MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),0);
+        MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),localDateTime.getNano()*1000);
         parameters[parameterIndex-1] = x;
     }
 

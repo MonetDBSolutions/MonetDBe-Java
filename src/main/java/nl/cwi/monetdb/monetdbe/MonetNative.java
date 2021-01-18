@@ -25,6 +25,7 @@ public class MonetNative {
     protected static native String monetdbe_bind_date(ByteBuffer stmt, int param, int year, int month, int day);
     protected static native String monetdbe_bind_time(ByteBuffer stmt, int param, int hours, int minutes, int seconds, int ms);
     protected static native String monetdbe_bind_timestamp(ByteBuffer stmt, int param, int year, int month, int day, int hours, int minutes, int seconds, int ms);
+    protected static native String monetdbe_bind_null(ByteBuffer db, int type, ByteBuffer stmt, int param);
     protected static native MonetResultSet monetdbe_execute(ByteBuffer stmt, MonetPreparedStatement statement, boolean largeUpdate);
     protected static native String monetdbe_cleanup_statement (ByteBuffer db, ByteBuffer stmt);
 }
