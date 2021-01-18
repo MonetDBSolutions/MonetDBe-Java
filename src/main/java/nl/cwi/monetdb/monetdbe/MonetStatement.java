@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO Add checkNotClosed to functions to verify connection is not closed
+//TODO Check if the statement is closed before doing actions which depend on it
 public class MonetStatement extends MonetWrapper implements Statement {
     protected MonetConnection conn;
 
@@ -64,7 +64,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     }
 
     //TODO Add this check to functions to verify connection is not closed
-    private void checkNotClosed() throws SQLException {
+    public void checkNotClosed() throws SQLException {
         if (isClosed())
             throw new SQLException("Connection is closed", "M1M20");
     }
@@ -225,15 +225,16 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return counts;
     }
 
-    //TODO GETMORERESULTS
+
     @Override
     public boolean getMoreResults() throws SQLException {
-        return false;
+        return getMoreResults(Statement.CLOSE_CURRENT_RESULT);
     }
 
-    //TODO GETMORERESULTS
     @Override
     public boolean getMoreResults(int current) throws SQLException {
+        //TODO GETMORERESULTS
+        //Is it possible to have more than one ResultSet returning from a batch query in MonetDBe?
         return false;
     }
 
@@ -287,7 +288,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     //TODO Generated Keys
     @Override
     public ResultSet getGeneratedKeys() throws SQLException {
-
         return null;
     }
 
@@ -436,7 +436,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return maxRows;
     }
 
-    //Pedro's code
+    //Old code
     @Override
     public void setMaxRows(int max) throws SQLException {
         if (max < 0)

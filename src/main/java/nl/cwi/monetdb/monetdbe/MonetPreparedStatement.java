@@ -170,15 +170,19 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     //Set objects
-    //TODO setObject conversions
+    //TODO setObject conversions from other data types (currently only casting to type)
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
+        checkNotClosed();
+        if (parameterIndex > nParams) {
+            throw new SQLException("parameterIndex is not valid");
+        }
         int monetType = MonetTypes.getMonetTypeIntFromSQL(targetSqlType);
         switch (monetType) {
             case 0:
                 setBoolean(parameterIndex,(boolean) x);
             case 1:
-                setShort(parameterIndex,(short) x);
+                setByte(parameterIndex,(byte) x);
             case 2:
                 setShort(parameterIndex,(short) x);
             case 3:
@@ -197,7 +201,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             case 9:
                 setString(parameterIndex,(String) x);
             case 10:
-                //TODO BLOB
+                setBlob(parameterIndex,(MonetBlob) x);
             case 11:
                 setDate(parameterIndex,(Date) x);
             case 12:
@@ -212,12 +216,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-        //TODO SQLTYPE?
+        //TODO Map SQLType name to int sqlType
+        //setObject(parameterIndex,x,targetSqlType.getName(),scaleOrLength);
     }
 
     @Override
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
-        //TODO SQLTYPE?
+        setObject(parameterIndex,x,targetSqlType,0);
     }
 
     @Override
@@ -327,22 +332,22 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-    //TODO Calendar
     @Override
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
-
+        //Because MonetDBe doesn't support timezones, the Calendar object is ignored
+        setDate(parameterIndex,x);
     }
 
-    //TODO Calendar
     @Override
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
-
+        //Because MonetDBe doesn't support timezones, the Calendar object is ignored
+        setTime(parameterIndex,x);
     }
 
-    //TODO Calendar
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
-
+        //Because MonetDBe doesn't support timezones, the Calendar object is ignored
+        setTimestamp(parameterIndex,x);
     }
 
     @Override

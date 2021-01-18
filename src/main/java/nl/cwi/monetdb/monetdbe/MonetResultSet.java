@@ -319,33 +319,16 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
     private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    /**
-     * Helper method which parses the date/time value for columns of type
-     * TIME, DATE and TIMESTAMP.  For the types CHAR, VARCHAR and
-     * LONGVARCHAR an attempt is made to parse the date according to the
-     * given type.  The given Calender object is filled with the parsed
-     * data.  Optional fractional seconds (nanos) are returned by this
-     * method.  If the underlying type of the column is none of the
-     * mentioned six, January 1st 1970 0:00:00 GMT is returned.<br />
-     * The dates are parsed with the given Calendar.
-     *
-     * @param cal the Calendar to use/fill when parsing the date/time
-     * @param dateStr the String containing the date to parse
-     * @param type the corresponding java.sql.Types type of the calling function
-     * @return the fractional seconds (nanos) or -1 if the value is NULL
-     * @throws SQLException if a database error occurs
-     */
-    //TODO Add ms to time and timestamp, after parsing it to the dateStr with the lowlevel parse function
-    //TODO Review this function
-    private int getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
+    //TODO Verify this
+    //Uses a DateTime string to set the date/time in a Calendar object with a given timezone
+    //The Calendar object is then used to construct a SQL type DateTime object in the caller function
+    private boolean getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
         checkNotClosed();
         if (cal == null)
             throw new IllegalArgumentException("No Calendar object given!");
 
         TimeZone ptz = cal.getTimeZone();
-        //TODO Set Timezone
-
-        java.util.Date pdate = null;
+        java.util.Date pdate;
         final java.text.ParsePosition ppos = new java.text.ParsePosition(0);
         switch(type) {
             case Types.DATE:
@@ -357,14 +340,9 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 pdate = timeFormat.parse(dateStr,ppos);
                 break;
             case Types.TIMESTAMP:
-                if (timestampFormat == null) {
-                    // first time usage, create and keep the timestampFormat object for next usage
-                    timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                }
                 timestampFormat.setTimeZone(ptz);
                 pdate = timestampFormat.parse(dateStr,ppos);
 
-                //TODO Verify this
                 // if parsing with timestampFormat failed try to parse it in dateFormat
                 if (pdate == null && dateStr.length() <= 10 && dateStr.contains("-")) {
                     dateFormat.setTimeZone(ptz);
@@ -375,17 +353,12 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 throw new SQLException("Internal error, unsupported data type: " + type, "01M03");
         }
         if (pdate == null) {
-            //TODO Parsing fail, return error
-            return -1;
+            //Parsing failure
+            return false;
         }
+        //Set calendar to date parsed from
         cal.setTime(pdate);
-
-        //TODO Negative year
-
-        //TODO Parse nanos
-
-        //No nanoseconds to return
-        return 0;
+        return true;
     }
 
     @Override
@@ -409,8 +382,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 cal = Calendar.getInstance();
             }
             //Calendar not null or simple parse failed
-            final int ret = getJavaDate(cal, val, Types.DATE);
-            return ret == -1 ? null : new Date(cal.getTimeInMillis());
+            final boolean ret = getJavaDate(cal, val, Types.DATE);
+            return ret ? null : new Date(cal.getTimeInMillis());
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -437,9 +410,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 cal = Calendar.getInstance();
             }
             //Calendar not null or simple parse failed
-            final int ret = getJavaDate(cal, val, Types.TIME);
-            return ret == -1 ? null : new Time(cal.getTimeInMillis());
-
+            final boolean ret = getJavaDate(cal, val, Types.TIME);
+            return ret ? null : new Time(cal.getTimeInMillis());
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -466,8 +438,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 cal = Calendar.getInstance();
             }
             //Calendar not null or simple parse failed
-            final int ret = getJavaDate(cal, val, Types.TIME);
-            return ret == -1 ? null : new Timestamp(cal.getTimeInMillis());
+            final boolean ret = getJavaDate(cal, val, Types.TIME);
+            return ret ? null : new Timestamp(cal.getTimeInMillis());
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -939,7 +911,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Time getTime(String columnLabel, Calendar cal) throws SQLException {
         return getTime(findColumn(columnLabel),cal);
     }
-    
+
     @Override
     public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
         return getTimestamp(findColumn(columnLabel),cal);
