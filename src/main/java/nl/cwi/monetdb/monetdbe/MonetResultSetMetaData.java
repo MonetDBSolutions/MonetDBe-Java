@@ -25,8 +25,8 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         for(int i = 0; i<ncols; i++ ) {
             names[i] = resultNames[i];
             types[i] = resultMonetTypes[i];
-            monetTypes[i] = MonetTypes.getMonetTypeName(resultMonetTypes[i]);
-            sqlTypes[i] = MonetTypes.getSQLType(MonetTypes.getMonetTypeName(resultMonetTypes[i]));
+            monetTypes[i] = MonetTypes.getMonetTypeString(resultMonetTypes[i]);
+            sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(resultMonetTypes[i]);
         }
     }
 
@@ -41,7 +41,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
             names[i] = columns[i].getName();
             types[i] = columns[i].getMonetdbeType();
             monetTypes[i] = columns[i].getTypeName();
-            sqlTypes[i] = MonetTypes.getSQLType(columns[i].getTypeName());
+            sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(columns[i].getMonetdbeType());
         }
     }
 

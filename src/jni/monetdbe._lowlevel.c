@@ -79,7 +79,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   return returnResult(env, j_statement, largeUpdate, result, affected_rows);
 }
 
-//TODO Time and Timestamp parse functions aren't returning the ms value
 jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
     monetdbe_data_timestamp* timestamps = (monetdbe_data_timestamp*) data;
@@ -88,7 +87,6 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
         monetdbe_data_time time = timestamps[i].time;
         monetdbe_data_date date = timestamps[i].date;
         char timestamp_str[23];
-        //TODO HEAD ZEROS FOR ONE DIGIT TIMES
         snprintf(timestamp_str,23,"%d-%d-%d %d:%d:%d.%d",(int)date.year,(int)date.month,(int)date.day,(int)time.hours,(int)time.minutes,(int)time.seconds,(int)time.ms);
         jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
@@ -102,10 +100,8 @@ jobjectArray parseColumnTime (JNIEnv *env, void* data, int rows) {
     monetdbe_data_time* times = (monetdbe_data_time*) data;
 
     for(int i = 0; i < rows; i++) {
-        char time_str[8];
-        //TODO HEAD ZEROS FOR ONE DIGIT TIMES
-        //TODO MS? Time.valueOf() doesn't accept ms
-        snprintf(time_str,8,"%d:%d:%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds);
+        char time_str[12];
+        snprintf(time_str,12,"%d:%d:%d.%d",(int)times[i].hours,(int)times[i].minutes,(int)times[i].seconds,(int)times[i].ms);
         jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_time);
     }
@@ -190,7 +186,6 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
       return NULL;
     }
     else {
-        //printf("Column %d of type %d\n",i,(*column)->type);
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* c_bool = (monetdbe_column_bool*) (*column);

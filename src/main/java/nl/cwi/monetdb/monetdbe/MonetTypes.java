@@ -101,8 +101,8 @@ public final class MonetTypes {
         sizeMapMonetInt.put(9, 0);
         sizeMapMonetInt.put(10, 0);
         sizeMapMonetInt.put(11, 10);
-        sizeMapMonetInt.put(12, 8);
-        sizeMapMonetInt.put(13, 19);
+        sizeMapMonetInt.put(12, 12);
+        sizeMapMonetInt.put(13, 23);
         sizeMapMonetInt.put(14, 0);
     }
 

@@ -147,7 +147,7 @@ public class TestMonetDBeJava {
                     "(true, 2, 3, 5, 1.0, 1.66,'hey1',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), " +
                     "(true, 4, 6, 10, 2.5, 3.643,'hey2',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M')), " +
                     "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2020', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01', '%d-%m-%Y %H:%M')), " +
-                    "(false, 16, 24, 40, 255.255, 2434.432,'hey4',str_to_date('31-10-2015', '%d-%m-%Y'),str_to_time('14:11:29', '%H:%M:%S'),str_to_timestamp('24-12-2007 14:11:40', '%d-%m-%Y %H:%M:%S'));");
+                    "(false, 16, 24, 40, 255.255, 2434.432,'hey4',current_date,current_time,current_timestamp);");
         } catch (SQLException e) {
             e.printStackTrace();
         }

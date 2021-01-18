@@ -314,10 +314,9 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO Add ms to time and timestamp, after parsing it to the dateStr with the lowlevel parse function
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-    private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSSS");
+    private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS");
 
     //TODO Verify this
     //Uses a DateTime string to set the date/time in a Calendar object with a given timezone
@@ -377,18 +376,20 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 } catch (IllegalArgumentException iae) {
                     // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
                     // in those cases just continue and use slower getJavaDate method
-                    System.out.println(val + " couldn't be parsed as Date!");
+                    System.out.println(val + " couldn't be parsed as Date by Date.valueOf()");
                 }
                 cal = Calendar.getInstance();
             }
             //Calendar not null or simple parse failed
             final boolean ret = getJavaDate(cal, val, Types.DATE);
-            return ret ? null : new Date(cal.getTimeInMillis());
+            return ret ? new Date(cal.getTimeInMillis()) : null;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
     }
 
+    //TODO Fix this so we don't have to call getJavaDate everytime.
+    //The ms value in the string is causing Time.valueOf() to throw an exception
     @Override
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
@@ -401,17 +402,18 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             lastReadWasNull = false;
             if (cal == null) {
                 try {
+                    //This parse doesn't work, because it can't parse a string with a milisecond value
                     return Time.valueOf(val);
                 } catch (IllegalArgumentException iae) {
                     // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
                     // in those cases just continue and use slower getJavaDate method
-                    System.out.println(val + " couldn't be parsed as Time!");
+                    //System.out.println(val + " couldn't be parsed as Time by Time.valueOf()");
                 }
                 cal = Calendar.getInstance();
             }
             //Calendar not null or simple parse failed
             final boolean ret = getJavaDate(cal, val, Types.TIME);
-            return ret ? null : new Time(cal.getTimeInMillis());
+            return ret ? new Time(cal.getTimeInMillis()) : null;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -433,13 +435,13 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 } catch (IllegalArgumentException iae) {
                     // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
                     // in those cases just continue and use slower getJavaDate method
-                    System.out.println(val + " couldn't be parsed as Timestamp!");
+                    System.out.println(val + " couldn't be parsed as Timestamp by Timestamp.valueOf()");
                 }
                 cal = Calendar.getInstance();
             }
             //Calendar not null or simple parse failed
             final boolean ret = getJavaDate(cal, val, Types.TIME);
-            return ret ? null : new Timestamp(cal.getTimeInMillis());
+            return ret ? new Timestamp(cal.getTimeInMillis()) : null;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
