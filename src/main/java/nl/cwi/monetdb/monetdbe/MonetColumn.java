@@ -103,4 +103,7 @@ public class MonetColumn {
         return (String) varData[row];
     }
 
+    public byte[] getBlob(int row) {
+        return (byte[]) varData[row];
+    }
 }

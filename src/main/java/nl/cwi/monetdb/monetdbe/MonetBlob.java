@@ -35,7 +35,7 @@ public final class MonetBlob implements Blob {
 		buf = data;
 	}
 
-	protected MonetBlob(final String hexString) {
+	public MonetBlob(final String hexString) {
 		buf = hexStrToByteArray(hexString);
 	}
 

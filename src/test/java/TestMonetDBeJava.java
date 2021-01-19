@@ -118,6 +118,32 @@ public class TestMonetDBeJava {
         }
     }
 
+    private static void blobInsertQuery (MonetConnection c) {
+        try {
+            MonetStatement s = (MonetStatement) c.createStatement();
+
+            System.out.println("\nCreate blob table");
+
+            s.execute("CREATE TABLE b (b blob);");
+            System.out.println("Insert into blob\n");
+            s.execute("INSERT INTO b VALUES " +
+                    "('12ff803F'), " +
+                    "('0000803F');");
+
+            s.executeQuery("SELECT b FROM b;");
+            MonetResultSet rs = (MonetResultSet) s.getResultSet();
+            rs.beforeFirst();
+            while (rs.next()) {
+                System.out.println("Row " + rs.getRow());
+                System.out.println("Blob length: " + rs.getBlob(0).length());
+                System.out.println("Blob first byte: " + rs.getBlob(0).getBytes(1,2)[0]);
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void queryDBLongQuery (MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
@@ -175,6 +201,7 @@ public class TestMonetDBeJava {
                 //queryDBLongQuery(c);
                 //queryDBPreparedStatementDate(c);
                 dropDB(c);
+                blobInsertQuery(c);
                 c.close();
                 System.out.println("Closed connection");
             } else {

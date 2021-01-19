@@ -447,12 +447,11 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO Test
     @Override
-    public Blob getBlob(int columnIndex) throws SQLException {
+    public MonetBlob getBlob(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex].getString(curRow-1);
+            byte[] val = columns[columnIndex].getBlob(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;

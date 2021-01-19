@@ -133,11 +133,26 @@ jobjectArray parseColumnString (JNIEnv *env, void* data, int rows) {
     return j_data;
 }
 
+jobjectArray parseColumnBlob (JNIEnv *env, void* data, int rows) {
+    jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env,"[B"),NULL);
+    monetdbe_data_blob* blob_data = (monetdbe_data_blob*) data;
+
+    for(int i = 0; i < rows; i++) {
+        jbyteArray j_byte_array = (*env)->NewByteArray(env,blob_data[i].size);
+        (*env)->SetByteArrayRegion(env,j_byte_array,0,blob_data[i].size,(jbyte*)blob_data[i].data);
+        (*env)->SetObjectArrayElement(env,j_data,i,j_byte_array);
+    }
+    return j_data;
+}
+
 jobject getColumnJavaVar (JNIEnv *env, void* data, char* name, int type, int rows) {
     jobjectArray j_data;
 
     if(type == 9) {
         j_data = parseColumnString(env,data,rows);
+    }
+    else if (type == 10) {
+        j_data = parseColumnBlob(env,data,rows);
     }
     else if(type == 11) {
         j_data = parseColumnDate(env,data,rows);
@@ -229,7 +244,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
                 break;
             case 10:;
                 monetdbe_column_blob* c_blob = (monetdbe_column_blob*) (*column);
-                //addColumn(env,j_columns,c_blob->data,c_blob->name,10,sizeof(monetdbe_data_blob)*c_blob->count,i);
+                addColumnVar(env,j_columns,c_blob->data,c_blob->name,10,c_blob->count,i);
                 break;
             case 11:;
                 monetdbe_column_date* c_date = (monetdbe_column_date*) (*column);
