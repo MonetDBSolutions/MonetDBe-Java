@@ -395,8 +395,14 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
         return bind_parsed_data(env,j_stmt,bind_data,(int)parameter_nr);
     }
     else if (type == 10) {
-        //TODO Blob
-        return NULL;
+        jboolean isCopy;
+        char* bind_data = (char*)(*env)->GetByteArrayElements(env, j_data, &isCopy);
+        jstring ret_str = bind_parsed_data(env,j_stmt,bind_data,(int)parameter_nr);
+
+        if(isCopy) {
+           (*env)->ReleaseByteArrayElements(env, j_data,(jbyte *)bind_data, JNI_ABORT);
+        }
+        return ret_str;
     }
     return NULL;
 }
@@ -437,7 +443,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
     monetdbe_result** result = malloc(sizeof(monetdbe_result*));
-    monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
+    monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt))
 
     char* result_msg = monetdbe_execute(stmt,result,affected_rows);
     if(result_msg) {
@@ -447,6 +453,8 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1exe
     }
     //TODO Verify that messages are only sent if it's an error
     else {
+        //printf("Affected rows: %lld, nParams: %zu\n", *affected_rows, stmt->nparam);
+        //fflush(stdout);
         return returnResult(env, j_statement, largeUpdate, result, affected_rows);
     }
 }

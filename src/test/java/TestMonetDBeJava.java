@@ -25,7 +25,7 @@ public class TestMonetDBeJava {
     private static void insertDBPreparedStatementDate (MonetConnection c) {
         try {
             System.out.println("Preparing statement (Insert query)");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("INSERT INTO a VALUES (false, ?, 1, 49, 29.255, 243434.432,'hey6',?,?,?)");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO a VALUES (false, ?, 1, 49, 29.255, 243434.432,'hey6',?,?,?)");
             ps.setNull(1,Types.SMALLINT);
             //ps.setShort(1,(short)23);
             Date da = Date.valueOf("2015-10-31");
@@ -45,8 +45,8 @@ public class TestMonetDBeJava {
     private static void queryDBPreparedStatementDate (MonetConnection c) {
         try {
             System.out.println("Preparing statement (Date query)");
-            //MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT da, t, ts FROM a WHERE da = ? AND t = ? AND ts = ?");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT da, t, ts FROM a WHERE da <> ? AND t <> ? AND ts <> ?");
+            //MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT da, t, ts FROM a WHERE da = ? AND t = ? AND ts = ?");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT da, t, ts FROM a WHERE da <> ? AND t <> ? AND ts <> ?");
             Date da = Date.valueOf("2015-10-31");
             ps.setDate(1,da);
             Time t = Time.valueOf("14:11:29");
@@ -72,7 +72,7 @@ public class TestMonetDBeJava {
     private static void queryDBPreparedStatement (MonetConnection c) {
         try {
             System.out.println("Preparing statement (Normal query)");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareCall("SELECT st, i, r FROM a WHERE i < ? AND r < ? AND st <> ? AND s IS NOT NULL");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT st, i, r FROM a WHERE i < ? AND r < ? AND st <> ? AND s IS NOT NULL");
             ps.setInt(1,20);
             ps.setFloat(2,30.2f);
             ps.setString(3,"hey2");
@@ -118,6 +118,21 @@ public class TestMonetDBeJava {
         }
     }
 
+    //TODO Weird bug where the Select preparedStatement is returning affected rows and no result set?
+    private static void blobPreparedQuery (MonetConnection c) {
+        try {
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT * from b WHERE b <> ?;");
+            //MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO b VALUES (?);");
+            ps.setBlob(1,new MonetBlob("12aa803F"));
+            MonetResultSet rs = (MonetResultSet) ps.executeQuery();
+            //int update_c = ps.executeUpdate();
+            //System.out.println("Update Count Prepared: " + update_c +"\n");
+            System.out.println("rsp: " + rs.getBlob(0).length());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void blobInsertQuery (MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
@@ -125,10 +140,12 @@ public class TestMonetDBeJava {
             System.out.println("\nCreate blob table");
 
             s.execute("CREATE TABLE b (b blob);");
-            System.out.println("Insert into blob\n");
+            System.out.println("Insert into blob");
             s.execute("INSERT INTO b VALUES " +
                     "('12ff803F'), " +
-                    "('0000803F');");
+                    "('0000803F')," +
+                    "('12aa803F');");
+            System.out.println("Update Count Blob: " + s.getUpdateCount() +"\n");
 
             s.executeQuery("SELECT b FROM b;");
             MonetResultSet rs = (MonetResultSet) s.getResultSet();
@@ -202,6 +219,7 @@ public class TestMonetDBeJava {
                 //queryDBPreparedStatementDate(c);
                 dropDB(c);
                 blobInsertQuery(c);
+                //blobPreparedQuery(c);
                 c.close();
                 System.out.println("Closed connection");
             } else {

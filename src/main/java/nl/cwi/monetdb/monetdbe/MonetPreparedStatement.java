@@ -305,12 +305,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-    //TODO Bytes - is there a type which translates to bytes?
-    @Override
-    public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-
-    }
-
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
         LocalDate localDate = x.toLocalDate();
@@ -331,6 +325,30 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         LocalDateTime localDateTime = x.toLocalDateTime();
         MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),localDateTime.getNano()*1000);
         parameters[parameterIndex-1] = x;
+    }
+
+    //TODO Bytes - Translate to Blob (cast to Blob)
+    @Override
+    public void setBytes(int parameterIndex, byte[] x) throws SQLException {
+
+    }
+
+    //TODO This is marked as a not supported feature in the old version. Is this why the weird bug is happening?
+    @Override
+    public void setBlob(int parameterIndex, Blob x) throws SQLException {
+        byte[] blob_data = x.getBytes(1,(int)x.length());
+        MonetNative.monetdbe_bind(statementNative,blob_data,10,parameterIndex);
+        parameters[parameterIndex-1] = x;
+    }
+
+    @Override
+    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
+        //TODO BLOB - Convert InputStream to Blob?
+    }
+
+    @Override
+    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
+        //TODO BLOB - Convert InputStream to Blob?
     }
 
     @Override
@@ -357,44 +375,27 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-
-    @Override
-    public void setBlob(int parameterIndex, Blob x) throws SQLException {
-        //TODO BLOB
-    }
-
-    @Override
-    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
-        //TODO BLOB
-    }
-
-    @Override
-    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-        //TODO BLOB
-    }
-
-
-    @Override
-    public void setClob(int parameterIndex, Clob x) throws SQLException {
-        //TODO CLOB
-    }
-
-    @Override
-    public void setClob(int parameterIndex, Reader reader) throws SQLException {
-        //TODO CLOB
-    }
-
-    @Override
-    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-        //TODO CLOB
-    }
-
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         //TODO Ref and UDFs?
     }
 
     //Set other objects (Ref, Array, NString, NClob, XML)
+    @Override
+    public void setClob(int parameterIndex, Clob x) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setClob");
+    }
+
+    @Override
+    public void setClob(int parameterIndex, Reader reader) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setClob");
+    }
+
+    @Override
+    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setClob");
+    }
+
     @Override
     public void setNString(int parameterIndex, String value) throws SQLException {
         setString(parameterIndex,value);
@@ -439,17 +440,17 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-        //TODO
+        throw new SQLFeatureNotSupportedException("setCharacterStream");
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
-        //TODO
+        throw new SQLFeatureNotSupportedException("setCharacterStream");
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-        //TODO
+        throw new SQLFeatureNotSupportedException("setCharacterStream");
     }
 
     @Override

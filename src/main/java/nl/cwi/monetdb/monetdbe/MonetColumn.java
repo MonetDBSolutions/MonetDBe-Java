@@ -49,6 +49,10 @@ public class MonetColumn {
         return monetdbeType;
     }
 
+    public int getSQLType() {
+        return MonetTypes.getSQLTypeFromMonet(monetdbeType);
+    }
+
     public String getTypeName() {
         return typeName;
     }

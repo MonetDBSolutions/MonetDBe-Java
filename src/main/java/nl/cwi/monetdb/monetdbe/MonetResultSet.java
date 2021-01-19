@@ -483,14 +483,42 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
-        //TODO Binary stream
-        return null;
+        checkNotClosed();
+        try {
+            switch (columns[columnIndex].getSQLType()) {
+                case Types.BLOB:
+                    final Blob blob = getBlob(columnIndex);
+                    if (blob == null)
+                        return null;
+                    return blob.getBinaryStream();
+                case Types.BINARY:
+                case Types.VARBINARY:
+                case Types.LONGVARBINARY:
+                    final byte[] bte = getBytes(columnIndex);
+                    if (bte == null)
+                        return null;
+                    return new java.io.ByteArrayInputStream(bte);
+            }
+            throw new SQLException("Cannot operate on " + columns[columnIndex].getSQLType() + " type", "M1M05");
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
     public Reader getCharacterStream(int columnIndex) throws SQLException {
-        //TODO Character stream
-        return null;
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return new java.io.StringReader(val);
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
