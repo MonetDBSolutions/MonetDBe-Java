@@ -314,7 +314,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
         LocalDate localDate = x.toLocalDate();
-        MonetNative.monetdbe_bind_date(statementNative,parameterIndex,localDate.getYear(),localDate.getMonthValue(),localDate.getDayOfMonth());
+        //MonetNative.monetdbe_bind_date(statementNative,parameterIndex,localDate.getYear(),localDate.getMonthValue(),localDate.getDayOfMonth());
+        MonetNative.monetdbe_bind_date(statementNative,parameterIndex,(short)localDate.getYear(),(byte)localDate.getMonthValue(),(byte)localDate.getDayOfMonth());
         parameters[parameterIndex-1] = x;
     }
 

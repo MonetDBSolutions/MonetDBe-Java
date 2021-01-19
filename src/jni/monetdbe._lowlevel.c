@@ -79,6 +79,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   return returnResult(env, j_statement, largeUpdate, result, affected_rows);
 }
 
+//TODO Change ms precision?
 jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
     monetdbe_data_timestamp* timestamps = (monetdbe_data_timestamp*) data;
@@ -87,7 +88,7 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
         monetdbe_data_time time = timestamps[i].time;
         monetdbe_data_date date = timestamps[i].date;
         char timestamp_str[23];
-        snprintf(timestamp_str,23,"%hi-%d-%d %d:%d:%d.%d",date.year,date.month,date.day,time.hours,time.minutes,time.seconds,time.ms);
+        snprintf(timestamp_str,23,"%d-%d-%d %d:%d:%d.%d",date.year,date.month,date.day,time.hours,time.minutes,time.seconds,time.ms);
         jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
         fflush(stdout);
@@ -114,10 +115,9 @@ jobjectArray parseColumnDate (JNIEnv *env, void* data, int rows) {
 
     for(int i = 0; i < rows; i++) {
         char date_str[10];
-        snprintf(date_str,10,"%hi-%d-%d",dates[i].year,dates[i].month,dates[i].day);
+        snprintf(date_str,10,"%d-%d-%d",dates[i].year,dates[i].month,dates[i].day);
         jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_date);
-        //printf("Column Date: %d-%d-%d\n", dates[i].year,dates[i].month,dates[i].day);
     }
     return j_data;
 }
@@ -349,7 +349,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     }
     //TODO Is this correct for int_8?
     else if (type == 1) {
-        char bind_data = (char) (*env)->CallByteMethod(env,j_data,(*env)->GetMethodID(env,param_class,"byteValue","()B"));
+        unsigned char bind_data = (char) (*env)->CallByteMethod(env,j_data,(*env)->GetMethodID(env,param_class,"byteValue","()B"));
         return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
     }
     else if (type == 2) {
@@ -392,7 +392,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     date_bind->year = (short) year;
     date_bind->month = (unsigned char) month;
     date_bind->day = (unsigned char) day;
-    printf("Parsed Date: %hi-%d-%d\n", date_bind->year,date_bind->month,date_bind->day);
+    printf("Parsed Date: %hd-%d-%d\n", date_bind->year,date_bind->month,date_bind->day);
     return bind_parsed_data(env,j_stmt,date_bind,(int)parameter_nr);
 }
 
@@ -415,7 +415,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     (timestamp_bind->time).minutes = (unsigned char) minutes;
     (timestamp_bind->time).seconds = (unsigned char) seconds;
     (timestamp_bind->time).ms = (unsigned int) ms;
-    printf("Parsed Timestamp: %hi-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year,(timestamp_bind->date).month,(timestamp_bind->date).day,(timestamp_bind->time).hours,(timestamp_bind->time).minutes,(timestamp_bind->time).seconds,(timestamp_bind->time).ms);
+    printf("Parsed Timestamp: %hd-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year,(timestamp_bind->date).month,(timestamp_bind->date).day,(timestamp_bind->time).hours,(timestamp_bind->time).minutes,(timestamp_bind->time).seconds,(timestamp_bind->time).ms);
     return bind_parsed_data(env,j_stmt,timestamp_bind,(int)parameter_nr);
 }
 

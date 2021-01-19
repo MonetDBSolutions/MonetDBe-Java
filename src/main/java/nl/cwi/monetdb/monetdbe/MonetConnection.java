@@ -144,9 +144,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
         }
     }
 
+    //TODO Verify if I should call to the server to get autocommit or if I should just return this.autocommit
     @Override
     public boolean getAutoCommit() throws SQLException {
-        return autoCommit;
+        return MonetNative.monetdbe_get_autocommit(dbNative);
     }
 
     @Override
@@ -415,9 +416,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //Create Complex Types
     @Override
     public Clob createClob() throws SQLException {
-        return new MonetClob("");
+        return null;
     }
 
+    //TODO Won't creating a Blob with byte[1] disallow the addition of new data through setBytes? Or is the buf lenght changed?
     @Override
     public Blob createBlob() throws SQLException {
         return new MonetBlob(new byte[1]);
