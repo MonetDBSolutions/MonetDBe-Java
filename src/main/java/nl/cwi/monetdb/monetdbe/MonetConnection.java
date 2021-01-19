@@ -8,7 +8,6 @@ import java.util.concurrent.Executor;
 
 public class MonetConnection extends MonetWrapper implements Connection {
     private ByteBuffer dbNative;
-    private String dbdir;
 
     private int sessiontimeout;
     private int querytimeout;
@@ -22,15 +21,17 @@ public class MonetConnection extends MonetWrapper implements Connection {
     private Properties properties;
     private List<MonetStatement> statements;
 
-    MonetConnection(String dbdir, Properties props) throws SQLException, IllegalArgumentException {
-        this.dbdir = dbdir;
+    MonetConnection(Properties props) throws SQLException, IllegalArgumentException {
         this.sessiontimeout = Integer.parseInt((String) props.getOrDefault("sessiontimeout","0"));
         this.querytimeout = Integer.parseInt((String) props.getOrDefault("querytimeout","0"));
         this.memorylimit = Integer.parseInt((String) props.getOrDefault("memorylimit","0"));
         this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
-        //this.dbNative = MonetNative.monetdbe_open(dbdir);
-        this.dbNative = MonetNative.monetdbe_open(dbdir,sessiontimeout,querytimeout,memorylimit,nr_threads);
+        //this.dbNative = MonetNative.monetdbe_open(props.getProperty("database"));
+        this.dbNative = MonetNative.monetdbe_open(props.getProperty("uri",null),sessiontimeout,querytimeout,memorylimit,nr_threads);
+        if (dbNative == null) {
+            throw new SQLException("Failure to open database");
+        }
         MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
         this.metaData = new MonetDatabaseMetadata();
         this.properties = props;

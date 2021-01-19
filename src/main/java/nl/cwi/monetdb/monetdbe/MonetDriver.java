@@ -1,12 +1,13 @@
 package nl.cwi.monetdb.monetdbe;
 
+import java.net.URI;
 import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 final public class MonetDriver implements java.sql.Driver {
     //jdbc:monetdb://<host>[:<port>]/<database>
-    //jdbc:monetdb:memory:
+    //jdbc:monetdb//:memory:
     static final String MONETURL = "jdbc:monetdb://";
 
     static {
@@ -22,32 +23,47 @@ final public class MonetDriver implements java.sql.Driver {
         if (!acceptsURL(url))
             return null;
 
-        final Properties props = new Properties();
-        //Remove leading jdbc:monetdb://
-        //TODO: If dbdir is an uri, we should parse it differently
-        props.setProperty("dbdir",url.substring(15));
+        final URI uri;
+        try {
+            uri = new URI(url.substring(5));
+        } catch (java.net.URISyntaxException e) {
+            return null;
+        }
 
-        //props.setProperty("sessiontimeout","0");
-        //props.setProperty("querytimeout","0");
-        //props.setProperty("memorylimit","0");
-        //props.setProperty("nr_threads","0");
-        //props.setProperty("autocommit","true");
+        if(!uri.toString().equals("monetdb://:memory:")) {
+            //TODO Figure out why this isn't working as in the C example in the examples github
+            // (monetdbe_open(&remote, "monetdb://localhost:5000/sf1?user=monetdb&password=monetdb"))
+            info.put("uri", uri.toString());
+
+            final String uri_host = uri.getHost();
+            if (uri_host == null)
+                return null;
+            info.put("host", uri_host);
+
+            int uri_port = uri.getPort();
+            if (uri_port > 0)
+                info.put("port", Integer.toString(uri_port));
+
+            // check the database
+            String uri_path = uri.getPath();
+            if (uri_path != null && !uri_path.isEmpty()) {
+                uri_path = uri_path.trim();
+                System.out.println(uri_path);
+                if (!uri_path.isEmpty())
+                    info.put("database", uri_path);
+            }
+
+            System.out.println(uri.getScheme() + " " + uri.getHost() + " " + uri.getPort() + " " + uri.getPath() + " " + uri.getQuery());
+        }
 
         //TODO Are these used?
-        props.setProperty("uri","");
-        props.setProperty("port","");
-        props.setProperty("username","");
-        props.setProperty("password","");
-        props.setProperty("logging","");
+        info.setProperty("user","");
+        info.setProperty("password","");
+        info.setProperty("logging","");
 
-        if (info != null) {
-            info.putAll(props);
-        }
-        else {
-            info = props;
-        }
+        //Remove leading jdbc:monetdb://
 
-        return new MonetConnection(url.substring(15),info);
+        return new MonetConnection(info);
     }
 
     @Override
@@ -55,7 +71,7 @@ final public class MonetDriver implements java.sql.Driver {
         return url != null && url.startsWith(MONETURL);
     }
 
-    //Pedro's code (altered)
+    //TODO Change to reflect the options we have available in monetdbe
     @Override
     public DriverPropertyInfo[] getPropertyInfo(final String url, final Properties info) {
         if (!acceptsURL(url))

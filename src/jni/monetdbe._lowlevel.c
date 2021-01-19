@@ -19,16 +19,23 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   opts->remote = NULL;
   opts->mapi_server = NULL;
 
-  char* url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
+  char* url = NULL;
   int result;
+
+  if (j_url != NULL) {
+    url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
+  }
   result = monetdbe_open(db,url,opts);
 
   if (result != 0) {
      char* error = monetdbe_error(*db);
      printf("Error in monetdbe_open: %s\n",error);
      fflush(stdout);
+     return NULL;
   }
-  return (*env)->NewDirectByteBuffer(env,(*db),sizeof(monetdbe_database));
+  else {
+     return (*env)->NewDirectByteBuffer(env,(*db),sizeof(monetdbe_database));
+  }
 }
 
 JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close (JNIEnv * env, jclass self, jobject j_db) {
@@ -443,7 +450,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
 JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
     monetdbe_result** result = malloc(sizeof(monetdbe_result*));
-    monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt))
+    monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
 
     char* result_msg = monetdbe_execute(stmt,result,affected_rows);
     if(result_msg) {
