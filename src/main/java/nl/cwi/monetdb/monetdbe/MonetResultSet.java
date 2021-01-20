@@ -43,12 +43,12 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         this.columnCount = ncols;
         this.curRow = 0;
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
-        //TODO Should this be created when the resultSet is, or only in the getMetadata method?
         this.metaData = new MonetResultSetMetaData(columns,ncols);
         this.name = name;
     }
 
     //Get Object / Type Object
+    //Default Object type for a given SQL Type
     @Override
     public Object getObject(int columnIndex) throws SQLException {
         checkNotClosed();
@@ -68,8 +68,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             case 4:
                 return getLong(columnIndex);
             case 5:
-                //TODO BIGDECIMAL/HUGEINT
-                return null;
+                return getHugeInt(columnIndex);
             case 6:
                 return getInt(columnIndex);
             case 7:
@@ -274,13 +273,22 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO getBytes
     @Override
     public byte[] getBytes(int columnIndex) throws SQLException {
-        return new byte[0];
+        checkNotClosed();
+        try {
+            byte[] val = columns[columnIndex].getBytes(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
-    //TODO Does the BigDecimal represented in the database contain the scale? Is part of the int_128 the 32 bit scale or only the integer unscaled value?
     //TODO Test
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
@@ -451,13 +459,29 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public MonetBlob getBlob(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            byte[] val = columns[columnIndex].getBlob(curRow-1);
+            MonetBlob val = columns[columnIndex].getBlob(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
             }
             lastReadWasNull = false;
-            return new MonetBlob(val);
+            return val;
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    @Override
+    public Clob getClob(int columnIndex) throws SQLException {
+        checkNotClosed();
+        try {
+            String val = columns[columnIndex].getString(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return new MonetClob(val);
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -485,21 +509,10 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            switch (columns[columnIndex].getSQLType()) {
-                case Types.BLOB:
-                    final Blob blob = getBlob(columnIndex);
-                    if (blob == null)
-                        return null;
-                    return blob.getBinaryStream();
-                case Types.BINARY:
-                case Types.VARBINARY:
-                case Types.LONGVARBINARY:
-                    final byte[] bte = getBytes(columnIndex);
-                    if (bte == null)
-                        return null;
-                    return new java.io.ByteArrayInputStream(bte);
-            }
-            throw new SQLException("Cannot operate on " + columns[columnIndex].getSQLType() + " type", "M1M05");
+            Blob val = columns[columnIndex].getBlob(curRow-1);
+            if (val == null)
+                return null;
+            return val.getBinaryStream();
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -534,11 +547,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
         return getTimestamp(columnIndex,null);
-    }
-
-    @Override
-    public Clob getClob(int columnIndex) throws SQLException {
-        return null;
     }
 
     //Meta sets/gets

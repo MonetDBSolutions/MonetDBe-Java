@@ -1,6 +1,7 @@
 package nl.cwi.monetdb.monetdbe;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.*;
 
 public final class MonetTypes {
@@ -210,7 +211,6 @@ public final class MonetTypes {
     }
     
     final static boolean convertTojavaClass (final int monetdbetype, final Class<?> javaClass) {
-        //TODO missing byte[], BigInteger and Clob
         if (javaClass == String.class) {
             return (monetdbetype != 10 && monetdbetype >= 0 && monetdbetype <= 13);
         }
@@ -226,8 +226,14 @@ public final class MonetTypes {
         else if (javaClass == Timestamp.class) {
             return (monetdbetype >= 9 && monetdbetype <= 13);
         }
-        else if (javaClass == Blob.class) {
+        else if (javaClass == Blob.class || javaClass == byte[].class) {
             return (monetdbetype == 10);
+        }
+        else if (javaClass == Clob.class) {
+            return (monetdbetype == 9);
+        }
+        else if (javaClass == BigInteger.class) {
+            return (monetdbetype == 4 || monetdbetype == 5 || monetdbetype == 9);
         }
         else {
             return false;

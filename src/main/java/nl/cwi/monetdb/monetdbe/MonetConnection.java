@@ -27,11 +27,12 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.memorylimit = Integer.parseInt((String) props.getOrDefault("memorylimit","0"));
         this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
-        //this.dbNative = MonetNative.monetdbe_open(props.getProperty("database"));
-        this.dbNative = MonetNative.monetdbe_open(props.getProperty("uri",null),sessiontimeout,querytimeout,memorylimit,nr_threads);
+
+        this.dbNative = MonetNative.monetdbe_open(props.getProperty("path",null),sessiontimeout,querytimeout,memorylimit,nr_threads);
         if (dbNative == null) {
             throw new SQLException("Failure to open database");
         }
+
         MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
         this.metaData = new MonetDatabaseMetadata();
         this.properties = props;
@@ -417,10 +418,9 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //Create Complex Types
     @Override
     public Clob createClob() throws SQLException {
-        return null;
+        return new MonetClob("");
     }
 
-    //TODO Won't creating a Blob with byte[1] disallow the addition of new data through setBytes? Or is the buf lenght changed?
     @Override
     public Blob createBlob() throws SQLException {
         return new MonetBlob(new byte[1]);

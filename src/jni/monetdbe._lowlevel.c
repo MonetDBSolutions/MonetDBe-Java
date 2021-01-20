@@ -86,7 +86,6 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1que
   return returnResult(env, j_statement, largeUpdate, result, affected_rows);
 }
 
-//TODO Change ms precision?
 jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     jobjectArray j_data = (*env)->NewObjectArray(env,rows,(*env)->FindClass(env, "Ljava/lang/String;"),NULL);
     monetdbe_data_timestamp* timestamps = (monetdbe_data_timestamp*) data;
@@ -95,6 +94,7 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
         monetdbe_data_time time = timestamps[i].time;
         monetdbe_data_date date = timestamps[i].date;
         char timestamp_str[23];
+        //TODO Change ms precision? (Change size of snprintf)
         snprintf(timestamp_str,23,"%d-%d-%d %d:%d:%d.%d",date.year,date.month,date.day,time.hours,time.minutes,time.seconds,time.ms);
         jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
         (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
@@ -152,7 +152,8 @@ jobjectArray parseColumnBlob (JNIEnv *env, void* data, int rows) {
     return j_data;
 }
 
-jobject getColumnJavaVar (JNIEnv *env, void* data, char* name, int type, int rows) {
+//TODO Check if data is null before construcing MonetColumn
+void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int rows, int index) {
     jobjectArray j_data;
 
     if(type == 9) {
@@ -174,25 +175,20 @@ jobject getColumnJavaVar (JNIEnv *env, void* data, char* name, int type, int row
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
-    return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
+
+    jobject j_column_object = (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
+    (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
 }
 
-jobject getColumnJavaConst(JNIEnv *env, void* data, char* name, int type, int size) {
+//TODO Check if data is null before construcing MonetColumn
+void addColumnConst(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index, double scale) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
 
     jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;)V");
-    return (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
-}
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;D)V");
 
-void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int rows, int index) {
-    jobject j_column_object = getColumnJavaVar(env,data,name,type,rows);
-    (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
-}
-
-void addColumnConst(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index) {
-    jobject j_column_object = getColumnJavaConst(env,data,name,type,size);
+    jobject j_column_object = (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data,(jdouble) scale);
     (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
 }
 
@@ -211,39 +207,39 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* c_bool = (monetdbe_column_bool*) (*column);
-                addColumnConst(env,j_columns,c_bool->data,c_bool->name,0,8*c_bool->count,i);
+                addColumnConst(env,j_columns,c_bool->data,c_bool->name,0,8*c_bool->count,i,c_bool->scale);
                 break;
             case 1:;
                 monetdbe_column_int8_t* c_int8_t = (monetdbe_column_int8_t*) (*column);
-                addColumnConst(env,j_columns,c_int8_t->data,c_int8_t->name,1,8*c_int8_t->count,i);
+                addColumnConst(env,j_columns,c_int8_t->data,c_int8_t->name,1,8*c_int8_t->count,i,c_int8_t->scale);
                 break;
             case 2:;
                 monetdbe_column_int16_t* c_int16_t = (monetdbe_column_int16_t*) (*column);
-                addColumnConst(env,j_columns,c_int16_t->data,c_int16_t->name,2,16*c_int16_t->count,i);
+                addColumnConst(env,j_columns,c_int16_t->data,c_int16_t->name,2,16*c_int16_t->count,i,c_int16_t->scale);
                 break;
             case 3:;
                 monetdbe_column_int32_t* c_int32_t = (monetdbe_column_int32_t*) (*column);
-                addColumnConst(env,j_columns,c_int32_t->data,c_int32_t->name,3,32*c_int32_t->count,i);
+                addColumnConst(env,j_columns,c_int32_t->data,c_int32_t->name,3,32*c_int32_t->count,i,c_int32_t->scale);
                 break;
             case 4:;
                 monetdbe_column_int64_t* c_int64_t = (monetdbe_column_int64_t*) (*column);
-                addColumnConst(env,j_columns,c_int64_t->data,c_int64_t->name,4,64*c_int64_t->count,i);
+                addColumnConst(env,j_columns,c_int64_t->data,c_int64_t->name,4,64*c_int64_t->count,i,c_int64_t->scale);
                 break;
             case 5:;
                 monetdbe_column_int128_t* c_int128_t = (monetdbe_column_int128_t*) (*column);
-                addColumnConst(env,j_columns,c_int128_t->data,c_int128_t->name,5,128*c_int128_t->count,i);
+                addColumnConst(env,j_columns,c_int128_t->data,c_int128_t->name,5,128*c_int128_t->count,i,c_int128_t->scale);
                 break;
             case 6:;
                 monetdbe_column_size_t* c_size_t = (monetdbe_column_size_t*) (*column);
-                addColumnConst(env,j_columns,c_size_t->data,c_size_t->name,6,32*c_size_t->count,i);
+                addColumnConst(env,j_columns,c_size_t->data,c_size_t->name,6,32*c_size_t->count,i,c_size_t->scale);
                 break;
             case 7:;
                 monetdbe_column_float* c_float = (monetdbe_column_float*) (*column);
-                addColumnConst(env,j_columns,c_float->data,c_float->name,7,32*c_float->count,i);
+                addColumnConst(env,j_columns,c_float->data,c_float->name,7,32*c_float->count,i,c_float->scale);
                 break;
             case 8:;
                 monetdbe_column_double* c_double = (monetdbe_column_double*) (*column);
-                addColumnConst(env,j_columns,c_double->data,c_double->name,8,64*c_double->count,i);
+                addColumnConst(env,j_columns,c_double->data,c_double->name,8,64*c_double->count,i,c_double->scale);
                 break;
             case 9:;
                 monetdbe_column_str* c_str = (monetdbe_column_str*) (*column);
@@ -458,10 +454,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1exe
         fflush(stdout);
         return NULL;
     }
-    //TODO Verify that messages are only sent if it's an error
     else {
-        //printf("Affected rows: %lld, nParams: %zu\n", *affected_rows, stmt->nparam);
-        //fflush(stdout);
         return returnResult(env, j_statement, largeUpdate, result, affected_rows);
     }
 }

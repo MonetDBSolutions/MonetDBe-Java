@@ -202,8 +202,8 @@ public class TestMonetDBeJava {
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
-            String url = "jdbc:monetdb://:memory:";
-            //String url = "jdbc:monetdb://localhost:5000/test/";
+            //String url = "jdbc:monetdb://:memory:";
+            String url = "jdbc:monetdb://localhost:5000/test/";
             info.setProperty("querytimeout","1");
 
             Connection conn = DriverManager.getConnection(url, info);

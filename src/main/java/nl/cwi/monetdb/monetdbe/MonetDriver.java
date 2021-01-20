@@ -31,8 +31,7 @@ final public class MonetDriver implements java.sql.Driver {
         }
 
         if(!uri.toString().equals("monetdb://:memory:")) {
-            //TODO Figure out why this isn't working as in the C example in the examples github
-            // (monetdbe_open(&remote, "monetdb://localhost:5000/sf1?user=monetdb&password=monetdb"))
+            //TODO Check if everything but the database path is necessary (should be for remote proxy option?)
             info.put("uri", uri.toString());
 
             final String uri_host = uri.getHost();

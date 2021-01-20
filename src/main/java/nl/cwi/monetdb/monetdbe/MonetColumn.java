@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class MonetColumn {
     private Buffer constData;
+    private double scale;
     private Object[] varData;
     private String name;
     private int monetdbeType;
@@ -19,11 +20,12 @@ public class MonetColumn {
         this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
     }
 
-    public MonetColumn(String name, int monetdbeType, ByteBuffer constData) {
+    public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double scale) {
         this.name = name;
         this.monetdbeType = monetdbeType;
         this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
         this.constData = constData.order(ByteOrder.LITTLE_ENDIAN);
+        this.scale = scale;
     }
 
     public MonetColumn(String name, int monetdbeType, Object[] varData) {
@@ -91,23 +93,26 @@ public class MonetColumn {
 
     //TODO Test
     public BigInteger getBigInteger(int row) {
-        byte[] byteData = new byte[16];
-        ((ByteBuffer) constData).get(byteData,row*16,16);
+        int size = MonetTypes.getMonetSize(monetdbeType);
+        byte[] byteData = new byte[size];
+        ((ByteBuffer) constData).get(byteData,row*size,size);
         return new BigInteger(byteData);
     }
 
     //TODO Test
     public BigDecimal getBigDecimal(int row) {
-        byte[] byteData = new byte[16];
-        ((ByteBuffer) constData).get(byteData,row*16,16);
-        return new BigDecimal(new BigInteger(byteData));
+        return new BigDecimal(getBigInteger(row),(int) scale);
     }
 
     public String getString(int row) {
         return (String) varData[row];
     }
 
-    public byte[] getBlob(int row) {
+    public byte[] getBytes(int row) {
         return (byte[]) varData[row];
+    }
+
+    public MonetBlob getBlob(int row) {
+        return new MonetBlob((byte[]) varData[row]);
     }
 }
