@@ -1,10 +1,8 @@
-package nl.cwi.monetdb.monetdbe;
+package org.monetdb.monetdbe;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.*;
-import java.sql.*;
-import java.util.Map;
 
 public class MonetColumn {
     private Buffer constData;

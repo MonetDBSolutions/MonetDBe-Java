@@ -1,6 +1,5 @@
-package nl.cwi.monetdb.monetdbe;
+package org.monetdb.monetdbe;
 
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.*;

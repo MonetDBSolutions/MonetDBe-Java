@@ -16,7 +16,7 @@ project(MonetDBe-Java)
 
 #Compile monetdbe-java without linked library, generate headers
 set(CMAKE_JAVA_COMPILE_FLAGS -source 1.8 -target 1.8)
-file(GLOB JAVA_SRC_FILES src/main/java/nl/cwi/monetdb/monetdbe/*.java)
+file(GLOB JAVA_SRC_FILES src/main/java/org/monetdb/monetdbe/*.java)
 
 add_jar(monetdbe-java
         ${JAVA_SRC_FILES}

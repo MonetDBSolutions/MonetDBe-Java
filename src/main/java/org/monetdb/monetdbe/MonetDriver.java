@@ -1,4 +1,4 @@
-package nl.cwi.monetdb.monetdbe;
+package org.monetdb.monetdbe;
 
 import java.net.URI;
 import java.sql.*;
@@ -47,21 +47,16 @@ final public class MonetDriver implements java.sql.Driver {
             String uri_path = uri.getPath();
             if (uri_path != null && !uri_path.isEmpty()) {
                 uri_path = uri_path.trim();
-                System.out.println(uri_path);
                 if (!uri_path.isEmpty())
                     info.put("database", uri_path);
             }
 
-            System.out.println(uri.getScheme() + " " + uri.getHost() + " " + uri.getPort() + " " + uri.getPath() + " " + uri.getQuery());
         }
 
         //TODO Are these used?
         info.setProperty("user","");
         info.setProperty("password","");
         info.setProperty("logging","");
-
-        //Remove leading jdbc:monetdb://
-
         return new MonetConnection(info);
     }
 

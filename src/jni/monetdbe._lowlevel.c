@@ -1,15 +1,15 @@
 #include <jni.h>
-#include "nl_cwi_monetdb_monetdbe_MonetNative.h"
+#include "org_monetdb_monetdbe_MonetNative.h"
 #include "monetdbe.h"
 #include <string.h>
 #include <stdio.h>
 
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2 (JNIEnv* env, jclass self, jstring j_url) {
-  return Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII(env,self,j_url,0,0,0,0);
+JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2 (JNIEnv* env, jclass self, jstring j_url) {
+  return Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII(env,self,j_url,0,0,0,0);
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII (JNIEnv * env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads) {
+JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII (JNIEnv * env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads) {
   monetdbe_database* db = malloc(sizeof(monetdbe_database));
   monetdbe_options* opts = malloc(sizeof(monetdbe_options));
   opts->memorylimit = (int) j_memorylimit;
@@ -38,7 +38,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ope
   }
 }
 
-JNIEXPORT jint JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1close (JNIEnv * env, jclass self, jobject j_db) {
+JNIEXPORT jint JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close (JNIEnv * env, jclass self, jobject j_db) {
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
   return monetdbe_close(db);
 }
@@ -48,8 +48,8 @@ jobject returnResult (JNIEnv * env, jobject j_statement, jboolean largeUpdate, m
   if((*result) && (*result)->ncols > 0) {
     jobject resultNative = (*env)->NewDirectByteBuffer(env,(*result),sizeof(monetdbe_result));
     jstring resultSetName = (*env)->NewStringUTF(env,(const char*) (*result)->name);
-    jclass resultSetClass = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetResultSet;");
-    jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lnl/cwi/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;IILjava/lang/String;)V");
+    jclass resultSetClass = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetResultSet;");
+    jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lorg/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;IILjava/lang/String;)V");
     jobject resultSetObject = (*env)->NewObject(env,resultSetClass,constructor,j_statement,resultNative,(*result)->nrows,(*result)->ncols,resultSetName);
     free(affected_rows);
     return resultSetObject;
@@ -71,7 +71,7 @@ jobject returnResult (JNIEnv * env, jobject j_statement, jboolean largeUpdate, m
   }
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1query (JNIEnv * env, jclass self, jobject j_db, jstring j_sql, jobject j_statement, jboolean largeUpdate) {
+JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query (JNIEnv * env, jclass self, jobject j_db, jstring j_sql, jobject j_statement, jboolean largeUpdate) {
   monetdbe_result** result = malloc(sizeof(monetdbe_result*));
   monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
   char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
@@ -173,7 +173,7 @@ void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, i
     }
 
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
-    jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
+    jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
 
     jobject j_column_object = (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data);
@@ -185,17 +185,17 @@ void addColumnConst(JNIEnv *env, jobjectArray j_columns, void* data, char* name,
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
 
-    jclass j_column = (*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;");
+    jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;D)V");
 
     jobject j_column_object = (*env)->NewObject(env,j_column,constructor,j_name,(jint) type,j_data,(jdouble) scale);
     (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
 }
 
-JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
+JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all (JNIEnv * env, jclass self, jobject j_rs, jint nrows, jint ncols) {
   monetdbe_result* rs =(*env)->GetDirectBufferAddress(env,j_rs);
   monetdbe_column** column = malloc(sizeof(monetdbe_column*));
-  jobjectArray j_columns = (*env)->NewObjectArray(env,ncols,(*env)->FindClass(env, "Lnl/cwi/monetdb/monetdbe/MonetColumn;"),NULL);
+  jobjectArray j_columns = (*env)->NewObjectArray(env,ncols,(*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;"),NULL);
 
   for(int i = 0; i<ncols; i++) {
     char* result_msg = monetdbe_result_fetch(rs,column,i);
@@ -271,7 +271,7 @@ JNIEXPORT jobjectArray JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe
   return j_columns;
 }
 
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1result_1cleanup (JNIEnv * env, jclass self, jobject j_db, jobject j_rs) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result_1cleanup (JNIEnv * env, jclass self, jobject j_db, jobject j_rs) {
     //Free monetdbe_result (and BB?)
     //Free MonetColumn name?
     //Free MonetColumn strings from vardata array?
@@ -281,19 +281,19 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1res
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1error (JNIEnv * env, jclass self, jobject j_db) {
   monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
   char* result = monetdbe_error(db);
   return (*env)->NewStringUTF(env,(const char*) result);
 }
 
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1set_1autocommit (JNIEnv * env, jclass self, jobject j_db, jint j_auto_commit) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1set_1autocommit (JNIEnv * env, jclass self, jobject j_db, jint j_auto_commit) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     char* result = monetdbe_set_autocommit(db,(int) j_auto_commit);
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 
-JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1get_1autocommit (JNIEnv * env, jclass self, jobject j_db) {
+JNIEXPORT jboolean JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1get_1autocommit (JNIEnv * env, jclass self, jobject j_db) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     int result;
     char* result_msg = monetdbe_get_autocommit(db, &result);
@@ -306,7 +306,7 @@ JNIEXPORT jboolean JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1ge
     }
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1prepare (JNIEnv * env, jclass self, jobject j_db, jstring j_sql, jobject j_statement) {
+JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare (JNIEnv * env, jclass self, jobject j_db, jstring j_sql, jobject j_statement) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_statement** stmt = malloc(sizeof(monetdbe_statement*));
     char* sql = (char*) (*env)->GetStringUTFChars(env,j_sql,NULL);
@@ -352,14 +352,14 @@ jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int p
 }
 
 //TODO Why is null returning the type's minimum value instead of a null? (e.g. null for SMALLINT is -32768)
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null (JNIEnv * env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null (JNIEnv * env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_types null_type = (monetdbe_types) type;
     const void* null_ptr = monetdbe_null(db,null_type);
     return bind_parsed_data(env,j_stmt,(void*)null_ptr,parameter_nr);
 }
 
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
     jclass param_class = (*env)->GetObjectClass(env, j_data);
     if (type == 0) {
         bool bind_data = (bool) (*env)->CallBooleanMethod(env,j_data,(*env)->GetMethodID(env,param_class,"booleanValue","()Z"));
@@ -411,7 +411,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
 }
 
 //TODO Fix these functions (problem with data types)
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1date (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1date (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day) {
     monetdbe_data_date* date_bind = malloc(sizeof(monetdbe_data_date));
     date_bind->year = (short) year;
     date_bind->month = (unsigned char) month;
@@ -420,7 +420,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     return bind_parsed_data(env,j_stmt,date_bind,(int)parameter_nr);
 }
 
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1time (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint hours, jint minutes, jint seconds, jint ms) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1time (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint hours, jint minutes, jint seconds, jint ms) {
     monetdbe_data_time* time_bind = malloc(sizeof(monetdbe_data_time));
     time_bind->hours = (unsigned char) hours;
     time_bind->minutes = (unsigned char) minutes;
@@ -430,7 +430,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     return bind_parsed_data(env,j_stmt,time_bind,(int)parameter_nr);
 }
 
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bind_1timestamp (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day, jint hours, jint minutes, jint seconds, jint ms) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1timestamp (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day, jint hours, jint minutes, jint seconds, jint ms) {
     monetdbe_data_timestamp* timestamp_bind = malloc(sizeof(monetdbe_data_timestamp));
     (timestamp_bind->date).year = (short) year;
     (timestamp_bind->date).month = (unsigned char) month;
@@ -443,7 +443,7 @@ JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1bin
     return bind_parsed_data(env,j_stmt,timestamp_bind,(int)parameter_nr);
 }
 
-JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate) {
+JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate) {
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
     monetdbe_result** result = malloc(sizeof(monetdbe_result*));
     monetdbe_cnt* affected_rows = malloc(sizeof(monetdbe_cnt));
@@ -459,7 +459,7 @@ JNIEXPORT jobject JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1exe
     }
 }
 
-JNIEXPORT jstring JNICALL Java_nl_cwi_monetdb_monetdbe_MonetNative_monetdbe_1cleanup_1statement (JNIEnv * env, jclass self, jobject j_db, jobject j_stmt) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1cleanup_1statement (JNIEnv * env, jclass self, jobject j_db, jobject j_stmt) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
     char* result = monetdbe_cleanup_statement(db,stmt);

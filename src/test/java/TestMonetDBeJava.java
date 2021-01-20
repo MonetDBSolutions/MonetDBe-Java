@@ -1,4 +1,4 @@
-import nl.cwi.monetdb.monetdbe.*;
+import org.monetdb.monetdbe.*;
 
 import java.sql.*;
 import java.util.Properties;
@@ -6,7 +6,7 @@ import java.util.Properties;
 public class TestMonetDBeJava {
     static {
         try {
-            Class.forName("nl.cwi.monetdb.monetdbe.MonetDriver");
+            Class.forName("org.monetdb.monetdbe.MonetDriver");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }

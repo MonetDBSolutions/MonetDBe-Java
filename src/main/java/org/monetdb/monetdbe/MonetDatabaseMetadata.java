@@ -1,4 +1,4 @@
-package nl.cwi.monetdb.monetdbe;
+package org.monetdb.monetdbe;
 
 import java.sql.*;
 

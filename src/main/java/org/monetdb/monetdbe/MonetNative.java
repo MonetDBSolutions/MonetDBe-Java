@@ -1,9 +1,10 @@
-package nl.cwi.monetdb.monetdbe;
+package org.monetdb.monetdbe;
 
 import java.nio.ByteBuffer;
 
 public class MonetNative {
     static {
+        //TODO De-hardcode this
         //System.load("/home/bernardo/MonetDBe-Java/build/libmonetdbe-lowlevel.so");
         System.load("/Users/bernardo/Monet/MonetDBe-Java/build/libmonetdbe-lowlevel.so");
     }

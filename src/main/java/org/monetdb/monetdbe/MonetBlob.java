@@ -6,7 +6,7 @@
  * Copyright 1997 - July 2008 CWI, August 2008 - 2020 MonetDB B.V.
  */
 
-package nl.cwi.monetdb.monetdbe;
+package org.monetdb.monetdbe;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
