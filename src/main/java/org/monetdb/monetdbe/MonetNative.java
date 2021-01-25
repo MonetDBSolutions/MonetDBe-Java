@@ -4,9 +4,7 @@ import java.nio.ByteBuffer;
 
 public class MonetNative {
     static {
-        //TODO De-hardcode this
-        //System.load("/home/bernardo/MonetDBe-Java/build/libmonetdbe-lowlevel.so");
-        System.load("/Users/bernardo/Monet/MonetDBe-Java/build/libmonetdbe-lowlevel.so");
+        System.loadLibrary("monetdbe-lowlevel");
     }
 
     protected static native ByteBuffer monetdbe_open(String dbdir);
