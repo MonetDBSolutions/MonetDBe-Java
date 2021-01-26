@@ -259,4 +259,26 @@ public final class MonetTypes {
         sizeMapMonetString.put("monetdbe_timestamp", 19);
         sizeMapMonetString.put("monetdbe_unknown", 0);
     }
+
+    public static boolean isSigned (int sqlType) {
+        switch (sqlType) {
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.REAL:
+            case Types.FLOAT:
+            case Types.DOUBLE:
+            case Types.BIGINT:
+                return true;
+            case Types.BIT: // we don't use type BIT, it's here for completeness
+            case Types.BOOLEAN:
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+            default:
+                return false;
+        }
+    }
 }
