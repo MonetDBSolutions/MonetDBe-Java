@@ -2,7 +2,6 @@ package org.monetdb.monetdbe;
 
 import java.sql.ParameterMetaData;
 import java.sql.SQLException;
-import java.sql.Types;
 
 public class MonetParameterMetaData extends MonetWrapper implements ParameterMetaData {
     protected final int parameterCount;

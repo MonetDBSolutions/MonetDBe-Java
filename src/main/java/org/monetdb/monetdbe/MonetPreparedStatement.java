@@ -1,5 +1,6 @@
 package org.monetdb.monetdbe;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -94,6 +95,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void addBatch() throws SQLException {
+        checkNotClosed();
         //This allows us to add multiple "versions" of the same query, using different parameters
         if (parametersBatch == null) {
             parametersBatch = new ArrayList<>();
@@ -174,7 +176,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         //
         //Because a PreparedStatement object is precompiled, it is possible to know about the ResultSet object that it will return without having to execute it.
         //Consequently, it is possible to invoke the method getMetaData on a PreparedStatement object rather than waiting to execute i
-
         return null;
     }
 
@@ -186,7 +187,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void clearParameters() throws SQLException {
         checkNotClosed();
-        //TODO Verify if I should use the cleanup function or if I should set every parameter to NULL (and use the cleanup function on close method inherited from Statement)
+        //TODO Verify if I should use the cleanup function or if I should set every parameter to NULL
         //This also cleans up the Prepared Statement
         MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
     }
@@ -363,13 +364,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-    //TODO Bytes - Translate to Blob (cast to Blob)
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-
+        MonetNative.monetdbe_bind(statementNative,x,10,parameterIndex);
+        parameters[parameterIndex-1] = x;
     }
 
-    //TODO This is marked as a not supported feature in the old version. Is this why the weird bug is happening?
     @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
         checkNotClosed();

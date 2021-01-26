@@ -318,12 +318,12 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 break;
             case 11:;
                 monetdbe_column_date* c_date = (monetdbe_column_date*) (*column);
-                for (int i = 0; i < c_date->count; i++) {
+                /*for (int i = 0; i < c_date->count; i++) {
                     if(c_date->is_null(&c_date->data[i]) == 1) {
                         printf("NULL\n");
                         fflush(stdout);
                     }
-                }
+                }*/
                 addColumnVar(env,j_columns,c_date->data,c_date->name,11,c_date->count,i);
                 break;
             case 12:;
@@ -476,7 +476,11 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind (
     }
     else if (type == 10) {
         jboolean isCopy;
-        char* bind_data = (char*)(*env)->GetByteArrayElements(env, j_data, &isCopy);
+        unsigned char* bind_data = (unsigned char*)(*env)->GetByteArrayElements(env, j_data, &isCopy);
+        /*for(int i = 0; bind_data[i]!='\0'; i++) {
+            printf("%d %x\n", i,bind_data[i]);
+        }
+        fflush(stdout);*/
         jstring ret_str = bind_parsed_data(env,j_stmt,bind_data,(int)parameter_nr);
 
         if(isCopy) {
@@ -539,6 +543,5 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1cleanu
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_statement* stmt = (*env)->GetDirectBufferAddress(env,j_stmt);
     char* result = monetdbe_cleanup_statement(db,stmt);
-    printf("%s",result);
     return (*env)->NewStringUTF(env,(const char*) result);
 }

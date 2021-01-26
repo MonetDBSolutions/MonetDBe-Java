@@ -139,16 +139,26 @@ public class TestMonetDBeJava {
         }
     }
 
-    //TODO Weird bug where the Select preparedStatement is returning affected rows and no result set?
     private static void blobPreparedQuery (MonetConnection c) {
         try {
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT * from b WHERE b <> ?;");
-            //MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO b VALUES (?);");
+            //MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT * from b WHERE b <> ?;");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO b VALUES (?);");
             ps.setBlob(1,new MonetBlob("12aa803F"));
-            MonetResultSet rs = (MonetResultSet) ps.executeQuery();
-            //int update_c = ps.executeUpdate();
-            //System.out.println("Update Count Prepared: " + update_c +"\n");
-            System.out.println("rsp: " + rs.getBlob(0).length());
+            //MonetResultSet rs = (MonetResultSet) ps.executeQuery();
+            int update_c = ps.executeUpdate();
+            System.out.println("Update Count Prepared: " + update_c +"\n");
+            //System.out.println("rsp: " + rs.getBlob(0).length());
+
+            MonetStatement s = (MonetStatement) c.createStatement();
+            s.executeQuery("SELECT b FROM b;");
+            MonetResultSet rs = (MonetResultSet) s.getResultSet();
+            rs.beforeFirst();
+            while (rs.next()) {
+                System.out.println("Row " + rs.getRow());
+                System.out.println("Blob length: " + rs.getBlob(0).length());
+                System.out.println("Blob first byte: " + rs.getBlob(0).getBytes(1,2)[0]);
+                System.out.println();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -165,18 +175,9 @@ public class TestMonetDBeJava {
             s.execute("INSERT INTO b VALUES " +
                     "('12ff803F'), " +
                     "('0000803F')," +
-                    "('12aa803F');");
+                    "('12aa803F')," +
+                    "('ffffffff');");
             System.out.println("Update Count Blob: " + s.getUpdateCount() +"\n");
-
-            s.executeQuery("SELECT b FROM b;");
-            MonetResultSet rs = (MonetResultSet) s.getResultSet();
-            rs.beforeFirst();
-            while (rs.next()) {
-                System.out.println("Row " + rs.getRow());
-                System.out.println("Blob length: " + rs.getBlob(0).length());
-                System.out.println("Blob first byte: " + rs.getBlob(0).getBytes(1,2)[0]);
-                System.out.println();
-            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -234,15 +235,15 @@ public class TestMonetDBeJava {
                 System.out.println("Opened connection @ " + url.substring(15));
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
                 populateDB(c);
-                insertDBPreparedStatementDate(c);
+                //insertDBPreparedStatementDate(c);
                 insertDBPreparedStatementNulls(c);
                 queryDBStatement(c);
-                queryDBPreparedStatement(c);
+                //queryDBPreparedStatement(c);
                 //queryDBLongQuery(c);
                 //queryDBPreparedStatementDate(c);
                 dropDB(c);
                 blobInsertQuery(c);
-                //blobPreparedQuery(c);
+                blobPreparedQuery(c);
                 c.close();
                 System.out.println("Closed connection");
             } else {
