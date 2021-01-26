@@ -78,11 +78,13 @@ public class MonetColumn {
     }
 
     public Float getFloat(int row) {
-        return ((ByteBuffer) constData).asFloatBuffer().get(row);
+        Float f = ((ByteBuffer) constData).asFloatBuffer().get(row);
+        return f.isNaN() ? 0 : f;
     }
 
     public Double getDouble(int row) {
-        return ((ByteBuffer) constData).asDoubleBuffer().get(row);
+        Double d = ((ByteBuffer) constData).asDoubleBuffer().get(row);
+        return d.isNaN() ? 0 : d;
     }
 
     public byte getByte(int row) {

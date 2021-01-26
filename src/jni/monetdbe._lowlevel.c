@@ -91,14 +91,19 @@ jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
     monetdbe_data_timestamp* timestamps = (monetdbe_data_timestamp*) data;
 
     for(int i = 0; i < rows; i++) {
-        monetdbe_data_time time = timestamps[i].time;
-        monetdbe_data_date date = timestamps[i].date;
-        char timestamp_str[23];
-        //TODO Change ms precision? (Change size of snprintf)
-        snprintf(timestamp_str,23,"%d-%d-%d %d:%d:%d.%d",date.year,date.month,date.day,time.hours,time.minutes,time.seconds,time.ms);
-        jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
-        (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
-        fflush(stdout);
+        if (&timestamps[i] == NULL) {
+            (*env)->SetObjectArrayElement(env,j_data,i,NULL);
+        }
+        else {
+            monetdbe_data_time time = timestamps[i].time;
+            monetdbe_data_date date = timestamps[i].date;
+            char timestamp_str[23];
+            //TODO Change ms precision? (Change size of snprintf)
+            snprintf(timestamp_str,23,"%d-%d-%d %d:%d:%d.%d",date.year,date.month,date.day,time.hours,time.minutes,time.seconds,time.ms);
+            jobject j_timestamp = (*env)->NewStringUTF(env,(const char*) timestamp_str);
+            (*env)->SetObjectArrayElement(env,j_data,i,j_timestamp);
+            fflush(stdout);
+        }
     }
     return j_data;
 }
@@ -108,10 +113,16 @@ jobjectArray parseColumnTime (JNIEnv *env, void* data, int rows) {
     monetdbe_data_time* times = (monetdbe_data_time*) data;
 
     for(int i = 0; i < rows; i++) {
-        char time_str[12];
-        snprintf(time_str,12,"%d:%d:%d.%d",times[i].hours,times[i].minutes,times[i].seconds,times[i].ms);
-        jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
-        (*env)->SetObjectArrayElement(env,j_data,i,j_time);
+        if (&times[i] == NULL) {
+            (*env)->SetObjectArrayElement(env,j_data,i,NULL);
+        }
+        else {
+            char time_str[12];
+            snprintf(time_str,12,"%d:%d:%d.%d",times[i].hours,times[i].minutes,times[i].seconds,times[i].ms);
+            jobject j_time = (*env)->NewStringUTF(env,(const char*) time_str);
+            (*env)->SetObjectArrayElement(env,j_data,i,j_time);
+        }
+
     }
     return j_data;
 }
@@ -121,10 +132,17 @@ jobjectArray parseColumnDate (JNIEnv *env, void* data, int rows) {
     monetdbe_data_date* dates = (monetdbe_data_date*) data;
 
     for(int i = 0; i < rows; i++) {
-        char date_str[10];
-        snprintf(date_str,10,"%d-%d-%d",dates[i].year,dates[i].month,dates[i].day);
-        jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
-        (*env)->SetObjectArrayElement(env,j_data,i,j_date);
+        if (&dates[i] == NULL) {
+            printf("NULL\n");
+            fflush(stdout);
+            (*env)->SetObjectArrayElement(env,j_data,i,NULL);
+        }
+        else {
+            char date_str[10];
+            snprintf(date_str,10,"%d-%d-%d",dates[i].year,dates[i].month,dates[i].day);
+            jobject j_date = (*env)->NewStringUTF(env,(const char*) date_str);
+            (*env)->SetObjectArrayElement(env,j_data,i,j_date);
+        }
     }
     return j_data;
 }
@@ -134,8 +152,13 @@ jobjectArray parseColumnString (JNIEnv *env, void* data, int rows) {
     char** strings = (char**) data;
 
     for(int i = 0; i < rows; i++) {
-        jobject j_string = (*env)->NewStringUTF(env,(const char*) (strings[i]));
-        (*env)->SetObjectArrayElement(env,j_data,i,j_string);
+        if (strings[i] == NULL) {
+            (*env)->SetObjectArrayElement(env,j_data,i,NULL);
+        }
+        else {
+            jobject j_string = (*env)->NewStringUTF(env,(const char*) (strings[i]));
+            (*env)->SetObjectArrayElement(env,j_data,i,j_string);
+        }
     }
     return j_data;
 }
@@ -152,7 +175,6 @@ jobjectArray parseColumnBlob (JNIEnv *env, void* data, int rows) {
     return j_data;
 }
 
-//TODO Check if data is null before construcing MonetColumn
 void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int rows, int index) {
     jobjectArray j_data;
 
@@ -180,7 +202,6 @@ void addColumnVar(JNIEnv *env, jobjectArray j_columns, void* data, char* name, i
     (*env)->SetObjectArrayElement(env,j_columns,index,j_column_object);
 }
 
-//TODO Check if data is null before construcing MonetColumn
 void addColumnConst(JNIEnv *env, jobjectArray j_columns, void* data, char* name, int type, int size, int index, double scale) {
     jobject j_data = (*env)->NewDirectByteBuffer(env,data,size);
     jstring j_name = (*env)->NewStringUTF(env,(const char*) name);
@@ -204,41 +225,87 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
       return NULL;
     }
     else {
+        //TODO Is there a way to generalize the structs as variables?
         switch ((*column)->type) {
             case 0:;
                 monetdbe_column_bool* c_bool = (monetdbe_column_bool*) (*column);
+                for (int i = 0; i < c_bool->count; i++) {
+                    if(c_bool->is_null(&c_bool->data[i]) == 1) {
+                        c_bool->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_bool->data,c_bool->name,0,8*c_bool->count,i,c_bool->scale);
                 break;
             case 1:;
                 monetdbe_column_int8_t* c_int8_t = (monetdbe_column_int8_t*) (*column);
+                for (int i = 0; i < c_int8_t->count; i++) {
+                    if(c_int8_t->is_null(&c_int8_t->data[i]) == 1) {
+                        c_int8_t->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_int8_t->data,c_int8_t->name,1,8*c_int8_t->count,i,c_int8_t->scale);
                 break;
             case 2:;
                 monetdbe_column_int16_t* c_int16_t = (monetdbe_column_int16_t*) (*column);
+                for (int i = 0; i < c_int16_t->count; i++) {
+                    if(c_int16_t->is_null(&c_int16_t->data[i]) == 1) {
+                        c_int16_t->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_int16_t->data,c_int16_t->name,2,16*c_int16_t->count,i,c_int16_t->scale);
                 break;
             case 3:;
                 monetdbe_column_int32_t* c_int32_t = (monetdbe_column_int32_t*) (*column);
+                for (int i = 0; i < c_int32_t->count; i++) {
+                    if(c_int32_t->is_null(&c_int32_t->data[i]) == 1) {
+                        c_int32_t->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_int32_t->data,c_int32_t->name,3,32*c_int32_t->count,i,c_int32_t->scale);
                 break;
             case 4:;
                 monetdbe_column_int64_t* c_int64_t = (monetdbe_column_int64_t*) (*column);
+                for (int i = 0; i < c_int64_t->count; i++) {
+                    if(c_int64_t->is_null(&c_int64_t->data[i]) == 1) {
+                        c_int64_t->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_int64_t->data,c_int64_t->name,4,64*c_int64_t->count,i,c_int64_t->scale);
                 break;
             case 5:;
                 monetdbe_column_int128_t* c_int128_t = (monetdbe_column_int128_t*) (*column);
+                for (int i = 0; i < c_int128_t->count; i++) {
+                    if(c_int128_t->is_null(&c_int128_t->data[i]) == 1) {
+                        c_int128_t->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_int128_t->data,c_int128_t->name,5,128*c_int128_t->count,i,c_int128_t->scale);
                 break;
             case 6:;
                 monetdbe_column_size_t* c_size_t = (monetdbe_column_size_t*) (*column);
+                for (int i = 0; i < c_size_t->count; i++) {
+                    if(c_size_t->is_null(&c_size_t->data[i]) == 1) {
+                        c_size_t->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_size_t->data,c_size_t->name,6,32*c_size_t->count,i,c_size_t->scale);
                 break;
             case 7:;
                 monetdbe_column_float* c_float = (monetdbe_column_float*) (*column);
+                for (int i = 0; i < c_float->count; i++) {
+                    if(c_float->is_null(&c_float->data[i]) == 1) {
+                        c_float->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_float->data,c_float->name,7,32*c_float->count,i,c_float->scale);
                 break;
             case 8:;
                 monetdbe_column_double* c_double = (monetdbe_column_double*) (*column);
+                for (int i = 0; i < c_double->count; i++) {
+                    if(c_double->is_null(&c_double->data[i]) == 1) {
+                        c_double->data[i] = 0;
+                    }
+                }
                 addColumnConst(env,j_columns,c_double->data,c_double->name,8,64*c_double->count,i,c_double->scale);
                 break;
             case 9:;
@@ -251,6 +318,12 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 break;
             case 11:;
                 monetdbe_column_date* c_date = (monetdbe_column_date*) (*column);
+                for (int i = 0; i < c_date->count; i++) {
+                    if(c_date->is_null(&c_date->data[i]) == 1) {
+                        printf("NULL\n");
+                        fflush(stdout);
+                    }
+                }
                 addColumnVar(env,j_columns,c_date->data,c_date->name,11,c_date->count,i);
                 break;
             case 12:;
@@ -262,8 +335,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnVar(env,j_columns,c_timestamp->data,c_timestamp->name,13,c_timestamp->count,i);
                 break;
             default:
-                //TODO What should we do in this case?
-                break;
+                return NULL;
         }
     }
   }
@@ -351,7 +423,6 @@ jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int p
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 
-//TODO Why is null returning the type's minimum value instead of a null? (e.g. null for SMALLINT is -32768)
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null (JNIEnv * env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr) {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_types null_type = (monetdbe_types) type;

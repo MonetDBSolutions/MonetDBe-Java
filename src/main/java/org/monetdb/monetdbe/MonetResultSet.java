@@ -373,6 +373,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         checkNotClosed();
         try {
             String val = columns[columnIndex].getString(curRow-1);
+            System.out.println(val);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;

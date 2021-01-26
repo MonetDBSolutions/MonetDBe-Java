@@ -22,12 +22,33 @@ public class TestMonetDBeJava {
         }
     }
 
+    private static void insertDBPreparedStatementNulls (MonetConnection c) {
+        try {
+            System.out.println("Preparing statement (Insert query)");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO a VALUES (?, ?, ?, ?, ?, ?,?,?,?,?)");
+            ps.setNull(1,Types.BOOLEAN);
+            ps.setNull(2,Types.SMALLINT);
+            ps.setNull(3,Types.INTEGER);
+            ps.setNull(4,Types.BIGINT);
+            ps.setNull(5,Types.FLOAT);
+            ps.setNull(6,Types.DOUBLE);
+            ps.setNull(7,Types.VARCHAR);
+            ps.setNull(8,Types.DATE);
+            ps.setNull(9,Types.TIME);
+            ps.setNull(10,Types.TIMESTAMP);
+            ps.executeUpdate();
+            int affected_rows = ps.getUpdateCount();
+            System.out.println("Prepared statement update count: " + affected_rows + "\n");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static void insertDBPreparedStatementDate (MonetConnection c) {
         try {
             System.out.println("Preparing statement (Insert query)");
             MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO a VALUES (false, ?, 1, 49, 29.255, 243434.432,'hey6',?,?,?)");
-            ps.setNull(1,Types.SMALLINT);
-            //ps.setShort(1,(short)23);
+            ps.setShort(1,(short)23);
             Date da = Date.valueOf("2015-10-31");
             ps.setDate(2,da);
             Time t = Time.valueOf("14:11:29");
@@ -95,7 +116,7 @@ public class TestMonetDBeJava {
     private static void queryDBStatement (MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
-            s.executeQuery("SELECT * FROM a WHERE i < 6000;");
+            s.executeQuery("SELECT * FROM a;");
             MonetResultSet rs = (MonetResultSet) s.getResultSet();
             System.out.println("Select resultSet: ");
             rs.beforeFirst();
@@ -214,6 +235,7 @@ public class TestMonetDBeJava {
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
                 populateDB(c);
                 insertDBPreparedStatementDate(c);
+                insertDBPreparedStatementNulls(c);
                 queryDBStatement(c);
                 queryDBPreparedStatement(c);
                 //queryDBLongQuery(c);
