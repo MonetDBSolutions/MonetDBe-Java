@@ -18,6 +18,7 @@ import java.util.List;
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     //Native pointer to C statement
     private ByteBuffer statementNative;
+    private MonetParameterMetaData parameterMetaData;
 
     //Set within monetdbe_prepare
     protected int nParams;
@@ -38,6 +39,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
 
         if (nParams > 0) {
+            this.parameterMetaData = new MonetParameterMetaData(nParams,monetdbeTypes);
             this.parameters = new Object[nParams];
         }
     }
@@ -164,8 +166,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public ParameterMetaData getParameterMetaData() throws SQLException {
-        //TODO METADATA
-        return new MonetParameterMetaData();
+        return parameterMetaData;
     }
 
     @Override
