@@ -390,12 +390,18 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
     }
 
     //Set parameter number
+    int nParams = (*stmt)->nparam;
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     jfieldID paramsField = (*env)->GetFieldID(env,statementClass,"nParams","I");
-    (*env)->SetIntField(env,j_statement,paramsField,(jint)((*stmt)->nparam));
+    (*env)->SetIntField(env,j_statement,paramsField,(jint)nParams);
 
-    printf("Prepared statement first parameter type: %d\n", (*(*stmt)->type));
-    fflush(stdout);
+    //Set parameter types
+    if (nParams > 0) {
+        jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
+        (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams,(int*)(*stmt)->type);
+        jfieldID paramTypesField = (*env)->GetFieldID(env,statementClass,"monetdbeTypes","[I");
+        (*env)->SetObjectField(env,j_statement,paramTypesField,j_parameterTypes);
+    }
 
     (*env)->ReleaseStringUTFChars(env,j_sql,sql);
     return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
@@ -427,6 +433,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
     monetdbe_types null_type = (monetdbe_types) type;
     const void* null_ptr = monetdbe_null(db,null_type);
+    printf("%p %d\n", null_ptr, null_type);
     return bind_parsed_data(env,j_stmt,(void*)null_ptr,parameter_nr);
 }
 
@@ -436,7 +443,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind (
         bool bind_data = (bool) (*env)->CallBooleanMethod(env,j_data,(*env)->GetMethodID(env,param_class,"booleanValue","()Z"));
         return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
     }
-    //TODO Is this correct for int_8?
     else if (type == 1) {
         unsigned char bind_data = (char) (*env)->CallByteMethod(env,j_data,(*env)->GetMethodID(env,param_class,"byteValue","()B"));
         return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
@@ -481,7 +487,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind (
     return NULL;
 }
 
-//TODO Fix these functions (problem with data types)
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1date (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day) {
     monetdbe_data_date* date_bind = malloc(sizeof(monetdbe_data_date));
     date_bind->year = (short) year;

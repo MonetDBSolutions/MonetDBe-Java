@@ -16,9 +16,14 @@ import java.util.List;
 
 //TODO Check if the statement is closed before doing actions which depend on it
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
+    //Native pointer to C statement
     private ByteBuffer statementNative;
+
+    //Set within monetdbe_prepare
     protected int nParams;
-    protected int[] monetdbetypes;
+    protected int[] monetdbeTypes;
+
+    //For executeBatch functions
     private Object[] parameters;
     private List<Object[]> parametersBatch = null;
 
@@ -29,7 +34,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        //nParams is set within monetdbe_prepare
+        //nParams and monetdbeTypes are set within monetdbe_prepare
         this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
 
         if (nParams > 0) {
