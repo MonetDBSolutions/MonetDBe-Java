@@ -4,7 +4,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-//TODO Check if the statement is closed before doing actions which depend on it
 public class MonetStatement extends MonetWrapper implements Statement {
     protected MonetConnection conn;
 
@@ -63,7 +62,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
         }
     }
 
-    //TODO Add this check to functions to verify connection is not closed
     public void checkNotClosed() throws SQLException {
         if (isClosed())
             throw new SQLException("Connection is closed", "M1M20");
@@ -72,11 +70,16 @@ public class MonetStatement extends MonetWrapper implements Statement {
     //Close
     @Override
     public void close() throws SQLException {
+        checkNotClosed();
         //If there is a result set and it is not closed, close it
         if (resultSet != null && !resultSet.isClosed()) {
             resultSet.close();
         }
         closed = true;
+        //If called on a PreparedStatement object, it should free the prepared statement in the database
+        if (this instanceof MonetPreparedStatement) {
+            MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),((MonetPreparedStatement) this).statementNative);
+        }
     }
 
     @Override
@@ -91,15 +94,13 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public void closeOnCompletion() throws SQLException {
-        if (closed)
-            throw new SQLException("Cannot call on closed Statement", "M1M20");
+        checkNotClosed();
         closeOnCompletion = true;
     }
 
     @Override
     public boolean isCloseOnCompletion() throws SQLException {
-        if (closed)
-            throw new SQLException("Cannot call on closed Statement", "M1M20");
+        checkNotClosed();
         return closeOnCompletion;
     }
 
@@ -114,6 +115,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     //Executes
     @Override
     public boolean execute(String sql) throws SQLException {
+        checkNotClosed();
         this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false);
         if (this.resultSet!=null) {
             return true;
@@ -144,6 +146,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public long executeLargeUpdate(String sql) throws SQLException {
+        checkNotClosed();
         this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true);
         if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
@@ -157,6 +160,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     //TODO Verify this
     @Override
     public int[] executeBatch() throws SQLException {
+        checkNotClosed();
         if (batch == null || batch.isEmpty()) {
             return new int[0];
         }
@@ -184,6 +188,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public void addBatch(String sql) throws SQLException {
+        checkNotClosed();
         if (batch == null) {
             batch = new ArrayList<>();
         }
@@ -192,6 +197,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public void clearBatch() throws SQLException {
+        checkNotClosed();
         if (batch != null) {
             batch.clear();
         }
@@ -200,6 +206,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     //TODO Verify this
     @Override
     public long[] executeLargeBatch() throws SQLException {
+        checkNotClosed();
         if (batch == null || batch.isEmpty()) {
             return new long[0];
         }
@@ -225,17 +232,17 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return counts;
     }
 
+    @Override
+    public boolean getMoreResults(int current) throws SQLException {
+        checkNotClosed();
+        //TODO GETMORERESULTS
+        //Is it possible to have more than one ResultSet returning from a batch query in MonetDBe?
+        return false;
+    }
 
     @Override
     public boolean getMoreResults() throws SQLException {
         return getMoreResults(Statement.CLOSE_CURRENT_RESULT);
-    }
-
-    @Override
-    public boolean getMoreResults(int current) throws SQLException {
-        //TODO GETMORERESULTS
-        //Is it possible to have more than one ResultSet returning from a batch query in MonetDBe?
-        return false;
     }
 
     //Auto-generated keys
@@ -294,44 +301,52 @@ public class MonetStatement extends MonetWrapper implements Statement {
     //Meta gets/sets
     @Override
     public int getUpdateCount() throws SQLException {
+        checkNotClosed();
         return this.updateCount;
     }
 
     @Override
     public ResultSet getResultSet() throws SQLException {
+        checkNotClosed();
         return resultSet;
     }
 
     //TODO Verify this
     @Override
     public void setEscapeProcessing(boolean enable) throws SQLException {
+        checkNotClosed();
         if (enable)
             addWarning("setEscapeProcessing: JDBC escape syntax is not supported by this driver", "01M22");
     }
 
     @Override
     public int getQueryTimeout() throws SQLException {
+        checkNotClosed();
         return queryTimeout;
     }
 
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
+        checkNotClosed();
         //Not possible currently, may be a future feature
     }
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
+        checkNotClosed();
         return warnings;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
+        checkNotClosed();
         warnings = null;
     }
 
     //TODO Verify this
     @Override
     public void setCursorName(String name) throws SQLException {
+        checkNotClosed();
         addWarning("setCursorName: positioned updates/deletes not supported", "01M21");
     }
 
@@ -350,11 +365,13 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public int getFetchDirection() throws SQLException {
+        checkNotClosed();
         return fetchDirection;
     }
 
     @Override
     public void setFetchSize(int rows) throws SQLException {
+        checkNotClosed();
         if (rows >= 0 && !(getMaxRows() != 0 && rows > getMaxRows())) {
             this.fetchSize = rows;
         } else {
@@ -364,26 +381,31 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public int getFetchSize() throws SQLException {
+        checkNotClosed();
         return fetchSize;
     }
 
     @Override
     public int getResultSetConcurrency() throws SQLException {
+        checkNotClosed();
         return resultSetConcurrency;
     }
 
     @Override
     public int getResultSetType() throws SQLException {
+        checkNotClosed();
         return resultSetType;
     }
 
     @Override
     public Connection getConnection() throws SQLException {
+        checkNotClosed();
         return conn;
     }
 
     @Override
     public int getResultSetHoldability() throws SQLException {
+        checkNotClosed();
         return resultSetHoldability;
     }
 
@@ -396,35 +418,41 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public boolean isPoolable() throws SQLException {
+        checkNotClosed();
         return this.poolable;
     }
 
     @Override
     public long getLargeUpdateCount() throws SQLException {
+        checkNotClosed();
         return largeUpdateCount;
     }
 
     @Override
     public void setLargeMaxRows(long max) throws SQLException {
+        checkNotClosed();
         this.largeMaxRows = max;
     }
 
     @Override
     public long getLargeMaxRows() throws SQLException {
+        checkNotClosed();
         return largeMaxRows;
     }
 
     //TODO: Verify this. The old implementation returned a value which overflows the java int
     @Override
     public int getMaxFieldSize() throws SQLException {
+        checkNotClosed();
         // MonetDB supports null terminated strings of max 2GB, see function: int UTF8_strlen();
         //return 2*1024*1024*1024 - 2;
         return Integer.MAX_VALUE;
     }
 
-    //Pedro's code
+    //Old code
     @Override
     public void setMaxFieldSize(final int max) throws SQLException {
+        checkNotClosed();
         if (max < 0)
             throw new SQLException("Illegal max value: " + max, "M1M05");
         if (max > 0)
@@ -433,12 +461,14 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     @Override
     public int getMaxRows() throws SQLException {
+        checkNotClosed();
         return maxRows;
     }
 
     //Old code
     @Override
     public void setMaxRows(int max) throws SQLException {
+        checkNotClosed();
         if (max < 0)
             throw new SQLException("Illegal max value: " + max, "M1M05");
         maxRows = max;

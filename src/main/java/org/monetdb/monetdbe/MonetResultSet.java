@@ -562,6 +562,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public void close() throws SQLException {
+        checkNotClosed();
         this.closed = true;
         MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDbNative(),nativeResult);
         this.columns = null;
@@ -570,6 +571,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
+        checkNotClosed();
         return metaData;
     }
 
@@ -656,61 +658,73 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public Statement getStatement() throws SQLException {
+        checkNotClosed();
         return statement;
     }
 
     @Override
     public int getRow() throws SQLException {
+        checkNotClosed();
         return curRow;
     }
 
     @Override
     public int getType() throws SQLException {
+        checkNotClosed();
         return resultSetType;
     }
 
     @Override
     public int getConcurrency() throws SQLException {
+        checkNotClosed();
         return concurrency;
     }
 
     @Override
     public boolean wasNull() throws SQLException {
+        checkNotClosed();
         return lastReadWasNull;
     }
 
     @Override
     public int getHoldability() throws SQLException {
+        checkNotClosed();
         return resultSetHoldability;
     }
 
     @Override
     public void setFetchDirection(int direction) throws SQLException {
+        checkNotClosed();
         this.fetchDirection = direction;
     }
 
     @Override
     public int getFetchDirection() throws SQLException {
+        checkNotClosed();
         return fetchDirection;
     }
 
     @Override
     public void setFetchSize(int rows) throws SQLException {
+        checkNotClosed();
         this.fetchSize = rows;
     }
 
     @Override
     public int getFetchSize() throws SQLException {
+        checkNotClosed();
         return fetchSize;
     }
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
+        checkNotClosed();
         return warnings;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
+        checkNotClosed();
         this.warnings = new SQLWarning();
     }
 
@@ -725,6 +739,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public String getCursorName() throws SQLException {
+        checkNotClosed();
         return name;
     }
 
@@ -732,6 +747,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     @Deprecated
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
+        checkNotClosed();
         if (scale != 0) {
             addWarning("getBigDecimal(int columnIndex, int scale) is deprecated. Please use getBigDecimal(int columnIndex).setScale(int scale)", "");
             return null;
@@ -941,6 +957,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Timestamp getTimestamp(String columnLabel, Calendar cal) throws SQLException {
         return getTimestamp(findColumn(columnLabel),cal);
     }
+
     public BigInteger getHugeInt (String columnLabel) throws SQLException {
         return getHugeInt(findColumn(columnLabel));
     }

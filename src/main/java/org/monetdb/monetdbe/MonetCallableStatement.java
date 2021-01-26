@@ -303,66 +303,65 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
         setNCharacterStream(nameToIndex(parameterName),value,length);
     }
 
-    //TODO Check if we now can support these functions. If not, add the SQLFeatureNotSupportedException to the functions below
     //Out parameter
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType, int scale) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, SQLType sqlType, String typeName) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(String parameterName, SQLType sqlType) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(String parameterName, SQLType sqlType, int scale) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(String parameterName, SQLType sqlType, String typeName) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, int sqlType) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, int sqlType, int scale) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(int parameterIndex, int sqlType, String typeName) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(String parameterName, int sqlType) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(String parameterName, int sqlType, int scale) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
     public void registerOutParameter(String parameterName, int sqlType, String typeName) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("registerOutParameter");
     }
 
     @Override
@@ -373,311 +372,311 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
     //Get object
     @Override
     public String getString(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getString");
     }
 
     @Override
     public boolean getBoolean(int parameterIndex) throws SQLException {
-        return false;
+        throw new SQLFeatureNotSupportedException("getString");
     }
 
     @Override
     public byte getByte(int parameterIndex) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getByte");
     }
 
     @Override
     public short getShort(int parameterIndex) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getShort");
     }
 
     @Override
     public int getInt(int parameterIndex) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getInt");
     }
 
     @Override
     public long getLong(int parameterIndex) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getLong");
     }
 
     @Override
     public float getFloat(int parameterIndex) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getFloat");
     }
 
     @Override
     public double getDouble(int parameterIndex) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getDouble");
     }
 
     @Override
     public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getBigDecimal");
     }
 
     @Override
     public byte[] getBytes(int parameterIndex) throws SQLException {
-        return new byte[0];
+        throw new SQLFeatureNotSupportedException("getBytes");
     }
 
     @Override
     public Date getDate(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getDate");
     }
 
     @Override
     public Time getTime(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getTime");
     }
 
     @Override
     public Timestamp getTimestamp(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getTimestamp");
     }
 
     @Override
     public Object getObject(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getObject");
     }
 
     @Override
     public BigDecimal getBigDecimal(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getBigDecimal");
     }
 
     @Override
     public Object getObject(int parameterIndex, Map<String, Class<?>> map) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getObject");
     }
 
     @Override
     public Ref getRef(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getRef");
     }
 
     @Override
     public Blob getBlob(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getBlob");
     }
 
     @Override
     public Clob getClob(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getClob");
     }
 
     @Override
     public Array getArray(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getArray");
     }
 
     @Override
     public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getDate");
     }
 
     @Override
     public Time getTime(int parameterIndex, Calendar cal) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getTime");
     }
 
     @Override
     public Timestamp getTimestamp(int parameterIndex, Calendar cal) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getTimestamp");
     }
 
     @Override
     public URL getURL(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getURL");
     }
 
     @Override
     public String getString(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getString");
     }
 
     @Override
     public boolean getBoolean(String parameterName) throws SQLException {
-        return false;
+        throw new SQLFeatureNotSupportedException("getString");
     }
 
     @Override
     public byte getByte(String parameterName) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getByte");
     }
 
     @Override
     public short getShort(String parameterName) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getShort");
     }
 
     @Override
     public int getInt(String parameterName) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getInt");
     }
 
     @Override
     public long getLong(String parameterName) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getLong");
     }
 
     @Override
     public float getFloat(String parameterName) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getFloat");
     }
 
     @Override
     public double getDouble(String parameterName) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getDouble");
     }
 
     @Override
     public byte[] getBytes(String parameterName) throws SQLException {
-        return new byte[0];
+        throw new SQLFeatureNotSupportedException("getBytes");
     }
 
     @Override
     public Date getDate(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getDate");
     }
 
     @Override
     public Time getTime(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getTime");
     }
 
     @Override
     public Timestamp getTimestamp(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getTimestamp");
     }
 
     @Override
     public Object getObject(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getObject");
     }
 
     @Override
     public BigDecimal getBigDecimal(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getBigDecimal");
     }
 
     @Override
     public Object getObject(String parameterName, Map<String, Class<?>> map) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getObject");
     }
 
     @Override
     public Ref getRef(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getRef");
     }
 
     @Override
     public Blob getBlob(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getBlob");
     }
 
     @Override
     public Clob getClob(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getClob");
     }
 
     @Override
     public Array getArray(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getArray");
     }
 
     @Override
     public Date getDate(String parameterName, Calendar cal) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getDate");
     }
 
     @Override
     public Time getTime(String parameterName, Calendar cal) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getTime");
     }
 
     @Override
     public Timestamp getTimestamp(String parameterName, Calendar cal) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getTimestamp");
     }
 
     @Override
     public URL getURL(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getURL");
     }
 
     @Override
     public RowId getRowId(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getRowId");
     }
 
     @Override
     public RowId getRowId(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getRowId");
     }
 
     @Override
     public NClob getNClob(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getNClob");
     }
 
     @Override
     public NClob getNClob(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getNClob");
     }
 
     @Override
     public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException {
-
+        throw new SQLFeatureNotSupportedException("getSQLXML");
     }
 
     @Override
     public SQLXML getSQLXML(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getSQLXML");
     }
 
     @Override
     public SQLXML getSQLXML(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getSQLXML");
     }
 
     @Override
     public String getNString(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getNString");
     }
 
     @Override
     public String getNString(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getNString");
     }
 
     @Override
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getNCharacterStream");
     }
 
     @Override
     public Reader getNCharacterStream(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getNCharacterStream");
     }
 
     @Override
     public Reader getCharacterStream(int parameterIndex) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getCharacterStream");
     }
 
     @Override
     public Reader getCharacterStream(String parameterName) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getCharacterStream");
     }
 
     @Override
     public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getObject");
     }
 
     @Override
     public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
-        return null;
+        throw new SQLFeatureNotSupportedException("getObject");
     }
 }

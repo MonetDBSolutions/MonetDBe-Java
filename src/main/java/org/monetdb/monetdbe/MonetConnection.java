@@ -32,6 +32,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
             throw new SQLException("Failure to open database");
         }
 
+        //TODO Should I not set it if the autoCommit variable is the default value?
         MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
         this.metaData = new MonetDatabaseMetadata();
         this.properties = props;
@@ -51,13 +52,13 @@ public class MonetConnection extends MonetWrapper implements Connection {
         }
     }
 
-    //TODO Add this check to functions to verify connection is not closed
     private void checkNotClosed() throws SQLException {
         if (isClosed())
             throw new SQLException("Connection is closed", "M1M20");
     }
 
     private void executeCommand (String sql) throws SQLException {
+        checkNotClosed();
         Statement st = null;
         try {
             st = createStatement();
@@ -72,19 +73,19 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //Transactions and closing
     @Override
     public void commit() throws SQLException {
+        checkNotClosed();
         executeCommand("COMMIT");
     }
 
     @Override
     public void rollback() throws SQLException {
+        checkNotClosed();
         executeCommand("ROLLBACK");
     }
 
     @Override
     public void close() throws SQLException {
-        if(isClosed()) {
-            throw new SQLException("Connection already closed.");
-        }
+        checkNotClosed();
         for(MonetStatement s : statements) {
             s.close();
         }
@@ -102,8 +103,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //When the abort method returns, the connection will have been marked as closed and the Executor that was passed as a parameter to abort may still be executing tasks to release resources.
     @Override
     public void abort(Executor executor) throws SQLException {
-        if (isClosed())
-            return;
+        checkNotClosed();
         if (executor == null)
             throw new SQLException("executor is null", "M1M05");
         close();
@@ -139,6 +139,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //Metadata sets and gets
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
+        checkNotClosed();
         if (autoCommit != this.autoCommit) {
             this.autoCommit = autoCommit;
             MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
@@ -148,16 +149,19 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //TODO Verify if I should call to the server to get autocommit or if I should just return this.autocommit
     @Override
     public boolean getAutoCommit() throws SQLException {
+        checkNotClosed();
         return MonetNative.monetdbe_get_autocommit(dbNative);
     }
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
+        checkNotClosed();
         return metaData;
     }
 
     @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
+        checkNotClosed();
         if (readOnly) {
             addWarning("cannot setReadOnly(true): read-only Connection mode not supported", "01M08");
         }
@@ -165,6 +169,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     @Override
     public boolean isReadOnly() throws SQLException {
+        checkNotClosed();
         return false;
     }
 
@@ -182,6 +187,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
+        checkNotClosed();
         if (level != TRANSACTION_SERIALIZABLE) {
             addWarning("MonetDB only supports fully serializable " +
                     "transactions, continuing with transaction level " +
@@ -191,21 +197,25 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     @Override
     public int getTransactionIsolation() throws SQLException {
+        checkNotClosed();
         return TRANSACTION_SERIALIZABLE;
     }
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
+        checkNotClosed();
         return warnings;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
+        checkNotClosed();
         warnings = null;
     }
 
     @Override
     public Map<String, Class<?>> getTypeMap() throws SQLException {
+        checkNotClosed();
         return typeMap;
     }
 
@@ -215,45 +225,53 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //If so, the getObject method will map the UDT to the class indicated. If there is no entry, the UDT will be mapped using the standard mapping.
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
+        checkNotClosed();
         typeMap = map;
     }
 
     @Override
     public void setHoldability(int holdability) throws SQLException {
+        checkNotClosed();
         if (holdability != ResultSet.HOLD_CURSORS_OVER_COMMIT)
             throw new SQLFeatureNotSupportedException("setHoldability(CLOSE_CURSORS_AT_COMMIT)");
     }
 
     @Override
     public int getHoldability() throws SQLException {
+        checkNotClosed();
         return ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
     //TODO Update configurations instead of only changing the properties argument
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
+        //TODO checknotclosed but with another exception type
         this.properties.setProperty(name,value);
     }
 
     //TODO Update configurations instead of only changing the properties argument
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
+        //TODO checknotclosed but with another exception type
         this.properties = properties;
     }
 
     @Override
     public String getClientInfo(String name) throws SQLException {
+        checkNotClosed();
         return properties.getProperty(name);
     }
 
     @Override
     public Properties getClientInfo() throws SQLException {
+        checkNotClosed();
         return properties;
     }
 
     //TODO Verify this
     @Override
     public void setSchema(String schema) throws SQLException {
+        checkNotClosed();
         if (schema == null || schema.isEmpty())
             throw new SQLException("Missing schema name", "M1M05");
         executeCommand("SET SCHEMA \"" + schema + "\"");
@@ -262,6 +280,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //TODO Verify this
     @Override
     public String getSchema() throws SQLException {
+        checkNotClosed();
         String cur_schema = null;
         Statement st = null;
         ResultSet rs = null;
@@ -287,6 +306,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //TODO Verify this
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
+        checkNotClosed();
         //Different from query timeout
         //We may not need this timeout, as there isn't much networking in this embedded environment (?)
     }
@@ -294,6 +314,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //TODO Verify this
     @Override
     public int getNetworkTimeout() throws SQLException {
+        checkNotClosed();
         //Different from query timeout
         //We may not need this timeout, as there isn't much networking in this embedded environment (?)
         return 0;
@@ -377,6 +398,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //TODO Auto-generated keys
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
+        checkNotClosed();
         return prepareStatement(sql);
     }
 
@@ -396,32 +418,36 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //TODO Savepoints
     @Override
     public Savepoint setSavepoint() throws SQLException {
+        checkNotClosed();
         return null;
     }
 
     @Override
     public Savepoint setSavepoint(String name) throws SQLException {
+        checkNotClosed();
         return null;
     }
 
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
-
+        checkNotClosed();
     }
 
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-
+        checkNotClosed();
     }
 
     //Create Complex Types
     @Override
     public Clob createClob() throws SQLException {
+        checkNotClosed();
         return new MonetClob("");
     }
 
     @Override
     public Blob createBlob() throws SQLException {
+        checkNotClosed();
         return new MonetBlob(new byte[1]);
     }
 

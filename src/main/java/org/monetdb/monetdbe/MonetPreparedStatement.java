@@ -14,10 +14,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-//TODO Check if the statement is closed before doing actions which depend on it
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     //Native pointer to C statement
-    private ByteBuffer statementNative;
+    protected ByteBuffer statementNative;
     private MonetParameterMetaData parameterMetaData;
 
     //Set within monetdbe_prepare
@@ -47,6 +46,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //Executes
     @Override
     public boolean execute() throws SQLException {
+        checkNotClosed();
         this.resultSet = MonetNative.monetdbe_execute(statementNative,this, false);
         if (this.resultSet!=null) {
             return true;
@@ -102,6 +102,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters = new Object[nParams];
     }
 
+    /** override the addBatch from the Statement to throw an SQLException */
+    @Override
+    public void addBatch(final String q) throws SQLException {
+        throw new SQLException("This method is not available in a PreparedStatement!", "M1M05");
+    }
+
     //Overrides Statement's implementation, which batches different queries instead of different parameters for same query
     //TODO Test
     @Override
@@ -141,8 +147,16 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         return counts;
     }
 
+    //Overrides Statement's implementation, which batches different queries instead of different parameters for same query
+    @Override
+    public void clearBatch() throws SQLException {
+        checkNotClosed();
+        parametersBatch = null;
+    }
+
     @Override
     public long executeLargeUpdate() throws SQLException {
+        checkNotClosed();
         this.resultSet = MonetNative.monetdbe_execute(statementNative,this, true);
         if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
@@ -171,6 +185,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void clearParameters() throws SQLException {
+        checkNotClosed();
         //TODO Verify if I should use the cleanup function or if I should set every parameter to NULL (and use the cleanup function on close method inherited from Statement)
         //This also cleans up the Prepared Statement
         MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
@@ -245,6 +260,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
+        checkNotClosed();
         int monettype = MonetTypes.getMonetTypeIntFromSQL(sqlType);
         MonetNative.monetdbe_bind_null(conn.getDbNative(),monettype,statementNative,parameterIndex);
         parameters[parameterIndex-1] = null;
@@ -252,6 +268,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,0,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
@@ -259,36 +276,42 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //TODO Test
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,1,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setShort(int parameterIndex, short x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,2,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setInt(int parameterIndex, int x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,3,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setLong(int parameterIndex, long x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,4,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setFloat(int parameterIndex, float x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,7,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setDouble(int parameterIndex, double x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,8,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
@@ -296,24 +319,28 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //TODO BIG DECIMAL
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
     //TODO BIG INT
     public void setHugeInt(int parameterIndex, BigInteger x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setString(int parameterIndex, String x) throws SQLException {
+        checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,9,parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
+        checkNotClosed();
         LocalDate localDate = x.toLocalDate();
         //MonetNative.monetdbe_bind_date(statementNative,parameterIndex,localDate.getYear(),localDate.getMonthValue(),localDate.getDayOfMonth());
         MonetNative.monetdbe_bind_date(statementNative,parameterIndex,(short)localDate.getYear(),(byte)localDate.getMonthValue(),(byte)localDate.getDayOfMonth());
@@ -322,6 +349,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
+        checkNotClosed();
         LocalTime localTime = x.toLocalTime();
         MonetNative.monetdbe_bind_time(statementNative,parameterIndex,localTime.getHour(),localTime.getMinute(),localTime.getSecond(),localTime.getNano()*1000);
         parameters[parameterIndex-1] = x;
@@ -329,6 +357,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
+        checkNotClosed();
         LocalDateTime localDateTime = x.toLocalDateTime();
         MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),localDateTime.getNano()*1000);
         parameters[parameterIndex-1] = x;
@@ -343,6 +372,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //TODO This is marked as a not supported feature in the old version. Is this why the weird bug is happening?
     @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
+        checkNotClosed();
         byte[] blob_data = x.getBytes(1,(int)x.length());
         MonetNative.monetdbe_bind(statementNative,blob_data,10,parameterIndex);
         parameters[parameterIndex-1] = x;
@@ -378,6 +408,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setURL(int parameterIndex, URL x) throws SQLException {
+        checkNotClosed();
         setString(parameterIndex,x.toString());
         parameters[parameterIndex-1] = x;
     }

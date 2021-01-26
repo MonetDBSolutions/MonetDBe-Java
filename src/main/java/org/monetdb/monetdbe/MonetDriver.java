@@ -20,11 +20,14 @@ final public class MonetDriver implements java.sql.Driver {
 
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
+        if (url == null)
+            throw new SQLException("url cannot be null");
         if (!acceptsURL(url))
             return null;
 
         final URI uri;
         try {
+            //Remove leading "jdbc:" and get valid URI
             uri = new URI(url.substring(5));
         } catch (java.net.URISyntaxException e) {
             return null;
