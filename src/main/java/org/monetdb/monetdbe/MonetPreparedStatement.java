@@ -416,27 +416,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     @Override
-    public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-        setObject(parameterIndex,x,MonetTypes.getSQLIntFromSQLName(targetSqlType.getName()),scaleOrLength);
-    }
-
-    @Override
-    public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
-        setObject(parameterIndex,x,targetSqlType,0);
-    }
-
-    @Override
-    public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-        setObject(parameterIndex,x,targetSqlType,0);
-    }
-
-    @Override
-    public void setObject(int parameterIndex, Object x) throws SQLException {
-        int sqltype = MonetTypes.getDefaultSQLTypeForClass(x.getClass());
-        setObject(parameterIndex,x,sqltype,0);
-    }
-
-    @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
         checkNotClosed();
         int monettype = MonetTypes.getMonetTypeIntFromSQL(sqlType);
@@ -556,13 +535,9 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     @Override
-    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
-        //TODO BLOB - Convert InputStream to Blob?
-    }
-
-    @Override
-    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-        //TODO BLOB - Convert InputStream to Blob?
+    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
+        //Ignore typeName parameter, no support for Ref and UDFs in monetdbe
+        setNull(parameterIndex,sqlType);
     }
 
     @Override
@@ -591,11 +566,37 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     @Override
-    public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        //TODO Ref and UDFs?
+    public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
+        setObject(parameterIndex,x,MonetTypes.getSQLIntFromSQLName(targetSqlType.getName()),scaleOrLength);
+    }
+
+    @Override
+    public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
+        setObject(parameterIndex,x,targetSqlType,0);
+    }
+
+    @Override
+    public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
+        setObject(parameterIndex,x,targetSqlType,0);
+    }
+
+    @Override
+    public void setObject(int parameterIndex, Object x) throws SQLException {
+        int sqltype = MonetTypes.getDefaultSQLTypeForClass(x.getClass());
+        setObject(parameterIndex,x,sqltype,0);
     }
 
     //Set other objects (Ref, Array, NString, NClob, XML)
+    @Override
+    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setBlob(int parameterIndex, InputStream inputStream)");
+    }
+
+    @Override
+    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
+        throw new SQLFeatureNotSupportedException("setBlob(int parameterIndex, InputStream inputStream, long lenght)");
+    }
+
     @Override
     public void setClob(int parameterIndex, Clob x) throws SQLException {
         throw new SQLFeatureNotSupportedException("setClob");
@@ -652,7 +653,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     //Set stream object
-
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
         throw new SQLFeatureNotSupportedException("setCharacterStream");

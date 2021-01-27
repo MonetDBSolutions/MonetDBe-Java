@@ -109,7 +109,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         close();
     }
 
-    //TODO Verify this
     @Override
     public boolean isValid(int timeout) throws SQLException {
         if (timeout < 0)
@@ -245,14 +244,22 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //TODO Update configurations instead of only changing the properties argument
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
-        //TODO checknotclosed but with another exception type
+        try {
+            checkNotClosed();
+        } catch (SQLException e) {
+            throw new SQLClientInfoException();
+        }
         this.properties.setProperty(name,value);
     }
 
     //TODO Update configurations instead of only changing the properties argument
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
-        //TODO checknotclosed but with another exception type
+        try {
+            checkNotClosed();
+        } catch (SQLException e) {
+            throw new SQLClientInfoException();
+        }
         this.properties = properties;
     }
 
@@ -303,7 +310,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return cur_schema;
     }
 
-    //TODO Verify this
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
         checkNotClosed();
@@ -311,7 +317,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         //We may not need this timeout, as there isn't much networking in this embedded environment (?)
     }
 
-    //TODO Verify this
     @Override
     public int getNetworkTimeout() throws SQLException {
         checkNotClosed();
@@ -320,7 +325,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return 0;
     }
 
-    //TODO Verify this
     @Override
     public String nativeSQL(final String sql) {
         /* there is currently no way to get the native MonetDB rewritten SQL string back, so just return the original string */

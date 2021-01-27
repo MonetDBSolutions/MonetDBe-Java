@@ -445,7 +445,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return Integer.MAX_VALUE;
     }
 
-    //Old code
     @Override
     public void setMaxFieldSize(final int max) throws SQLException {
         checkNotClosed();
