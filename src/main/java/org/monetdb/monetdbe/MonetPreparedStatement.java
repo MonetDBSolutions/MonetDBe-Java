@@ -191,69 +191,227 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     //Set objects
-    //TODO setObject conversions from other data types (currently only casting to type)
-    //TODO Can other number types have a scale and be translated to BigDecimal?
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
         checkNotClosed();
         if (parameterIndex > nParams) {
             throw new SQLException("parameterIndex is not valid");
         }
-        int monetType = MonetTypes.getMonetTypeIntFromSQL(targetSqlType);
-        switch (monetType) {
-            case 0:
-                setBoolean(parameterIndex,(boolean) x);
+        if (x == null) {
+            setNull(parameterIndex, targetSqlType);
+        }
+
+        if (x instanceof String) {
+            setString(parameterIndex,String.valueOf(x));
+        }
+        else if (x instanceof BigDecimal ||
+                x instanceof Byte ||
+                x instanceof Short ||
+                x instanceof Integer ||
+                x instanceof Long ||
+                x instanceof Float ||
+                x instanceof Double) {
+            Number num = (Number) x;
+            setObjectNum(parameterIndex,targetSqlType,num,x,scaleOrLength);
+        }
+        else if (x instanceof Boolean) {
+            boolean bool = (Boolean) x;
+            setObjectBool(parameterIndex,targetSqlType,bool);
+        }
+        else if (x instanceof BigInteger) {
+            BigInteger num = (BigInteger)x;
+            switch (targetSqlType) {
+                case Types.BIGINT:
+                    setLong(parameterIndex, num.longValue());
+                    break;
+                case Types.CHAR:
+                case Types.VARCHAR:
+                case Types.LONGVARCHAR:
+                    setString(parameterIndex, num.toString());
+                    break;
+                default:
+                    throw new SQLException("Conversion not allowed", "M1M05");
+            }
+        }
+        else if (x instanceof byte[]) {
+            switch (targetSqlType) {
+                case Types.BINARY:
+                case Types.VARBINARY:
+                case Types.LONGVARBINARY:
+                    setBytes(parameterIndex, (byte[]) x);
+                    break;
+                default:
+                    throw new SQLException("Conversion not allowed", "M1M05");
+            }
+        }
+        else if (x instanceof java.sql.Date ||
+                x instanceof Timestamp ||
+                x instanceof Time ||
+                x instanceof Calendar ||
+                x instanceof java.util.Date) {
+            setObjectDate(parameterIndex,targetSqlType,x);
+        }
+        else if (x instanceof MonetBlob || x instanceof Blob) {
+            setBlob(parameterIndex, (Blob) x);
+        }
+        else if (x instanceof java.net.URL) {
+            setURL(parameterIndex,(URL) x);
+        }
+    }
+
+    public void setObjectBool (int parameterIndex, int sqlType, Boolean bool) throws SQLException {
+        switch (sqlType) {
+            case Types.TINYINT:
+                setByte(parameterIndex, (byte)(bool ? 1 : 0));
                 break;
-            case 1:
-                setByte(parameterIndex,(byte) x);
+            case Types.SMALLINT:
+                setShort(parameterIndex, (short)(bool ? 1 : 0));
                 break;
-            case 2:
-                setShort(parameterIndex,(short) x);
+            case Types.INTEGER:
+                setInt(parameterIndex, (bool ? 1 : 0));  // do not cast to (int) as it generates a compiler warning
                 break;
-            case 3:
-                setInt(parameterIndex,(int) x);
+            case Types.BIGINT:
+                setLong(parameterIndex, (long)(bool ? 1 : 0));
                 break;
-            case 4:
-                setLong(parameterIndex,(long) x);
+            case Types.REAL:
+            case Types.FLOAT:
+                setFloat(parameterIndex, (float)(bool ? 1.0 : 0.0));
                 break;
-            case 5:
-                //MonetDBe type 5 (int128) can be a BigDecimal or a BigInteger, depending on if there is a scale
-                BigInteger bi = (BigInteger) x;
-                if (scaleOrLength > 0) {
-                    setBigDecimal(parameterIndex,new BigDecimal(bi,scaleOrLength));
+            case Types.DOUBLE:
+                setDouble(parameterIndex, (bool ? 1.0 : 0.0));  // do no cast to (double) as it generates a compiler warning
+                break;
+            case Types.DECIMAL:
+            case Types.NUMERIC:
+            {
+                final BigDecimal dec;
+                try {
+                    dec = new BigDecimal(bool ? 1.0 : 0.0);
+                } catch (NumberFormatException e) {
+                    throw new SQLException("Internal error: unable to create template BigDecimal: " + e.getMessage(), "M0M03");
                 }
-                else {
-                    setHugeInteger(parameterIndex,bi);
-                }
+                setBigDecimal(parameterIndex, dec);
+            } break;
+            case Types.BIT:
+            case Types.BOOLEAN:
+                setBoolean(parameterIndex, bool);
                 break;
-            case 6:
-                setInt(parameterIndex,(int) x);
-                break;
-            case 7:
-                setFloat(parameterIndex,(float) x);
-                break;
-            case 8:
-                setDouble(parameterIndex,(double) x);
-                break;
-            case 9:
-                setString(parameterIndex,(String) x);
-                break;
-            case 10:
-                setBlob(parameterIndex,(MonetBlob) x);
-                break;
-            case 11:
-                setDate(parameterIndex,(Date) x);
-                break;
-            case 12:
-                setTime(parameterIndex,(Time) x);
-                break;
-            case 13:
-                setTimestamp(parameterIndex,(Timestamp) x);
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+                setString(parameterIndex, bool.toString());
                 break;
             default:
-                //Should this be the default?
-                setNull(parameterIndex,targetSqlType);
+                throw new SQLException("Conversion not allowed", "M1M05");
+        }
+    }
+
+    public void setObjectNum (int parameterIndex, int sqlType, Number num, Object x, int scale) throws SQLException {
+        switch (sqlType) {
+            case Types.TINYINT:
+                setByte(parameterIndex, num.byteValue());
                 break;
+            case Types.SMALLINT:
+                setShort(parameterIndex, num.shortValue());
+                break;
+            case Types.INTEGER:
+                setInt(parameterIndex, num.intValue());
+                break;
+            case Types.BIGINT:
+                setLong(parameterIndex, num.longValue());
+                break;
+            case Types.REAL:
+            case Types.FLOAT:
+                setFloat(parameterIndex, num.floatValue());
+                break;
+            case Types.DOUBLE:
+                setDouble(parameterIndex, num.doubleValue());
+                break;
+            case Types.DECIMAL:
+            case Types.NUMERIC:
+                if (x instanceof BigDecimal) {
+                    setBigDecimal(parameterIndex, (BigDecimal) x);
+                } else {
+                    if (scale == 0) {
+                        setBigDecimal(parameterIndex, new BigDecimal(num.doubleValue()));
+                    }
+                    else {
+                        setBigDecimal(parameterIndex, new BigDecimal(num.doubleValue()).setScale(scale,java.math.RoundingMode.HALF_UP));
+                    }
+                }
+                break;
+            case Types.BIT:
+            case Types.BOOLEAN:
+                if (num.doubleValue() != 0.0) {
+                    setBoolean(parameterIndex, true);
+                } else {
+                    setBoolean(parameterIndex, false);
+                }
+                break;
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+                setString(parameterIndex, num.toString());
+                break;
+            default:
+                throw new SQLException("Conversion not allowed", "M1M05");
+        }
+    }
+
+    public void setObjectDate (int parameterIndex, int sqlType, Object x) throws SQLException {
+        switch (sqlType) {
+            case Types.DATE:
+                if (x instanceof java.sql.Date) {
+                    setDate(parameterIndex, (java.sql.Date) x);
+                } else if (x instanceof Timestamp) {
+                    setDate(parameterIndex, new java.sql.Date(((Timestamp)x).getTime()));
+                } else if (x instanceof java.util.Date) {
+                    setDate(parameterIndex, new java.sql.Date(
+                            ((java.util.Date)x).getTime()));
+                } else if (x instanceof Calendar) {
+                    setDate(parameterIndex, new java.sql.Date(
+                            ((Calendar)x).getTimeInMillis()));
+                } else {
+                    throw new SQLException("Conversion not allowed", "M1M05");
+                }
+                break;
+            case Types.TIME:
+                if (x instanceof Time) {
+                    setTime(parameterIndex, (Time)x);
+                } else if (x instanceof Timestamp) {
+                    setTime(parameterIndex, new Time(((Timestamp)x).getTime()));
+                } else if (x instanceof java.util.Date) {
+                    setTime(parameterIndex, new java.sql.Time(
+                            ((java.util.Date)x).getTime()));
+                } else if (x instanceof Calendar) {
+                    setTime(parameterIndex, new java.sql.Time(
+                            ((Calendar)x).getTimeInMillis()));
+                } else {
+                    throw new SQLException("Conversion not allowed", "M1M05");
+                }
+                break;
+            case Types.TIMESTAMP:
+                if (x instanceof Timestamp) {
+                    setTimestamp(parameterIndex, (Timestamp)x);
+                } else if (x instanceof java.sql.Date) {
+                    setTimestamp(parameterIndex, new Timestamp(((java.sql.Date)x).getTime()));
+                } else if (x instanceof java.util.Date) {
+                    setTimestamp(parameterIndex, new java.sql.Timestamp(
+                            ((java.util.Date)x).getTime()));
+                } else if (x instanceof Calendar) {
+                    setTimestamp(parameterIndex, new java.sql.Timestamp(
+                            ((Calendar)x).getTimeInMillis()));
+                } else {
+                    throw new SQLException("Conversion not allowed", "M1M05");
+                }
+                break;
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.CLOB:
+                setString(parameterIndex, x.toString());
+                break;
+            default:
+                throw new SQLException("Conversion not allowed", "M1M05");
         }
     }
 
