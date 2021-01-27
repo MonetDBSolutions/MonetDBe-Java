@@ -452,7 +452,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind (
         return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
     }
     else if (type == 5) {
-        //TODO Parse a BigDecimal/BigInteger to int128
+        //TODO Parse a BigInteger to int128
         //How do I parse a BigInteger into a ___int128?
         __int128 bind_data = (__int128) 1;
         return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
@@ -524,6 +524,12 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     (timestamp_bind->time).ms = (unsigned int) ms;
     printf("Parsed Timestamp: %hd-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year,(timestamp_bind->date).month,(timestamp_bind->date).day,(timestamp_bind->time).hours,(timestamp_bind->time).minutes,(timestamp_bind->time).seconds,(timestamp_bind->time).ms);
     return bind_parsed_data(env,j_stmt,timestamp_bind,(int)parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1decimal (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint scale, jint parameter_nr) {
+    //TODO Bind decimal
+    //What C data type do we map a DECIMAL/NUMERICAL (BigDecimal in java) type to? How do I pass the scale with the bind function
+    return NULL;
 }
 
 JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execute (JNIEnv * env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate) {

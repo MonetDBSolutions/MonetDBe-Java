@@ -323,13 +323,16 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
+    //TODO Implement the C function
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex);
+        //TODO Get x.precision() to get the number data type (it can be smaller than int128)
+        MonetNative.monetdbe_bind_decimal(statementNative,x,5,x.scale(),parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
+    //TODO Implement the C function
     public void setHugeInteger(int parameterIndex, BigInteger x) throws SQLException {
         checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex);

@@ -96,6 +96,7 @@ public class MonetColumn {
         int size = MonetTypes.getMonetSize(monetdbeType);
         byte[] byteData = new byte[size];
         ((ByteBuffer) constData).get(byteData,row*size,size);
+        System.out.println("BigInt type: " + monetdbeType + " / Size: " + size + " / Approximate value: " + new BigInteger(byteData).longValue());
         return new BigInteger(byteData);
     }
 
