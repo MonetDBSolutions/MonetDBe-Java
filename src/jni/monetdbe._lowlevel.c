@@ -429,14 +429,6 @@ jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int p
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null (JNIEnv * env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr) {
-    monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
-    monetdbe_types null_type = (monetdbe_types) type;
-    const void* null_ptr = monetdbe_null(db,null_type);
-    printf("%p %d\n", null_ptr, null_type);
-    return bind_parsed_data(env,j_stmt,(void*)null_ptr,parameter_nr);
-}
-
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr) {
     jclass param_class = (*env)->GetObjectClass(env, j_data);
     if (type == 0) {
@@ -461,6 +453,9 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind (
     }
     else if (type == 5) {
         //TODO Parse a BigDecimal/BigInteger to int128
+        //How do I parse a BigInteger into a ___int128?
+        __int128 bind_data = (__int128) 1;
+        return bind_parsed_data(env,j_stmt,&bind_data,(int)parameter_nr);
     }
     else if (type == 7) {
         float bind_data = (float) (*env)->CallFloatMethod(env,j_data,(*env)->GetMethodID(env,param_class,"floatValue","()F"));
@@ -489,6 +484,14 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind (
         return ret_str;
     }
     return NULL;
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null (JNIEnv * env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr) {
+    monetdbe_database db = (*env)->GetDirectBufferAddress(env,j_db);
+    monetdbe_types null_type = (monetdbe_types) type;
+    const void* null_ptr = monetdbe_null(db,null_type);
+    printf("%p %d\n", null_ptr, null_type);
+    return bind_parsed_data(env,j_stmt,(void*)null_ptr,parameter_nr);
 }
 
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1date (JNIEnv * env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day) {

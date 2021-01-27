@@ -28,7 +28,5 @@ public class MonetNative {
     protected static native String monetdbe_bind_time(ByteBuffer stmt, int param, int hours, int minutes, int seconds, int ms);
     protected static native String monetdbe_bind_timestamp(ByteBuffer stmt, int param, int year, int month, int day, int hours, int minutes, int seconds, int ms);
     protected static native String monetdbe_bind_null(ByteBuffer db, int type, ByteBuffer stmt, int param);
-
-
-
+    protected static native String monetdbe_bind_decimal(ByteBuffer stmt, Object data, int type, int scale, int param);
 }

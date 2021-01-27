@@ -1,5 +1,7 @@
 import org.monetdb.monetdbe.*;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.*;
 import java.util.Properties;
 
@@ -12,11 +14,79 @@ public class TestMonetDBeJava {
         }
     }
 
-    private static void dropDB (MonetConnection c) {
+    private static void populateDBTable(MonetConnection c) {
+        try {
+            MonetStatement s = (MonetStatement) c.createStatement();
+
+            System.out.println("Create table");
+            s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, r real, f float, st string, da date, t time, ts timestamp);");
+
+            System.out.println("Insert into\n");
+            s.execute("INSERT INTO a VALUES " +
+                    "(true, 2, 3, 5, 1.0, 1.66,'hey1',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), " +
+                    "(true, 4, 6, 10, 2.5, 3.643,'hey2',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M')), " +
+                    "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2020', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01', '%d-%m-%Y %H:%M')), " +
+                    "(false, 16, 24, 40, 255.255, 2434.432,'hey4',current_date,current_time,current_timestamp)," +
+                    "(false, null, 1, 1, 1, null,'hey5',current_date,current_time,current_timestamp);");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void dropDBTable(MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
             s.execute("DROP TABLE a;");
             System.out.println("Drop count: " + s.getUpdateCount());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void queryDBStatement (MonetConnection c) {
+        try {
+            MonetStatement s = (MonetStatement) c.createStatement();
+            s.executeQuery("SELECT * FROM a;");
+            MonetResultSet rs = (MonetResultSet) s.getResultSet();
+            System.out.println("Select resultSet: ");
+            rs.beforeFirst();
+            while (rs.next()) {
+                System.out.println("Row " + rs.getRow());
+                System.out.println("Bool: " + rs.getBoolean(0));
+                System.out.println("Short: " + rs.getShort(1));
+                System.out.println("Int: " + rs.getInt(2));
+                System.out.println("Long: " + rs.getLong(3));
+                System.out.println("Float: " + rs.getFloat(4));
+                System.out.println("Double: " + rs.getDouble(5));
+                System.out.println("String: " + rs.getString(6));
+                System.out.println("Date: " + rs.getDate(7));
+                System.out.println("Time: " + rs.getTime(8));
+                System.out.println("Timestamp: " + rs.getTimestamp(9));
+                System.out.println();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void queryDBPreparedStatement (MonetConnection c) {
+        try {
+            System.out.println("Preparing statement (Normal query)");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT st, i, r FROM a WHERE i < ? AND r < ? AND st <> ? AND s IS NOT NULL");
+            ps.setInt(1,20);
+            ps.setFloat(2,30.2f);
+            ps.setString(3,"hey2");
+            ps.executeQuery();
+            MonetResultSet rs = (MonetResultSet) ps.getResultSet();
+
+            rs.beforeFirst();
+            System.out.println("\nPrepared statement resultSet:");
+            while (rs.next()) {
+                System.out.println("String: " + rs.getString(0));
+                System.out.println("Int: " + rs.getInt(1));
+                System.out.println("Float: " + rs.getFloat(2));
+                System.out.println();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -90,48 +160,18 @@ public class TestMonetDBeJava {
         }
     }
 
-    private static void queryDBPreparedStatement (MonetConnection c) {
-        try {
-            System.out.println("Preparing statement (Normal query)");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT st, i, r FROM a WHERE i < ? AND r < ? AND st <> ? AND s IS NOT NULL");
-            ps.setInt(1,20);
-            ps.setFloat(2,30.2f);
-            ps.setString(3,"hey2");
-            ps.executeQuery();
-            MonetResultSet rs = (MonetResultSet) ps.getResultSet();
-
-            rs.beforeFirst();
-            System.out.println("\nPrepared statement resultSet:");
-            while (rs.next()) {
-                System.out.println("String: " + rs.getString(0));
-                System.out.println("Int: " + rs.getInt(1));
-                System.out.println("Float: " + rs.getFloat(2));
-                System.out.println();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void queryDBStatement (MonetConnection c) {
+    private static void queryDBLongQuery (MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
-            s.executeQuery("SELECT * FROM a;");
+            s.executeQuery("SELECT sql_mul(i,s), radians(degrees(radians(i))), tan(i) FROM a;");
             MonetResultSet rs = (MonetResultSet) s.getResultSet();
             System.out.println("Select resultSet: ");
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Bool: " + rs.getBoolean(0));
-                System.out.println("Short: " + rs.getShort(1));
-                System.out.println("Int: " + rs.getInt(2));
-                System.out.println("Long: " + rs.getLong(3));
-                System.out.println("Float: " + rs.getFloat(4));
-                System.out.println("Double: " + rs.getDouble(5));
-                System.out.println("String: " + rs.getString(6));
-                System.out.println("Date: " + rs.getDate(7));
-                System.out.println("Time: " + rs.getTime(8));
-                System.out.println("Timestamp: " + rs.getTimestamp(9));
+                System.out.println("Int: " + rs.getLong(0));
+                System.out.println("Double: " + rs.getDouble(1));
+                System.out.println("Double: " + rs.getDouble(2));
                 System.out.println();
             }
         } catch (SQLException e) {
@@ -141,13 +181,11 @@ public class TestMonetDBeJava {
 
     private static void blobPreparedQuery (MonetConnection c) {
         try {
-            //MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("SELECT * from b WHERE b <> ?;");
             MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO b VALUES (?);");
             ps.setBlob(1,new MonetBlob("12aa803F"));
             //MonetResultSet rs = (MonetResultSet) ps.executeQuery();
             int update_c = ps.executeUpdate();
             System.out.println("Update Count Prepared: " + update_c +"\n");
-            //System.out.println("rsp: " + rs.getBlob(0).length());
 
             MonetStatement s = (MonetStatement) c.createStatement();
             s.executeQuery("SELECT b FROM b;");
@@ -157,6 +195,41 @@ public class TestMonetDBeJava {
                 System.out.println("Row " + rs.getRow());
                 System.out.println("Blob length: " + rs.getBlob(0).length());
                 System.out.println("Blob first byte: " + rs.getBlob(0).getBytes(1,2)[0]);
+                System.out.println();
+            }
+
+            MonetPreparedStatement psSelect = (MonetPreparedStatement) c.prepareStatement("SELECT * from b WHERE b <> ?;");
+            psSelect.setBlob(1,new MonetBlob("12aa803F"));
+            psSelect.setBlob(1,new MonetBlob("12aa803F".getBytes()));
+            MonetResultSet rsSelect = (MonetResultSet) psSelect.executeQuery();
+            rsSelect.beforeFirst();
+            System.out.println("rsp: " + rsSelect.getBlob(0).length());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void int128Queries (MonetConnection c) {
+        try {
+            MonetStatement s = (MonetStatement) c.createStatement();
+            System.out.println("\nCreate int128 table and insert one row");
+            s.executeUpdate("CREATE TABLE big (bigi HUGEINT, bigd DECIMAL(16,8));");
+            s.executeUpdate("INSERT INTO big VALUES " +
+                    "(9323372036854775807,439287.498237);");
+
+            System.out.println("Insert into int128 table with prepared query");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO big VALUES (?,?);");
+            ps.setHugeInteger(1,new BigInteger("9400000000000000000"));
+            ps.setBigDecimal(2,new BigDecimal(new BigInteger("8394857265827"),5));
+            System.out.println("Update Count Prepared int128: " + ps.getUpdateCount() +"\n");
+
+            s.executeQuery("SELECT bigi,bigd FROM big;");
+            MonetResultSet rs = (MonetResultSet) s.getResultSet();
+            rs.beforeFirst();
+            while (rs.next()) {
+                System.out.println("Row " + rs.getRow());
+                System.out.println("Huge Integer: " + rs.getHugeInt(0));
+                System.out.println("Huge Decimal: " + rs.getBigDecimal(1));
                 System.out.println();
             }
         } catch (SQLException e) {
@@ -183,44 +256,6 @@ public class TestMonetDBeJava {
         }
     }
 
-    private static void queryDBLongQuery (MonetConnection c) {
-        try {
-            MonetStatement s = (MonetStatement) c.createStatement();
-            s.executeQuery("SELECT sql_mul(i,s), radians(degrees(radians(i))), tan(i) FROM a;");
-            MonetResultSet rs = (MonetResultSet) s.getResultSet();
-            System.out.println("Select resultSet: ");
-            rs.beforeFirst();
-            while (rs.next()) {
-                System.out.println("Row " + rs.getRow());
-                System.out.println("Int: " + rs.getLong(0));
-                System.out.println("Double: " + rs.getDouble(1));
-                System.out.println("Double: " + rs.getDouble(2));
-                System.out.println();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void populateDB(MonetConnection c) {
-        try {
-            MonetStatement s = (MonetStatement) c.createStatement();
-
-            System.out.println("Create table");
-            s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, r real, f float, st string, da date, t time, ts timestamp);");
-
-            System.out.println("Insert into\n");
-            s.execute("INSERT INTO a VALUES " +
-                    "(true, 2, 3, 5, 1.0, 1.66,'hey1',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), " +
-                    "(true, 4, 6, 10, 2.5, 3.643,'hey2',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M')), " +
-                    "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2020', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01', '%d-%m-%Y %H:%M')), " +
-                    "(false, 16, 24, 40, 255.255, 2434.432,'hey4',current_date,current_time,current_timestamp)," +
-                    "(false, null, 1, 1, 1, null,'hey5',current_date,current_time,current_timestamp);");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
@@ -234,16 +269,20 @@ public class TestMonetDBeJava {
             if (c != null) {
                 System.out.println("Opened connection @ " + url.substring(15));
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
-                populateDB(c);
+                populateDBTable(c);
+
                 //insertDBPreparedStatementDate(c);
-                insertDBPreparedStatementNulls(c);
+                //insertDBPreparedStatementNulls(c);
                 queryDBStatement(c);
                 //queryDBPreparedStatement(c);
                 //queryDBLongQuery(c);
                 //queryDBPreparedStatementDate(c);
-                dropDB(c);
-                blobInsertQuery(c);
-                blobPreparedQuery(c);
+                dropDBTable(c);
+
+                //blobInsertQuery(c);
+                //blobPreparedQuery(c);
+
+                int128Queries(c);
                 c.close();
                 System.out.println("Closed connection");
             } else {

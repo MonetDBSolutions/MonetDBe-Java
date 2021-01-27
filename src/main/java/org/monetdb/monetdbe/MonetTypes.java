@@ -71,12 +71,10 @@ public final class MonetTypes {
         typeMapSQLToMonet.put(Types.TIME,12);
         typeMapSQLToMonet.put(Types.TIMESTAMP,13);
 
-        //TODO Verify
         typeMapSQLToMonet.put(Types.NUMERIC,5);
         typeMapSQLToMonet.put(Types.DECIMAL,5);
-        //typeMapSQLToMonet.put(Types.VARBINARY,);
-        //typeMapSQLToMonet.put(Types.LONGVARBINARY,);
-        //typeMapSQLToMonet.put(Types.CLOB,);
+        typeMapSQLToMonet.put(Types.VARBINARY,10);
+        typeMapSQLToMonet.put(Types.LONGVARBINARY,10);
     }
 
     final static String getMonetTypeStringFromSQL(final int sqltype) {

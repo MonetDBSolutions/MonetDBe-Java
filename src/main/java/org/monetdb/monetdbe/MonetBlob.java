@@ -31,7 +31,7 @@ public final class MonetBlob implements Blob {
 	private byte[] buf;
 
 	/* constructors */
-	protected MonetBlob(final byte[] data) {
+	public MonetBlob(final byte[] data) {
 		buf = data;
 	}
 

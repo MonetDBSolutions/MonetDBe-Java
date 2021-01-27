@@ -1,6 +1,5 @@
 package org.monetdb.monetdbe;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -194,6 +193,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     //Set objects
     //TODO setObject conversions from other data types (currently only casting to type)
+    //TODO Can other number types have a scale and be translated to BigDecimal?
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
         checkNotClosed();
@@ -213,8 +213,14 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             case 4:
                 setLong(parameterIndex,(long) x);
             case 5:
-                //TODO Add BigDecimal as well
-                setHugeInt(parameterIndex,(BigInteger) x);
+                //MonetDBe type 5 (int128) can be a BigDecimal or a BigInteger, depending on if there is a scale
+                BigInteger bi = (BigInteger) x;
+                if (scaleOrLength > 0) {
+                    setBigDecimal(parameterIndex,new BigDecimal(bi,scaleOrLength));
+                }
+                else {
+                    setHugeInteger(parameterIndex,bi);
+                }
             case 6:
                 setInt(parameterIndex,(int) x);
             case 7:
@@ -317,7 +323,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-    //TODO BIG DECIMAL
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
         checkNotClosed();
@@ -325,8 +330,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-    //TODO BIG INT
-    public void setHugeInt(int parameterIndex, BigInteger x) throws SQLException {
+    public void setHugeInteger(int parameterIndex, BigInteger x) throws SQLException {
         checkNotClosed();
         MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex);
         parameters[parameterIndex-1] = x;
