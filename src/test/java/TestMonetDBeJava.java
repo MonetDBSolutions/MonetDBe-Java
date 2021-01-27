@@ -182,8 +182,8 @@ public class TestMonetDBeJava {
     private static void blobPreparedQuery (MonetConnection c) {
         try {
             MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO b VALUES (?);");
-            ps.setBlob(1,new MonetBlob("12aa803F"));
-            //MonetResultSet rs = (MonetResultSet) ps.executeQuery();
+            //ps.setBlob(1,new MonetBlob("12aa803F"));
+            ps.setNull(1,Types.BLOB);
             int update_c = ps.executeUpdate();
             System.out.println("Update Count Prepared: " + update_c +"\n");
 
@@ -193,11 +193,18 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Blob length: " + rs.getBlob(0).length());
-                System.out.println("Blob first byte: " + rs.getBlob(0).getBytes(1,2)[0]);
+                long blob_len = rs.getBlob(0).length();
+                System.out.println("Blob length: " + blob_len);
+                if (blob_len > 0) {
+                    System.out.println("Blob first byte: " + rs.getBlob(0).getBytes(1,2)[0]);
+                }
+                else {
+                    System.out.println("Null Blob");
+                }
                 System.out.println();
             }
 
+            //Error here
             MonetPreparedStatement psSelect = (MonetPreparedStatement) c.prepareStatement("SELECT * from b WHERE b <> ?;");
             psSelect.setBlob(1,new MonetBlob("12aa803F"));
             psSelect.setBlob(1,new MonetBlob("12aa803F".getBytes()));
@@ -261,6 +268,79 @@ public class TestMonetDBeJava {
         }
     }
 
+    private static void batchQueriesStatement(MonetConnection c) {
+        try {
+            MonetStatement s = (MonetStatement) c.createStatement();
+            System.out.println("\nCreate batch table");
+            s.execute("CREATE TABLE batch (b boolean)");
+
+            System.out.println("Insert with executeBatch()");
+            s.addBatch("INSERT INTO batch VALUES (false), (false);");
+            s.addBatch("INSERT INTO batch VALUES (true), (true);");
+            s.addBatch("INSERT INTO batch VALUES (false), (true), (false);");
+            int[] updateCounts = s.executeBatch();
+            for (int i = 0; i < updateCounts.length ; i++) {
+                System.out.println("Batch query " + i + " with update count of " + updateCounts[i]);
+                System.out.println();
+            }
+
+            System.out.println("Insert with executeLargeBatch()");
+            s.addBatch("INSERT INTO batch VALUES (false);");
+            s.addBatch("INSERT INTO batch VALUES (false), (true), (false), (true), (true);");
+            long[] updateCountsLarge = s.executeLargeBatch();
+            for (int i = 0; i < updateCountsLarge.length ; i++) {
+                System.out.println("Large batch query " + i + " with update count of " + updateCountsLarge[i]);
+                System.out.println();
+            }
+
+            s.executeQuery("SELECT b FROM batch;");
+            MonetResultSet rs = (MonetResultSet) s.getResultSet();
+            System.out.println("Inserted with batch: ");
+            rs.beforeFirst();
+            while (rs.next()) {
+                System.out.println("Row " + rs.getRow());
+                System.out.println("Bool: " + rs.getBoolean(0));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void batchQueriesPreparedStatement(MonetConnection c) {
+        try {
+            MonetStatement s = (MonetStatement) c.createStatement();
+            System.out.println("\nCreate batch table");
+            s.execute("CREATE TABLE batch (b boolean)");
+
+            System.out.println("Insert with PreparedStatement executeBatch()");
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO batch VALUES (?), (?)");
+            ps.setBoolean(1,false);
+            ps.setBoolean(2,false);
+            ps.addBatch();
+            ps.setBoolean(1,true);
+            ps.setBoolean(2,true);
+            ps.addBatch();
+
+            System.out.println("Execute Batch");
+            int[] updateCounts =  ps.executeBatch();
+            for (int i = 0; i < updateCounts.length ; i++) {
+                System.out.println("Prepared Batch query " + i + " with update count of " + updateCounts[i]);
+                System.out.println();
+            }
+
+            s.executeQuery("SELECT b FROM batch;");
+            MonetResultSet rs = (MonetResultSet) s.getResultSet();
+            System.out.println("Inserted with prepared batch: ");
+            rs.beforeFirst();
+            while (rs.next()) {
+                System.out.println("Row " + rs.getRow());
+                System.out.println("Bool: " + rs.getBoolean(0));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
@@ -278,16 +358,24 @@ public class TestMonetDBeJava {
 
                 //insertDBPreparedStatementDate(c);
                 //insertDBPreparedStatementNulls(c);
+
                 queryDBStatement(c);
+
                 //queryDBPreparedStatement(c);
                 //queryDBLongQuery(c);
                 //queryDBPreparedStatementDate(c);
+
                 dropDBTable(c);
 
+                //Complex types tests
                 //blobInsertQuery(c);
                 //blobPreparedQuery(c);
+                //int128Queries(c);
 
-                int128Queries(c);
+                //Batch tests
+                //batchQueriesStatement(c);
+                //batchQueriesPreparedStatement(c);
+
                 c.close();
                 System.out.println("Closed connection");
             } else {

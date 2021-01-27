@@ -91,7 +91,7 @@ public class MonetColumn {
         return ((ByteBuffer) constData).get(row);
     }
 
-    //TODO Test
+    //TODO Isn't working correctly
     public BigInteger getBigInteger(int row) {
         int size = MonetTypes.getMonetSize(monetdbeType);
         byte[] byteData = new byte[size];
@@ -100,7 +100,8 @@ public class MonetColumn {
         return new BigInteger(byteData);
     }
 
-    //TODO Test
+    //TODO Isn't working correctly (because of BigInteger function?)
+    //TODO Should this function test the size of the unscaled value and use the appropriate number type (i.e. not using BigInteger if it fits into an int)
     public BigDecimal getBigDecimal(int row) {
         return new BigDecimal(getBigInteger(row),(int) scale);
     }

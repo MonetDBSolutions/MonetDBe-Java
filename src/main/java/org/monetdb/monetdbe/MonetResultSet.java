@@ -289,7 +289,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO Test
+    //TODO This doesn't seem to be working
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
         checkNotClosed();

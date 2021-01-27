@@ -157,7 +157,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     }
 
     //Batch executes
-    //TODO Verify this
     @Override
     public int[] executeBatch() throws SQLException {
         checkNotClosed();
@@ -203,7 +202,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
         }
     }
 
-    //TODO Verify this
     @Override
     public long[] executeLargeBatch() throws SQLException {
         checkNotClosed();
@@ -311,7 +309,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return resultSet;
     }
 
-    //TODO Verify this
     @Override
     public void setEscapeProcessing(boolean enable) throws SQLException {
         checkNotClosed();
@@ -343,7 +340,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
         warnings = null;
     }
 
-    //TODO Verify this
     @Override
     public void setCursorName(String name) throws SQLException {
         checkNotClosed();
@@ -440,7 +436,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return largeMaxRows;
     }
 
-    //TODO: Verify this. The old implementation returned a value which overflows the java int
+    //The old implementation returned a value which overflows the java int
     @Override
     public int getMaxFieldSize() throws SQLException {
         checkNotClosed();

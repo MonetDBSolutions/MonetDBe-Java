@@ -110,7 +110,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     //Overrides Statement's implementation, which batches different queries instead of different parameters for same query
-    //TODO Test
     @Override
     public int[] executeBatch() throws SQLException {
         if (parametersBatch == null || parametersBatch.isEmpty()) {
@@ -171,7 +170,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //TODO METADATA
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        //How do I get the column names and types to construct the ResultSetMetaData object?
+        //TODO How do I get the result column names and types to construct the ResultSetMetaData object?
         //
         //Because a PreparedStatement object is precompiled, it is possible to know about the ResultSet object that it will return without having to execute it.
         //Consequently, it is possible to invoke the method getMetaData on a PreparedStatement object rather than waiting to execute i
@@ -204,14 +203,19 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         switch (monetType) {
             case 0:
                 setBoolean(parameterIndex,(boolean) x);
+                break;
             case 1:
                 setByte(parameterIndex,(byte) x);
+                break;
             case 2:
                 setShort(parameterIndex,(short) x);
+                break;
             case 3:
                 setInt(parameterIndex,(int) x);
+                break;
             case 4:
                 setLong(parameterIndex,(long) x);
+                break;
             case 5:
                 //MonetDBe type 5 (int128) can be a BigDecimal or a BigInteger, depending on if there is a scale
                 BigInteger bi = (BigInteger) x;
@@ -221,25 +225,35 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 else {
                     setHugeInteger(parameterIndex,bi);
                 }
+                break;
             case 6:
                 setInt(parameterIndex,(int) x);
+                break;
             case 7:
                 setFloat(parameterIndex,(float) x);
+                break;
             case 8:
                 setDouble(parameterIndex,(double) x);
+                break;
             case 9:
                 setString(parameterIndex,(String) x);
+                break;
             case 10:
                 setBlob(parameterIndex,(MonetBlob) x);
+                break;
             case 11:
                 setDate(parameterIndex,(Date) x);
+                break;
             case 12:
                 setTime(parameterIndex,(Time) x);
+                break;
             case 13:
                 setTimestamp(parameterIndex,(Timestamp) x);
+                break;
             default:
-                //TODO Should this be the default?
+                //Should this be the default?
                 setNull(parameterIndex,targetSqlType);
+                break;
         }
     }
 
@@ -262,7 +276,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
         int sqltype = MonetTypes.getDefaultSQLTypeForClass(x.getClass());
-        setObject(parameterIndex,x,sqltype);
+        setObject(parameterIndex,x,sqltype,0);
     }
 
     @Override
@@ -280,7 +294,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-    //TODO Test
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
         checkNotClosed();
