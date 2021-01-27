@@ -90,26 +90,54 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
+    //TODO Verify this
     @Override
     public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
+        //This method can probably be improved
+
         checkNotClosed();
         if (columnIndex > columnCount) {
             throw new SQLException("columnIndex is not valid");
         }
+        else if (map == null) {
+            //If there is no mapping, return default Java class
+            return getObject(columnIndex);
+        }
+
         int monetdbeType = columns[columnIndex].getMonetdbeType();
-        //TODO Get sqlType name from monetdbetype
-        /*String sqlType = MonetTypes.;
-        Class<?> convertClass = map.get(sqlType);
-        getObject(columnIndex,convertClass);*/
-        return null;
+        String sqlDefaultType = MonetTypes.getDefaultSQLTypeNameFromMonet(monetdbeType);
+        Class<?> convertClass;
+
+        if (sqlDefaultType.equals("NULL")) {
+            return null;
+        }
+
+        //Map contains mapping to Java class from default SQL type for the column's monetdbeType
+        if (map.containsKey(sqlDefaultType)) {
+            convertClass = map.get(sqlDefaultType);
+            return getObject(columnIndex,convertClass);
+        }
+        //Alternative SQL types for the column's monetdbeType
+        else {
+            for (String keyType : map.keySet()) {
+                if (MonetTypes.getMonetTypeIntFromSQLName(keyType) == monetdbeType) {
+                    convertClass = map.get(keyType);
+                    return getObject(columnIndex,convertClass);
+                }
+            }
+        }
+        //If there is no possible mapping between the monetdbetype and a SQL type in the argument map, return default Java class
+        return getObject(columnIndex);
     }
 
-    //TODO This object conversion probably doesn't work well. We can't simply cast from the default Java object associated with the monetdbetype. Improve.
+    //TODO Improve?
+    //This object conversion probably doesn't work well. We can't simply cast from the default Java object associated with the monetdbetype.
+    //Wasn't implemented in the last version
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
         checkNotClosed();
         if (type == null) {
-            throw new SQLException("type is null");
+            throw new SQLException("Type is null");
         }
         else if (columnIndex > columnCount) {
             throw new SQLException("columnIndex is not valid");

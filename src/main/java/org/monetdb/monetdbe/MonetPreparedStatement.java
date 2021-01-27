@@ -185,7 +185,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void clearParameters() throws SQLException {
         checkNotClosed();
-        //TODO Verify if I should use the cleanup function or if I should set every parameter to NULL
+        //Verify if I should use the cleanup function or if I should set every parameter to NULL
         //This also cleans up the Prepared Statement
         MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
     }
@@ -259,8 +259,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-        //TODO Map SQLType name to int sqlType
-        //setObject(parameterIndex,x,targetSqlType.getName(),scaleOrLength);
+        setObject(parameterIndex,x,MonetTypes.getSQLIntFromSQLName(targetSqlType.getName()),scaleOrLength);
     }
 
     @Override
