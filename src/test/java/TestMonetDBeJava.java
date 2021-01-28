@@ -380,8 +380,8 @@ public class TestMonetDBeJava {
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
-            //String url = "jdbc:monetdb://:memory:";
-            String url = "jdbc:monetdb://localhost:5000/test/";
+            String url = "jdbc:monetdb://:memory:";
+            //String url = "jdbc:monetdb://localhost:5000/test/";
             info.setProperty("querytimeout","1");
 
             Connection conn = DriverManager.getConnection(url, info);
@@ -390,17 +390,18 @@ public class TestMonetDBeJava {
             if (c != null) {
                 System.out.println("Opened connection @ " + url.substring(15));
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
+
+                //Create and populate
                 populateDBTable(c);
 
+                //Prepared statements
+                //queryDBPreparedStatement(c);
+                //queryDBPreparedStatementDate(c);
                 //insertDBPreparedStatementDate(c);
                 //insertDBPreparedStatementNulls(c);
 
+                //Query and drop
                 queryDBStatement(c);
-
-                //queryDBPreparedStatement(c);
-                //queryDBLongQuery(c);
-                //queryDBPreparedStatementDate(c);
-
                 dropDBTable(c);
 
                 //Complex types tests

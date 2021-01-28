@@ -55,11 +55,6 @@ final public class MonetDriver implements java.sql.Driver {
             }
 
         }
-
-        //TODO Are these used?
-        info.setProperty("user","");
-        info.setProperty("password","");
-        info.setProperty("logging","");
         return new MonetConnection(info);
     }
 
@@ -74,7 +69,6 @@ final public class MonetDriver implements java.sql.Driver {
         if (!acceptsURL(url))
             return null;
 
-        final String[] boolean_choices = new String[] { "true", "false" };
         final DriverPropertyInfo[] dpi = new DriverPropertyInfo[7];
 
         DriverPropertyInfo prop = new DriverPropertyInfo("user", info != null ? info.getProperty("user") : null);
@@ -87,7 +81,6 @@ final public class MonetDriver implements java.sql.Driver {
         prop.description = "The password to use when authenticating on the database server";
         dpi[1] = prop;
 
-        //TODO Change this
         prop = new DriverPropertyInfo("session_timeout", "0");
         prop.required = false;
         prop.description = "Graceful terminate the session after a few seconds";
@@ -95,7 +88,7 @@ final public class MonetDriver implements java.sql.Driver {
 
         prop = new DriverPropertyInfo("query_timeout", "0");
         prop.required = false;
-        prop.description = "Graceful terminate query after a few seconds"; // this corresponds to the Connection.setNetworkTimeout() method introduced in JDBC 4.1
+        prop.description = "Graceful terminate query after a few seconds";
         dpi[3] = prop;
 
         prop = new DriverPropertyInfo("memory_limit", "0");
