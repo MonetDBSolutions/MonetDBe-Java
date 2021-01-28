@@ -341,6 +341,42 @@ public class TestMonetDBeJava {
         }
     }
 
+    private static void transactionTest (MonetConnection c) {
+        try {
+            MonetStatement s = (MonetStatement) c.createStatement();
+            s.executeUpdate("CREATE TABLE t (i int);");
+
+            System.out.println("\nGet autocommit initial value: " + c.getAutoCommit());
+            c.setAutoCommit(false);
+            System.out.println("Set autocommit to false, current value: " + c.getAutoCommit() + "\n");
+
+
+            s.executeUpdate("INSERT INTO t VALUES (12345);");
+            c.rollback();
+
+            MonetResultSet rs = (MonetResultSet) s.executeQuery("SELECT * FROM t;");
+            rs.first();
+            try {
+                System.out.println("ResultSet from non-commited table (should not return anything?): " + rs.getObject(0));
+            } catch (SQLException e) {
+                System.out.println("ResultSet from non-commited table did not return anything");
+            }
+
+            //c.rollback();
+            c.commit();
+
+            rs = (MonetResultSet) s.executeQuery("SELECT * FROM t;");
+            rs.first();
+            try {
+                System.out.println("ResultSet from commited table (should return tuple): " + rs.getObject(0) + "\n");
+            } catch (SQLException e) {
+                System.out.println("ResultSet from commited table did not return anything\n");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
@@ -375,6 +411,9 @@ public class TestMonetDBeJava {
                 //Batch tests
                 //batchQueriesStatement(c);
                 //batchQueriesPreparedStatement(c);
+
+                //Transaction and autocommit
+                transactionTest(c);
 
                 c.close();
                 System.out.println("Closed connection");

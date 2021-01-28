@@ -59,14 +59,15 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     private void executeCommand (String sql) throws SQLException {
         checkNotClosed();
-        Statement st = null;
+        MonetStatement st = null;
         try {
-            st = createStatement();
+            st = (MonetStatement) createStatement();
             if (st != null) {
                 st.execute(sql);
             }
         } finally {
             st.close();
+            statements.remove(st);
         }
     }
 
@@ -89,6 +90,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         for(MonetStatement s : statements) {
             s.close();
         }
+        statements = null;
         MonetNative.monetdbe_close(dbNative);
         dbNative = null;
     }
