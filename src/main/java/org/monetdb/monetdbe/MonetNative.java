@@ -9,6 +9,7 @@ public class MonetNative {
 
     protected static native ByteBuffer monetdbe_open(String dbdir);
     protected static native ByteBuffer monetdbe_open(String dbdir, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads);
+    protected static native ByteBuffer monetdbe_open(String dbdir, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads, String host, int port, String user, String password);
     protected static native int monetdbe_close(ByteBuffer db);
 
     protected static native MonetResultSet monetdbe_query(ByteBuffer db, String sql, MonetStatement statement, boolean largeUpdate);

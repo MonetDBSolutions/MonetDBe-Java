@@ -380,8 +380,21 @@ public class TestMonetDBeJava {
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
-            String url = "jdbc:monetdb://:memory:";
-            //String url = "jdbc:monetdb://localhost:5000/test/";
+
+            //Memory DB
+            String urlMemory = "jdbc:monetdb://:memory:";
+            //Local DB
+            String urlLocal = "jdbc:monetdb://localhost:5000/Users/bernardo/Monet/test/";
+            //Proxy DB
+            String urlProxy = "jdbc:monetdb://localhost:5000/test?user=monetdb&password=monetdb";
+            //Mapi DB
+            //TODO Am I supposed to shift the monetdb: and the mapi: part around to fit the JDBC acceptsURL()?
+            String urlMapi = "jdbc:mapi:monetdb://localhost:50000?database=devdb";
+
+            String url = urlProxy;
+
+            //Timeout properties
+            //info.setProperty("sessiontimeout","10");
             info.setProperty("querytimeout","1");
 
             Connection conn = DriverManager.getConnection(url, info);

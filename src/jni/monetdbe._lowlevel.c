@@ -10,32 +10,54 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
 }
 
 JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII (JNIEnv * env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads) {
-  monetdbe_database* db = malloc(sizeof(monetdbe_database));
-  monetdbe_options* opts = malloc(sizeof(monetdbe_options));
-  opts->memorylimit = (int) j_memorylimit;
-  opts->querytimeout = (int) j_querytimeout;
-  opts->sessiontimeout = (int) j_sessiontimeout;
-  opts->nr_threads = (int) j_nr_threads;
-  opts->remote = NULL;
-  opts->mapi_server = NULL;
+  return Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2(env,self,j_url,j_sessiontimeout,j_querytimeout,j_memorylimit,j_nr_threads,NULL,0,NULL,NULL);
+}
 
-  char* url = NULL;
-  int result;
+JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2 (JNIEnv * env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_host, jint j_port, jstring j_user, jstring j_password) {
+      monetdbe_database* db = malloc(sizeof(monetdbe_database));
+      monetdbe_options* opts = malloc(sizeof(monetdbe_options));
+      opts->memorylimit = (int) j_memorylimit;
+      opts->querytimeout = (int) j_querytimeout;
+      opts->sessiontimeout = (int) j_sessiontimeout;
+      opts->nr_threads = (int) j_nr_threads;
 
-  if (j_url != NULL) {
-    url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
-  }
-  result = monetdbe_open(db,url,opts);
+      char* url = NULL;
+      int result;
 
-  if (result != 0) {
-     char* error = monetdbe_error(*db);
-     printf("Error in monetdbe_open: %s\n",error);
-     fflush(stdout);
-     return NULL;
-  }
-  else {
-     return (*env)->NewDirectByteBuffer(env,(*db),sizeof(monetdbe_database));
-  }
+      //TODO Free these strings
+      if (j_url != NULL) {
+        url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
+
+        //Remote proxy
+        if (j_host != NULL && j_user != NULL && j_password != NULL) {
+            const char* user = (*env)->GetStringUTFChars(env,j_user,NULL);
+            const char* password = (*env)->GetStringUTFChars(env,j_password,NULL);
+            const char* host = (*env)->GetStringUTFChars(env,j_host,NULL);
+            monetdbe_remote* remote = malloc(sizeof(monetdbe_remote));
+            remote->host = host;
+            remote->port = (int) j_port;
+            remote->username = user;
+            remote->password = password;
+            opts->remote = remote;
+            printf("Remote options:\nHost: %s\nPort: %d\nUsername: %s\nPassword: %s\n",host,j_port,user,password);
+        }
+      }
+      if (url != NULL) {
+         printf("Connecting to URL '%s'\n",url);
+         fflush(stdout);
+      }
+
+      result = monetdbe_open(db,url,opts);
+
+      if (result != 0) {
+         char* error = monetdbe_error(*db);
+         printf("Error in monetdbe_open: %s with URL %s\n",error,url);
+         fflush(stdout);
+         return NULL;
+      }
+      else {
+         return (*env)->NewDirectByteBuffer(env,(*db),sizeof(monetdbe_database));
+      }
 }
 
 JNIEXPORT jint JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close (JNIEnv * env, jclass self, jobject j_db) {

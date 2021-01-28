@@ -6,8 +6,10 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 final public class MonetDriver implements java.sql.Driver {
-    //jdbc:monetdb://<host>[:<port>]/<database>
     //jdbc:monetdb//:memory:
+    //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
+    //jdbc:monetdb://<host>[:<port>]/<database>?user=<user>&password=<password>
+    //jdbc:mapi:monetdb://<host>[:<port>]/?database=<database>
     static final String MONETURL = "jdbc:monetdb://";
 
     static {
@@ -33,9 +35,11 @@ final public class MonetDriver implements java.sql.Driver {
             return null;
         }
 
+        //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
+        //jdbc:monetdb://<host>[:<port>]/<database>?user=<user>&password=<password>
+        //jdbc:monetdb:mapi://<host>[:<port>]/?database=<database>
         if(!uri.toString().equals("monetdb://:memory:")) {
-            //TODO Check if everything but the database path is necessary (should be for remote proxy option?)
-            info.put("uri", uri.toString());
+            info.put("uri",uri.toString());
 
             final String uri_host = uri.getHost();
             if (uri_host == null)
@@ -46,15 +50,28 @@ final public class MonetDriver implements java.sql.Driver {
             if (uri_port > 0)
                 info.put("port", Integer.toString(uri_port));
 
-            // check the database
+            //Check database path
             String uri_path = uri.getPath();
             if (uri_path != null && !uri_path.isEmpty()) {
                 uri_path = uri_path.trim();
                 if (!uri_path.isEmpty())
-                    info.put("database", uri_path);
+                    info.put("path", uri_path);
             }
 
+            //Check URI query
+            final String uri_query = uri.getQuery();
+            if (uri_query != null) {
+                int pos;
+                // handle additional connection properties separated by the & character
+                final String args[] = uri_query.split("&");
+                for (int i = 0; i < args.length; i++) {
+                    pos = args[i].indexOf('=');
+                    if (pos > 0)
+                        info.put(args[i].substring(0, pos), args[i].substring(pos + 1));
+                }
+            }
         }
+        //For in-memory databases, leave the path property NULL
         return new MonetConnection(info);
     }
 
