@@ -36,6 +36,7 @@ final public class MonetDriver implements java.sql.Driver {
             return null;
         }
 
+        //TODO Check what needs to be parsed from the URI
         if(!uri.toString().equals("monetdb://:memory:")) {
             info.put("uri",uri.toString());
 

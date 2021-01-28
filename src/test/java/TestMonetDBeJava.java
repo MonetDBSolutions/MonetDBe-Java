@@ -394,7 +394,7 @@ public class TestMonetDBeJava {
             String url = urlMemory;
 
             //Timeout properties
-            //info.setProperty("sessiontimeout","10");
+            info.setProperty("sessiontimeout","1");
             info.setProperty("querytimeout","1");
 
             Connection conn = DriverManager.getConnection(url, info);

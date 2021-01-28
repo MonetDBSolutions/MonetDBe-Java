@@ -13,14 +13,15 @@ public class MonetDataSource extends MonetWrapper implements DataSource {
     private String url;
     private final MonetDriver driver;
 
-    //TODO not used
+    //TODO use loginTimeout?
     private int loginTimeout = 0;
+
     private String user;
     private String password;
 
     public MonetDataSource() {
-        user = "";
-        password = "";
+        user = "monetdb";
+        password = "monetdb";
         url = "jdbc:monetdb://:memory:";
         driver = new MonetDriver();
     }
@@ -32,9 +33,6 @@ public class MonetDataSource extends MonetWrapper implements DataSource {
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        if (loginTimeout > 0) {
-            /// could enable Socket.setSoTimeout(int timeout) here...
-        }
         final Properties props = new Properties();
         props.put("user", username);
         props.put("password", password);
@@ -66,6 +64,6 @@ public class MonetDataSource extends MonetWrapper implements DataSource {
 
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        throw  new SQLFeatureNotSupportedException("getParentLogger");
+        throw new SQLFeatureNotSupportedException("getParentLogger");
     }
 }
