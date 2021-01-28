@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 final public class MonetDriver implements java.sql.Driver {
     //jdbc:monetdb//:memory:
     //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
+    //TODO These may be wrong, check
     //jdbc:monetdb://<host>[:<port>]/<database>?user=<user>&password=<password>
     //jdbc:mapi:monetdb://<host>[:<port>]/?database=<database>
     static final String MONETURL = "jdbc:monetdb://";
@@ -35,9 +36,6 @@ final public class MonetDriver implements java.sql.Driver {
             return null;
         }
 
-        //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
-        //jdbc:monetdb://<host>[:<port>]/<database>?user=<user>&password=<password>
-        //jdbc:monetdb:mapi://<host>[:<port>]/?database=<database>
         if(!uri.toString().equals("monetdb://:memory:")) {
             info.put("uri",uri.toString());
 
@@ -80,7 +78,6 @@ final public class MonetDriver implements java.sql.Driver {
         return url != null && url.startsWith(MONETURL);
     }
 
-    //TODO Change to reflect the options we have available in monetdbe
     @Override
     public DriverPropertyInfo[] getPropertyInfo(final String url, final Properties info) {
         if (!acceptsURL(url))

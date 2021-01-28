@@ -386,12 +386,12 @@ public class TestMonetDBeJava {
             //Local DB
             String urlLocal = "jdbc:monetdb://localhost:5000/Users/bernardo/Monet/test/";
             //Proxy DB
-            String urlProxy = "jdbc:monetdb://localhost:5000/test?user=monetdb&password=monetdb";
-            //Mapi DB
             //TODO Am I supposed to shift the monetdb: and the mapi: part around to fit the JDBC acceptsURL()?
-            String urlMapi = "jdbc:mapi:monetdb://localhost:50000?database=devdb";
+            //String urlProxy = "jdbc:monetdb://localhost:5000/test?user=monetdb&password=monetdb";
+            //Mapi DB
+            //String urlMapi = "jdbc:mapi:monetdb://localhost:50000?database=devdb";
 
-            String url = urlProxy;
+            String url = urlMemory;
 
             //Timeout properties
             //info.setProperty("sessiontimeout","10");

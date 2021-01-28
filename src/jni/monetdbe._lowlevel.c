@@ -38,6 +38,7 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
             remote->port = (int) j_port;
             remote->username = user;
             remote->password = password;
+            //TODO Do I need to set the lang?
             opts->remote = remote;
             printf("Remote options:\nHost: %s\nPort: %d\nUsername: %s\nPassword: %s\n",host,j_port,user,password);
         }
