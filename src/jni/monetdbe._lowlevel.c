@@ -20,6 +20,8 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
       opts->querytimeout = (int) j_querytimeout;
       opts->sessiontimeout = (int) j_sessiontimeout;
       opts->nr_threads = (int) j_nr_threads;
+      opts->remote = NULL;
+      opts->mapi_server = NULL;
 
       char* url = NULL;
       int result;
@@ -39,10 +41,12 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
             remote->username = user;
             remote->password = password;
             //TODO Do I need to set the lang?
+            remote->lang = NULL;
             opts->remote = remote;
             printf("Remote options:\nHost: %s\nPort: %d\nUsername: %s\nPassword: %s\n",host,j_port,user,password);
         }
       }
+
       if (url != NULL) {
          printf("Connecting to URL '%s'\n",url);
          fflush(stdout);
