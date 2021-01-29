@@ -2,6 +2,7 @@ package org.monetdb.monetdbe;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.nio.*;
 
 public class MonetColumn {
@@ -100,10 +101,30 @@ public class MonetColumn {
         return new BigInteger(byteData);
     }
 
-    //TODO Isn't working correctly (because of BigInteger function?)
-    //TODO Should this function test the size of the unscaled value and use the appropriate number type (i.e. not using BigInteger if it fits into an int)
     public BigDecimal getBigDecimal(int row) {
-        return new BigDecimal(getBigInteger(row),(int) scale);
+        //Translates monetdbe's internal scale format into java's MathContext scale format
+        int scale = (BigDecimal.valueOf(this.scale).scale()) - 1;
+
+        switch (monetdbeType) {
+            case 1:
+                Byte unscaledByte = getByte(row);
+                return new BigDecimal(unscaledByte.intValue()).movePointRight(scale);
+            case 2:
+                Short unscaledShort = getShort(row);
+                return new BigDecimal(unscaledShort.intValue()).movePointRight(scale);
+            case 3:
+                Integer unscaledInt = getInt(row);
+                return new BigDecimal(unscaledInt).movePointRight(scale);
+            case 4:
+                Long unscaledLong = getLong(row);
+                System.out.println("long " + unscaledLong + " with scale " + scale);
+                return new BigDecimal(unscaledLong).movePointRight(scale);
+            case 5:
+                BigInteger unscaledBigInt = getBigInteger(row);
+                return new BigDecimal(unscaledBigInt).movePointRight(scale);
+            default:
+                return new BigDecimal(0).movePointRight(scale);
+        }
     }
 
     public String getString(int row) {

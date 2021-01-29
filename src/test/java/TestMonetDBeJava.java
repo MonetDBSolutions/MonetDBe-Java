@@ -224,7 +224,7 @@ public class TestMonetDBeJava {
             System.out.println("\nCreate int128 table and insert rows");
             s.executeUpdate("CREATE TABLE big (bigi HUGEINT, bigd DECIMAL(16,8));");
             s.executeUpdate("INSERT INTO big VALUES " +
-                    "(9323372036854775807,439287.498237)," +
+                    "(9323372036854775807,439.498)," +
                     "(9323372,38.2)," +
                     "(NULL,NULL);");
             System.out.println("Update Count Statement int128: " + s.getUpdateCount() +"\n");
@@ -240,8 +240,8 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Huge Integer: " + rs.getHugeInt(0));
-                System.out.println("Huge Decimal: " + rs.getBigDecimal(1));
+                System.out.println("BigInteger: " + rs.getHugeInt(0));
+                System.out.println("Decimal: " + rs.getBigDecimal(1));
                 System.out.println();
             }
         } catch (SQLException e) {

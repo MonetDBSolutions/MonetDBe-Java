@@ -130,7 +130,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         return getObject(columnIndex);
     }
 
-    //TODO Improve?
     //This object conversion probably doesn't work well. We can't simply cast from the default Java object associated with the monetdbetype.
     //Wasn't implemented in the last version
     @Override
