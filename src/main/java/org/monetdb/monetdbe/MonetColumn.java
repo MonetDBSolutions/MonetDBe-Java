@@ -117,7 +117,6 @@ public class MonetColumn {
                 return new BigDecimal(unscaledInt).movePointRight(scale);
             case 4:
                 Long unscaledLong = getLong(row);
-                System.out.println("long " + unscaledLong + " with scale " + scale);
                 return new BigDecimal(unscaledLong).movePointRight(scale);
             case 5:
                 BigInteger unscaledBigInt = getBigInteger(row);

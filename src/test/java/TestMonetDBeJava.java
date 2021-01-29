@@ -230,9 +230,9 @@ public class TestMonetDBeJava {
             System.out.println("Update Count Statement int128: " + s.getUpdateCount() +"\n");
 
             System.out.println("Insert into int128 table with prepared query");
-            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO big VALUES (?,?);");
-            ps.setHugeInteger(1,new BigInteger("9400000000000000000"));
-            ps.setBigDecimal(2,new BigDecimal(new BigInteger("8394857265827"),5));
+            MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO big VALUES (940000000000,?);");
+            //ps.setHugeInteger(1,new BigInteger("9400000000000000000"));
+            ps.setBigDecimal(1,new BigDecimal(1328922).movePointLeft(5));
             System.out.println("Update Count Prepared int128: " + ps.getUpdateCount() +"\n");
 
             s.executeQuery("SELECT bigi,bigd FROM big;");

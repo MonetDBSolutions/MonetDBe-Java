@@ -472,12 +472,37 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters[parameterIndex-1] = x;
     }
 
-    //TODO Implement the C function
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
         checkNotClosed();
-        //TODO Get x.precision() to get the number data type (it can be smaller than int128)
-        MonetNative.monetdbe_bind_decimal(statementNative,x,5,x.scale(),parameterIndex);
+        Number numberBind;
+        //Check unscaled value data type
+        BigInteger unscaled = x.unscaledValue();
+        int type;
+        int bitLenght = unscaled.bitLength();
+
+        if (bitLenght <= 8) {
+            numberBind = unscaled.byteValueExact();
+            type = 1;
+        }
+        else if (bitLenght <= 16) {
+            numberBind = unscaled.shortValueExact();
+            type = 2;
+        }
+        else if (bitLenght <= 32) {
+            numberBind = unscaled.intValueExact();
+            type = 3;
+        }
+        else if (bitLenght <= 64) {
+            numberBind = unscaled.longValueExact();
+            type = 4;
+        }
+        else {
+            //TODO What to do if it only fits into int128?
+            numberBind = unscaled;
+            type = 5;
+        }
+        MonetNative.monetdbe_bind_decimal(statementNative,numberBind,type,x.scale(),parameterIndex);
         parameters[parameterIndex-1] = x;
     }
 
