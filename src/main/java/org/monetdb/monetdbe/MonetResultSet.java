@@ -334,12 +334,9 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO This throws the IndexOutOfBounds exception when it shouldn't (i.e. when another getX method on MonetColumn works)
-    //TODO Try to find out why and fix
     public BigInteger getHugeInt (int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            //System.out.println(columns.length + " " + columnIndex + " " + curRow + " " + columns[columnIndex].getMonetdbeType() + " " + columns[columnIndex].getInt(curRow-1));
             BigInteger val = columns[columnIndex].getBigInteger(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;

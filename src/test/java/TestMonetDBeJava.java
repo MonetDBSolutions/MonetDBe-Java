@@ -218,7 +218,6 @@ public class TestMonetDBeJava {
 
     //The Prepared Statement bind are not working (update count -1 but does not send error message)
     //The select is returning bad values for the literals inserted in the statement
-    //Also, there is a weird bug where the second row throws a IndexOutOfBounds exception (see MonetResultSet getHugeInt)
     private static void int128Queries (MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
@@ -226,7 +225,8 @@ public class TestMonetDBeJava {
             s.executeUpdate("CREATE TABLE big (bigi HUGEINT, bigd DECIMAL(16,8));");
             s.executeUpdate("INSERT INTO big VALUES " +
                     "(9323372036854775807,439287.498237)," +
-                    "(9323372,38.2);");
+                    "(9323372,38.2)," +
+                    "(NULL,NULL);");
             System.out.println("Update Count Statement int128: " + s.getUpdateCount() +"\n");
 
             System.out.println("Insert into int128 table with prepared query");
@@ -420,14 +420,14 @@ public class TestMonetDBeJava {
                 //Complex types tests
                 //blobInsertQuery(c);
                 //blobPreparedQuery(c);
-                //int128Queries(c);
+                int128Queries(c);
 
                 //Batch tests
                 //batchQueriesStatement(c);
                 //batchQueriesPreparedStatement(c);
 
                 //Transaction and autocommit
-                transactionTest(c);
+                //transactionTest(c);
 
                 c.close();
                 System.out.println("Closed connection");

@@ -5,7 +5,7 @@ import java.math.BigInteger;
 import java.nio.*;
 
 public class MonetColumn {
-    private Buffer constData;
+    private ByteBuffer constData;
     private double scale;
     private Object[] varData;
     private String name;
@@ -58,19 +58,19 @@ public class MonetColumn {
     }
 
     public boolean getBoolean(int row) {
-        return ((ByteBuffer) constData).get(row)!=0;
+        return constData.get(row)!=0;
     }
 
     public Short getShort(int row) {
-        return ((ByteBuffer) constData).asShortBuffer().get(row);
+        return constData.asShortBuffer().get(row);
     }
 
     public Integer getInt(int row) {
-        return ((ByteBuffer) constData).asIntBuffer().get(row);
+        return constData.asIntBuffer().get(row);
     }
 
     public Long getLong(int row) {
-        return ((ByteBuffer) constData).asLongBuffer().get(row);
+        return constData.asLongBuffer().get(row);
     }
 
     public Integer getSize(int row) {
@@ -78,24 +78,24 @@ public class MonetColumn {
     }
 
     public Float getFloat(int row) {
-        Float f = ((ByteBuffer) constData).asFloatBuffer().get(row);
+        Float f = constData.asFloatBuffer().get(row);
         return f.isNaN() ? 0 : f;
     }
 
     public Double getDouble(int row) {
-        Double d = ((ByteBuffer) constData).asDoubleBuffer().get(row);
+        Double d = constData.asDoubleBuffer().get(row);
         return d.isNaN() ? 0 : d;
     }
 
     public byte getByte(int row) {
-        return ((ByteBuffer) constData).get(row);
+        return constData.get(row);
     }
 
-    //TODO Isn't working correctly
+    //TODO Bytes aren't being interpreted correctly
     public BigInteger getBigInteger(int row) {
         int size = MonetTypes.getMonetSize(monetdbeType);
         byte[] byteData = new byte[size];
-        ((ByteBuffer) constData).get(byteData,row*size,size);
+        constData.get(byteData,0,size);
         System.out.println("BigInt type: " + monetdbeType + " / Size: " + size + " / Approximate value: " + new BigInteger(byteData).longValue());
         return new BigInteger(byteData);
     }
