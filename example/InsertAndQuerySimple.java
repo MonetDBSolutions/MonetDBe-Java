@@ -1,7 +1,7 @@
 import java.sql.*;
 import java.util.Properties;
 
-public class InsertAndQuery {
+public class InsertAndQuerySimple {
     private static void createAndInsert(Connection c) {
         try {
             Statement s = c.createStatement();
@@ -59,8 +59,7 @@ public class InsertAndQuery {
 
     public static void main(String[] args) {
         try {
-            Connection conn = DriverManager.getConnection("jdbc:monetdb://:memory:", new Properties());
-            Connection c = conn;
+            Connection c = DriverManager.getConnection("jdbc:monetdb://:memory:", new Properties());
 
             if (c != null) {
                 System.out.println("Opened connection");
