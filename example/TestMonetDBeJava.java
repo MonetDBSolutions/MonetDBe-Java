@@ -6,14 +6,6 @@ import java.sql.*;
 import java.util.Properties;
 
 public class TestMonetDBeJava {
-    static {
-        try {
-            Class.forName("org.monetdb.monetdbe.MonetDriver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
     private static void populateDBTable(MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
