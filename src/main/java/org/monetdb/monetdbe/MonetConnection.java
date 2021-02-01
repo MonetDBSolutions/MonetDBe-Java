@@ -27,7 +27,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
 
-        if (props.containsKey("user") && props.containsKey("password")) {
+        if (props.containsKey("connection") && props.getProperty("connection").equals("remote")) {
             //Remote proxy databases
             //Currently, we need to pass both the complete uri and the properties
             this.dbNative = MonetNative.monetdbe_open(props.getProperty("uri"),sessiontimeout,querytimeout,memorylimit,nr_threads,props.getProperty("host"),Integer.parseInt(props.getProperty("port")),props.getProperty("user"),props.getProperty("password"));

@@ -556,7 +556,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1decimal (JNIEnv * env, jclass self, jobject j_stmt, jobject j_data, jint type, jint scale, jint parameter_nr) {
     //TODO Bind decimal
     //What C data type do we map a DECIMAL/NUMERICAL (BigDecimal in java) type to? How do I pass the scale with the bind function
-
     return NULL;
 }
 
