@@ -8,11 +8,9 @@ import java.util.logging.Logger;
 final public class MonetDriver implements java.sql.Driver {
     //jdbc:monetdb//:memory:
     //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
-    //TODO These may be wrong, check
-    //jdbc:monetdb://<host>[:<port>]/<database>?user=<user>&password=<password>
-    //jdbc:mapi:monetdb://<host>[:<port>]/?database=<database>
-    static final String MONETURL = "jdbc:monetdb:";
-    static final String MAPIURL = "mapi:monetdb:";
+    //mapi:monetdb://<host>[:<port>]/<database>
+    static final String MONETURL = "jdbc:monetdb://";
+    static final String MAPIURL = "mapi:monetdb://";
 
     static {
         try {
@@ -88,9 +86,9 @@ final public class MonetDriver implements java.sql.Driver {
                     info.put(args[i].substring(0, pos), args[i].substring(pos + 1));
             }
         }
-        for (String s : info.stringPropertyNames()) {
+        /*for (String s : info.stringPropertyNames()) {
             System.out.println(s + " " + info.getProperty(s));
-        }
+        }*/
         return new MonetConnection(info);
     }
 

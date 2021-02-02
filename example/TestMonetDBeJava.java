@@ -20,8 +20,6 @@ public class TestMonetDBeJava {
                     "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2020', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01', '%d-%m-%Y %H:%M')), " +
                     "(false, 16, 24, 40, 255.255, 2434.432,'hey4',current_date,current_time,current_timestamp)," +
                     "(false, null, 1, 1, 1, null,'hey5',current_date,current_time,current_timestamp);");
-
-            System.out.println("Update count: " + s.getUpdateCount());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -210,8 +208,8 @@ public class TestMonetDBeJava {
         }
     }
 
-    //The Prepared Statement bind are not working (update count -1 but does not send error message)
-    //The select is returning bad values for the literals inserted in the statement
+    //Need to implement the setBigDecimal once we get scale in the bind API
+    //HugeIntegers are not being represented correctly
     private static void int128Queries (MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
@@ -380,7 +378,6 @@ public class TestMonetDBeJava {
             //Local DB
             String urlLocal = "jdbc:monetdb://localhost:5000/Users/bernardo/Monet/test/";
             //Proxy DB
-            //String urlProxy = "mapi:monetdb://localhost:5000?database=test";
             String urlProxy = "mapi:monetdb://localhost:50000/test";
 
             String url = urlMemory;
@@ -393,7 +390,7 @@ public class TestMonetDBeJava {
             MonetConnection c = (MonetConnection) conn;
 
             if (c != null) {
-                System.out.println("Opened connection @ " + url.substring(15));
+                System.out.println("Opened connection @ " + url);
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
 
                 //Create and populate
@@ -403,7 +400,7 @@ public class TestMonetDBeJava {
                 //queryDBPreparedStatement(c);
                 //queryDBPreparedStatementDate(c);
                 //insertDBPreparedStatementDate(c);
-                //insertDBPreparedStatementNulls(c);
+                insertDBPreparedStatementNulls(c);
 
                 //Query and drop
                 queryDBStatement(c);
