@@ -55,7 +55,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         if (columnIndex > columnCount) {
             throw new SQLException("columnIndex is not valid");
         }
-        int type = columns[columnIndex].getMonetdbeType();
+        int type = columns[columnIndex-1].getMonetdbeType();
         switch (type) {
             case 0:
                 return getBoolean(columnIndex);
@@ -104,7 +104,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             return getObject(columnIndex);
         }
 
-        int monetdbeType = columns[columnIndex].getMonetdbeType();
+        int monetdbeType = columns[columnIndex-1].getMonetdbeType();
         String sqlDefaultType = MonetTypes.getDefaultSQLTypeNameFromMonet(monetdbeType);
         Class<?> convertClass;
 
@@ -142,7 +142,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             throw new SQLException("columnIndex is not valid");
         }
 
-        int monetdbeType = columns[columnIndex].getMonetdbeType();
+        int monetdbeType = columns[columnIndex-1].getMonetdbeType();
         if (MonetTypes.convertTojavaClass(monetdbeType,type)) {
             Object defaultValue = getObject(columnIndex);
             return type.cast(defaultValue);
@@ -176,7 +176,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public String getString(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex].getString(curRow-1);
+            String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
@@ -192,7 +192,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public boolean getBoolean(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Boolean val = columns[columnIndex].getBoolean(curRow-1);
+            Boolean val = columns[columnIndex-1].getBoolean(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return false;
@@ -208,7 +208,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public byte getByte(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            byte val = columns[columnIndex].getByte(curRow-1);
+            byte val = columns[columnIndex-1].getByte(curRow-1);
             if (val == 0) {
                 lastReadWasNull = true;
                 return 0;
@@ -224,7 +224,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public short getShort(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Short val = columns[columnIndex].getShort(curRow-1);
+            Short val = columns[columnIndex-1].getShort(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return 0;
@@ -240,7 +240,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public int getInt(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Integer val = columns[columnIndex].getInt(curRow-1);
+            Integer val = columns[columnIndex-1].getInt(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return 0;
@@ -256,7 +256,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public long getLong(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Long val = columns[columnIndex].getLong(curRow-1);
+            Long val = columns[columnIndex-1].getLong(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return 0;
@@ -272,7 +272,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public float getFloat(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Float val = columns[columnIndex].getFloat(curRow-1);
+            Float val = columns[columnIndex-1].getFloat(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return 0;
@@ -288,7 +288,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public double getDouble(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Double val = columns[columnIndex].getDouble(curRow-1);
+            Double val = columns[columnIndex-1].getDouble(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return 0;
@@ -304,7 +304,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public byte[] getBytes(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            byte[] val = columns[columnIndex].getBytes(curRow-1);
+            byte[] val = columns[columnIndex-1].getBytes(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
@@ -321,7 +321,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            BigDecimal val = columns[columnIndex].getBigDecimal(curRow-1);
+            BigDecimal val = columns[columnIndex-1].getBigDecimal(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return BigDecimal.ZERO;
@@ -336,7 +336,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public BigInteger getHugeInt (int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            BigInteger val = columns[columnIndex].getBigInteger(curRow-1);
+            BigInteger val = columns[columnIndex-1].getBigInteger(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return BigInteger.ZERO;
@@ -398,7 +398,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Date getDate(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex].getString(curRow-1);
+            String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
@@ -428,7 +428,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex].getString(curRow-1);
+            String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
@@ -457,7 +457,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex].getString(curRow-1);
+            String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
@@ -485,7 +485,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public MonetBlob getBlob(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            MonetBlob val = columns[columnIndex].getBlob(curRow-1);
+            MonetBlob val = columns[columnIndex-1].getBlob(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
@@ -501,7 +501,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Clob getClob(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex].getString(curRow-1);
+            String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
@@ -517,7 +517,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public URL getURL(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex].getString(curRow-1);
+            String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;
@@ -535,7 +535,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Blob val = columns[columnIndex].getBlob(curRow-1);
+            Blob val = columns[columnIndex-1].getBlob(curRow-1);
             if (val == null)
                 return null;
             return val.getBinaryStream();
@@ -548,7 +548,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Reader getCharacterStream(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex].getString(curRow-1);
+            String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
                 return null;

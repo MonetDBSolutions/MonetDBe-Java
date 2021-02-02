@@ -9,8 +9,8 @@ final public class MonetDriver implements java.sql.Driver {
     //jdbc:monetdb//:memory:
     //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
     //mapi:monetdb://<host>[:<port>]/<database>
-    static final String MONETURL = "jdbc:monetdb://";
-    static final String MAPIURL = "mapi:monetdb://";
+    static final String MONETURL = "jdbc:monetdb:";
+    static final String MAPIURL = "mapi:monetdb:";
 
     static {
         try {
@@ -21,25 +21,10 @@ final public class MonetDriver implements java.sql.Driver {
     }
 
     private Connection connectJDBC(String url, Properties info) throws SQLException {
-        final URI uri;
-        try {
-            //Remove leading "jdbc:" and get valid URI
-            uri = new URI(url.substring(5));
-        } catch (java.net.URISyntaxException e) {
-            System.out.println("Uri '" + url.substring(5) + "' not parseable");
-            return null;
-        }
-
-        //Local Database
-        if(!uri.getAuthority().equals(":memory:")) {
-            //TODO Make sure we only need the path for local databases
-            //Check database path
-            String uri_path = uri.getPath();
-            if (uri_path != null && !uri_path.isEmpty()) {
-                uri_path = uri_path.trim();
-                if (!uri_path.isEmpty())
-                    info.put("path", uri_path);
-            }
+        if (!url.equals("jdbc:monetdb://:memory:")) {
+            //Local database
+            //Remove leading 'jdbc:monetdb:'
+            info.put("path",url.substring(13));
         }
         //For in-memory databases, leave the path property NULL
         return new MonetConnection(info);
