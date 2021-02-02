@@ -20,6 +20,8 @@ public class TestMonetDBeJava {
                     "(false, 8, 12, 20, 25.25, 372.325,'hey3',str_to_date('24-09-2020', '%d-%m-%Y'),str_to_time('12:01:59', '%H:%M:%S'),str_to_timestamp('24-09-2007 12:01', '%d-%m-%Y %H:%M')), " +
                     "(false, 16, 24, 40, 255.255, 2434.432,'hey4',current_date,current_time,current_timestamp)," +
                     "(false, null, 1, 1, 1, null,'hey5',current_date,current_time,current_timestamp);");
+
+            System.out.println("Update count: " + s.getUpdateCount());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -378,9 +380,10 @@ public class TestMonetDBeJava {
             //Local DB
             String urlLocal = "jdbc:monetdb://localhost:5000/Users/bernardo/Monet/test/";
             //Proxy DB
-            String urlProxy = "monetdb:mapi://localhost:5000?database=test";
+            //String urlProxy = "mapi:monetdb://localhost:5000?database=test";
+            String urlProxy = "mapi:monetdb://localhost:50000/test";
 
-            String url = urlProxy;
+            String url = urlMemory;
 
             //Timeout properties
             info.setProperty("sessiontimeout","1");

@@ -86,6 +86,8 @@ jobject returnResult (JNIEnv * env, jobject j_statement, jboolean largeUpdate, m
         (*env)->SetLongField(env,j_statement,affectRowsField,(jlong)(*affected_rows));
     }
     else {
+        printf("Updated count in C: %lld\n",(*affected_rows));
+        fflush(stdout);
         jfieldID affectRowsField = (*env)->GetFieldID(env,statementClass,"updateCount","I");
         (*env)->SetIntField(env,j_statement,affectRowsField,(jint)(*affected_rows));
     }
@@ -106,8 +108,12 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query 
   if(result_msg) {
     printf("Query result msg: %s\n", result_msg);
     fflush(stdout);
+    return NULL;
   }
-  return returnResult(env, j_statement, largeUpdate, result, affected_rows);
+  else {
+    return returnResult(env, j_statement, largeUpdate, result, affected_rows);
+  }
+
 }
 
 jobjectArray parseColumnTimestamp (JNIEnv *env, void* data, int rows) {
@@ -409,26 +415,30 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
 
     char* result = monetdbe_prepare(db,sql,stmt);
     if(result) {
-        printf("Prepare: %s\n",result);
+        printf("Prepare error:\n%s\n",result);
         fflush(stdout);
+        return NULL;
+    }
+    else {
+        //Set parameter number
+        int nParams = (*stmt)->nparam;
+        jclass statementClass = (*env)->GetObjectClass(env, j_statement);
+        jfieldID paramsField = (*env)->GetFieldID(env,statementClass,"nParams","I");
+        (*env)->SetIntField(env,j_statement,paramsField,(jint)nParams);
+
+        //Set parameter types
+        if (nParams > 0) {
+            jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
+            (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams,(int*)(*stmt)->type);
+            jfieldID paramTypesField = (*env)->GetFieldID(env,statementClass,"monetdbeTypes","[I");
+            (*env)->SetObjectField(env,j_statement,paramTypesField,j_parameterTypes);
+        }
+
+        (*env)->ReleaseStringUTFChars(env,j_sql,sql);
+        return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
     }
 
-    //Set parameter number
-    int nParams = (*stmt)->nparam;
-    jclass statementClass = (*env)->GetObjectClass(env, j_statement);
-    jfieldID paramsField = (*env)->GetFieldID(env,statementClass,"nParams","I");
-    (*env)->SetIntField(env,j_statement,paramsField,(jint)nParams);
 
-    //Set parameter types
-    if (nParams > 0) {
-        jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
-        (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams,(int*)(*stmt)->type);
-        jfieldID paramTypesField = (*env)->GetFieldID(env,statementClass,"monetdbeTypes","[I");
-        (*env)->SetObjectField(env,j_statement,paramTypesField,j_parameterTypes);
-    }
-
-    (*env)->ReleaseStringUTFChars(env,j_sql,sql);
-    return (*env)->NewDirectByteBuffer(env,(*stmt),sizeof(monetdbe_statement));
 }
 
 jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int parameter_nr) {
