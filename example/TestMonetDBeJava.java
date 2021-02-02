@@ -376,11 +376,11 @@ public class TestMonetDBeJava {
             //Memory DB
             String urlMemory = "jdbc:monetdb://:memory:";
             //Local DB
-            String urlLocal = "jdbc:monetdb://localhost:5000/Users/bernardo/Monet/test/";
+            String urlLocal = "jdbc:monetdb:/Users/bernardo/Monet/test/";
             //Proxy DB
             String urlProxy = "mapi:monetdb://localhost:50000/test";
 
-            String url = urlMemory;
+            String url = urlLocal;
 
             //Timeout properties
             info.setProperty("sessiontimeout","1");
