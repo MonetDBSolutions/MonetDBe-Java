@@ -49,7 +49,7 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
         }*/
       }
 
-      error_code = monetdbe_open(db,url,opts);
+      error_code = monetdbe_open(db,url,NULL);
 
       if (error_code != 0) {
          char* error = monetdbe_error(*db);
