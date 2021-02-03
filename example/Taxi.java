@@ -43,10 +43,6 @@ public class Taxi {
                     "FROM '" + csvPath + "' " +
                     "delimiters ',','\\n'  best effort");
             System.out.println("Loaded data (" + update + " tuples) in " + (System.currentTimeMillis() - start) + " ms.");
-
-            ResultSet rs = s.executeQuery("SELECT count(*) FROM yellow_tripdata_2016_01;");
-            if(rs.next())
-                System.out.println("Load count: " + rs.getLong(1));
             s.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,34 +114,33 @@ public class Taxi {
                     "                AVG(trip_distance) + 3 * STDDEV_SAMP(trip_distance) as max_distance" +
                     "            FROM yellow_tripdata_2016_01");
 
-            int max_fare = 0, max_distance = 0;
+            double max_fare = 0, max_distance = 0;
             if(rs.next()) {
-                max_fare = rs.getInt(1);
-                max_distance = rs.getInt(2);
-                System.out.println(max_fare + " " + max_distance);
+                max_fare = rs.getDouble(1);
+                max_distance = rs.getDouble(2);
             }
 
-            s.executeQuery("SELECT" +
-                    "   (SUM(trip_distance * fare_amount) - SUM(trip_distance) * SUM(fare_amount) / COUNT(*)) /" +
-                    "   (SUM(trip_distance * trip_distance) - SUM(trip_distance) * SUM(trip_distance) / COUNT(*)) AS beta" +
-                    "   AVG(fare_amount) AS avg_fare_amount" +
+            rs = s.executeQuery("SELECT" +
+                    "   (SUM(trip_distance * fare_amount) - SUM(trip_distance) * SUM(fare_amount) / COUNT(*)) / " +
+                    "   (SUM(trip_distance * trip_distance) - SUM(trip_distance) * SUM(trip_distance) / COUNT(*)) AS beta," +
+                    "   AVG(fare_amount) AS avg_fare_amount," +
                     "   AVG(trip_distance) AS avg_trip_distance" +
-                    "FROM yellow_tripdata_2016_01" +
+                    "   FROM yellow_tripdata_2016_01" +
                     "   WHERE" +
                     "   fare_amount > 0 AND" +
                     "   fare_amount < " + max_fare + " AND" +
                     "   trip_distance > 0 AND" +
                     "   trip_distance < " + max_distance);
 
-            Object beta, avg_fare_amount, avg_trip_distance;
+            double beta, avg_fare_amount, avg_trip_distance;
             if(rs.next()) {
-                beta = rs.getObject(1);
-                avg_fare_amount = rs.getObject(2);
-                avg_trip_distance = rs.getObject(3);
-                System.out.println(beta + " " + avg_fare_amount + " " + avg_trip_distance);
+                beta = rs.getDouble(1);
+                avg_fare_amount = rs.getDouble(2);
+                avg_trip_distance = rs.getDouble(3);
+                System.out.println("Regression results: " + beta + " " + avg_fare_amount + " " + avg_trip_distance);
             }
 
-            System.out.println("Frequency in " + (System.currentTimeMillis() - start) + " ms.");
+            System.out.println("Regression in " + (System.currentTimeMillis() - start) + " ms.");
             s.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -153,10 +148,11 @@ public class Taxi {
     }
 
     public static void main(String[] args) {
-        String csvPath = "/Users/bernardo/Monet/MonetDBe-Java/temp/yellow_tripdata_2016-01.csv";
-        if (args.length > 1) {
-            csvPath = args[1];
+        if (args.length < 2) {
+            System.out.println("Please input the yellow_tripdata_2016_01.csv dataset");
+            return;
         }
+        String csvPath = args[1];
 
         Connection conn = null;
         try {
