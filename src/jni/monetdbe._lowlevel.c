@@ -31,7 +31,7 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
         url = (char*) (*env)->GetStringUTFChars(env,j_url,NULL);
 
         //Remote proxy
-        if (j_host != NULL && j_user != NULL && j_password != NULL) {
+        /*if (j_host != NULL && j_user != NULL && j_password != NULL) {
             printf("\nConnecting to remote proxy '%s'\n",url);
             fflush(stdout);
             const char* user = (*env)->GetStringUTFChars(env,j_user,NULL);
@@ -46,7 +46,7 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
             remote->lang = NULL;
             opts->remote = remote;
             printf("\nRemote options:\nHost: %s\nPort: %d\nUsername: %s\nPassword: %s\n",host,j_port,user,password);
-        }
+        }*/
       }
 
       error_code = monetdbe_open(db,url,opts);
