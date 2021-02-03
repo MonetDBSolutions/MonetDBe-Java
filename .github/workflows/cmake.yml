@@ -19,10 +19,6 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Cat
-      run: |
-        cat /usr/monetdb/tools/monetdbe/monetdbe.h
-
     - name: Run CMake
       run: |
         mkdir build && cd build
