@@ -466,10 +466,6 @@ jstring bind_parsed_data (JNIEnv * env, jobject j_stmt, void* parsed_data, int p
         printf("Bind: %s\n",result);
         fflush(stdout);
     }
-    else {
-        printf("Bind sucessful\n");
-        fflush(stdout);
-    }
     return (*env)->NewStringUTF(env,(const char*) result);
 }
 

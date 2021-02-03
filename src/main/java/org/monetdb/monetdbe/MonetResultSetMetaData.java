@@ -112,7 +112,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     @Override
     public String getColumnName(int column) throws SQLException {
         try {
-            return names[column];
+            return names[column-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -152,7 +152,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     @Override
     public int getColumnType(int column) throws SQLException {
         try {
-            return sqlTypes[column];
+            return sqlTypes[column-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -162,7 +162,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     @Override
     public String getColumnTypeName(int column) throws SQLException {
         try {
-            return monetTypes[column];
+            return monetTypes[column-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -186,7 +186,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     @Override
     public String getColumnClassName(int column) throws SQLException {
         try {
-            return javaTypes[column];
+            return javaTypes[column-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
