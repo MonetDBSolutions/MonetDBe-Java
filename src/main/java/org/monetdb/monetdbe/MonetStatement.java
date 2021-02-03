@@ -77,7 +77,10 @@ public class MonetStatement extends MonetWrapper implements Statement {
         }
         //If called on a PreparedStatement object, it should free the prepared statement in the database
         if (this instanceof MonetPreparedStatement) {
-            MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),((MonetPreparedStatement) this).statementNative);
+            //This check is here in case the Prepared Statement was not successful in the prepare stage
+            if (((MonetPreparedStatement) this).statementNative != null) {
+                MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),((MonetPreparedStatement) this).statementNative);
+            }
         }
         closed = true;
     }

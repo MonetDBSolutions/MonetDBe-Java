@@ -27,10 +27,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
         this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
 
-        if (props.containsKey("connection") && props.getProperty("connection").equals("remote")) {
+        if (props.containsKey("url")) {
             //Remote proxy databases
             //Currently, we need to pass both the complete uri and the properties
-            this.dbNative = MonetNative.monetdbe_open(props.getProperty("uri"),sessiontimeout,querytimeout,memorylimit,nr_threads,props.getProperty("host"),Integer.parseInt(props.getProperty("port")),props.getProperty("user"),props.getProperty("password"));
+            this.dbNative = MonetNative.monetdbe_open(props.getProperty("url"),sessiontimeout,querytimeout,memorylimit,nr_threads,props.getProperty("host"),Integer.parseInt(props.getProperty("port")),props.getProperty("user","monetdb"),props.getProperty("password","monetdb"));
         }
         else {
             //Local directory and in-memory databases
@@ -97,7 +97,12 @@ public class MonetConnection extends MonetWrapper implements Connection {
     public void close() throws SQLException {
         checkNotClosed();
         for(MonetStatement s : statements) {
-            s.close();
+            try {
+                s.close();
+            } catch (SQLException e) {
+                //Statement already closed
+            }
+
         }
         statements = null;
         MonetNative.monetdbe_close(dbNative);

@@ -208,8 +208,8 @@ public class TestMonetDBeJava {
         }
     }
 
-    //The Prepared Statement bind are not working (update count -1 but does not send error message)
-    //The select is returning bad values for the literals inserted in the statement
+    //Need to implement the setBigDecimal once we get scale in the bind API
+    //HugeIntegers are not being represented correctly
     private static void int128Queries (MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
@@ -376,14 +376,11 @@ public class TestMonetDBeJava {
             //Memory DB
             String urlMemory = "jdbc:monetdb://:memory:";
             //Local DB
-            String urlLocal = "jdbc:monetdb://localhost:5000/Users/bernardo/Monet/test/";
+            String urlLocal = "jdbc:monetdb:/Users/bernardo/Monet/test/";
             //Proxy DB
-            //TODO Am I supposed to shift the monetdb: and the mapi: part around to fit the JDBC acceptsURL()?
-            //String urlProxy = "jdbc:monetdb://localhost:5000/test?user=monetdb&password=monetdb";
-            //Mapi DB
-            //String urlMapi = "jdbc:mapi:monetdb://localhost:50000?database=devdb";
+            String urlProxy = "mapi:monetdb://localhost:50000/test";
 
-            String url = urlMemory;
+            String url = urlLocal;
 
             //Timeout properties
             info.setProperty("sessiontimeout","1");
@@ -393,7 +390,7 @@ public class TestMonetDBeJava {
             MonetConnection c = (MonetConnection) conn;
 
             if (c != null) {
-                System.out.println("Opened connection @ " + url.substring(15));
+                System.out.println("Opened connection @ " + url);
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
 
                 //Create and populate
@@ -403,7 +400,7 @@ public class TestMonetDBeJava {
                 //queryDBPreparedStatement(c);
                 //queryDBPreparedStatementDate(c);
                 //insertDBPreparedStatementDate(c);
-                //insertDBPreparedStatementNulls(c);
+                insertDBPreparedStatementNulls(c);
 
                 //Query and drop
                 queryDBStatement(c);
