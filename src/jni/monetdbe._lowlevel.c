@@ -15,13 +15,13 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
 
 JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2 (JNIEnv * env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_host, jint j_port, jstring j_user, jstring j_password) {
       monetdbe_database* db = malloc(sizeof(monetdbe_database));
-      monetdbe_options* opts = malloc(sizeof(monetdbe_options));
+      /*monetdbe_options* opts = malloc(sizeof(monetdbe_options));
       opts->memorylimit = (int) j_memorylimit;
       opts->querytimeout = (int) j_querytimeout;
       opts->sessiontimeout = (int) j_sessiontimeout;
       opts->nr_threads = (int) j_nr_threads;
       opts->remote = NULL;
-      opts->mapi_server = NULL;
+      opts->mapi_server = NULL;*/
 
       char* url = NULL;
       int error_code;
