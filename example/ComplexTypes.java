@@ -1,31 +1,20 @@
 import java.sql.*;
+import java.util.Arrays;
 import java.util.Properties;
 
-public class SimpleTypes {
+public class ComplexTypes {
     private static void createAndInsert(Connection c) {
         try {
             Statement s = c.createStatement();
 
             System.out.println("Create table");
-            s.execute("CREATE TABLE simple (b boolean, s smallint, i int, l bigint, r real, f float);");
+            s.execute("CREATE TABLE complex (bd numeric, s string, b blob, d date, t time, ts timestamp);");
 
             System.out.println("Insert into\n");
-            s.execute("INSERT INTO simple VALUES " +
-                    "(true, 2, 3, 5, 1.0, 1.66), " +
-                    "(true, 4, 6, 10, 2.5, 3.643), " +
-                    "(false, 8, 12, 20, 25.25, 372.325), " +
-                    "(false, 16, 24, 40, 255.255, 2434.432)," +
-                    "(false, null, 1, 1, 1, null);");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void dropTable(Connection c) {
-        try {
-            Statement s = c.createStatement();
-            s.execute("DROP TABLE simple;");
-            System.out.println("Drop count: " + s.getUpdateCount());
+            s.execute("INSERT INTO complex VALUES " +
+                    "(34589.54,'hello','12ff803F',current_date,current_time,current_timestamp), " +
+                    "(34012933.888,'world','0000803F',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), " +
+                    "(666.666,'bye','ffffffff',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M'));");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -34,18 +23,19 @@ public class SimpleTypes {
     private static void queryDB(Connection c) {
         try {
             Statement s = c.createStatement();
-            s.executeQuery("SELECT * FROM simple;");
+            s.executeQuery("SELECT * FROM complex;");
             ResultSet rs = s.getResultSet();
             System.out.println("Select resultSet: ");
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Bool: " + rs.getBoolean(1));
-                System.out.println("Short: " + rs.getShort(2));
-                System.out.println("Int: " + rs.getInt(3));
-                System.out.println("Long: " + rs.getLong(4));
-                System.out.println("Float: " + rs.getFloat(5));
-                System.out.println("Double: " + rs.getDouble(6));
+                System.out.println("BigDecimal " + rs.getBigDecimal(1));
+                System.out.println("String: " + rs.getString(2));
+                Blob b = rs.getBlob(3);
+                System.out.println("Blob: " + Arrays.toString(b.getBytes(1,(int)b.length())));
+                System.out.println("Date: " + rs.getDate(4));
+                System.out.println("Time: " + rs.getTime(5));
+                System.out.println("Timestamp: " + rs.getTimestamp(6));
                 System.out.println();
             }
         } catch (SQLException e) {
@@ -61,7 +51,6 @@ public class SimpleTypes {
 
             createAndInsert(c);
             queryDB(c);
-            dropTable(c);
 
             c.close();
             System.out.println("Closed connection");
