@@ -21,8 +21,9 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private int curRow;
     private int columnCount;
 
+    //Columns of fetched data
     private MonetColumn[] columns;
-    /** Name defined in monetdbe_result C struct */
+    //Name defined in monetdbe_result C struct
     private String name;
 
     //TODO Check these values
@@ -36,18 +37,22 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private int fetchSize;
     private boolean closed = false;
 
-    public MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name) {
+    MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name) {
         this.statement = statement;
         this.nativeResult = nativeResult;
         this.tupleCount = nrows;
         this.columnCount = ncols;
         this.curRow = 0;
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
+
+        if (this.columns == null) {
+            //TODO What should we do here? Error in fetching results
+        }
+
         this.metaData = new MonetResultSetMetaData(columns,ncols);
         this.name = name;
     }
 
-    //Get Object / Type Object
     //Default Object type for a given SQL Type
     @Override
     public Object getObject(int columnIndex) throws SQLException {
@@ -105,7 +110,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
 
         int monetdbeType = columns[columnIndex-1].getMonetdbeType();
-        String sqlDefaultType = MonetTypes.getDefaultSQLTypeNameFromMonet(monetdbeType);
+        String sqlDefaultType = MonetTypes.getSQLTypeNameFromMonet(monetdbeType);
         Class<?> convertClass;
 
         if (sqlDefaultType.equals("NULL")) {
@@ -193,10 +198,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         checkNotClosed();
         try {
             Boolean val = columns[columnIndex-1].getBoolean(curRow-1);
-            if (val == null) {
-                lastReadWasNull = true;
-                return false;
-            }
             lastReadWasNull = false;
             return val;
         } catch (IndexOutOfBoundsException e) {
@@ -273,7 +274,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         checkNotClosed();
         try {
             Float val = columns[columnIndex-1].getFloat(curRow-1);
-            if (val == null) {
+            if (val.isNaN()) {
                 lastReadWasNull = true;
                 return 0;
             }
@@ -289,7 +290,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         checkNotClosed();
         try {
             Double val = columns[columnIndex-1].getDouble(curRow-1);
-            if (val == null) {
+            if (val.isNaN()) {
                 lastReadWasNull = true;
                 return 0;
             }
@@ -316,7 +317,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO This doesn't seem to be working
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
         checkNotClosed();
@@ -333,6 +333,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
+    //TODO Not working, check MonetColumn implementation
     public BigInteger getHugeInt (int columnIndex) throws SQLException {
         checkNotClosed();
         try {
@@ -352,7 +353,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSSS");
     private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS");
 
-    //TODO Verify this
     //Uses a DateTime string to set the date/time in a Calendar object with a given timezone
     //The Calendar object is then used to construct a SQL type DateTime object in the caller function
     private boolean getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
@@ -408,8 +408,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 try {
                     return Date.valueOf(val);
                 } catch (IllegalArgumentException iae) {
-                    // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
-                    // in those cases just continue and use slower getJavaDate method
                     System.out.println(val + " couldn't be parsed as Date by Date.valueOf()");
                 }
                 cal = Calendar.getInstance();
@@ -422,10 +420,10 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO Fix this so we don't have to call getJavaDate everytime.
-    //The ms value in the string is causing Time.valueOf() to throw an exception
+
     @Override
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
+        //The ms value in the string is causing Time.valueOf() to throw an exception
         checkNotClosed();
         try {
             String val = columns[columnIndex-1].getString(curRow-1);
@@ -439,8 +437,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                     //This parse doesn't work, because it can't parse a string with a milisecond value
                     return Time.valueOf(val);
                 } catch (IllegalArgumentException iae) {
-                    // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
-                    // in those cases just continue and use slower getJavaDate method
                     //System.out.println(val + " couldn't be parsed as Time by Time.valueOf()");
                 }
                 cal = Calendar.getInstance();
@@ -467,8 +463,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 try {
                     return Timestamp.valueOf(val);
                 } catch (IllegalArgumentException iae) {
-                    // this happens if string doesn't match the format, such as for years < 1000 (including negative years)
-                    // in those cases just continue and use slower getJavaDate method
                     System.out.println(val + " couldn't be parsed as Timestamp by Timestamp.valueOf()");
                 }
                 cal = Calendar.getInstance();

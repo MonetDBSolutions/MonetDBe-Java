@@ -16,7 +16,6 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     /** The name of the Java classes corresponding to the columns in this ResultSet */
     private final String[] javaTypes;
 
-    //TODO Is this useful?
     //Constructor for PreparedStatement without query execution
     public MonetResultSetMetaData(String[] resultNames, int[] resultMonetTypes, int ncols) {
         this.names = resultNames;
@@ -69,7 +68,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     public boolean isCaseSensitive(final int column) throws SQLException {
         switch (getColumnType(column)) {
             case Types.CHAR:
-            case Types.LONGVARCHAR: // MonetDB doesn't use type LONGVARCHAR, it's here for completeness
+            case Types.LONGVARCHAR:
             case Types.CLOB:
             case Types.VARCHAR:
                 return true;

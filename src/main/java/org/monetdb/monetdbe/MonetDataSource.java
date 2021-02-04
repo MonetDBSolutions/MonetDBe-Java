@@ -8,11 +8,11 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+//TODO Implement this properly, need to add more connection variables and setters/getters
 public class MonetDataSource extends MonetWrapper implements DataSource {
     private String url;
     private final MonetDriver driver;
 
-    //TODO use loginTimeout?
     private int loginTimeout = 0;
 
     private String user;

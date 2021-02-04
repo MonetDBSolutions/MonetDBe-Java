@@ -20,7 +20,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     private boolean closed = false;
     private boolean closeOnCompletion = false;
 
-    //TODO Are these actually used?
+    //TODO These are currently ignored
     private int fetchDirection = ResultSet.FETCH_UNKNOWN;
     private int fetchSize;
     private int resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
@@ -108,7 +108,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     }
 
     //Called by the result set object when closed
-    //Close open statement if closeOnCompletion() was called
+    //Close statement if closeOnCompletion() was called
     protected void closeIfComplete () throws SQLException {
         if (!closed && closeOnCompletion) {
             close();
@@ -328,7 +328,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
         checkNotClosed();
-        //Not possible currently, may be a future feature
+        queryTimeout = seconds;
     }
 
     @Override

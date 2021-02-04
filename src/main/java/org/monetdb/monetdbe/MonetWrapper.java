@@ -2,7 +2,6 @@ package org.monetdb.monetdbe;
 
 import java.sql.SQLException;
 
-//TODO Clarify and verify this
 /**
  * A Wrapper class which provide the ability to retrieve the delegate instance
  * when the instance in question is in fact a proxy class.

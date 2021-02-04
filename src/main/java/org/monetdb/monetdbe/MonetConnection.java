@@ -14,23 +14,28 @@ public class MonetConnection extends MonetWrapper implements Connection {
     private int nr_threads;
     private boolean autoCommit;
 
-    private MonetDatabaseMetadata metaData;
+    private String jdbcURL;
+    private String username;
+
+    private MonetDatabaseMetaData metaData;
     private SQLWarning warnings;
     private Map<String,Class<?>> typeMap = new HashMap<String,Class<?>>();
     private Properties properties;
     private List<MonetStatement> statements;
 
     MonetConnection(Properties props) throws SQLException, IllegalArgumentException {
-        this.sessiontimeout = Integer.parseInt((String) props.getOrDefault("sessiontimeout","0"));
-        this.querytimeout = Integer.parseInt((String) props.getOrDefault("querytimeout","0"));
-        this.memorylimit = Integer.parseInt((String) props.getOrDefault("memorylimit","0"));
-        this.nr_threads = Integer.parseInt((String) props.getOrDefault("nr_threads","0"));
-        this.autoCommit = Boolean.parseBoolean((String) props.getOrDefault("autocommit","true"));
+        this.sessiontimeout = Integer.parseInt((String) props.getProperty("sessiontimeout","0"));
+        this.querytimeout = Integer.parseInt((String) props.getProperty("querytimeout","0"));
+        this.memorylimit = Integer.parseInt((String) props.getProperty("memorylimit","0"));
+        this.nr_threads = Integer.parseInt((String) props.getProperty("nr_threads","0"));
+        this.autoCommit = Boolean.parseBoolean((String) props.getProperty("autocommit","true"));
+        this.jdbcURL = props.getProperty("jdbc-url");
+        this.username = props.getProperty("user","");
 
         if (props.containsKey("url")) {
             //Remote proxy databases
             //Currently, we need to pass both the complete uri and the properties
-            this.dbNative = MonetNative.monetdbe_open(props.getProperty("url"),sessiontimeout,querytimeout,memorylimit,nr_threads,props.getProperty("host"),Integer.parseInt(props.getProperty("port")),props.getProperty("user","monetdb"),props.getProperty("password","monetdb"));
+            this.dbNative = MonetNative.monetdbe_open(props.getProperty("url"),sessiontimeout,querytimeout,memorylimit,nr_threads,props.getProperty("host","localhost"),Integer.parseInt(props.getProperty("port","50000")),props.getProperty("user","monetdb"),props.getProperty("password","monetdb"));
         }
         else {
             //Local directory and in-memory databases
@@ -43,16 +48,16 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
         //TODO Should I not set it if the autoCommit variable is the default value?
         MonetNative.monetdbe_set_autocommit(dbNative,autoCommit ? 1 : 0);
-        this.metaData = new MonetDatabaseMetadata();
+        this.metaData = new MonetDatabaseMetaData(this);
         this.properties = props;
         this.statements = new ArrayList<>();
     }
 
-    public ByteBuffer getDbNative() {
+    protected ByteBuffer getDbNative() {
         return dbNative;
     }
 
-    private final void addWarning(final String reason, final String sqlstate) {
+    private void addWarning(final String reason, final String sqlstate) {
         final SQLWarning warn = new SQLWarning(reason, sqlstate);
         if (warnings == null) {
             warnings = warn;
@@ -102,7 +107,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
             } catch (SQLException e) {
                 //Statement already closed
             }
-
         }
         statements = null;
         MonetNative.monetdbe_close(dbNative);
@@ -115,8 +119,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     //TODO The old implementation didn't use the executor. Should this one?
-    //It is possible that the aborting and releasing of the resources that are held by the connection can take an extended period of time.
-    //When the abort method returns, the connection will have been marked as closed and the Executor that was passed as a parameter to abort may still be executing tasks to release resources.
     @Override
     public void abort(Executor executor) throws SQLException {
         checkNotClosed();
@@ -132,7 +134,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         if (isClosed())
             return false;
 
-        // ping monetdb server using query: select 1;
         Statement st = null;
         ResultSet rs = null;
         boolean isValid = false;
@@ -329,29 +330,35 @@ public class MonetConnection extends MonetWrapper implements Connection {
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
         checkNotClosed();
-        //Different from query timeout
-        //We may not need this timeout, as there isn't much networking in this embedded environment (?)
+        //Using session timeout for now
+        this.sessiontimeout = milliseconds;
     }
 
     @Override
     public int getNetworkTimeout() throws SQLException {
         checkNotClosed();
-        //Different from query timeout
-        //We may not need this timeout, as there isn't much networking in this embedded environment (?)
-        return 0;
+        //Returning session timeout for now
+        return this.sessiontimeout;
     }
 
     @Override
     public String nativeSQL(final String sql) {
         /* there is currently no way to get the native MonetDB rewritten SQL string back, so just return the original string */
-        /* in future we may replace/remove the escape sequences { <escape-type> ...} before sending it to the server */
         return sql;
+    }
+
+    public String getJdbcURL() {
+        return jdbcURL;
+    }
+
+    public String getUserName() {
+        return username;
     }
 
     //Statements
     @Override
     public Statement createStatement() throws SQLException {
-        return createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+        return createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
     @Override
@@ -373,7 +380,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
-        return prepareCall(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+        return prepareCall(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
     @Override
@@ -395,7 +402,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY);
+        return prepareStatement(sql,ResultSet.TYPE_SCROLL_INSENSITIVE,ResultSet.CONCUR_READ_ONLY,ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
     @Override

@@ -74,18 +74,14 @@ public class MonetColumn {
         return constData.asLongBuffer().get(row);
     }
 
-    public Integer getSize(int row) {
-        return getInt(row);
-    }
-
     public Float getFloat(int row) {
         Float f = constData.asFloatBuffer().get(row);
-        return f.isNaN() ? 0 : f;
+        return f;
     }
 
     public Double getDouble(int row) {
         Double d = constData.asDoubleBuffer().get(row);
-        return d.isNaN() ? 0 : d;
+        return d;
     }
 
     public byte getByte(int row) {
@@ -103,7 +99,8 @@ public class MonetColumn {
 
     public BigDecimal getBigDecimal(int row) {
         //Translates monetdbe's internal scale format into java's MathContext scale format
-        int scale = (BigDecimal.valueOf(this.scale).scale()) - 1;
+        //TODO Check this translation later
+        int scale = (BigDecimal.valueOf(this.scale).precision()) - 2;
 
         switch (monetdbeType) {
             case 1:
@@ -114,13 +111,13 @@ public class MonetColumn {
                 return new BigDecimal(unscaledShort.intValue()).movePointRight(scale);
             case 3:
                 Integer unscaledInt = getInt(row);
-                return new BigDecimal(unscaledInt).movePointRight(scale);
+                return new BigDecimal(unscaledInt).movePointLeft(scale);
             case 4:
                 Long unscaledLong = getLong(row);
-                return new BigDecimal(unscaledLong).movePointRight(scale);
+                return new BigDecimal(unscaledLong).movePointLeft(scale);
             case 5:
                 BigInteger unscaledBigInt = getBigInteger(row);
-                return new BigDecimal(unscaledBigInt).movePointRight(scale);
+                return new BigDecimal(unscaledBigInt).movePointLeft(scale);
             default:
                 return new BigDecimal(0).movePointRight(scale);
         }

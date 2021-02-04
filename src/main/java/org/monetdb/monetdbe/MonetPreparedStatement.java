@@ -124,7 +124,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         int[] counts = new int[parametersBatch.size()];
         int count = -1;
         Object[] cur_batch;
-        Object x;
 
         for (int i = 0; i < parametersBatch.size(); i++) {
             //Get batch of parameters
@@ -132,8 +131,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
             for (int j = 0; j < nParams; j++) {
                 //Set each parameter in current batch
-                x = cur_batch[j];
-                setObject(j+1,x);
+                setObject(j+1,cur_batch[j]);
             }
 
             try {
@@ -176,10 +174,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //TODO METADATA
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        //TODO How do I get the result column names and types to construct the ResultSetMetaData object?
-        //
-        //Because a PreparedStatement object is precompiled, it is possible to know about the ResultSet object that it will return without having to execute it.
-        //Consequently, it is possible to invoke the method getMetaData on a PreparedStatement object rather than waiting to execute i
+        //How do I get the result column names and types to construct the ResultSetMetaData object?
         return null;
     }
 
@@ -424,57 +419,57 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
         checkNotClosed();
-        int monettype = MonetTypes.getMonetTypeIntFromSQL(sqlType);
-        MonetNative.monetdbe_bind_null(conn.getDbNative(),monettype,statementNative,parameterIndex);
+        int monettype = MonetTypes.getMonetTypeFromSQL(sqlType);
+        MonetNative.monetdbe_bind_null(conn.getDbNative(),monettype,statementNative,parameterIndex-1);
         parameters[parameterIndex-1] = null;
     }
 
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,0,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,0,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,1,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,1,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setShort(int parameterIndex, short x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,2,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,2,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setInt(int parameterIndex, int x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,3,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,3,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setLong(int parameterIndex, long x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,4,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,4,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setFloat(int parameterIndex, float x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,7,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,7,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setDouble(int parameterIndex, double x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,8,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,8,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
@@ -508,21 +503,22 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             numberBind = unscaled;
             type = 5;
         }
-        MonetNative.monetdbe_bind_decimal(statementNative,numberBind,type,x.scale(),parameterIndex);
+        //TODO Implement the C function
+        MonetNative.monetdbe_bind_decimal(statementNative,numberBind,type,x.scale(),parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
     //TODO Implement the C function
     public void setHugeInteger(int parameterIndex, BigInteger x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setString(int parameterIndex, String x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,9,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,9,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
@@ -531,7 +527,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         checkNotClosed();
         LocalDate localDate = x.toLocalDate();
         //MonetNative.monetdbe_bind_date(statementNative,parameterIndex,localDate.getYear(),localDate.getMonthValue(),localDate.getDayOfMonth());
-        MonetNative.monetdbe_bind_date(statementNative,parameterIndex,(short)localDate.getYear(),(byte)localDate.getMonthValue(),(byte)localDate.getDayOfMonth());
+        MonetNative.monetdbe_bind_date(statementNative,parameterIndex-1,(short)localDate.getYear(),(byte)localDate.getMonthValue(),(byte)localDate.getDayOfMonth());
         parameters[parameterIndex-1] = x;
     }
 
@@ -539,7 +535,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void setTime(int parameterIndex, Time x) throws SQLException {
         checkNotClosed();
         LocalTime localTime = x.toLocalTime();
-        MonetNative.monetdbe_bind_time(statementNative,parameterIndex,localTime.getHour(),localTime.getMinute(),localTime.getSecond(),localTime.getNano()*1000);
+        MonetNative.monetdbe_bind_time(statementNative,parameterIndex-1,localTime.getHour(),localTime.getMinute(),localTime.getSecond(),localTime.getNano()*1000);
         parameters[parameterIndex-1] = x;
     }
 
@@ -547,13 +543,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
         checkNotClosed();
         LocalDateTime localDateTime = x.toLocalDateTime();
-        MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),localDateTime.getNano()*1000);
+        MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex-1,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),localDateTime.getNano()*1000);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,x,10,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,x,10,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
@@ -561,7 +557,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
         checkNotClosed();
         byte[] blob_data = x.getBytes(1,(int)x.length());
-        MonetNative.monetdbe_bind(statementNative,blob_data,10,parameterIndex);
+        MonetNative.monetdbe_bind(statementNative,blob_data,10,parameterIndex-1);
         parameters[parameterIndex-1] = x;
     }
 
