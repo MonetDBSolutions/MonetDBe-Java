@@ -40,16 +40,16 @@ public class InsertAndQuerySimple {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Bool: " + rs.getBoolean(0));
-                System.out.println("Short: " + rs.getShort(1));
-                System.out.println("Int: " + rs.getInt(2));
-                System.out.println("Long: " + rs.getLong(3));
-                System.out.println("Float: " + rs.getFloat(4));
-                System.out.println("Double: " + rs.getDouble(5));
-                System.out.println("String: " + rs.getString(6));
-                System.out.println("Date: " + rs.getDate(7));
-                System.out.println("Time: " + rs.getTime(8));
-                System.out.println("Timestamp: " + rs.getTimestamp(9));
+                System.out.println("Bool: " + rs.getBoolean(1));
+                System.out.println("Short: " + rs.getShort(2));
+                System.out.println("Int: " + rs.getInt(3));
+                System.out.println("Long: " + rs.getLong(4));
+                System.out.println("Float: " + rs.getFloat(5));
+                System.out.println("Double: " + rs.getDouble(6));
+                System.out.println("String: " + rs.getString(7));
+                System.out.println("Date: " + rs.getDate(8));
+                System.out.println("Time: " + rs.getTime(9));
+                System.out.println("Timestamp: " + rs.getTimestamp(10));
                 System.out.println();
             }
         } catch (SQLException e) {
