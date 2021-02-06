@@ -1,3 +1,6 @@
+import org.monetdb.monetdbe.MonetBlob;
+
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Properties;
@@ -14,7 +17,37 @@ public class ComplexTypes {
             s.execute("INSERT INTO complex VALUES " +
                     "(34589.54,'hello','12ff803F',current_date,current_time,current_timestamp), " +
                     "(34012933.888,'world','0000803F',str_to_date('23-09-1987', '%d-%m-%Y'),str_to_time('11:40:30', '%H:%M:%S'),str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), " +
-                    "(666.666,'bye','ffffffff',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M'));");
+                    "(666.666,'bye','ffffffff',str_to_date('23-09-1990', '%d-%m-%Y'),str_to_time('11:40:35', '%H:%M:%S'),str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M'))," +
+                    "(NULL,NULL,NULL,NULL,NULL,NULL);");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void insertNulls (Connection c) {
+        try {
+            System.out.println("Inserting NULL values");
+
+            PreparedStatement p = c.prepareStatement("INSERT INTO complex VALUES (?,?,?,?,?,?);");
+            p.setNull(1,Types.NUMERIC);
+            p.setNull(2,Types.VARCHAR);
+            p.setNull(3,Types.BLOB);
+            p.setNull(4,Types.DATE);
+            p.setNull(5,Types.TIME);
+            p.setNull(6,Types.TIMESTAMP);
+
+            /*p.setInt(1,1);
+            p.setString(2,"h");
+            p.setBlob(3,new MonetBlob("12aa803F"));
+            Date da = Date.valueOf("2015-10-31");
+            p.setDate(4,da);
+            Time t = Time.valueOf("14:11:29");
+            p.setTime(5,t);
+            Timestamp ts = Timestamp.valueOf("2007-12-24 14:11:40");
+            p.setTimestamp(6,ts);*/
+
+            p.execute();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -22,6 +55,7 @@ public class ComplexTypes {
 
     private static void queryDB(Connection c) {
         try {
+            System.out.println("Querying complex types");
             Statement s = c.createStatement();
             s.executeQuery("SELECT * FROM complex;");
             ResultSet rs = s.getResultSet();
@@ -32,7 +66,10 @@ public class ComplexTypes {
                 System.out.println("BigDecimal " + rs.getBigDecimal(1));
                 System.out.println("String: " + rs.getString(2));
                 Blob b = rs.getBlob(3);
-                System.out.println("Blob: " + Arrays.toString(b.getBytes(1,(int)b.length())));
+                if (b.length() > 0)
+                    System.out.println("Blob: " + Arrays.toString(b.getBytes(1,(int)b.length())));
+                else
+                    System.out.println("Blob: null");
                 System.out.println("Date: " + rs.getDate(4));
                 System.out.println("Time: " + rs.getTime(5));
                 System.out.println("Timestamp: " + rs.getTimestamp(6));
@@ -50,6 +87,7 @@ public class ComplexTypes {
             System.out.println("Opened connection");
 
             createAndInsert(c);
+            //insertNulls(c);
             queryDB(c);
 
             c.close();

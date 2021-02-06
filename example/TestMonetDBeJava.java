@@ -372,7 +372,6 @@ public class TestMonetDBeJava {
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
-
             //Memory DB
             String urlMemory = "jdbc:monetdb://:memory:";
             //Local DB
@@ -380,7 +379,7 @@ public class TestMonetDBeJava {
             //Proxy DB
             String urlProxy = "mapi:monetdb://localhost:50000/test";
 
-            String url = urlLocal;
+            String url = urlMemory;
 
             //Timeout properties
             info.setProperty("sessiontimeout","1");
