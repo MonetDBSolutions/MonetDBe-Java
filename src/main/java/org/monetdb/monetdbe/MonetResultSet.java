@@ -399,7 +399,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         checkNotClosed();
         try {
             String val = columns[columnIndex-1].getString(curRow-1);
-            if (val == null) {
+            if (val.equals("0-0-0")) {
                 lastReadWasNull = true;
                 return null;
             }
@@ -427,7 +427,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         checkNotClosed();
         try {
             String val = columns[columnIndex-1].getString(curRow-1);
-            if (val == null) {
+            if (val.equals("0:0:0")) {
                 lastReadWasNull = true;
                 return null;
             }
@@ -454,7 +454,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         checkNotClosed();
         try {
             String val = columns[columnIndex-1].getString(curRow-1);
-            if (val == null) {
+            if (val.equals("0-0-0 0:0:0.0")) {
                 lastReadWasNull = true;
                 return null;
             }

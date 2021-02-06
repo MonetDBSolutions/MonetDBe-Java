@@ -121,6 +121,14 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_blob
+ * Signature: (Ljava/nio/ByteBuffer;I[BJ)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1blob
+  (JNIEnv *, jclass, jobject, jint, jbyteArray, jlong);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_bind_date
  * Signature: (Ljava/nio/ByteBuffer;IIII)Ljava/lang/String;
  */

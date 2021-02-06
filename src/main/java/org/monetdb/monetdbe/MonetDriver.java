@@ -79,13 +79,13 @@ final public class MonetDriver implements java.sql.Driver {
         if (info == null)
             info = new Properties();
 
+        info.setProperty("jdbc-url",url);
         if (url.startsWith(MONETURL)) {
             return connectJDBC(url,info);
         }
         else if (url.startsWith(MAPIURL)) {
             return connectMapi(url,info);
         }
-        info.setProperty("jdbc-url",url);
         return null;
     }
 

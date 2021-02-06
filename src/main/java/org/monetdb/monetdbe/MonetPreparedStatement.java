@@ -526,7 +526,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void setDate(int parameterIndex, Date x) throws SQLException {
         checkNotClosed();
         LocalDate localDate = x.toLocalDate();
-        //MonetNative.monetdbe_bind_date(statementNative,parameterIndex,localDate.getYear(),localDate.getMonthValue(),localDate.getDayOfMonth());
         MonetNative.monetdbe_bind_date(statementNative,parameterIndex-1,(short)localDate.getYear(),(byte)localDate.getMonthValue(),(byte)localDate.getDayOfMonth());
         parameters[parameterIndex-1] = x;
     }
@@ -556,9 +555,15 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
         checkNotClosed();
-        byte[] blob_data = x.getBytes(1,(int)x.length());
-        MonetNative.monetdbe_bind(statementNative,blob_data,10,parameterIndex-1);
-        parameters[parameterIndex-1] = x;
+        long size = x.length();
+        if (size > 0) {
+            byte[] blob_data = x.getBytes(1,(int) size);
+            MonetNative.monetdbe_bind_blob(statementNative,parameterIndex-1,blob_data,x.length());
+            parameters[parameterIndex-1] = x;
+        }
+        else {
+            setNull(parameterIndex,Types.BLOB);
+        }
     }
 
     @Override
