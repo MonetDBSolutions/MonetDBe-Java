@@ -216,7 +216,7 @@ public class TestMonetDBeJava {
             System.out.println("\nCreate int128 table and insert rows");
             s.executeUpdate("CREATE TABLE big (bigi HUGEINT, bigd DECIMAL(16,8));");
             s.executeUpdate("INSERT INTO big VALUES " +
-                    "(9323372036854775807,439.498)," +
+                    "(9323372036854775807,43949.8)," +
                     "(9323372,38.2)," +
                     "(NULL,NULL);");
             System.out.println("Update Count Statement int128: " + s.getUpdateCount() +"\n");
@@ -227,7 +227,7 @@ public class TestMonetDBeJava {
             ps.setBigDecimal(1,new BigDecimal(1328922).movePointLeft(5));
             System.out.println("Update Count Prepared int128: " + ps.getUpdateCount() +"\n");
 
-            s.executeQuery("SELECT bigi,bigd FROM big;");
+            s.executeQuery("SELECT * FROM big;");
             MonetResultSet rs = (MonetResultSet) s.getResultSet();
             rs.beforeFirst();
             while (rs.next()) {
@@ -399,7 +399,8 @@ public class TestMonetDBeJava {
                 //queryDBPreparedStatement(c);
                 //queryDBPreparedStatementDate(c);
                 //insertDBPreparedStatementDate(c);
-                insertDBPreparedStatementNulls(c);
+
+                //insertDBPreparedStatementNulls(c);
 
                 //Query and drop
                 queryDBStatement(c);

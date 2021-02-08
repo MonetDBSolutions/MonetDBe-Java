@@ -22,22 +22,17 @@ public class PreparedQueries {
         ps.execute();
     }
 
-    private static void preparedNullInsert (Connection c) {
-        try {
-            System.out.println("Inserting NULL values");
+    private static void preparedNullInsert (Connection c) throws SQLException {
+        System.out.println("Inserting NULL values");
 
-            PreparedStatement p = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,?);");
-            p.setNull(1,Types.INTEGER);
-            p.setNull(2,Types.BIGINT);
-            p.setNull(3,Types.VARCHAR);
-            p.setNull(4,Types.DATE);
-            p.setNull(5,Types.TIME);
-            p.setNull(6,Types.TIMESTAMP);
-            p.execute();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        PreparedStatement p = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,?);");
+        p.setNull(1,Types.INTEGER);
+        p.setNull(2,Types.BIGINT);
+        p.setNull(3,Types.VARCHAR);
+        p.setNull(4,Types.DATE);
+        p.setNull(5,Types.TIME);
+        p.setNull(6,Types.TIMESTAMP);
+        p.execute();
     }
 
     public static void main(String[] args) {
@@ -63,7 +58,6 @@ public class PreparedQueries {
                 System.out.println("Timestamp: " + rs.getTimestamp(6));
                 System.out.println();
             }
-
             c.close();
             System.out.println("Closed connection");
         } catch (SQLException e) {

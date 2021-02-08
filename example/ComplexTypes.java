@@ -1,6 +1,3 @@
-import org.monetdb.monetdbe.MonetBlob;
-
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Properties;
@@ -35,16 +32,6 @@ public class ComplexTypes {
             p.setNull(4,Types.DATE);
             p.setNull(5,Types.TIME);
             p.setNull(6,Types.TIMESTAMP);
-
-            /*p.setInt(1,1);
-            p.setString(2,"h");
-            p.setBlob(3,new MonetBlob("12aa803F"));
-            Date da = Date.valueOf("2015-10-31");
-            p.setDate(4,da);
-            Time t = Time.valueOf("14:11:29");
-            p.setTime(5,t);
-            Timestamp ts = Timestamp.valueOf("2007-12-24 14:11:40");
-            p.setTimestamp(6,ts);*/
 
             p.execute();
 
