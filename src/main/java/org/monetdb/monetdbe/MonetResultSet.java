@@ -9,6 +9,9 @@ import java.net.URL;
 import java.nio.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.TimeZone;
@@ -353,6 +356,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSSS");
     private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS");
 
+    //TODO Change to new way of parsing strings
     //Uses a DateTime string to set the date/time in a Calendar object with a given timezone
     //The Calendar object is then used to construct a SQL type DateTime object in the caller function
     private boolean getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
@@ -398,23 +402,13 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public Date getDate(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex-1].getString(curRow-1);
-            if (val.equals("0-0-0")) {
+            LocalDate val = columns[columnIndex-1].getLocalDate(curRow-1);
+            if (val == null) {
                 lastReadWasNull = true;
                 return null;
             }
             lastReadWasNull = false;
-            if (cal == null) {
-                try {
-                    return Date.valueOf(val);
-                } catch (IllegalArgumentException iae) {
-                    System.out.println(val + " couldn't be parsed as Date by Date.valueOf()");
-                }
-                cal = Calendar.getInstance();
-            }
-            //Calendar not null or simple parse failed
-            final boolean ret = getJavaDate(cal, val, Types.DATE);
-            return ret ? new Date(cal.getTimeInMillis()) : null;
+            return Date.valueOf(val);
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -422,7 +416,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
 
     @Override
-    public Time getTime(int columnIndex, Calendar cal) throws SQLException {
+    /*public Time getTime(int columnIndex, Calendar cal) throws SQLException {
         //The ms value in the string is causing Time.valueOf() to throw an exception
         checkNotClosed();
         try {
@@ -447,29 +441,34 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
+    }*/
+
+    public Time getTime(int columnIndex, Calendar cal) throws SQLException {
+        checkNotClosed();
+        try {
+            LocalTime val = columns[columnIndex-1].getLocalTime(curRow-1);
+            if (val == null) {
+                lastReadWasNull = true;
+                return null;
+            }
+            lastReadWasNull = false;
+            return Time.valueOf(val);
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {
-            String val = columns[columnIndex-1].getString(curRow-1);
-            if (val.equals("0-0-0 0:0:0.0")) {
+            LocalDateTime val = columns[columnIndex-1].getLocalDateTime(curRow-1);
+            if (val == null) {
                 lastReadWasNull = true;
                 return null;
             }
             lastReadWasNull = false;
-            if (cal == null) {
-                try {
-                    return Timestamp.valueOf(val);
-                } catch (IllegalArgumentException iae) {
-                    System.out.println(val + " couldn't be parsed as Timestamp by Timestamp.valueOf()");
-                }
-                cal = Calendar.getInstance();
-            }
-            //Calendar not null or simple parse failed
-            final boolean ret = getJavaDate(cal, val, Types.TIME);
-            return ret ? new Timestamp(cal.getTimeInMillis()) : null;
+            return Timestamp.valueOf(val);
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }

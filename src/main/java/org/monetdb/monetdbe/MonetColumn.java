@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.nio.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 public class MonetColumn {
     private ByteBuffer constData;
@@ -100,7 +103,7 @@ public class MonetColumn {
     public BigDecimal getBigDecimal(int row) {
         //Translates monetdbe's internal scale format into java's MathContext scale format
         //TODO Check this translation later
-        int scale = (BigDecimal.valueOf(this.scale).precision()) - 2;
+        int scale = -((BigDecimal.valueOf(this.scale).scale()) - 1);
 
         switch (monetdbeType) {
             case 1:
@@ -125,6 +128,27 @@ public class MonetColumn {
 
     public String getString(int row) {
         return (String) varData[row];
+    }
+
+    public LocalDate getLocalDate(int row) {
+        if (varData instanceof LocalDate[])
+            return (LocalDate) varData[row];
+        else
+            return null;
+    }
+
+    public LocalTime getLocalTime(int row) {
+        if (varData instanceof LocalTime[])
+            return (LocalTime) varData[row];
+        else
+            return null;
+    }
+
+    public LocalDateTime getLocalDateTime(int row) {
+        if (varData instanceof LocalDateTime[])
+            return (LocalDateTime) varData[row];
+        else
+            return null;
     }
 
     public byte[] getBytes(int row) {

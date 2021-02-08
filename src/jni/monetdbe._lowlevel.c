@@ -156,7 +156,6 @@ jobject returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, mon
         {
             jfieldID affectRowsField = (*env)->GetFieldID(env, statementClass, "updateCount", "I");
             (*env)->SetIntField(env, j_statement, affectRowsField, (jint)(*affected_rows));
-
         }
         free(affected_rows);
         free(result);
@@ -184,63 +183,82 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(
     }
 }
 
-jobjectArray parseColumnTimestamp(JNIEnv *env, void *data, int rows)
+void addColumnVar(JNIEnv *env, jobjectArray j_columns, int index, int type, char *name, jobjectArray j_data)
 {
-    jobjectArray j_data = (*env)->NewObjectArray(env, rows, (*env)->FindClass(env, "Ljava/lang/String;"), NULL);
-    monetdbe_data_timestamp *timestamps = (monetdbe_data_timestamp *)data;
+    //Create Java class for result column and set it in the column array
+    jstring j_name = (*env)->NewStringUTF(env, (const char *)name);
+    jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
+    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type, j_data);
+    (*env)->SetObjectArrayElement(env, j_columns, index, j_column_object);
+}
 
-    for (int i = 0; i < rows; i++)
+void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_timestamp *column)
+{
+    //TODO Do NULL check
+    jclass j_timestamp_class = (*env)->FindClass(env, "Ljava/time/LocalDateTime;");
+    jmethodID timestamp_constructor = (*env)->GetStaticMethodID(env, j_timestamp_class, "of", "(IIIIIII)Ljava/time/LocalDateTime;");
+
+    jobjectArray j_data = (*env)->NewObjectArray(env, column->count, j_timestamp_class, NULL);
+    monetdbe_data_timestamp *timestamps = (monetdbe_data_timestamp *)column->data;
+
+    for (int i = 0; i < column->count; i++)
     {
         monetdbe_data_time time = timestamps[i].time;
         monetdbe_data_date date = timestamps[i].date;
-        char timestamp_str[23];
-        //TODO Change ms precision? (Change size of snprintf)
-        snprintf(timestamp_str, 23, "%d-%d-%d %d:%d:%d.%d", date.year, date.month, date.day, time.hours, time.minutes, time.seconds, time.ms);
-        jobject j_timestamp = (*env)->NewStringUTF(env, (const char *)timestamp_str);
+        jobject j_timestamp = (*env)->CallStaticObjectMethod(env, j_timestamp_class, timestamp_constructor, (int)date.year, (int)date.month, (int)date.day, (int)time.hours, (int)time.minutes, (int)time.seconds, (int)time.ms);
         (*env)->SetObjectArrayElement(env, j_data, i, j_timestamp);
     }
-    return j_data;
+
+    //Inserting LocalDateTime[] in MonetColumn
+    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
 }
 
-jobjectArray parseColumnTime(JNIEnv *env, void *data, int rows)
+void parseColumnTime(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_time *column)
 {
-    jobjectArray j_data = (*env)->NewObjectArray(env, rows, (*env)->FindClass(env, "Ljava/lang/String;"), NULL);
-    monetdbe_data_time *times = (monetdbe_data_time *)data;
+    //TODO Do NULL check
+    jclass j_time_class = (*env)->FindClass(env, "Ljava/time/LocalTime;");
+    jmethodID time_constructor = (*env)->GetStaticMethodID(env, j_time_class, "of", "(IIII)Ljava/time/LocalTime;");
 
-    for (int i = 0; i < rows; i++)
+    jobjectArray j_data = (*env)->NewObjectArray(env, column->count, j_time_class, NULL);
+    monetdbe_data_time *times = (monetdbe_data_time *)column->data;
+
+    for (int i = 0; i < column->count; i++)
     {
-        //TODO Change ms precision? (Change size of snprintf) Or don't use ms in Time fields?
-        //char time_str[12];
-        //snprintf(time_str, 12, "%d:%d:%d.%d", times[i].hours, times[i].minutes, times[i].seconds, times[i].ms);
-        char time_str[8];
-        snprintf(time_str, 8, "%d:%d:%d", times[i].hours, times[i].minutes, times[i].seconds);
-        jobject j_time = (*env)->NewStringUTF(env, (const char *)time_str);
+        jobject j_time = (*env)->CallStaticObjectMethod(env, j_time_class, time_constructor, (int)times[i].hours, (int)times[i].minutes, (int)times[i].seconds, (int)times[i].ms);
         (*env)->SetObjectArrayElement(env, j_data, i, j_time);
     }
-    return j_data;
+
+    //Inserting LocalTime[] in MonetColumn
+    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
 }
 
-jobjectArray parseColumnDate(JNIEnv *env, void *data, int rows)
+void parseColumnDate(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_date *column)
 {
-    jobjectArray j_data = (*env)->NewObjectArray(env, rows, (*env)->FindClass(env, "Ljava/lang/String;"), NULL);
-    monetdbe_data_date *dates = (monetdbe_data_date *)data;
+    //TODO Do NULL check
+    jclass j_date_class = (*env)->FindClass(env, "Ljava/time/LocalDate;");
+    jmethodID date_constructor = (*env)->GetStaticMethodID(env, j_date_class, "of", "(III)Ljava/time/LocalDate;");
 
-    for (int i = 0; i < rows; i++)
+    jobjectArray j_data = (*env)->NewObjectArray(env, column->count, j_date_class, NULL);
+    monetdbe_data_date *dates = (monetdbe_data_date *)column->data;
+
+    for (int i = 0; i < column->count; i++)
     {
-        char date_str[10];
-        snprintf(date_str, 10, "%d-%d-%d", dates[i].year, dates[i].month, dates[i].day);
-        jobject j_date = (*env)->NewStringUTF(env, (const char *)date_str);
+        jobject j_date = (*env)->CallStaticObjectMethod(env, j_date_class, date_constructor, (int)dates[i].year, (int)dates[i].month, (int)dates[i].day);
         (*env)->SetObjectArrayElement(env, j_data, i, j_date);
     }
-    return j_data;
+
+    //Inserting LocalDate[] in MonetColumn
+    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
 }
 
-jobjectArray parseColumnString(JNIEnv *env, void *data, int rows)
+void parseColumnString(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_str *column)
 {
-    jobjectArray j_data = (*env)->NewObjectArray(env, rows, (*env)->FindClass(env, "Ljava/lang/String;"), NULL);
-    char **strings = (char **)data;
+    //TODO Do NULL check? Does this current check for NULL (instead of using is_null) correct?
+    jobjectArray j_data = (*env)->NewObjectArray(env, column->count, (*env)->FindClass(env, "Ljava/lang/String;"), NULL);
+    char **strings = (char **)column->data;
 
-    for (int i = 0; i < rows; i++)
+    for (int i = 0; i < column->count; i++)
     {
         if (strings[i] == NULL)
         {
@@ -252,54 +270,26 @@ jobjectArray parseColumnString(JNIEnv *env, void *data, int rows)
             (*env)->SetObjectArrayElement(env, j_data, i, j_string);
         }
     }
-    return j_data;
+
+    //Inserting String[] in MonetColumn
+    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
 }
 
-jobjectArray parseColumnBlob(JNIEnv *env, void *data, int rows)
+void parseColumnBlob(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_blob *column)
 {
-    jobjectArray j_data = (*env)->NewObjectArray(env, rows, (*env)->FindClass(env, "[B"), NULL);
-    monetdbe_data_blob *blob_data = (monetdbe_data_blob *)data;
+    //TODO Do NULL check? Is this currently outputting an empty byte array if the row has NULL value?
+    jobjectArray j_data = (*env)->NewObjectArray(env, column->count, (*env)->FindClass(env, "[B"), NULL);
+    monetdbe_data_blob *blob_data = (monetdbe_data_blob *)column->data;
 
-    for (int i = 0; i < rows; i++)
+    for (int i = 0; i < column->count; i++)
     {
         jbyteArray j_byte_array = (*env)->NewByteArray(env, blob_data[i].size);
         (*env)->SetByteArrayRegion(env, j_byte_array, 0, blob_data[i].size, (jbyte *)blob_data[i].data);
         (*env)->SetObjectArrayElement(env, j_data, i, j_byte_array);
     }
-    return j_data;
-}
 
-void addColumnVar(JNIEnv *env, jobjectArray j_columns, void *data, char *name, int type, int rows, int index)
-{
-    jobjectArray j_data;
-
-    if (type == 9)
-    {
-        j_data = parseColumnString(env, data, rows);
-    }
-    else if (type == 10)
-    {
-        j_data = parseColumnBlob(env, data, rows);
-    }
-    else if (type == 11)
-    {
-        j_data = parseColumnDate(env, data, rows);
-    }
-    else if (type == 12)
-    {
-        j_data = parseColumnTime(env, data, rows);
-    }
-    else if (type == 13)
-    {
-        j_data = parseColumnTimestamp(env, data, rows);
-    }
-
-    jstring j_name = (*env)->NewStringUTF(env, (const char *)name);
-    jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
-
-    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, (jint)type, j_data);
-    (*env)->SetObjectArrayElement(env, j_columns, index, j_column_object);
+    //Inserting byte[][] in MonetColumn
+    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
 }
 
 void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name, int type, int size, int index, double scale)
@@ -345,7 +335,6 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnConst(env, j_columns, c_bool->data, c_bool->name, 0, 8 * c_bool->count, i, 0);
                 break;
             }
-
             case 1:
             {
                 monetdbe_column_int8_t *c_int8_t = (monetdbe_column_int8_t *)(*column);
@@ -372,7 +361,6 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, 2, 16 * c_int16_t->count, i, c_int16_t->scale);
                 break;
             }
-
             case 3:
             {
                 monetdbe_column_int32_t *c_int32_t = (monetdbe_column_int32_t *)(*column);
@@ -386,7 +374,6 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, 3, 32 * c_int32_t->count, i, c_int32_t->scale);
                 break;
             }
-
             case 4:
             {
                 monetdbe_column_int64_t *c_int64_t = (monetdbe_column_int64_t *)(*column);
@@ -400,7 +387,6 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, 4, 64 * c_int64_t->count, i, c_int64_t->scale);
                 break;
             }
-
             case 5:
             {
                 monetdbe_column_int128_t *c_int128_t = (monetdbe_column_int128_t *)(*column);
@@ -414,7 +400,6 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, 5, 128 * c_int128_t->count, i, c_int128_t->scale);
                 break;
             }
-
             case 6:
                 //size_t should not be returned to the Java layer
                 break;
@@ -431,7 +416,6 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnConst(env, j_columns, c_float->data, c_float->name, 7, 32 * c_float->count, i, 0);
                 break;
             }
-
             case 8:
             {
                 monetdbe_column_double *c_double = (monetdbe_column_double *)(*column);
@@ -445,68 +429,31 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnConst(env, j_columns, c_double->data, c_double->name, 8, 64 * c_double->count, i, 0);
                 break;
             }
-
             case 9:
             {
-                monetdbe_column_str *c_str = (monetdbe_column_str *)(*column);
-                addColumnVar(env, j_columns, c_str->data, c_str->name, 9, c_str->count, i);
+                parseColumnString(env, j_columns, i, (monetdbe_column_str *)*column);
                 break;
             }
-
             case 10:
             {
-                monetdbe_column_blob *c_blob = (monetdbe_column_blob *)(*column);
-                addColumnVar(env, j_columns, c_blob->data, c_blob->name, 10, c_blob->count, i);
+                parseColumnBlob(env, j_columns, i, (monetdbe_column_blob *)*column);
                 break;
             }
-
             case 11:
             {
-                monetdbe_column_date *c_date = (monetdbe_column_date *)(*column);
-                //TODO Null check in DateTime variables is working, but bind null isn't
-                //TODO Pass this check to parseColumnDate, input an empty date when the isnull is verified (0-0-0/0:0:0.0)
-                for (int i = 0; i < c_date->count; i++)
-                {
-                    if (c_date->is_null(&c_date->data[i]) == 1)
-                    {
-                        printf("NULL\n");
-                        fflush(stdout);
-                    }
-                }
-                addColumnVar(env, j_columns, c_date->data, c_date->name, 11, c_date->count, i);
+                parseColumnDate(env, j_columns, i, (monetdbe_column_date *)*column);
                 break;
             }
-
             case 12:
             {
-                monetdbe_column_time *c_time = (monetdbe_column_time *)(*column);
-                for (int i = 0; i < c_time->count; i++)
-                {
-                    if (c_time->is_null(&c_time->data[i]) == 1)
-                    {
-                        printf("NULL\n");
-                        fflush(stdout);
-                    }
-                }
-                addColumnVar(env, j_columns, c_time->data, c_time->name, 12, c_time->count, i);
+                parseColumnTime(env, j_columns, i, (monetdbe_column_time *)*column);
                 break;
             }
-
             case 13:
             {
-                monetdbe_column_timestamp *c_timestamp = (monetdbe_column_timestamp *)(*column);
-                for (int i = 0; i < c_timestamp->count; i++)
-                {
-                    if (c_timestamp->is_null(&c_timestamp->data[i]) == 1)
-                    {
-                        printf("NULL\n");
-                        fflush(stdout);
-                    }
-                }
-                addColumnVar(env, j_columns, c_timestamp->data, c_timestamp->name, 13, c_timestamp->count, i);
+                parseColumnTimestamp(env, j_columns, i, (monetdbe_column_timestamp *)*column);
                 break;
             }
-
             default:
                 return NULL;
             }
@@ -598,7 +545,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind(J
         short bind_data = (short)(*env)->CallShortMethod(env, j_data, (*env)->GetMethodID(env, param_class, "shortValue", "()S"));
         return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
     }
-    else if (type == 3 || type == 6)
+    else if (type == 3)
     {
         int bind_data = (int)(*env)->CallIntMethod(env, j_data, (*env)->GetMethodID(env, param_class, "intValue", "()I"));
         return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
@@ -638,35 +585,37 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     monetdbe_types null_type = (monetdbe_types)type;
     const void *null_ptr = monetdbe_null(db, null_type);
 
-    printf("NULL of type %d\n",null_type);
+    printf("NULL of type %d\n", null_type);
     fflush(stdout);
 
     return bind_parsed_data(env, j_stmt, (void *)null_ptr, parameter_nr);
 }
 
 //TODO Is this way to get the byte array data from Java correct? How do I parse it to char*?
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1blob(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jbyteArray j_data, jlong size) {
-        jboolean isCopy;
-        unsigned char *c_data = (unsigned char *)(*env)->GetByteArrayElements(env, j_data, &isCopy);
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1blob(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jbyteArray j_data, jlong size)
+{
+    jboolean isCopy;
+    unsigned char *c_data = (unsigned char *)(*env)->GetByteArrayElements(env, j_data, &isCopy);
 
-        printf("Blob data:\n");
-        for(int i = 0; c_data[i]!='\0'; i++) {
-            printf("%d %x\n", i,c_data[i]);
-        }
-        printf("size: %ld\n",size);
-        fflush(stdout);
+    printf("Blob data:\n");
+    for (int i = 0; c_data[i] != '\0'; i++)
+    {
+        printf("%d %x\n", i, c_data[i]);
+    }
+    printf("size: %ld\n", size);
+    fflush(stdout);
 
-        monetdbe_data_blob *bind_data = malloc(sizeof(monetdbe_data_blob));
-        bind_data->size = size;
-        //TODO Is this cast incorrect?
-        bind_data->data = (char*) c_data;
-        jstring ret_str = bind_parsed_data(env, j_stmt, bind_data, (int)parameter_nr);
+    monetdbe_data_blob *bind_data = malloc(sizeof(monetdbe_data_blob));
+    bind_data->size = size;
+    //TODO Is this cast incorrect?
+    bind_data->data = (char *)c_data;
+    jstring ret_str = bind_parsed_data(env, j_stmt, bind_data, (int)parameter_nr);
 
-        if (isCopy)
-        {
-            (*env)->ReleaseByteArrayElements(env, j_data, (jbyte *)bind_data, JNI_ABORT);
-        }
-        return ret_str;
+    if (isCopy)
+    {
+        (*env)->ReleaseByteArrayElements(env, j_data, (jbyte *)bind_data, JNI_ABORT);
+    }
+    return ret_str;
 }
 
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1date(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jint year, jint month, jint day)
@@ -675,7 +624,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     date_bind->year = (short)year;
     date_bind->month = (unsigned char)month;
     date_bind->day = (unsigned char)day;
-    //printf("Parsed Date: %hd-%d-%d\n", date_bind->year, date_bind->month, date_bind->day);
+    printf("Parsed Date: %hd-%d-%d\n", date_bind->year, date_bind->month, date_bind->day);
     return bind_parsed_data(env, j_stmt, date_bind, (int)parameter_nr);
 }
 
@@ -686,7 +635,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     time_bind->minutes = (unsigned char)minutes;
     time_bind->seconds = (unsigned char)seconds;
     time_bind->ms = (unsigned int)ms;
-    //printf("Parsed Time: %d:%d:%d.%d\n", time_bind->hours, time_bind->minutes, time_bind->seconds, time_bind->ms);
+    printf("Parsed Time: %d:%d:%d.%d\n", time_bind->hours, time_bind->minutes, time_bind->seconds, time_bind->ms);
     return bind_parsed_data(env, j_stmt, time_bind, (int)parameter_nr);
 }
 
@@ -700,7 +649,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     (timestamp_bind->time).minutes = (unsigned char)minutes;
     (timestamp_bind->time).seconds = (unsigned char)seconds;
     (timestamp_bind->time).ms = (unsigned int)ms;
-    //printf("Parsed Timestamp: %hd-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year, (timestamp_bind->date).month, (timestamp_bind->date).day, (timestamp_bind->time).hours, (timestamp_bind->time).minutes, (timestamp_bind->time).seconds, (timestamp_bind->time).ms);
+    printf("Parsed Timestamp: %hd-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year, (timestamp_bind->date).month, (timestamp_bind->date).day, (timestamp_bind->time).hours, (timestamp_bind->time).minutes, (timestamp_bind->time).seconds, (timestamp_bind->time).ms);
     return bind_parsed_data(env, j_stmt, timestamp_bind, (int)parameter_nr);
 }
 
