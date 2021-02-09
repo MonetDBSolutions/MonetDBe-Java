@@ -249,7 +249,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 x instanceof Timestamp ||
                 x instanceof Time ||
                 x instanceof Calendar ||
-                x instanceof java.util.Date) {
+                x instanceof java.util.Date ||
+                x instanceof java.time.LocalDate ||
+                x instanceof java.time.LocalTime ||
+                x instanceof java.time.LocalDateTime) {
             setObjectDate(parameterIndex,targetSqlType,x);
         }
         else if (x instanceof MonetBlob || x instanceof Blob) {
@@ -371,6 +374,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 } else if (x instanceof Calendar) {
                     setDate(parameterIndex, new java.sql.Date(
                             ((Calendar)x).getTimeInMillis()));
+                } else if (x instanceof LocalDate) {
+                    setDate(parameterIndex, Date.valueOf((LocalDate) x));
                 } else {
                     throw new SQLException("Conversion not allowed", "M1M05");
                 }
@@ -386,6 +391,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 } else if (x instanceof Calendar) {
                     setTime(parameterIndex, new java.sql.Time(
                             ((Calendar)x).getTimeInMillis()));
+                } else if (x instanceof LocalTime) {
+                    setTime(parameterIndex, Time.valueOf((LocalTime) x));
                 } else {
                     throw new SQLException("Conversion not allowed", "M1M05");
                 }
@@ -401,6 +408,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 } else if (x instanceof Calendar) {
                     setTimestamp(parameterIndex, new java.sql.Timestamp(
                             ((Calendar)x).getTimeInMillis()));
+                } else if (x instanceof LocalDateTime) {
+                    setTimestamp(parameterIndex, Timestamp.valueOf((LocalDateTime) x));
                 } else {
                     throw new SQLException("Conversion not allowed", "M1M05");
                 }

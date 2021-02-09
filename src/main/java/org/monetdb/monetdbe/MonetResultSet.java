@@ -355,7 +355,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSSS");
     private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS");
 
-    //TODO Change to new way of parsing strings
+    //TODO Change to new way of parsing dates
     //Uses a Calendar object to set a given timezone
     private boolean getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
         checkNotClosed();
@@ -396,8 +396,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         return true;
     }
 
-    @Override
-    public Date getDate(int columnIndex, Calendar cal) throws SQLException {
+    public LocalDate getLocalDate(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {
             LocalDate val = columns[columnIndex-1].getLocalDate(curRow-1);
@@ -406,15 +405,19 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 return null;
             }
             lastReadWasNull = false;
-            return Date.valueOf(val);
+            return val;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
     }
 
-
     @Override
-    public Time getTime(int columnIndex, Calendar cal) throws SQLException {
+    public Date getDate(int columnIndex, Calendar cal) throws SQLException {
+        LocalDate val = getLocalDate(columnIndex,cal);
+        return Date.valueOf(val);
+    }
+
+    public LocalTime getLocalTime(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {
             LocalTime val = columns[columnIndex-1].getLocalTime(curRow-1);
@@ -423,14 +426,19 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 return null;
             }
             lastReadWasNull = false;
-            return Time.valueOf(val);
+            return val;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
     }
 
     @Override
-    public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
+    public Time getTime(int columnIndex, Calendar cal) throws SQLException {
+        LocalTime val = getLocalTime(columnIndex,cal);
+        return Time.valueOf(val);
+    }
+
+    public LocalDateTime getLocalDateTime(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {
             LocalDateTime val = columns[columnIndex-1].getLocalDateTime(curRow-1);
@@ -439,10 +447,16 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
                 return null;
             }
             lastReadWasNull = false;
-            return Timestamp.valueOf(val);
+            return val;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
+    }
+
+    @Override
+    public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
+        LocalDateTime val = getLocalDateTime(columnIndex,cal);
+        return Timestamp.valueOf(val);
     }
 
     @Override
