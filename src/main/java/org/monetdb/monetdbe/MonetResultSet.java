@@ -336,7 +336,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO Not working, check MonetColumn implementation
     public BigInteger getHugeInt (int columnIndex) throws SQLException {
         checkNotClosed();
         try {
@@ -357,8 +356,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS");
 
     //TODO Change to new way of parsing strings
-    //Uses a DateTime string to set the date/time in a Calendar object with a given timezone
-    //The Calendar object is then used to construct a SQL type DateTime object in the caller function
+    //Uses a Calendar object to set a given timezone
     private boolean getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
         checkNotClosed();
         if (cal == null)
@@ -416,33 +414,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
 
     @Override
-    /*public Time getTime(int columnIndex, Calendar cal) throws SQLException {
-        //The ms value in the string is causing Time.valueOf() to throw an exception
-        checkNotClosed();
-        try {
-            String val = columns[columnIndex-1].getString(curRow-1);
-            if (val.equals("0:0:0")) {
-                lastReadWasNull = true;
-                return null;
-            }
-            lastReadWasNull = false;
-            if (cal == null) {
-                try {
-                    //This parse doesn't work, because it can't parse a string with a milisecond value
-                    return Time.valueOf(val);
-                } catch (IllegalArgumentException iae) {
-                    //System.out.println(val + " couldn't be parsed as Time by Time.valueOf()");
-                }
-                cal = Calendar.getInstance();
-            }
-            //Calendar not null or simple parse failed
-            final boolean ret = getJavaDate(cal, val, Types.TIME);
-            return ret ? new Time(cal.getTimeInMillis()) : null;
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }*/
-
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
         try {

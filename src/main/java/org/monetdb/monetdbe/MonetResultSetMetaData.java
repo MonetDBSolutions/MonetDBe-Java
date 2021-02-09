@@ -100,7 +100,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
 
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        return MonetTypes.getMonetSize(getColumnType(column));
+        return MonetTypes.getMonetSize(getColumnType(column)) * 8;
     }
 
     @Override

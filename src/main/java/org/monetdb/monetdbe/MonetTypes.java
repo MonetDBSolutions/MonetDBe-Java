@@ -221,20 +221,20 @@ final class MonetTypes {
 
     static final java.util.Map<Integer, Integer> sizeMapMonet = new java.util.HashMap<Integer, Integer>();
     static {
-        sizeMapMonet.put(0, 8);
-        sizeMapMonet.put(1, 8);
-        sizeMapMonet.put(2, 16);
-        sizeMapMonet.put(3, 32);
-        sizeMapMonet.put(4, 64);
-        sizeMapMonet.put(5, 128);
-        sizeMapMonet.put(6, 32);
-        sizeMapMonet.put(7, 32);
-        sizeMapMonet.put(8, 64);
+        sizeMapMonet.put(0, 1);
+        sizeMapMonet.put(1, 1);
+        sizeMapMonet.put(2, 2);
+        sizeMapMonet.put(3, 4);
+        sizeMapMonet.put(4, 8);
+        sizeMapMonet.put(5, 16);
+        sizeMapMonet.put(6, 4);
+        sizeMapMonet.put(7, 4);
+        sizeMapMonet.put(8, 8);
         sizeMapMonet.put(9, 0);
         sizeMapMonet.put(10, 0);
-        sizeMapMonet.put(11, 10);
-        sizeMapMonet.put(12, 12);
-        sizeMapMonet.put(13, 23);
+        sizeMapMonet.put(11, 0);
+        sizeMapMonet.put(12, 0);
+        sizeMapMonet.put(13, 0);
         sizeMapMonet.put(14, 0);
     }
 

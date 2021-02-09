@@ -7,6 +7,8 @@ import java.nio.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.BitSet;
 
 public class MonetColumn {
     private ByteBuffer constData;
@@ -78,25 +80,26 @@ public class MonetColumn {
     }
 
     public Float getFloat(int row) {
-        Float f = constData.asFloatBuffer().get(row);
-        return f;
+        return constData.asFloatBuffer().get(row);
     }
 
     public Double getDouble(int row) {
-        Double d = constData.asDoubleBuffer().get(row);
-        return d;
+        return constData.asDoubleBuffer().get(row);
     }
 
     public byte getByte(int row) {
         return constData.get(row);
     }
 
-    //TODO Bytes aren't being interpreted correctly
     public BigInteger getBigInteger(int row) {
         int size = MonetTypes.getMonetSize(monetdbeType);
         byte[] byteData = new byte[size];
-        constData.get(byteData,0,size);
-        System.out.println("BigInt type: " + monetdbeType + " / Size: " + size + " / Approximate value: " + new BigInteger(byteData).longValue());
+
+        //Copy bytes in reverse order (BigInteger constructor takes Big-Endian byte[])
+        //Using ByteBuffer's absolute get method
+        for (int i = 0; i < size ; i++) {
+            byteData[size-i-1] = constData.get((row*size)+i);
+        }
         return new BigInteger(byteData);
     }
 
