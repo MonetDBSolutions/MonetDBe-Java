@@ -1,5 +1,6 @@
 package org.monetdb.monetdbe;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
 public class MonetNative {
@@ -24,7 +25,15 @@ public class MonetNative {
     protected static native MonetResultSet monetdbe_execute(ByteBuffer stmt, MonetPreparedStatement statement, boolean largeUpdate);
     protected static native String monetdbe_cleanup_statement (ByteBuffer db, ByteBuffer stmt);
 
-    protected static native String monetdbe_bind(ByteBuffer stmt, Object data, int type, int param);
+    protected static native String monetdbe_bind_bool(ByteBuffer stmt, int param, boolean data);
+    protected static native String monetdbe_bind_byte(ByteBuffer stmt, int param, byte data);
+    protected static native String monetdbe_bind_short(ByteBuffer stmt, int param, short data);
+    protected static native String monetdbe_bind_int(ByteBuffer stmt, int param, int data);
+    protected static native String monetdbe_bind_long(ByteBuffer stmt, int param, long data);
+    protected static native String monetdbe_bind_hugeint(ByteBuffer stmt, int param, BigInteger data);
+    protected static native String monetdbe_bind_float(ByteBuffer stmt, int param, float data);
+    protected static native String monetdbe_bind_double(ByteBuffer stmt, int param, double data);
+    protected static native String monetdbe_bind_string(ByteBuffer stmt, int param, String data);
     protected static native String monetdbe_bind_blob(ByteBuffer stmt, int param, byte[] data, long size);
     protected static native String monetdbe_bind_date(ByteBuffer stmt, int param, int year, int month, int day);
     protected static native String monetdbe_bind_time(ByteBuffer stmt, int param, int hours, int minutes, int seconds, int ms);

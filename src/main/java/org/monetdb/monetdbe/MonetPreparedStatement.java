@@ -436,49 +436,49 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,0,parameterIndex-1);
+        MonetNative.monetdbe_bind_bool(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,1,parameterIndex-1);
+        MonetNative.monetdbe_bind_byte(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setShort(int parameterIndex, short x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,2,parameterIndex-1);
+        MonetNative.monetdbe_bind_short(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setInt(int parameterIndex, int x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,3,parameterIndex-1);
+        MonetNative.monetdbe_bind_int(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setLong(int parameterIndex, long x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,4,parameterIndex-1);
+        MonetNative.monetdbe_bind_long(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setFloat(int parameterIndex, float x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,7,parameterIndex-1);
+        MonetNative.monetdbe_bind_float(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setDouble(int parameterIndex, double x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,8,parameterIndex-1);
+        MonetNative.monetdbe_bind_double(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
@@ -508,7 +508,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             type = 4;
         }
         else {
-            //TODO What to do if it only fits into int128?
             numberBind = unscaled;
             type = 5;
         }
@@ -520,14 +519,14 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //TODO Implement the C function
     public void setHugeInteger(int parameterIndex, BigInteger x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,5,parameterIndex-1);
+        MonetNative.monetdbe_bind_hugeint(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
     @Override
     public void setString(int parameterIndex, String x) throws SQLException {
         checkNotClosed();
-        MonetNative.monetdbe_bind(statementNative,x,9,parameterIndex-1);
+        MonetNative.monetdbe_bind_string(statementNative,parameterIndex-1,x);
         parameters[parameterIndex-1] = x;
     }
 
@@ -557,7 +556,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
-        MonetNative.monetdbe_bind(statementNative,x,10,parameterIndex-1);
+        MonetNative.monetdbe_bind_blob(statementNative,parameterIndex-1,x,x.length);
         parameters[parameterIndex-1] = x;
     }
 

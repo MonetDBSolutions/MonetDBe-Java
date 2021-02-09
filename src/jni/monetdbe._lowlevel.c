@@ -545,56 +545,52 @@ jstring bind_parsed_data(JNIEnv *env, jobject j_stmt, void *parsed_data, int par
     return (*env)->NewStringUTF(env, (const char *)error_msg);
 }
 
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind(JNIEnv *env, jclass self, jobject j_stmt, jobject j_data, jint type, jint parameter_nr)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1bool(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jboolean data)
 {
-    jclass param_class = (*env)->GetObjectClass(env, j_data);
-    if (type == 0)
-    {
-        bool bind_data = (bool)(*env)->CallBooleanMethod(env, j_data, (*env)->GetMethodID(env, param_class, "booleanValue", "()Z"));
-        return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
-    }
-    else if (type == 1)
-    {
-        unsigned char bind_data = (char)(*env)->CallByteMethod(env, j_data, (*env)->GetMethodID(env, param_class, "byteValue", "()B"));
-        return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
-    }
-    else if (type == 2)
-    {
-        short bind_data = (short)(*env)->CallShortMethod(env, j_data, (*env)->GetMethodID(env, param_class, "shortValue", "()S"));
-        return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
-    }
-    else if (type == 3)
-    {
-        int bind_data = (int)(*env)->CallIntMethod(env, j_data, (*env)->GetMethodID(env, param_class, "intValue", "()I"));
-        return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
-    }
-    else if (type == 4)
-    {
-        long bind_data = (long)(*env)->CallLongMethod(env, j_data, (*env)->GetMethodID(env, param_class, "longValue", "()L"));
-        return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
-    }
-    else if (type == 5)
-    {
-        //TODO Parse a BigInteger to int128
-        __int128 bind_data = (__int128)1;
-        return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
-    }
-    else if (type == 7)
-    {
-        float bind_data = (float)(*env)->CallFloatMethod(env, j_data, (*env)->GetMethodID(env, param_class, "floatValue", "()F"));
-        return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
-    }
-    else if (type == 8)
-    {
-        double bind_data = (double)(*env)->CallDoubleMethod(env, j_data, (*env)->GetMethodID(env, param_class, "doubleValue", "()D"));
-        return bind_parsed_data(env, j_stmt, &bind_data, (int)parameter_nr);
-    }
-    else if (type == 9)
-    {
-        char *bind_data = (char *)(*env)->GetStringUTFChars(env, j_data, NULL);
-        return bind_parsed_data(env, j_stmt, bind_data, (int)parameter_nr);
-    }
-    return NULL;
+    return bind_parsed_data(env, j_stmt, &data, parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1byte(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jbyte data)
+{
+    return bind_parsed_data(env, j_stmt, &data, parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1short(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jshort data)
+{
+    return bind_parsed_data(env, j_stmt, &data, parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1int(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jint data)
+{
+    return bind_parsed_data(env, j_stmt, &data, parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1long(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jlong data)
+{
+    return bind_parsed_data(env, j_stmt, &data, parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1float(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jfloat data)
+{
+    return bind_parsed_data(env, j_stmt, &data, parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1double(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jdouble data)
+{
+    return bind_parsed_data(env, j_stmt, &data, parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1hugeint(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jobject data)
+{
+    //TODO Parse a BigInteger to int128
+    __int128 bind_data = (__int128)1;
+    return bind_parsed_data(env, j_stmt, &bind_data, parameter_nr);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1string(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jstring data)
+{
+    char *bind_data = (char *)(*env)->GetStringUTFChars(env, data, NULL);
+    return bind_parsed_data(env, j_stmt, bind_data, parameter_nr);
 }
 
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null(JNIEnv *env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr)
@@ -603,8 +599,8 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     monetdbe_types null_type = (monetdbe_types)type;
     const void *null_ptr = monetdbe_null(db, null_type);
 
-    printf("NULL of type %d\n", null_type);
-    fflush(stdout);
+    //printf("NULL of type %d\n", null_type);
+    //fflush(stdout);
 
     return bind_parsed_data(env, j_stmt, (void *)null_ptr, parameter_nr);
 }
@@ -642,7 +638,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     date_bind->year = (short)year;
     date_bind->month = (unsigned char)month;
     date_bind->day = (unsigned char)day;
-    printf("Parsed Date: %hd-%d-%d\n", date_bind->year, date_bind->month, date_bind->day);
+    //printf("Parsed Date: %hd-%d-%d\n", date_bind->year, date_bind->month, date_bind->day);
     return bind_parsed_data(env, j_stmt, date_bind, (int)parameter_nr);
 }
 
@@ -653,7 +649,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     time_bind->minutes = (unsigned char)minutes;
     time_bind->seconds = (unsigned char)seconds;
     time_bind->ms = (unsigned int)ms;
-    printf("Parsed Time: %d:%d:%d.%d\n", time_bind->hours, time_bind->minutes, time_bind->seconds, time_bind->ms);
+    //printf("Parsed Time: %d:%d:%d.%d\n", time_bind->hours, time_bind->minutes, time_bind->seconds, time_bind->ms);
     return bind_parsed_data(env, j_stmt, time_bind, (int)parameter_nr);
 }
 
@@ -667,7 +663,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     (timestamp_bind->time).minutes = (unsigned char)minutes;
     (timestamp_bind->time).seconds = (unsigned char)seconds;
     (timestamp_bind->time).ms = (unsigned int)ms;
-    printf("Parsed Timestamp: %hd-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year, (timestamp_bind->date).month, (timestamp_bind->date).day, (timestamp_bind->time).hours, (timestamp_bind->time).minutes, (timestamp_bind->time).seconds, (timestamp_bind->time).ms);
+    //printf("Parsed Timestamp: %hd-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year, (timestamp_bind->date).month, (timestamp_bind->date).day, (timestamp_bind->time).hours, (timestamp_bind->time).minutes, (timestamp_bind->time).seconds, (timestamp_bind->time).ms);
     return bind_parsed_data(env, j_stmt, timestamp_bind, (int)parameter_nr);
 }
 

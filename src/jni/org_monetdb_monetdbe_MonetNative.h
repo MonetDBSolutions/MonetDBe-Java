@@ -113,11 +113,75 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1cleanu
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
- * Method:    monetdbe_bind
- * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/Object;II)Ljava/lang/String;
+ * Method:    monetdbe_bind_bool
+ * Signature: (Ljava/nio/ByteBuffer;IZ)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind
-  (JNIEnv *, jclass, jobject, jobject, jint, jint);
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1bool
+  (JNIEnv *, jclass, jobject, jint, jboolean);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_byte
+ * Signature: (Ljava/nio/ByteBuffer;IB)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1byte
+  (JNIEnv *, jclass, jobject, jint, jbyte);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_short
+ * Signature: (Ljava/nio/ByteBuffer;IS)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1short
+  (JNIEnv *, jclass, jobject, jint, jshort);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_int
+ * Signature: (Ljava/nio/ByteBuffer;II)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1int
+  (JNIEnv *, jclass, jobject, jint, jint);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_long
+ * Signature: (Ljava/nio/ByteBuffer;IJ)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1long
+  (JNIEnv *, jclass, jobject, jint, jlong);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_hugeint
+ * Signature: (Ljava/nio/ByteBuffer;ILjava/math/BigInteger;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1hugeint
+  (JNIEnv *, jclass, jobject, jint, jobject);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_float
+ * Signature: (Ljava/nio/ByteBuffer;IF)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1float
+  (JNIEnv *, jclass, jobject, jint, jfloat);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_double
+ * Signature: (Ljava/nio/ByteBuffer;ID)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1double
+  (JNIEnv *, jclass, jobject, jint, jdouble);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_string
+ * Signature: (Ljava/nio/ByteBuffer;ILjava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1string
+  (JNIEnv *, jclass, jobject, jint, jstring);
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative

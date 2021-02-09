@@ -414,7 +414,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public Date getDate(int columnIndex, Calendar cal) throws SQLException {
         LocalDate val = getLocalDate(columnIndex,cal);
-        return Date.valueOf(val);
+        return val != null ? Date.valueOf(val) : null;
     }
 
     public LocalTime getLocalTime(int columnIndex, Calendar cal) throws SQLException {
@@ -435,7 +435,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
         LocalTime val = getLocalTime(columnIndex,cal);
-        return Time.valueOf(val);
+        return val != null ? Time.valueOf(val) : null;
     }
 
     public LocalDateTime getLocalDateTime(int columnIndex, Calendar cal) throws SQLException {
@@ -456,7 +456,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
         LocalDateTime val = getLocalDateTime(columnIndex,cal);
-        return Timestamp.valueOf(val);
+        return val != null ? Timestamp.valueOf(val) : null;
     }
 
     @Override
