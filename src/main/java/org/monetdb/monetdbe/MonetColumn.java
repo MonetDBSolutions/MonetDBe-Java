@@ -131,21 +131,21 @@ public class MonetColumn {
     }
 
     public LocalDate getLocalDate(int row) {
-        if (varData instanceof LocalDate[])
+        if (varData instanceof LocalDate[] && varData[row] != null)
             return (LocalDate) varData[row];
         else
             return null;
     }
 
     public LocalTime getLocalTime(int row) {
-        if (varData instanceof LocalTime[])
+        if (varData instanceof LocalTime[] && varData[row] != null)
             return (LocalTime) varData[row];
         else
             return null;
     }
 
     public LocalDateTime getLocalDateTime(int row) {
-        if (varData instanceof LocalDateTime[])
+        if (varData instanceof LocalDateTime[] && varData[row] != null)
             return (LocalDateTime) varData[row];
         else
             return null;

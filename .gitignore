@@ -32,7 +32,7 @@ temp/
 .classpath
 build/
 target/
-
+.vscode
 
 
 

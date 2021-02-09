@@ -1,6 +1,10 @@
 #Revise
 cmake_minimum_required(VERSION 3.10)
 
+#Project
+project(MonetDBe-Java)
+include(UseJava)
+
 #Set CMAKE library find variables
 set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".lib" ".a" ".dylib")
@@ -9,10 +13,6 @@ set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".lib" ".a" ".dylib")
 find_package(Java 1.8 REQUIRED)
 set(JAVA_AWT_LIBRARY NotNeeded)
 find_package(JNI REQUIRED)
-
-#Project
-include(UseJava)
-project(MonetDBe-Java)
 
 #Compile monetdbe-java without linked library, generate headers
 set(CMAKE_JAVA_COMPILE_FLAGS -source 1.8 -target 1.8)

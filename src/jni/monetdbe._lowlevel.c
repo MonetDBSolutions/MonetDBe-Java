@@ -195,7 +195,6 @@ void addColumnVar(JNIEnv *env, jobjectArray j_columns, int index, int type, char
 
 void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_timestamp *column)
 {
-    //TODO Do NULL check
     jclass j_timestamp_class = (*env)->FindClass(env, "Ljava/time/LocalDateTime;");
     jmethodID timestamp_constructor = (*env)->GetStaticMethodID(env, j_timestamp_class, "of", "(IIIIIII)Ljava/time/LocalDateTime;");
 
@@ -204,10 +203,17 @@ void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetd
 
     for (int i = 0; i < column->count; i++)
     {
-        monetdbe_data_time time = timestamps[i].time;
-        monetdbe_data_date date = timestamps[i].date;
-        jobject j_timestamp = (*env)->CallStaticObjectMethod(env, j_timestamp_class, timestamp_constructor, (int)date.year, (int)date.month, (int)date.day, (int)time.hours, (int)time.minutes, (int)time.seconds, (int)time.ms);
-        (*env)->SetObjectArrayElement(env, j_data, i, j_timestamp);
+        if (column->is_null(&timestamps[i]) == 1)
+        {
+            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
+        }
+        else
+        {
+            monetdbe_data_time time = timestamps[i].time;
+            monetdbe_data_date date = timestamps[i].date;
+            jobject j_timestamp = (*env)->CallStaticObjectMethod(env, j_timestamp_class, timestamp_constructor, (int)date.year, (int)date.month, (int)date.day, (int)time.hours, (int)time.minutes, (int)time.seconds, (int)time.ms);
+            (*env)->SetObjectArrayElement(env, j_data, i, j_timestamp);
+        }
     }
 
     //Inserting LocalDateTime[] in MonetColumn
@@ -216,7 +222,6 @@ void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetd
 
 void parseColumnTime(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_time *column)
 {
-    //TODO Do NULL check
     jclass j_time_class = (*env)->FindClass(env, "Ljava/time/LocalTime;");
     jmethodID time_constructor = (*env)->GetStaticMethodID(env, j_time_class, "of", "(IIII)Ljava/time/LocalTime;");
 
@@ -225,8 +230,15 @@ void parseColumnTime(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
 
     for (int i = 0; i < column->count; i++)
     {
-        jobject j_time = (*env)->CallStaticObjectMethod(env, j_time_class, time_constructor, (int)times[i].hours, (int)times[i].minutes, (int)times[i].seconds, (int)times[i].ms);
-        (*env)->SetObjectArrayElement(env, j_data, i, j_time);
+        if (column->is_null(&times[i]) == 1)
+        {
+            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
+        }
+        else
+        {
+            jobject j_time = (*env)->CallStaticObjectMethod(env, j_time_class, time_constructor, (int)times[i].hours, (int)times[i].minutes, (int)times[i].seconds, (int)times[i].ms);
+            (*env)->SetObjectArrayElement(env, j_data, i, j_time);
+        }
     }
 
     //Inserting LocalTime[] in MonetColumn
@@ -235,7 +247,6 @@ void parseColumnTime(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
 
 void parseColumnDate(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_date *column)
 {
-    //TODO Do NULL check
     jclass j_date_class = (*env)->FindClass(env, "Ljava/time/LocalDate;");
     jmethodID date_constructor = (*env)->GetStaticMethodID(env, j_date_class, "of", "(III)Ljava/time/LocalDate;");
 
@@ -244,8 +255,16 @@ void parseColumnDate(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
 
     for (int i = 0; i < column->count; i++)
     {
-        jobject j_date = (*env)->CallStaticObjectMethod(env, j_date_class, date_constructor, (int)dates[i].year, (int)dates[i].month, (int)dates[i].day);
-        (*env)->SetObjectArrayElement(env, j_data, i, j_date);
+        //printf("Date %d %d %d (is_null %d)\n", (int)dates[i].year, (int)dates[i].month, (int)dates[i].day, column->is_null(&dates[i]));
+        if (column->is_null(&dates[i]) == 1)
+        {
+            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
+        }
+        else
+        {
+            jobject j_date = (*env)->CallStaticObjectMethod(env, j_date_class, date_constructor, (int)dates[i].year, (int)dates[i].month, (int)dates[i].day);
+            (*env)->SetObjectArrayElement(env, j_data, i, j_date);
+        }
     }
 
     //Inserting LocalDate[] in MonetColumn
@@ -254,13 +273,12 @@ void parseColumnDate(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
 
 void parseColumnString(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_str *column)
 {
-    //TODO Do NULL check? Does this current check for NULL (instead of using is_null) correct?
     jobjectArray j_data = (*env)->NewObjectArray(env, column->count, (*env)->FindClass(env, "Ljava/lang/String;"), NULL);
     char **strings = (char **)column->data;
 
     for (int i = 0; i < column->count; i++)
     {
-        if (strings[i] == NULL)
+        if (column->is_null(&strings[i]) == 1)
         {
             (*env)->SetObjectArrayElement(env, j_data, i, NULL);
         }
