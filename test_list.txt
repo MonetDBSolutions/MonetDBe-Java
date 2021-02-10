@@ -1,0 +1,46 @@
+Test_Cautocommit - Passed
+Test_CisValid - Passed
+Test_Cmanycon - Passed
+Test_Creplysize - Passed
+Test_Ctransaction - Passed
+Test_FetchSize - Passed
+Test_Int128 (Bind BigDecimal not implemented)
+Test_PSgetObject - Passed
+Test_PSlargeamount - Passed
+Test_PSlargebatchval (Clob implementation not complete)
+Test_PSlargeresponse - Passed
+Test_PSmanycon - Passed
+Test_PSmetadata (ResultSet metadata on Prepared Statement not finished)
+Test_PSsomeamount - Passed
+Test_PStimedate (Bind DateTime not correct)
+Test_PStypes - Passed
+Test_CallableStmt - Passed
+Test_Rbooleans - Passed
+Test_Rmetadata - Passed
+Test_Rpositioning (DatabaseMetadata not complete)
+Test_Rtimedate (REVIEW)
+Test_Sbatching (Wrong Update Count for creating table)
+Test_Wrapper 
+BugConcurrent_clients_SF_1504657
+BugConcurrent_sequences
+BugDatabaseMetaData_Bug_3356
+BugDecimalRound_Bug_3561
+BugExecuteUpdate_Bug_3350
+BugSetQueryTimeout_Bug_3357
+BugResultSetMetaData_Bug_6183
+Bug_Connect_as_voc_getMetaData_Failure_Bug_6388
+Bug_PrepStmtSetString_6382
+Bug_LargeQueries_6571_6693
+Bug_IsValid_Timeout_Bug_6782
+
+Test_Clargequery - GetMoreResults
+Test_Csavepoints - Savepoints
+Test_Dobjects - UDTs
+Test_PSgeneratedkeys - Auto-Generated Keys
+Test_PSsqldata - SQLData
+Test_Rsqldata - SQLData
+Test_Smoreresults - GetMoreResuts
+Test_PStimezone - TimeZone in DateTime
+
+JDBC_API_Tester - Other library
+SQLcopyinto - Other library
