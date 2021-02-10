@@ -130,7 +130,7 @@ JNIEXPORT jboolean JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1get_1
     }
 }
 
-jobject returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetdbe_result **result, monetdbe_cnt *affected_rows)
+jobject returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetdbe_result **result, monetdbe_cnt *affected_rows, jint maxrows)
 {
     //Query with table result
     if ((*result) && (*result)->ncols > 0)
@@ -138,8 +138,8 @@ jobject returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, mon
         jobject resultNative = (*env)->NewDirectByteBuffer(env, (*result), sizeof(monetdbe_result));
         jstring resultSetName = (*env)->NewStringUTF(env, (const char *)(*result)->name);
         jclass resultSetClass = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetResultSet;");
-        jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lorg/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;IILjava/lang/String;)V");
-        jobject resultSetObject = (*env)->NewObject(env, resultSetClass, constructor, j_statement, resultNative, (*result)->nrows, (*result)->ncols, resultSetName);
+        jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lorg/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;IILjava/lang/String;I)V");
+        jobject resultSetObject = (*env)->NewObject(env, resultSetClass, constructor, j_statement, resultNative, (*result)->nrows, (*result)->ncols, resultSetName, maxrows);
         free(affected_rows);
         return resultSetObject;
     }
@@ -163,7 +163,7 @@ jobject returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, mon
     }
 }
 
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement, jboolean largeUpdate)
+JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement, jboolean largeUpdate, jint maxrows)
 {
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
     monetdbe_cnt *affected_rows = malloc(sizeof(monetdbe_cnt));
@@ -179,7 +179,7 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(
     }
     else
     {
-        return returnResult(env, j_statement, largeUpdate, result, affected_rows);
+        return returnResult(env, j_statement, largeUpdate, result, affected_rows, maxrows);
     }
 }
 
@@ -674,7 +674,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     return NULL;
 }
 
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execute(JNIEnv *env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate)
+JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execute(JNIEnv *env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate, jint maxrows)
 {
     monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
@@ -688,7 +688,7 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execut
     }
     else
     {
-        return returnResult(env, j_statement, largeUpdate, result, affected_rows);
+        return returnResult(env, j_statement, largeUpdate, result, affected_rows, maxrows);
     }
 }
 

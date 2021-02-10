@@ -6,8 +6,13 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 final public class MonetDriver implements java.sql.Driver {
+    //Memory
     //jdbc:monetdb//:memory:
+    //Local
+    //jdbc:monetdb:<databaseDirectory>
+    //TODO Support this syntax
     //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
+    //Remote
     //mapi:monetdb://<host>[:<port>]/<database>
     static final String MONETURL = "jdbc:monetdb:";
     static final String MAPIURL = "mapi:monetdb:";
@@ -22,7 +27,7 @@ final public class MonetDriver implements java.sql.Driver {
     }
 
     private Connection connectJDBC(String url, Properties info) throws SQLException {
-        if (!url.equals(MEMORYURL)) {
+        if (!url.startsWith(MEMORYURL)) {
             //Local database
             //Remove leading 'jdbc:monetdb:'
             info.put("path",url.substring(13));

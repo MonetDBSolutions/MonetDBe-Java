@@ -42,10 +42,10 @@ JNIEXPORT jint JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_query
- * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;Lorg/monetdb/monetdbe/MonetStatement;Z)Lorg/monetdb/monetdbe/MonetResultSet;
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;Lorg/monetdb/monetdbe/MonetStatement;ZI)Lorg/monetdb/monetdbe/MonetResultSet;
  */
 JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query
-  (JNIEnv *, jclass, jobject, jstring, jobject, jboolean);
+  (JNIEnv *, jclass, jobject, jstring, jobject, jboolean, jint);
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
@@ -98,10 +98,10 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_execute
- * Signature: (Ljava/nio/ByteBuffer;Lorg/monetdb/monetdbe/MonetPreparedStatement;Z)Lorg/monetdb/monetdbe/MonetResultSet;
+ * Signature: (Ljava/nio/ByteBuffer;Lorg/monetdb/monetdbe/MonetPreparedStatement;ZI)Lorg/monetdb/monetdbe/MonetResultSet;
  */
 JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execute
-  (JNIEnv *, jclass, jobject, jobject, jboolean);
+  (JNIEnv *, jclass, jobject, jobject, jboolean, jint);
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
@@ -217,19 +217,19 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
- * Method:    monetdbe_bind_null
- * Signature: (Ljava/nio/ByteBuffer;ILjava/nio/ByteBuffer;I)Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null
-  (JNIEnv *, jclass, jobject, jint, jobject, jint);
-
-/*
- * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_bind_decimal
  * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/Object;III)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1decimal
   (JNIEnv *, jclass, jobject, jobject, jint, jint, jint);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_bind_null
+ * Signature: (Ljava/nio/ByteBuffer;ILjava/nio/ByteBuffer;I)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null
+  (JNIEnv *, jclass, jobject, jint, jobject, jint);
 
 #ifdef __cplusplus
 }

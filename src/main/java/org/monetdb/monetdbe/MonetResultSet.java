@@ -28,6 +28,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private MonetColumn[] columns;
     //Name defined in monetdbe_result C struct
     private String name;
+    private int maxRows;
 
     //TODO Check these values
     private int resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
@@ -40,10 +41,10 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     private int fetchSize;
     private boolean closed = false;
 
-    MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name) {
+    MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name, int maxRows) {
         this.statement = statement;
         this.nativeResult = nativeResult;
-        this.tupleCount = nrows;
+        //this.tupleCount = nrows;
         this.columnCount = ncols;
         this.curRow = 0;
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
@@ -54,6 +55,14 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
         this.metaData = new MonetResultSetMetaData(columns,ncols);
         this.name = name;
+
+        //TODO Check if we should do something else with maxRows
+        if (maxRows != 0 && maxRows < nrows) {
+            this.tupleCount = maxRows;
+        }
+        else {
+            this.tupleCount = nrows;
+        }
     }
 
     //Default Object type for a given SQL Type
@@ -68,7 +77,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             case 0:
                 return getBoolean(columnIndex);
             case 1:
-                return getByte(columnIndex);
+                return getShort(columnIndex);
             case 2:
                 return getShort(columnIndex);
             case 3:
@@ -244,8 +253,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public int getInt(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            Integer val = columns[columnIndex-1].getInt(curRow-1);
-            if (val == null) {
+            int val = columns[columnIndex-1].getInt(curRow-1);
+            if (val == 0) {
                 lastReadWasNull = true;
                 return 0;
             }

@@ -67,24 +67,45 @@ public class MonetColumn {
         return constData.get(row)!=0;
     }
 
-    public Short getShort(int row) {
+    public short getShort(int row) {
         return constData.asShortBuffer().get(row);
     }
 
-    public Integer getInt(int row) {
-        return constData.asIntBuffer().get(row);
+    public int getInt(int row) {
+        switch (monetdbeType) {
+            case 0:
+                return getBoolean(row) ? 1 : 0;
+            case 1:
+                return (int) getByte(row);
+            case 2:
+                return (int) getShort(row);
+            case 3:
+                return constData.asIntBuffer().get(row);
+            case 4:
+                return (int) getLong(row);
+            case 5:
+                return getBigInteger(row).intValue();
+            case 7:
+                return (int) getFloat(row);
+            case 8:
+                return (int) getDouble(row);
+            case 9:
+                return Integer.parseInt(getString(row));
+            default:
+                return 0;
+        }
     }
 
-    public Long getLong(int row) {
-        return constData.asLongBuffer().get(row);
+    public long getLong(int row) {
+        return constData.getLong(row);
     }
 
-    public Float getFloat(int row) {
-        return constData.asFloatBuffer().get(row);
+    public float getFloat(int row) {
+        return constData.getFloat(row);
     }
 
-    public Double getDouble(int row) {
-        return constData.asDoubleBuffer().get(row);
+    public double getDouble(int row) {
+        return constData.getDouble(row);
     }
 
     public byte getByte(int row) {
@@ -130,7 +151,32 @@ public class MonetColumn {
     }
 
     public String getString(int row) {
-        return (String) varData[row];
+        if (varData != null) {
+            return (String) varData[row];
+        }
+        else {
+            //Conversion from static length types
+            switch (monetdbeType) {
+                case 0:
+                    return String.valueOf(getBoolean(row));
+                case 1:
+                    return String.valueOf(getByte(row));
+                case 2:
+                    return String.valueOf(getShort(row));
+                case 3:
+                    return String.valueOf(getInt(row));
+                case 4:
+                    return String.valueOf(getLong(row));
+                case 5:
+                    return String.valueOf(getBigInteger(row));
+                case 7:
+                    return String.valueOf(getFloat(row));
+                case 8:
+                    return String.valueOf(getDouble(row));
+                default:
+                    return null;
+            }
+        }
     }
 
     public LocalDate getLocalDate(int row) {

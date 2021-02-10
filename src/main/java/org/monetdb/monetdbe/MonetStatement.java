@@ -119,17 +119,16 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public boolean execute(String sql) throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false);
+        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false, getMaxRows());
         if (this.resultSet!=null) {
             return true;
         }
-        //Data manipulation queries
+        //Data manipulation and data definition queries
         else if (this.updateCount!=-1){
             return false;
         }
-        //Data definition queries
         else {
-            return false;
+            throw new SQLException("Error in monetdbe_query");
         }
     }
 
@@ -150,7 +149,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public long executeLargeUpdate(String sql) throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true);
+        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true, getMaxRows());
         if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
         }

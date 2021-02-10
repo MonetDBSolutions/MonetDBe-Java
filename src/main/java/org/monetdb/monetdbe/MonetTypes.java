@@ -62,6 +62,7 @@ final class MonetTypes {
         typeMapSQLToMonet.put(Types.NUMERIC,5);
         typeMapSQLToMonet.put(Types.DECIMAL,5);
         typeMapSQLToMonet.put(Types.VARBINARY,10);
+        typeMapSQLToMonet.put(Types.CLOB,10);
         typeMapSQLToMonet.put(Types.LONGVARBINARY,10);
         typeMapSQLToMonet.put(Types.BINARY,10);
     }

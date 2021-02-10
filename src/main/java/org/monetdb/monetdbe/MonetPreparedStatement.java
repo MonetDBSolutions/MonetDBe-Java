@@ -53,7 +53,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public boolean execute() throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_execute(statementNative,this, false);
+        this.resultSet = MonetNative.monetdbe_execute(statementNative,this, false, getMaxRows());
         if (this.resultSet!=null) {
             return true;
         }
@@ -161,7 +161,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public long executeLargeUpdate() throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_execute(statementNative,this, true);
+        this.resultSet = MonetNative.monetdbe_execute(statementNative,this, true,getMaxRows());
         if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
         }
@@ -575,6 +575,19 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     @Override
+    public void setClob(int parameterIndex, Clob x) throws SQLException {
+        checkNotClosed();
+        long size = x.length();
+        if (size > 0) {
+            MonetNative.monetdbe_bind_string(statementNative,parameterIndex-1,x.toString());
+            parameters[parameterIndex-1] = x;
+        }
+        else {
+            setNull(parameterIndex,Types.BLOB);
+        }
+    }
+
+    @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         //Ignore typeName parameter, no support for Ref and UDFs in monetdbe
         setNull(parameterIndex,sqlType);
@@ -635,11 +648,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
         throw new SQLFeatureNotSupportedException("setBlob(int parameterIndex, InputStream inputStream, long lenght)");
-    }
-
-    @Override
-    public void setClob(int parameterIndex, Clob x) throws SQLException {
-        throw new SQLFeatureNotSupportedException("setClob");
     }
 
     @Override
