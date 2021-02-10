@@ -9,7 +9,6 @@ public class TestMonetDBeJava {
     private static void populateDBTable(MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
-
             System.out.println("Create table");
             s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, r real, f float, st string, da date, t time, ts timestamp);");
 
@@ -214,18 +213,20 @@ public class TestMonetDBeJava {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
             System.out.println("\nCreate int128 table and insert rows");
-            s.executeUpdate("CREATE TABLE big (bigi HUGEINT, bigd DECIMAL(16,8));");
+            s.executeUpdate("CREATE TABLE big (bigi HUGEINT, bigd DECIMAL(32,16));");
             s.executeUpdate("INSERT INTO big VALUES " +
                     "(9323372036854775807,43949.8)," +
                     "(9323372,38.2)," +
+                    "(9323372,3.2123)," +
+                    "(9323372,38534543.22)," +
                     "(NULL,NULL);");
             System.out.println("Update Count Statement int128: " + s.getUpdateCount() +"\n");
 
-            System.out.println("Insert into int128 table with prepared query");
+            /*System.out.println("Insert into int128 table with prepared query");
             MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO big VALUES (940000000000,?);");
             //ps.setHugeInteger(1,new BigInteger("9400000000000000000"));
             ps.setBigDecimal(1,new BigDecimal(1328922).movePointLeft(5));
-            System.out.println("Update Count Prepared int128: " + ps.getUpdateCount() +"\n");
+            System.out.println("Update Count Prepared int128: " + ps.getUpdateCount() +"\n");*/
 
             s.executeQuery("SELECT * FROM big;");
             MonetResultSet rs = (MonetResultSet) s.getResultSet();

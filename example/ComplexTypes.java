@@ -1,3 +1,5 @@
+import org.monetdb.monetdbe.MonetBlob;
+
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Properties;

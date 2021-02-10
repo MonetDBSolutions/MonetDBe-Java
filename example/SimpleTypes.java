@@ -7,10 +7,10 @@ public class SimpleTypes {
             Statement s = c.createStatement();
 
             System.out.println("Create table");
-            s.execute("CREATE TABLE simple (b boolean, s smallint, i int, l bigint, r real, f float);");
+            s.execute("CREATE TABLE simpleT (b boolean, s smallint, i int, l bigint, r real, f float);");
 
             System.out.println("Insert into\n");
-            s.execute("INSERT INTO simple VALUES " +
+            s.execute("INSERT INTO simpleT VALUES " +
                     "(true, 2, 3, 5, 1.0, 1.66), " +
                     "(true, 4, 6, 10, 2.5, 3.643), " +
                     "(false, 8, 12, 20, 25.25, 372.325), " +
@@ -24,7 +24,7 @@ public class SimpleTypes {
     private static void dropTable(Connection c) {
         try {
             Statement s = c.createStatement();
-            s.execute("DROP TABLE simple;");
+            s.execute("DROP TABLE simpleT;");
             System.out.println("Drop count: " + s.getUpdateCount());
         } catch (SQLException e) {
             e.printStackTrace();
@@ -34,7 +34,7 @@ public class SimpleTypes {
     private static void queryDB(Connection c) {
         try {
             Statement s = c.createStatement();
-            s.executeQuery("SELECT * FROM simple;");
+            s.executeQuery("SELECT * FROM simpleT;");
             ResultSet rs = s.getResultSet();
             System.out.println("Select resultSet: ");
             rs.beforeFirst();
