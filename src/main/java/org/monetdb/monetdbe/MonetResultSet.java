@@ -221,8 +221,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public byte getByte(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            byte val = columns[columnIndex-1].getByte(curRow-1);
-            if (val == 0) {
+            Byte val = columns[columnIndex-1].getByte(curRow-1);
+            if (val == null) {
                 lastReadWasNull = true;
                 return 0;
             }
@@ -253,8 +253,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public int getInt(int columnIndex) throws SQLException {
         checkNotClosed();
         try {
-            int val = columns[columnIndex-1].getInt(curRow-1);
-            if (val == 0) {
+            Integer val = columns[columnIndex-1].getInt(curRow-1);
+            if (val == null) {
                 lastReadWasNull = true;
                 return 0;
             }

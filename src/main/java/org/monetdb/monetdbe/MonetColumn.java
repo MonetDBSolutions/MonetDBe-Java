@@ -39,80 +39,174 @@ public class MonetColumn {
         this.varData = varData;
     }
 
-    public Buffer getConstData() {
+    Buffer getConstData() {
         return constData;
     }
 
-    public Object[] getVarData() {
+    Object[] getVarData() {
         return varData;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public int getMonetdbeType() {
+    int getMonetdbeType() {
         return monetdbeType;
     }
 
-    public int getSQLType() {
+    int getSQLType() {
         return MonetTypes.getSQLTypeFromMonet(monetdbeType);
     }
 
-    public String getTypeName() {
+    String getTypeName() {
         return typeName;
     }
 
-    public boolean getBoolean(int row) {
-        return constData.get(row)!=0;
-    }
-
-    public short getShort(int row) {
-        return constData.asShortBuffer().get(row);
-    }
-
-    public int getInt(int row) {
+    Object getObject (int row) {
         switch (monetdbeType) {
             case 0:
-                return getBoolean(row) ? 1 : 0;
+                return constData.get(row)!=0;
             case 1:
-                return (int) getByte(row);
+                return constData.get(row);
             case 2:
-                return (int) getShort(row);
+                return constData.getShort(row);
             case 3:
-                return constData.asIntBuffer().get(row);
+                return constData.getInt(row);
             case 4:
-                return (int) getLong(row);
+                return constData.getLong(row);
             case 5:
-                return getBigInteger(row).intValue();
+                return getBigInteger(row);
             case 7:
-                return (int) getFloat(row);
+                return constData.getFloat(row);
             case 8:
-                return (int) getDouble(row);
+                return constData.getDouble(row);
             case 9:
-                return Integer.parseInt(getString(row));
+                return getString(row);
+            case 10:
+                return getBlob(row);
+            case 11:
+                return getLocalDate(row);
+            case 12:
+                return getLocalTime(row);
+            case 13:
+                return getLocalDateTime(row);
             default:
-                return 0;
+                return null;
         }
     }
 
-    public long getLong(int row) {
-        return constData.getLong(row);
+    Boolean getBoolean(int row) {
+        if (monetdbeType == 0) {
+            return constData.get(row)!=0;
+        }
+        //TODO Check this conversion
+        else if (monetdbeType > 0 && monetdbeType < 9) {
+            return ((Number) getObject(row)).byteValue() != 0;
+        }
+        else if (monetdbeType == 9) {
+            return Boolean.parseBoolean(getString(row));
+        }
+        return null;
     }
 
-    public float getFloat(int row) {
-        return constData.getFloat(row);
+    Byte getByte(int row) {
+        if (monetdbeType == 1) {
+            return constData.get(row);
+        }
+        else if (monetdbeType == 0) {
+            return getBoolean(row) ? (byte) 1 : 0;
+        }
+        else if (monetdbeType > 0 && monetdbeType < 9) {
+            return ((Number) getObject(row)).byteValue();
+        }
+        else if (monetdbeType == 9) {
+            return Byte.parseByte(getString(row));
+        }
+        return null;
     }
 
-    public double getDouble(int row) {
-        return constData.getDouble(row);
+    Short getShort(int row) {
+        if (monetdbeType == 2) {
+            return constData.getShort(row);
+        }
+        else if (monetdbeType == 0) {
+            return getBoolean(row) ? (short) 1 : 0;
+        }
+        else if (monetdbeType > 0 && monetdbeType < 9) {
+            return ((Number) getObject(row)).shortValue();
+        }
+        else if (monetdbeType == 9) {
+            return Short.parseShort(getString(row));
+        }
+        return null;
     }
 
-    public byte getByte(int row) {
-        return constData.get(row);
+    Integer getInt(int row) {
+        if (monetdbeType == 3) {
+            return constData.getInt(row);
+        }
+        else if (monetdbeType == 0) {
+            return getBoolean(row) ? 1 : 0;
+        }
+        else if (monetdbeType > 0 && monetdbeType < 9) {
+            return ((Number) getObject(row)).intValue();
+        }
+        else if (monetdbeType == 9) {
+            return Integer.parseInt(getString(row));
+        }
+        return null;
     }
 
-    public BigInteger getBigInteger(int row) {
+    Long getLong(int row) {
+        if (monetdbeType == 4) {
+            return constData.getLong(row);
+        }
+        else if (monetdbeType == 0) {
+            return getBoolean(row) ? (long) 1 : 0;
+        }
+        else if (monetdbeType > 0 && monetdbeType < 9) {
+            return ((Number) getObject(row)).longValue();
+        }
+        else if (monetdbeType == 9) {
+            return Long.parseLong(getString(row));
+        }
+        return null;
+    }
+
+    Float getFloat(int row) {
+        if (monetdbeType == 7) {
+            return constData.getFloat(row);
+        }
+        else if (monetdbeType == 0) {
+            return getBoolean(row) ? (float) 1 : 0;
+        }
+        else if (monetdbeType > 0 && monetdbeType < 9) {
+            return ((Number) getObject(row)).floatValue();
+        }
+        else if (monetdbeType == 9) {
+            return Float.parseFloat(getString(row));
+        }
+        return null;
+    }
+
+    Double getDouble(int row) {
+        if (monetdbeType == 8) {
+            return constData.getDouble(row);
+        }
+        else if (monetdbeType == 0) {
+            return getBoolean(row) ? (double) 1 : 0;
+        }
+        else if (monetdbeType > 0 && monetdbeType < 9) {
+            return ((Number) getObject(row)).doubleValue();
+        }
+        else if (monetdbeType == 9) {
+            return Double.parseDouble(getString(row));
+        }
+        return null;
+    }
+
+    BigInteger getBigInteger(int row) {
         int size = MonetTypes.getMonetSize(monetdbeType);
         byte[] byteData = new byte[size];
 
@@ -124,33 +218,33 @@ public class MonetColumn {
         return new BigInteger(byteData);
     }
 
-    public BigDecimal getBigDecimal(int row) {
+    BigDecimal getBigDecimal(int row) {
         //Translates monetdbe's internal scale format into java's MathContext scale format
         //TODO Check this translation later
         int scale = -((BigDecimal.valueOf(this.scale).scale()) - 1);
 
         switch (monetdbeType) {
             case 1:
-                Byte unscaledByte = getByte(row);
+                Byte unscaledByte = constData.get(row);
                 return new BigDecimal(unscaledByte.intValue()).movePointRight(scale);
             case 2:
-                Short unscaledShort = getShort(row);
+                Short unscaledShort = constData.getShort(row);
                 return new BigDecimal(unscaledShort.intValue()).movePointRight(scale);
             case 3:
-                Integer unscaledInt = getInt(row);
+                Integer unscaledInt = constData.getInt(row);
                 return new BigDecimal(unscaledInt).movePointLeft(scale);
             case 4:
-                Long unscaledLong = getLong(row);
+                Long unscaledLong = constData.getLong(row);
                 return new BigDecimal(unscaledLong).movePointLeft(scale);
             case 5:
                 BigInteger unscaledBigInt = getBigInteger(row);
                 return new BigDecimal(unscaledBigInt).movePointLeft(scale);
             default:
-                return new BigDecimal(0).movePointRight(scale);
+                return new BigDecimal(0);
         }
     }
 
-    public String getString(int row) {
+    String getString(int row) {
         if (varData != null) {
             return (String) varData[row];
         }
@@ -179,32 +273,32 @@ public class MonetColumn {
         }
     }
 
-    public LocalDate getLocalDate(int row) {
+    LocalDate getLocalDate(int row) {
         if (varData instanceof LocalDate[] && varData[row] != null)
             return (LocalDate) varData[row];
         else
             return null;
     }
 
-    public LocalTime getLocalTime(int row) {
+    LocalTime getLocalTime(int row) {
         if (varData instanceof LocalTime[] && varData[row] != null)
             return (LocalTime) varData[row];
         else
             return null;
     }
 
-    public LocalDateTime getLocalDateTime(int row) {
+    LocalDateTime getLocalDateTime(int row) {
         if (varData instanceof LocalDateTime[] && varData[row] != null)
             return (LocalDateTime) varData[row];
         else
             return null;
     }
 
-    public byte[] getBytes(int row) {
+    byte[] getBytes(int row) {
         return (byte[]) varData[row];
     }
 
-    public MonetBlob getBlob(int row) {
+    MonetBlob getBlob(int row) {
         return new MonetBlob((byte[]) varData[row]);
     }
 }
