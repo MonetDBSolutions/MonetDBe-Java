@@ -70,17 +70,17 @@ public class MonetColumn {
             case 1:
                 return constData.get(row);
             case 2:
-                return constData.getShort(row);
+                return constData.asShortBuffer().get(row);
             case 3:
-                return constData.getInt(row);
+                return constData.asIntBuffer().get(row);
             case 4:
-                return constData.getLong(row);
+                return constData.asLongBuffer().get(row);
             case 5:
                 return getBigInteger(row);
             case 7:
-                return constData.getFloat(row);
+                return constData.asFloatBuffer().get(row);
             case 8:
-                return constData.getDouble(row);
+                return constData.asDoubleBuffer().get(row);
             case 9:
                 return getString(row);
             case 10:
@@ -128,7 +128,7 @@ public class MonetColumn {
 
     Short getShort(int row) {
         if (monetdbeType == 2) {
-            return constData.getShort(row);
+            return constData.asShortBuffer().get(row);
         }
         else if (monetdbeType == 0) {
             return getBoolean(row) ? (short) 1 : 0;
@@ -144,7 +144,7 @@ public class MonetColumn {
 
     Integer getInt(int row) {
         if (monetdbeType == 3) {
-            return constData.getInt(row);
+            return constData.asIntBuffer().get(row);
         }
         else if (monetdbeType == 0) {
             return getBoolean(row) ? 1 : 0;
@@ -160,7 +160,7 @@ public class MonetColumn {
 
     Long getLong(int row) {
         if (monetdbeType == 4) {
-            return constData.getLong(row);
+            return constData.asLongBuffer().get(row);
         }
         else if (monetdbeType == 0) {
             return getBoolean(row) ? (long) 1 : 0;
@@ -176,7 +176,7 @@ public class MonetColumn {
 
     Float getFloat(int row) {
         if (monetdbeType == 7) {
-            return constData.getFloat(row);
+            return constData.asFloatBuffer().get(row);
         }
         else if (monetdbeType == 0) {
             return getBoolean(row) ? (float) 1 : 0;
@@ -192,7 +192,7 @@ public class MonetColumn {
 
     Double getDouble(int row) {
         if (monetdbeType == 8) {
-            return constData.getDouble(row);
+            return constData.asDoubleBuffer().get(row);
         }
         else if (monetdbeType == 0) {
             return getBoolean(row) ? (double) 1 : 0;
@@ -245,31 +245,11 @@ public class MonetColumn {
     }
 
     String getString(int row) {
-        if (varData != null) {
+        if (monetdbeType == 9) {
             return (String) varData[row];
         }
         else {
-            //Conversion from static length types
-            switch (monetdbeType) {
-                case 0:
-                    return String.valueOf(getBoolean(row));
-                case 1:
-                    return String.valueOf(getByte(row));
-                case 2:
-                    return String.valueOf(getShort(row));
-                case 3:
-                    return String.valueOf(getInt(row));
-                case 4:
-                    return String.valueOf(getLong(row));
-                case 5:
-                    return String.valueOf(getBigInteger(row));
-                case 7:
-                    return String.valueOf(getFloat(row));
-                case 8:
-                    return String.valueOf(getDouble(row));
-                default:
-                    return null;
-            }
+            return String.valueOf(getObject(row));
         }
     }
 

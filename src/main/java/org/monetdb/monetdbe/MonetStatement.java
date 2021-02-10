@@ -120,11 +120,14 @@ public class MonetStatement extends MonetWrapper implements Statement {
     public boolean execute(String sql) throws SQLException {
         checkNotClosed();
         this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false, getMaxRows());
+        System.out.println(this.updateCount);
         if (this.resultSet!=null) {
             return true;
         }
-        //Data manipulation and data definition queries
-        else if (this.updateCount!=-1){
+        //Data manipulation and data definition (Statement.SUCCESS_NO_INFO) queries
+        //TODO Implement this, together with returning -2 in the C level in monetdbe_query (return_result)
+        else if (this.updateCount != -1) {
+        //else if (this.updateCount > 0 || this.updateCount == Statement.SUCCESS_NO_INFO){
             return false;
         }
         else {

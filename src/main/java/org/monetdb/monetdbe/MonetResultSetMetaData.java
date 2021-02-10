@@ -11,6 +11,8 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     private final int[] types;
     /** The MonetDB types of the columns in this ResultSet as strings */
     private final String[] monetTypes;
+    /** The MonetDB types of the columns in this ResultSet as ints */
+    private final int[] monetTypesInt;
     /** The JDBC SQL types of the columns in this ResultSet */
     private final int[] sqlTypes;
     /** The name of the Java classes corresponding to the columns in this ResultSet */
@@ -22,11 +24,13 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         this.types = resultMonetTypes;
 
         this.monetTypes = new String[ncols];
+        this.monetTypesInt = new int[ncols];
         this.sqlTypes = new int[ncols];
         this.javaTypes = new String[ncols];
 
         for(int i = 0; i<ncols; i++ ) {
             monetTypes[i] = MonetTypes.getMonetTypeString(resultMonetTypes[i]);
+            monetTypesInt[i] = resultMonetTypes[i];
             sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(resultMonetTypes[i]);
             javaTypes[i] = MonetTypes.getClassForMonetType(resultMonetTypes[i]).getName();
         }
@@ -37,6 +41,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         this.names = new String[ncols];
         this.types = new int[ncols];
         this.monetTypes = new String[ncols];
+        this.monetTypesInt = new int[ncols];
         this.sqlTypes = new int[ncols];
         this.javaTypes = new String[ncols];
 
@@ -44,6 +49,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
             names[i] = columns[i].getName();
             types[i] = columns[i].getMonetdbeType();
             monetTypes[i] = columns[i].getTypeName();
+            monetTypesInt[i] = columns[i].getMonetdbeType();
             sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(columns[i].getMonetdbeType());
             javaTypes[i] = MonetTypes.getClassForMonetType(columns[i].getMonetdbeType()).getName();
         }
@@ -100,7 +106,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
 
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        return MonetTypes.getMonetSize(getColumnType(column)) * 8;
+        return MonetTypes.getMonetSize(getColumnTypeInt(column)) * 8;
     }
 
     @Override
@@ -162,6 +168,15 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     public String getColumnTypeName(int column) throws SQLException {
         try {
             return monetTypes[column-1];
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    //MonetDB type
+    public int getColumnTypeInt(int column) throws SQLException {
+        try {
+            return monetTypesInt[column-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
