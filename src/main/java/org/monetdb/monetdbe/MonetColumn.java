@@ -7,6 +7,8 @@ import java.nio.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.BitSet;
 
@@ -253,25 +255,48 @@ public class MonetColumn {
         }
     }
 
-    LocalDate getLocalDate(int row) {
-        if (varData instanceof LocalDate[] && varData[row] != null)
-            return (LocalDate) varData[row];
-        else
-            return null;
+    LocalDate getLocalDate(int row) throws DateTimeParseException {
+        switch (monetdbeType) {
+            case 9:
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                return  LocalDate.parse((String) varData[row],dtf);
+            case 11:
+                return (LocalDate) varData[row];
+            case 13:
+                return ((LocalDateTime) varData[row]).toLocalDate();
+            default:
+                return null;
+        }
     }
 
-    LocalTime getLocalTime(int row) {
-        if (varData instanceof LocalTime[] && varData[row] != null)
-            return (LocalTime) varData[row];
-        else
-            return null;
+    LocalTime getLocalTime(int row) throws DateTimeParseException {
+        switch (monetdbeType) {
+            case 9:
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss[.SSSSSS][.SSSS][.SS]");
+                return  LocalTime.parse((String) varData[row],dtf);
+            case 12:
+                return (LocalTime) varData[row];
+            case 13:
+                return ((LocalDateTime) varData[row]).toLocalTime();
+            default:
+                return null;
+        }
     }
 
-    LocalDateTime getLocalDateTime(int row) {
-        if (varData instanceof LocalDateTime[] && varData[row] != null)
-            return (LocalDateTime) varData[row];
-        else
-            return null;
+    LocalDateTime getLocalDateTime(int row) throws DateTimeParseException {
+        switch (monetdbeType) {
+            case 9:
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS][.SSSS][.SS]");
+                return  LocalDateTime.parse((String) varData[row],dtf);
+            case 11:
+                return LocalDateTime.now().with((LocalDate) varData[row]);
+            case 12:
+                return LocalDateTime.now().with((LocalTime) varData[row]);
+            case 13:
+                return (LocalDateTime) varData[row];
+            default:
+                return null;
+        }
     }
 
     byte[] getBytes(int row) {

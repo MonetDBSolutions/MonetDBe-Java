@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.TimeZone;
@@ -417,6 +418,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             return val;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
+        } catch (DateTimeParseException e) {
+            throw new SQLException("DateTime string could not be parsed");
         }
     }
 
@@ -438,6 +441,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             return val;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
+        } catch (DateTimeParseException e) {
+            throw new SQLException("DateTime string could not be parsed");
         }
     }
 
@@ -459,6 +464,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             return val;
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
+        } catch (DateTimeParseException e) {
+            throw new SQLException("DateTime string could not be parsed");
         }
     }
 
@@ -575,7 +582,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public void close() throws SQLException {
-        checkNotClosed();
+        if (isClosed())
+            return;
         this.closed = true;
         MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDbNative(),nativeResult);
         this.columns = null;

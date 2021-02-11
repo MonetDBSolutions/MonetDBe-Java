@@ -141,9 +141,8 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public String getDatabaseProductVersion() throws SQLException {
-        //TODO Do we need this?
-        return null;
-        //return con.getDatabaseProductVersion();
+        //TODO Change
+        return "11.40.0";
     }
 
     /**

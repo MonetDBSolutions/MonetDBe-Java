@@ -1,11 +1,13 @@
 package org.monetdb.monetdbe;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -561,6 +563,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     @Override
+    public void setURL(int parameterIndex, URL x) throws SQLException {
+        checkNotClosed();
+        setString(parameterIndex,x.toString());
+        parameters[parameterIndex-1] = x;
+    }
+
+    @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
         checkNotClosed();
         long size = x.length();
@@ -588,6 +597,52 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     @Override
+    //Imported from default driver implementation
+    public void setClob(int parameterIndex, Reader reader) throws SQLException {
+        if (reader == null) {
+            setNull(parameterIndex, -1);
+            return;
+        }
+
+        // Some buffer. Size of 8192 is default for BufferedReader, so...
+        final int size = 8192;
+        final char[] arr = new char[size];
+        final StringBuilder buf = new StringBuilder(size * 32);
+        try {
+            int numChars;
+            while ((numChars = reader.read(arr, 0, size)) > 0) {
+                buf.append(arr, 0, numChars);
+            }
+            setString(parameterIndex, buf.toString());
+        } catch (IOException e) {
+            throw new SQLException("failed to read from stream: " + e.getMessage(), "M1M25");
+        }
+    }
+
+    @Override
+    //Imported from default driver implementation
+    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
+        if (reader == null) {
+            setNull(parameterIndex, -1);
+            return;
+        }
+        if (length < 0 || length > Integer.MAX_VALUE) {
+            throw new SQLException("Invalid length value: " + length, "M1M05");
+        }
+
+        // simply serialise the Reader data into a large buffer
+        final CharBuffer buf = CharBuffer.allocate((int)length); // have to down cast
+        try {
+            reader.read(buf);
+            // We have to rewind the buffer, because otherwise toString() returns "".
+            buf.rewind();
+            setString(parameterIndex, buf.toString());
+        } catch (IOException e) {
+            throw new SQLException("failed to read from stream: " + e.getMessage(), "M1M25");
+        }
+    }
+
+    @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         //Ignore typeName parameter, no support for Ref and UDFs in monetdbe
         setNull(parameterIndex,sqlType);
@@ -609,13 +664,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
         //Because MonetDBe doesn't support timezones, the Calendar object is ignored
         setTimestamp(parameterIndex,x);
-    }
-
-    @Override
-    public void setURL(int parameterIndex, URL x) throws SQLException {
-        checkNotClosed();
-        setString(parameterIndex,x.toString());
-        parameters[parameterIndex-1] = x;
     }
 
     @Override
@@ -648,16 +696,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
         throw new SQLFeatureNotSupportedException("setBlob(int parameterIndex, InputStream inputStream, long lenght)");
-    }
-
-    @Override
-    public void setClob(int parameterIndex, Reader reader) throws SQLException {
-        throw new SQLFeatureNotSupportedException("setClob");
-    }
-
-    @Override
-    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-        throw new SQLFeatureNotSupportedException("setClob");
     }
 
     @Override
@@ -703,17 +741,17 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     //Set stream object
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-        throw new SQLFeatureNotSupportedException("setCharacterStream");
+        setClob(parameterIndex, reader, (long)length);
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
-        throw new SQLFeatureNotSupportedException("setCharacterStream");
+        setClob(parameterIndex, reader, length);
     }
 
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-        throw new SQLFeatureNotSupportedException("setCharacterStream");
+        setClob(parameterIndex, reader);
     }
 
     @Override

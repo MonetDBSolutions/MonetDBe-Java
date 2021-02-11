@@ -167,6 +167,8 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(
 {
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
     monetdbe_cnt *affected_rows = malloc(sizeof(monetdbe_cnt));
+    //Return value for data definition queries
+    (*affected_rows) = -2;
     char *sql = (char *)(*env)->GetStringUTFChars(env, j_sql, NULL);
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
 
