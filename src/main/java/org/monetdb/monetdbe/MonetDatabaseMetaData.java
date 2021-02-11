@@ -2,7 +2,6 @@ package org.monetdb.monetdbe;
 
 import java.sql.*;
 
-//TODO This was lazily imported from the normal JDBC Driver. Check again
 /**
  * A DatabaseMetaData object suitable for the MonetDB database.
  *
@@ -10,6 +9,7 @@ import java.sql.*;
  * @author Martin van Dinther
  * @version 1.0
  */
+//TODO Check TODOs
 public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaData {
     private final MonetConnection con;
 
@@ -141,8 +141,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public String getDatabaseProductVersion() throws SQLException {
-        //TODO Change
-        return "11.40.0";
+        return MonetDriver.getDatabaseVersion();
     }
 
     /**
@@ -162,9 +161,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public String getDriverVersion() {
-        //TODO Do we need this?
-        return null;
-        //return MonetDriver.getDriverVersion();
+        return MonetDriver.getDriverVersion();
     }
 
     /**
@@ -174,9 +171,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public int getDriverMajorVersion() {
-        //TODO Do we need this?
-        return 0;
-        //return MonetDriver.getDriverMajorVersion();
+        return MonetDriver.getDriverMajorVersion();
     }
 
     /**
@@ -186,9 +181,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public int getDriverMinorVersion() {
-        //TODO Do we need this?
-        return 0;
-        //return MonetDriver.getDriverMinorVersion();
+        return MonetDriver.getDriverMinorVersion();
     }
 
     /**
@@ -198,6 +191,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @return false because that's what MonetDB is for
      */
     @Override
+    //TODO Depends on if this is a memory or local database or a remote proxy
     public boolean usesLocalFiles() {
         return false;
     }
@@ -539,6 +533,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @return true if so; false otherwise
      */
     @Override
+    //TODO Review
     public boolean supportsConvert(final int fromType, final int toType) {
         switch (fromType) {
             case Types.BOOLEAN:
@@ -779,6 +774,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *
      * @return true if so
      */
+    //TODO We don't support this right now, but we want to in the future
     @Override
     public boolean supportsMultipleResultSets() {
         return true;
@@ -2610,15 +2606,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
         return con;
     }
 
-    /* I don't find these in the spec!?! */
-    public boolean rowChangesAreDetected(final int type) {
-        return false;
-    }
-
-    public boolean rowChangesAreVisible(final int type) {
-        return false;
-    }
-
     //== 1.4 methods (JDBC 3)
 
     /**
@@ -2628,6 +2615,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *		   <code>false</code> otherwise
      */
     @Override
+    //TODO We don't support this right now, but we want to in the future
     public boolean supportsSavepoints() {
         return true;
     }
@@ -2654,6 +2642,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *		   simultaneously; <code>false</code> otherwise
      */
     @Override
+    //TODO We don't support this right now, but we want to in the future
     public boolean supportsMultipleOpenResults() {
         return true;
     }
@@ -2666,6 +2655,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *		   after a statement has executed; <code>false</code> otherwise
      */
     @Override
+    //TODO We don't support this right now, but we want to in the future
     public boolean supportsGetGeneratedKeys() {
         return true;
     }
@@ -2895,8 +2885,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public int getDatabaseMajorVersion() throws SQLException {
-        //TODO Do we need this?
-        return 0;
+        return MonetDriver.getDatabaseMajorVersion();
     }
 
     /**
@@ -2907,8 +2896,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public int getDatabaseMinorVersion() throws SQLException {
-        //TODO Do we need this?
-        return 0;
+        return MonetDriver.getDatabaseMinorVersion();
     }
 
     /**
@@ -2918,7 +2906,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public int getJDBCMajorVersion() {
-        return 4; // This class implements JDBC 4.2 (at least we try to)
+        return 4; // This class implements JDBC 4.3 (at least we try to)
     }
 
     /**
@@ -2928,7 +2916,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public int getJDBCMinorVersion() {
-        return 2; // This class implements JDBC 4.2 (at least we try to)
+        return 3; // This class implements JDBC 4.3 (at least we try to)
     }
 
     /**
@@ -2939,6 +2927,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *		  sqlStateSQL
      */
     @Override
+    //TODO Review
     public int getSQLStateType() {
         // At least this driver conforms with SQLSTATE to the SQL:2003 standard
         return DatabaseMetaData.sqlStateSQL;
@@ -3047,20 +3036,16 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database access error occurs
      */
     @Override
+    //TODO Review
     public ResultSet getClientInfoProperties() throws SQLException {
         // for a list of connection properties see also MonetConnection.java constructor MonetConnection(Properties props)
         final String query =
                 "SELECT 'host' AS \"NAME\", cast(1024 as int) AS \"MAX_LEN\", 'localhost' AS \"DEFAULT_VALUE\", 'DSN or IP-address of machine running MonetDB' AS \"DESCRIPTION\" UNION ALL " +
                         "SELECT 'port', 5, '50000', 'communication port number of MonetDB server process' UNION ALL " +
-                        "SELECT 'user', 1024, '', 'user name to login to MonetDB server' UNION ALL " +
-                        "SELECT 'password', 128, '', 'password for user name to login to MonetDB server' UNION ALL " +
+                        "SELECT 'user', 1024, 'monetdb', 'user name to login to MonetDB server' UNION ALL " +
+                        "SELECT 'password', 128, 'monetdb', 'password for user name to login to MonetDB server' UNION ALL " +
                         "SELECT 'language', 16, 'sql', 'language (sql or mal) used to parse commands in MonetDB server' UNION ALL " +
                         "SELECT 'database', 1024, 'demo', 'name of database. It matches the dbfarm subdirectory name' UNION ALL " +
-                        "SELECT 'debug', 5, 'false', 'boolean flag true or false' UNION ALL " +
-                        "SELECT 'logfile', 1024, 'monet_######.log', 'name of logfile used when debug is enabled' UNION ALL " +
-                        "SELECT 'hash', 128, '', 'hash methods list to use in server connection. Supported are SHA512, SHA384, SHA256 and SHA1' UNION ALL " +
-                        "SELECT 'treat_blob_as_binary', 5, 'true', 'should blob columns be mapped to Types.VARBINARY instead of default Types.BLOB in ResultSets and PreparedStatements' UNION ALL " +
-                        "SELECT 'treat_clob_as_varchar', 5, 'true', 'should clob columns be mapped to Types.VARCHAR instead of default Types.CLOB in ResultSets and PreparedStatements' UNION ALL " +
                         "SELECT 'so_timeout', 10, '0', 'timeout (in milliseconds) of communication socket. 0 means no timeout is set' " +
                         "ORDER BY \"NAME\"";
 
@@ -3268,6 +3253,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException - if a database access error occurs
      */
     @Override
+    //TODO We don't support this right now, but we want to in the future
     public boolean generatedKeyAlwaysReturned() throws SQLException {
         return true;
     }

@@ -132,6 +132,9 @@ public class MonetColumn {
         if (monetdbeType == 2) {
             return constData.asShortBuffer().get(row);
         }
+        else if (monetdbeType == 1) {
+            return (short) constData.get(row);
+        }
         else if (monetdbeType == 0) {
             return getBoolean(row) ? (short) 1 : 0;
         }

@@ -193,6 +193,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public String getString(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
@@ -209,6 +211,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             Boolean val = columns[columnIndex-1].getBoolean(curRow-1);
             lastReadWasNull = false;
@@ -221,6 +225,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public byte getByte(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             Byte val = columns[columnIndex-1].getByte(curRow-1);
             if (val == null) {
@@ -237,6 +243,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public short getShort(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             Short val = columns[columnIndex-1].getShort(curRow-1);
             if (val == null) {
@@ -253,6 +261,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public int getInt(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             Integer val = columns[columnIndex-1].getInt(curRow-1);
             if (val == null) {
@@ -269,6 +279,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public long getLong(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             Long val = columns[columnIndex-1].getLong(curRow-1);
             if (val == null) {
@@ -285,6 +297,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public float getFloat(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             Float val = columns[columnIndex-1].getFloat(curRow-1);
             if (val.isNaN()) {
@@ -301,6 +315,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public double getDouble(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             Double val = columns[columnIndex-1].getDouble(curRow-1);
             if (val.isNaN()) {
@@ -317,6 +333,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public byte[] getBytes(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             byte[] val = columns[columnIndex-1].getBytes(curRow-1);
             if (val == null) {
@@ -333,6 +351,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             BigDecimal val = columns[columnIndex-1].getBigDecimal(curRow-1);
             if (val == null) {
@@ -348,6 +368,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     public BigInteger getHugeInt (int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             BigInteger val = columns[columnIndex-1].getBigInteger(curRow-1);
             if (val == null) {
@@ -408,6 +430,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     public LocalDate getLocalDate(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             LocalDate val = columns[columnIndex-1].getLocalDate(curRow-1);
             if (val == null) {
@@ -431,6 +455,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     public LocalTime getLocalTime(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             LocalTime val = columns[columnIndex-1].getLocalTime(curRow-1);
             if (val == null) {
@@ -454,6 +480,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     public LocalDateTime getLocalDateTime(int columnIndex, Calendar cal) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             LocalDateTime val = columns[columnIndex-1].getLocalDateTime(curRow-1);
             if (val == null) {
@@ -478,6 +506,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public MonetBlob getBlob(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             MonetBlob val = columns[columnIndex-1].getBlob(curRow-1);
             if (val == null) {
@@ -494,6 +524,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public Clob getClob(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
@@ -510,6 +542,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public URL getURL(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {
@@ -528,6 +562,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             Blob val = columns[columnIndex-1].getBlob(curRow-1);
             if (val == null)
@@ -541,6 +577,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public Reader getCharacterStream(int columnIndex) throws SQLException {
         checkNotClosed();
+        if (curRow <= 0 || curRow > tupleCount)
+            throw new SQLException("Current row " + curRow + " does not support operation");
         try {
             String val = columns[columnIndex-1].getString(curRow-1);
             if (val == null) {

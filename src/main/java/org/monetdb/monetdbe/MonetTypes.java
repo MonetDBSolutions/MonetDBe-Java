@@ -58,6 +58,7 @@ final class MonetTypes {
         typeMapSQLToMonet.put(Types.DATE,11);
         typeMapSQLToMonet.put(Types.TIME,12);
         typeMapSQLToMonet.put(Types.TIMESTAMP,13);
+        typeMapSQLToMonet.put(Types.NULL,14);
 
         typeMapSQLToMonet.put(Types.NUMERIC,5);
         typeMapSQLToMonet.put(Types.DECIMAL,5);

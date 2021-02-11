@@ -141,12 +141,36 @@ final public class MonetDriver implements java.sql.Driver {
 
     @Override
     public int getMajorVersion() {
-        return 4;
+        return 1;
     }
 
     @Override
     public int getMinorVersion() {
-        return 3;
+        return 1;
+    }
+
+    static final int getDriverMajorVersion() {
+        return 1;
+    }
+
+    static final int getDriverMinorVersion() {
+        return 1;
+    }
+
+    static final String getDriverVersion() {
+        return getDriverMajorVersion() + "." + getDriverMinorVersion();
+    }
+
+    static final int getDatabaseMajorVersion() {
+        return 11;
+    }
+
+    static final int getDatabaseMinorVersion() {
+        return 40;
+    }
+
+    static final String getDatabaseVersion() {
+        return getDatabaseMajorVersion() + "." + getDatabaseMinorVersion();
     }
 
     @Override
