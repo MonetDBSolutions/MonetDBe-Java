@@ -1,6 +1,7 @@
 package org.monetdb.monetdbe;
 
 import java.sql.*;
+import java.util.Map;
 
 /**
  * A DatabaseMetaData object suitable for the MonetDB database.
@@ -9,7 +10,6 @@ import java.sql.*;
  * @author Martin van Dinther
  * @version 1.0
  */
-//TODO Check TODOs
 public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaData {
     private final MonetConnection con;
 
@@ -1628,8 +1628,89 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final String procedureNamePattern
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(980);
+        query.append("SELECT cast(null as char(1)) AS \"PROCEDURE_CAT\", " +
+                "s.\"name\" AS \"PROCEDURE_SCHEM\", " +
+                "f.\"name\" AS \"PROCEDURE_NAME\", " +
+                "cast(null as char(1)) AS \"Field4\", " +
+                "cast(null as char(1)) AS \"Field5\", " +
+                "cast(null as char(1)) AS \"Field6\", " +
+                "cast(null as char(1)) AS \"REMARKS\", " +
+                // in MonetDB procedures have no return value by design.
+                "cast(").append(DatabaseMetaData.procedureNoResult).append(" AS smallint) AS \"PROCEDURE_TYPE\", " +
+                // only the id value uniquely identifies a procedure. Include it to be able to differentiate between multiple overloaded procedures with the same name
+                "cast(f.\"id\" as varchar(10)) AS \"SPECIFIC_NAME\" " +
+                "FROM \"sys\".\"functions\" f JOIN \"sys\".\"schemas\" s ON f.\"schema_id\" = s.\"id\" " +
+                "WHERE f.\"type\" = 2");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            System.out.println("C");
+            query.append(" AND 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                System.out.println("S");
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schemaPattern));
+            }
+            if (procedureNamePattern != null && !procedureNamePattern.equals("%")) {
+                System.out.println("P");
+                query.append(" AND f.\"name\" ").append(composeMatchPart(procedureNamePattern));
+            }
+        }
+
+        query.append(" ORDER BY \"PROCEDURE_SCHEM\", \"PROCEDURE_NAME\", \"SPECIFIC_NAME\"");
+        return executeMetaDataQuery(query.toString());
+    }
+
+    //TODO Update these type conversions to MonetDBeTypes (requires that the system procedures output argument types in MonetDBe types)
+    private static final java.util.Map<String, Integer> typeMap = new java.util.HashMap<String, Integer>();
+    static {
+        // fill the typeMap once
+        // typeMap.put("any", Integer.valueOf(Types.???));
+        typeMap.put("bigint", Integer.valueOf(Types.BIGINT));
+        typeMap.put("blob", Integer.valueOf(Types.BLOB));
+        typeMap.put("boolean", Integer.valueOf(Types.BOOLEAN));
+        typeMap.put("char", Integer.valueOf(Types.CHAR));
+        typeMap.put("clob", Integer.valueOf(Types.CLOB));
+        typeMap.put("date", Integer.valueOf(Types.DATE));
+        typeMap.put("decimal", Integer.valueOf(Types.DECIMAL));
+        typeMap.put("double", Integer.valueOf(Types.DOUBLE));
+        // typeMap.put("geometry", Integer.valueOf(Types.???));
+        // typeMap.put("geometrya", Integer.valueOf(Types.???));
+        typeMap.put("hugeint", Integer.valueOf(Types.NUMERIC));
+        typeMap.put("inet", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("int", Integer.valueOf(Types.INTEGER));
+        typeMap.put("json", Integer.valueOf(Types.VARCHAR));
+        // typeMap.put("mbr", Integer.valueOf(Types.???));
+        typeMap.put("month_interval", Integer.valueOf(Types.INTEGER));
+        typeMap.put("oid", Integer.valueOf(Types.BIGINT));
+        // typeMap.put("ptr", Integer.valueOf(Types.???));
+        typeMap.put("real", Integer.valueOf(Types.REAL));
+        typeMap.put("sec_interval", Integer.valueOf(Types.DECIMAL));
+        typeMap.put("smallint", Integer.valueOf(Types.SMALLINT));
+        typeMap.put("str", Integer.valueOf(Types.VARCHAR));	// MonetDB prepare <stmt> uses type 'str' (instead of varchar) for the schema, table and column metadata output
+        // typeMap.put("table", Integer.valueOf(Types.???));
+        typeMap.put("time", Integer.valueOf(Types.TIME));
+        typeMap.put("timestamp", Integer.valueOf(Types.TIMESTAMP));
+        typeMap.put("timestamptz", Integer.valueOf(Types.TIMESTAMP));
+// new in Java 8: Types.TIMESTAMP_WITH_TIMEZONE (value 2014). Can't use it yet as we compile for java 7
+        typeMap.put("timetz", Integer.valueOf(Types.TIME));
+// new in Java 8: Types.TIME_WITH_TIMEZONE (value 2013). Can't use it yet as we compile for java 7
+        typeMap.put("tinyint", Integer.valueOf(Types.TINYINT));
+        typeMap.put("url", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("uuid", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("varchar", Integer.valueOf(Types.VARCHAR));
+        typeMap.put("wrd", Integer.valueOf(Types.BIGINT));  // keep it in for older MonetDB servers
+    }
+
+    static final String getSQLTypeMap(final String column) {
+        final StringBuilder val = new StringBuilder((typeMap.size() * (7 + 7 + 7 + 4)) + 14);
+        for (Map.Entry<String, Integer> entry : typeMap.entrySet()) {
+            val.append(" WHEN '").append(entry.getKey()).append("' THEN ").append(entry.getValue().toString());
+        }
+        val.append(" ELSE ").append(Types.OTHER).append(" END");
+        return "CASE " + column + val.toString();
     }
 
     /**
@@ -1700,6 +1781,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database-access error occurs
      * @see #getSearchStringEscape
      */
+    //TODO Check and update type conversion (above)
     @Override
     public ResultSet getProcedureColumns(
             final String catalog,
@@ -1707,8 +1789,57 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final String procedureNamePattern,
             final String columnNamePattern
     ) throws SQLException {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(2900);
+        query.append("SELECT cast(null as char(1)) AS \"PROCEDURE_CAT\", " +
+                "s.\"name\" AS \"PROCEDURE_SCHEM\", " +
+                "f.\"name\" AS \"PROCEDURE_NAME\", " +
+                "a.\"name\" AS \"COLUMN_NAME\", " +
+                "cast(CASE a.\"inout\"" +
+                " WHEN 0 THEN (CASE a.\"number\" WHEN 0 THEN ").append(DatabaseMetaData.procedureColumnReturn).append(" ELSE ").append(DatabaseMetaData.procedureColumnOut).append(" END)" +
+                " WHEN 1 THEN ").append(DatabaseMetaData.procedureColumnIn)
+                .append(" ELSE ").append(DatabaseMetaData.procedureColumnUnknown).append(" END AS smallint) AS \"COLUMN_TYPE\", " +
+                "cast(").append(getSQLTypeMap("a.\"type\"")).append(" AS int) AS \"DATA_TYPE\", " +
+                "a.\"type\" AS \"TYPE_NAME\", " +
+                "CASE a.\"type\" WHEN 'tinyint' THEN 3 WHEN 'smallint' THEN 5 WHEN 'int' THEN 10 WHEN 'bigint' THEN 19 WHEN 'hugeint' THEN 38 WHEN 'oid' THEN 19 WHEN 'wrd' THEN 19 ELSE a.\"type_digits\" END AS \"PRECISION\", " +
+                "CASE a.\"type\" WHEN 'tinyint' THEN 1 WHEN 'smallint' THEN 2 WHEN 'int' THEN 4 WHEN 'bigint' THEN 8 WHEN 'hugeint' THEN 16 WHEN 'oid' THEN 8 WHEN 'wrd' THEN 8 ELSE a.\"type_digits\" END AS \"LENGTH\", " +
+                "cast(CASE WHEN a.\"type\" IN ('tinyint','smallint','int','bigint','hugeint','oid','wrd','decimal','numeric','time','timetz','timestamp','timestamptz','sec_interval') THEN a.\"type_scale\" ELSE NULL END AS smallint) AS \"SCALE\", " +
+                "cast(CASE WHEN a.\"type\" IN ('tinyint','smallint','int','bigint','hugeint','oid','wrd','decimal','numeric') THEN 10 WHEN a.\"type\" IN ('real','float','double') THEN 2 ELSE NULL END AS smallint) AS \"RADIX\", " +
+                "cast(").append(DatabaseMetaData.procedureNullableUnknown).append(" AS smallint) AS \"NULLABLE\", " +
+                "cast(null as char(1)) AS \"REMARKS\", " +
+                "cast(null as char(1)) AS \"COLUMN_DEF\", " +
+                "cast(0 as int) AS \"SQL_DATA_TYPE\", " +
+                "cast(0 as int) AS \"SQL_DATETIME_SUB\", " +
+                "cast(CASE WHEN a.\"type\" IN ('char','varchar','clob') THEN a.\"type_digits\" ELSE NULL END as int) AS \"CHAR_OCTET_LENGTH\", " +
+                // in MonetDB procedures have no return value by design. The arguments in sys.args are numbered from 0 so we must add 1 to comply with the API specification.
+                "cast(a.\"number\" + 1 as int) AS \"ORDINAL_POSITION\", " +
+                "cast('' as varchar(3)) AS \"IS_NULLABLE\", " +
+                // the specific name contains the function id, in order to be able to match the args to the correct overloaded procedure name
+                "cast(f.\"id\" as varchar(10)) AS \"SPECIFIC_NAME\" " +
+                "FROM \"sys\".\"args\" a " +
+                "JOIN \"sys\".\"functions\" f ON a.\"func_id\" = f.\"id\" " +
+                "JOIN \"sys\".\"schemas\" s ON f.\"schema_id\" = s.\"id\" " +
+                // include procedures only (type = 2). Others will be returned via getFunctionColumns()
+                "WHERE f.\"type\" = 2");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schemaPattern));
+            }
+            if (procedureNamePattern != null && !procedureNamePattern.equals("%")) {
+                query.append(" AND f.\"name\" ").append(composeMatchPart(procedureNamePattern));
+            }
+            if (columnNamePattern != null && !columnNamePattern.equals("%")) {
+                query.append(" AND a.\"name\" ").append(composeMatchPart(columnNamePattern));
+            }
+        }
+
+        query.append(" ORDER BY \"PROCEDURE_SCHEM\", \"PROCEDURE_NAME\", \"SPECIFIC_NAME\", \"ORDINAL_POSITION\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -1747,6 +1878,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database-access error occurs.
      */
     @Override
+    //TODO Test with types
     public ResultSet getTables(
             final String catalog,
             final String schemaPattern,
@@ -1754,8 +1886,49 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final String types[]
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder();
+        query.append("SELECT cast(null as char(1)) AS \"TABLE_CAT\", " +
+                "s.\"name\" AS \"TABLE_SCHEM\", " +
+                "t.\"name\" AS \"TABLE_NAME\", " +
+                "tt.\"table_type_name\" AS \"TABLE_TYPE\", "+
+                "t.\"query\"  AS \"REMARKS\", " +
+                "cast(null as char(1)) AS \"TYPE_CAT\", " +
+                "cast(null as char(1)) AS \"TYPE_SCHEM\", " +
+                "cast(null as char(1)) AS \"TYPE_NAME\", " +
+                "cast(null as char(1)) AS \"SELF_REFERENCING_COL_NAME\", " +
+                "cast(null as char(1)) AS \"REF_GENERATION\" " +
+                "FROM \"sys\".\"tables\" t " +
+                "JOIN \"sys\".\"table_types\" tt ON t.\"type\" = tt.\"table_type_id\"" +
+                "JOIN \"sys\".\"schemas\" s ON t.\"schema_id\" = s.\"id\" ");
+
+        query.append("WHERE 1=1");
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schemaPattern));
+            }
+            if (tableNamePattern != null && !tableNamePattern.equals("%")) {
+                query.append(" AND t.\"name\" ").append(composeMatchPart(tableNamePattern));
+            }
+        }
+        if (types != null && types.length > 0) {
+            query.append(" AND tt.\"table_type_name\" IN (");
+
+            for (int i = 0; i < types.length; i++) {
+                if (i > 0) {
+                    query.append(", ");
+                }
+                query.append("'").append(types[i]).append("'");
+            }
+            query.append(")");
+        }
+
+        query.append(" ORDER BY \"TABLE_TYPE\", \"TABLE_SCHEM\", \"TABLE_NAME\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -1783,8 +1956,23 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
     public ResultSet getSchemas(final String catalog, final String schemaPattern)
             throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(170);
+        query.append("SELECT \"name\" AS \"TABLE_SCHEM\", " +
+                "cast(null as char(1)) AS \"TABLE_CATALOG\" " +
+                "FROM \"sys\".\"schemas\"");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" WHERE 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                query.append(" WHERE \"name\" ").append(composeMatchPart(schemaPattern));
+            }
+        }
+        query.append(" ORDER BY \"TABLE_SCHEM\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -1913,6 +2101,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @see #getSearchStringEscape
      */
     @Override
+    //TODO Check
     public ResultSet getColumns(
             final String catalog,
             final String schemaPattern,
@@ -1920,8 +2109,58 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final String columnNamePattern
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(2450);
+        query.append("SELECT cast(null as char(1)) AS \"TABLE_CAT\", " +
+                "s.\"name\" AS \"TABLE_SCHEM\", " +
+                "t.\"name\" AS \"TABLE_NAME\", " +
+                "c.\"name\" AS \"COLUMN_NAME\", " +
+                "cast(").append(getSQLTypeMap("c.\"type\"")).append(" AS int) AS \"DATA_TYPE\", " +
+                "c.\"type\" AS \"TYPE_NAME\", " +
+                "c.\"type_digits\" AS \"COLUMN_SIZE\", " +
+                "cast(0 as int) AS \"BUFFER_LENGTH\", " +
+                "c.\"type_scale\" AS \"DECIMAL_DIGITS\", " +
+                "cast(CASE WHEN c.\"type\" IN ('decimal', 'numeric', 'sec_interval') THEN 10 " +
+                "WHEN c.\"type\" IN ('int', 'smallint', 'tinyint', 'bigint', 'hugeint', 'float', 'real', 'double', 'oid', 'wrd') THEN 2 " +
+                "ELSE 0 END AS int) AS \"NUM_PREC_RADIX\", " +
+                "cast(CASE c.\"null\" WHEN true THEN ").append(ResultSetMetaData.columnNullable)
+                .append(" WHEN false THEN ").append(ResultSetMetaData.columnNoNulls).append(" END AS int) AS \"NULLABLE\", ")
+                .append("cast(null AS varchar(9999))").append(" AS \"REMARKS\", " +
+                "c.\"default\" AS \"COLUMN_DEF\", " +
+                "cast(0 as int) AS \"SQL_DATA_TYPE\", " +
+                "cast(0 as int) AS \"SQL_DATETIME_SUB\", " +
+                "cast(CASE WHEN c.\"type\" IN ('char','varchar','clob') THEN c.\"type_digits\" ELSE NULL END as int) AS \"CHAR_OCTET_LENGTH\", " +
+                "cast(c.\"number\" + 1 as int) AS \"ORDINAL_POSITION\", " +
+                "cast(CASE c.\"null\" WHEN true THEN 'YES' WHEN false THEN 'NO' ELSE '' END AS varchar(3)) AS \"IS_NULLABLE\", " +
+                "cast(null AS char(1)) AS \"SCOPE_CATALOG\", " +
+                "cast(null AS char(1)) AS \"SCOPE_SCHEMA\", " +
+                "cast(null AS char(1)) AS \"SCOPE_TABLE\", " +
+                "cast(null AS smallint) AS \"SOURCE_DATA_TYPE\", " +
+                "cast(CASE WHEN c.\"default\" IS NOT NULL AND c.\"default\" LIKE 'next value for %' THEN 'YES' ELSE 'NO' END AS varchar(3)) AS \"IS_AUTOINCREMENT\", " +
+                "cast('NO' AS varchar(3)) AS \"IS_GENERATEDCOLUMN\" " +
+                "FROM \"sys\".\"columns\" c " +
+                "JOIN \"sys\".\"tables\" t ON c.\"table_id\" = t.\"id\" " +
+                "JOIN \"sys\".\"schemas\" s ON t.\"schema_id\" = s.\"id\" ");
+        query.append("WHERE 1=1");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schemaPattern));
+            }
+            if (tableNamePattern != null && !tableNamePattern.equals("%")) {
+                query.append(" AND t.\"name\" ").append(composeMatchPart(tableNamePattern));
+            }
+            if (columnNamePattern != null && !columnNamePattern.equals("%")) {
+                query.append(" AND c.\"name\" ").append(composeMatchPart(columnNamePattern));
+            }
+        }
+
+        query.append(" ORDER BY \"TABLE_SCHEM\", \"TABLE_NAME\", \"ORDINAL_POSITION\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -1956,6 +2195,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database error occurs
      */
     @Override
+    //TODO Check
     public ResultSet getColumnPrivileges(
             final String catalog,
             final String schemaPattern,
@@ -1963,8 +2203,47 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final String columnNamePattern
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder();
+        query.append("SELECT cast(null as char(1)) AS \"TABLE_CAT\", " +
+                "s.\"name\" AS \"TABLE_SCHEM\", " +
+                "t.\"name\" AS \"TABLE_NAME\", " +
+                "c.\"name\" AS \"COLUMN_NAME\", " +
+                "grantors.\"name\" AS \"GRANTOR\", " +
+                "grantees.\"name\" AS \"GRANTEE\", "+
+                "pc.\"privilege_code_name\" AS \"PRIVILEGE\", " +
+                "cast(CASE p.\"grantable\" " +
+                "WHEN 0 THEN 'NO' " +
+                "WHEN 1 THEN 'YES' " +
+                "ELSE NULL " +
+                "END AS varchar(3)) AS \"IS_GRANTABLE\" " +
+                "FROM \"sys\".\"privileges\" p " +
+                "JOIN \"sys\".\"columns\" c ON p.\"obj_id\" = c.\"table_id\" " +
+                "JOIN \"sys\".\"tables\" t ON c.\"table_id\" = t.\"id\" " +
+                "JOIN \"sys\".\"schemas\" s ON t.\"schema_id\" = s.\"id\" " +
+                "JOIN \"sys\".\"auths\" grantors ON p.\"grantor\" = grantors.\"id\" " +
+                "JOIN \"sys\".\"auths\" grantees ON p.\"auth_id\" = grantees.\"id\" "+
+                "JOIN \"sys\".\"privilege_codes\" pc ON p.\"privileges\" = pc.\"privilege_code_id\" ");
+        query.append("WHERE 1=1");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schemaPattern));
+            }
+            if (tableNamePattern != null && !tableNamePattern.equals("%")) {
+                query.append(" AND t.\"name\" ").append(composeMatchPart(tableNamePattern));
+            }
+            if (columnNamePattern != null && !columnNamePattern.equals("%")) {
+                query.append(" AND c.\"name\" ").append(composeMatchPart(columnNamePattern));
+            }
+        }
+
+        query.append(" ORDER BY \"TABLE_SCHEM\", \"TABLE_NAME\", \"COLUMN_NAME\", \"PRIVILEGE\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -1997,14 +2276,49 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database error occurs
      */
     @Override
+    //TODO Check
     public ResultSet getTablePrivileges(
             final String catalog,
             final String schemaPattern,
             final String tableNamePattern
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(1000);
+        query.append("SELECT cast(null as char(1)) AS \"TABLE_CAT\", " +
+                "s.\"name\" AS \"TABLE_SCHEM\", " +
+                "t.\"name\" AS \"TABLE_NAME\", " +
+                "grantors.\"name\" AS \"GRANTOR\", " +
+                "grantees.\"name\" AS \"GRANTEE\", " +
+                "pc.\"privilege_code_name\" AS \"PRIVILEGE\", " +
+                "cast(CASE p.\"grantable\" " +
+                "WHEN 0 THEN 'NO' " +
+                "WHEN 1 THEN 'YES' " +
+                "ELSE NULL " +
+                "END AS varchar(3)) AS \"IS_GRANTABLE\" " +
+                "FROM \"sys\".\"privileges\" p " +
+                "JOIN \"sys\".\"tables\" t ON p.\"obj_id\" = t.\"id\" " +
+                "JOIN \"sys\".\"schemas\" s ON t.\"schema_id\" = s.\"id\" " +
+                "JOIN \"sys\".\"auths\" grantors ON p.\"grantor\" = grantors.\"id\" " +
+                "JOIN \"sys\".\"auths\" grantees ON p.\"auth_id\" = grantees.\"id\" " +
+                "JOIN \"sys\".\"privilege_codes\" pc ON p.\"privileges\" = pc.\"privilege_code_id\"");
+        query.append("WHERE 1=1");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schemaPattern));
+            }
+            if (tableNamePattern != null && !tableNamePattern.equals("%")) {
+                query.append(" AND t.\"name\" ").append(composeMatchPart(tableNamePattern));
+            }
+        }
+
+        query.append(" ORDER BY \"TABLE_SCHEM\", \"TABLE_NAME\", \"PRIVILEGE\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -2052,7 +2366,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final boolean nullable
     ) throws SQLException
     {
-        //TODO Do we need this?
+        //TODO Implement
         return null;
     }
 
@@ -2134,9 +2448,62 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final String table
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(600);
+        query.append("SELECT cast(null AS char(1)) AS \"TABLE_CAT\", " +
+                "s.\"name\" AS \"TABLE_SCHEM\", " +
+                "t.\"name\" AS \"TABLE_NAME\", " +
+                "o.\"name\" AS \"COLUMN_NAME\", " +
+                "cast(1 + o.\"nr\" AS smallint) AS \"KEY_SEQ\", " +
+                " k.\"name\" AS \"PK_NAME\" " +
+                "FROM \"sys\".\"keys\" k " +
+                "JOIN \"sys\".\"objects\" o ON k.\"id\" = o.\"id\" " +
+                "JOIN \"sys\".\"tables\" t ON k.\"table_id\" = t.\"id\" " +
+                "JOIN \"sys\".\"schemas\" s ON t.\"schema_id\" = s.\"id\" " +
+                "WHERE k.\"type\" = 0");	// only primary keys (type = 0)
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schema != null && !schema.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schema));
+            }
+            if (table != null && !table.equals("%")) {
+                query.append(" AND t.\"name\" ").append(composeMatchPart(table));
+            }
+        }
+
+        query.append(" ORDER BY \"TABLE_SCHEM\", \"TABLE_NAME\", \"COLUMN_NAME\"");
+
+        return executeMetaDataQuery(query.toString());
     }
+
+    // same SQL query used by getImportedKeys(), getExportedKeys() and getCrossReference()
+    private static final String keyQuery =
+            "SELECT cast(null AS char(1)) AS \"PKTABLE_CAT\", " +
+                    "pkschema.\"name\" AS \"PKTABLE_SCHEM\", " +
+                    "pktable.\"name\" AS \"PKTABLE_NAME\", " +
+                    "pkkeycol.\"name\" AS \"PKCOLUMN_NAME\", " +
+                    "cast(null AS char(1)) AS \"FKTABLE_CAT\", " +
+                    "fkschema.\"name\" AS \"FKTABLE_SCHEM\", " +
+                    "fktable.\"name\" AS \"FKTABLE_NAME\", " +
+                    "fkkeycol.\"name\" AS \"FKCOLUMN_NAME\", " +
+                    "cast(1 + \"pkkeycol\".\"nr\" AS smallint) AS \"KEY_SEQ\", " +
+                    DatabaseMetaData.importedKeyNoAction + " AS \"UPDATE_RULE\", " +
+                    DatabaseMetaData.importedKeyNoAction + " AS \"DELETE_RULE\", " +
+                    "fkkey.\"name\" AS \"FK_NAME\", " +
+                    "pkkey.\"name\" AS \"PK_NAME\", " +
+                    DatabaseMetaData.importedKeyNotDeferrable + " AS \"DEFERRABILITY\" " +
+                    "FROM \"sys\".\"keys\" pkkey " +
+                    "JOIN \"sys\".\"objects\" pkkeycol ON pkkey.\"id\" = pkkeycol.\"id\" " +
+                    "JOIN \"sys\".\"tables\" pktable ON pktable.\"id\" = pkkey.\"table_id\" " +
+                    "JOIN \"sys\".\"schemas\" pkschema ON pkschema.\"id\" = pktable.\"schema_id\" " +
+                    "JOIN \"sys\".\"keys\" fkkey ON fkkey.\"rkey\" = pkkey.\"id\" " +
+                    "JOIN \"sys\".\"objects\" fkkeycol ON (fkkey.\"id\" = fkkeycol.\"id\" AND fkkeycol.\"nr\" = pkkeycol.\"nr\") " +
+                    "JOIN \"sys\".\"tables\" fktable ON fktable.\"id\" = fkkey.\"table_id\" " +
+                    "JOIN \"sys\".\"schemas\" fkschema ON fkschema.\"id\" = fktable.\"schema_id\" " +
+                    "WHERE fkkey.\"rkey\" > 0";	// exclude invalid key references, such as -1
 
     /**
      * Get a description of the primary key columns that are
@@ -2195,14 +2562,32 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database error occurs
      */
     @Override
+    //TODO Not well implemented ?
     public ResultSet getImportedKeys(
             final String catalog,
             final String schema,
             final String table
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(keyQuery.length() + 250);
+        query.append(keyQuery);
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schema != null && !schema.equals("%")) {
+                query.append(" AND fkschema.\"name\" ").append(composeMatchPart(schema));
+            }
+            if (table != null && !table.equals("%")) {
+                query.append(" AND fktable.\"name\" ").append(composeMatchPart(table));
+            }
+        }
+
+        query.append(" ORDER BY \"PKTABLE_SCHEM\", \"PKTABLE_NAME\", \"PK_NAME\", \"KEY_SEQ\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -2261,14 +2646,32 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database error occurs
      */
     @Override
+    //TODO Not well implemented ?
     public ResultSet getExportedKeys(
             final String catalog,
             final String schema,
             final String table
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(keyQuery.length() + 250);
+        query.append(keyQuery);
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schema != null && !schema.equals("%")) {
+                query.append(" AND pkschema.\"name\" ").append(composeMatchPart(schema));
+            }
+            if (table != null && !table.equals("%")) {
+                query.append(" AND pktable.\"name\" ").append(composeMatchPart(table));
+            }
+        }
+
+        query.append(" ORDER BY \"FKTABLE_SCHEM\", \"FKTABLE_NAME\", \"FK_NAME\", \"KEY_SEQ\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -2334,6 +2737,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @see #getImportedKeys
      */
     @Override
+    //TODO Not well implemented ?
     public ResultSet getCrossReference(
             final String pcatalog,
             final String pschema,
@@ -2343,8 +2747,33 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final String ftable
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(keyQuery.length() + 350);
+        query.append(keyQuery);
+
+        if ((pcatalog != null && !pcatalog.isEmpty())
+                || (fcatalog != null && !fcatalog.isEmpty())) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (pschema != null && !pschema.equals("%")) {
+                query.append(" AND pkschema.\"name\" ").append(composeMatchPart(pschema));
+            }
+            if (ptable != null && !ptable.equals("%")) {
+                query.append(" AND pktable.\"name\" ").append(composeMatchPart(ptable));
+            }
+
+            if (fschema != null && !fschema.equals("%")) {
+                query.append(" AND fkschema.\"name\" ").append(composeMatchPart(fschema));
+            }
+            if (ftable != null && !ftable.equals("%")) {
+                query.append(" AND fktable.\"name\" ").append(composeMatchPart(ftable));
+            }
+        }
+
+        query.append(" ORDER BY \"FKTABLE_SCHEM\", \"FKTABLE_NAME\", \"FK_NAME\", \"KEY_SEQ\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -2400,8 +2829,37 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      */
     @Override
     public ResultSet getTypeInfo() throws SQLException {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(2300);
+        query.append("SELECT \"sqlname\" AS \"TYPE_NAME\", " +
+                "cast(").append(getSQLTypeMap("\"sqlname\"")).append(" AS int) AS \"DATA_TYPE\", " +
+                "\"digits\" AS \"PRECISION\", " +	// note that when radix is 2 the precision shows the number of bits
+                "cast(CASE WHEN \"systemname\" IN ('str','inet','json','url','uuid','blob','sqlblob') THEN ''''" +
+                " ELSE NULL END AS varchar(2)) AS \"LITERAL_PREFIX\", " +
+                "cast(CASE WHEN \"systemname\" IN ('str','inet','json','url','uuid','blob','sqlblob') THEN ''''" +
+                " ELSE NULL END AS varchar(2)) AS \"LITERAL_SUFFIX\", " +
+                "CASE WHEN \"sqlname\" IN ('char', 'varchar') THEN 'max length'" +
+                " WHEN \"sqlname\" = 'decimal' THEN 'precision, scale'" +
+                " WHEN \"sqlname\" IN ('time', 'timetz', 'timestamp', 'timestamptz', 'sec_interval') THEN 'precision'" +
+                " ELSE NULL END AS \"CREATE_PARAMS\", " +
+                "cast(CASE WHEN \"systemname\" = 'oid' THEN ").append(DatabaseMetaData.typeNoNulls)
+                .append(" ELSE ").append(DatabaseMetaData.typeNullable).append(" END AS smallint) AS \"NULLABLE\", " +
+                "CASE WHEN \"systemname\" IN ('str','json','url') THEN true ELSE false END AS \"CASE_SENSITIVE\", " +
+                "cast(CASE WHEN \"systemname\" IN ('str','inet','json','url','uuid','blob','sqlblob') THEN ").append(DatabaseMetaData.typeSearchable)
+                .append(" ELSE ").append(DatabaseMetaData.typePredBasic).append(" END AS smallint) AS \"SEARCHABLE\", " +
+                "CASE WHEN \"sqlname\" IN ('tinyint','smallint','int','bigint','hugeint','decimal','real','double','sec_interval','month_interval') THEN false ELSE true END AS \"UNSIGNED_ATTRIBUTE\", " +
+                "CASE \"sqlname\" WHEN 'decimal' THEN true ELSE false END AS \"FIXED_PREC_SCALE\", " +
+                "CASE WHEN \"sqlname\" IN ('tinyint','smallint','int','bigint','hugeint','decimal','oid','wrd') THEN true ELSE false END AS \"AUTO_INCREMENT\", " +
+                "\"systemname\" AS \"LOCAL_TYPE_NAME\", " +
+                "cast(0 AS smallint) AS \"MINIMUM_SCALE\", " +
+                "cast(CASE WHEN \"sqlname\" = 'decimal' THEN (CASE \"systemname\" WHEN 'lng' THEN 18 WHEN 'hge' THEN 38 WHEN 'int' THEN 9 WHEN 'sht' THEN 4 WHEN 'bte' THEN 2 ELSE 0 END)" +
+                " WHEN \"sqlname\" IN ('time', 'timetz', 'timestamp', 'timestamptz', 'sec_interval') THEN 6 ELSE 0 END AS smallint) AS \"MAXIMUM_SCALE\", " +
+                "cast(0 AS int) AS \"SQL_DATA_TYPE\", " +
+                "cast(0 AS int) AS \"SQL_DATETIME_SUB\", " +
+                "cast(\"radix\" as int) AS \"NUM_PREC_RADIX\" " +
+                "FROM \"sys\".\"types\" " +
+                "ORDER BY \"DATA_TYPE\", \"sqlname\", \"id\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -2465,8 +2923,70 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final boolean approximate
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        String table_row_count = "0";
+
+        if (!approximate
+                && schema != null && !schema.isEmpty() && !schema.contains("%")
+                && table != null && !table.isEmpty() && !table.contains("%")) {
+            // we need the exact cardinality for one specific fully qualified table
+            ResultSet count = null;
+            try {
+                count = executeMetaDataQuery("SELECT COUNT(*) FROM \"" + schema + "\".\"" + table + "\"");
+                if (count != null && count.next()) {
+                    String count_value = count.getString(1);
+                    if (count_value != null && !count_value.isEmpty())
+                        table_row_count = count_value;
+                }
+            } catch (SQLException e) {
+                // ignore
+            } finally {
+                if (count != null)
+                    count.close();
+            }
+        }
+
+        final StringBuilder query = new StringBuilder(1250);
+        query.append(
+                "SELECT cast(null AS char(1)) AS \"TABLE_CAT\", " +
+                        "s.\"name\" AS \"TABLE_SCHEM\", " +
+                        "t.\"name\" AS \"TABLE_NAME\", " +
+                        "CASE WHEN k.\"name\" IS NULL THEN true ELSE false END AS \"NON_UNIQUE\", " +
+                        "cast(null AS char(1)) AS \"INDEX_QUALIFIER\", " +
+                        "i.\"name\" AS \"INDEX_NAME\", " +
+                        "CASE i.\"type\" WHEN 0 THEN ").append(DatabaseMetaData.tableIndexHashed).append(" ELSE ").append(DatabaseMetaData.tableIndexOther).append(" END AS \"TYPE\", " +
+                "cast(o.\"nr\" +1 AS smallint) AS \"ORDINAL_POSITION\", "+
+                "c.\"name\" AS \"COLUMN_NAME\", " +
+                "cast(null AS char(1)) AS \"ASC_OR_DESC\", " +	// sort sequence currently not supported in keys or indexes in MonetDB
+                "cast(").append(table_row_count).append(" AS int) AS \"CARDINALITY\", " +
+                "cast(0 AS int) AS \"PAGES\", " +
+                "cast(null AS char(1)) AS \"FILTER_CONDITION\" " +
+                "FROM \"sys\".\"idxs\" i " +
+                "JOIN \"sys\".\"tables\" t ON i.\"table_id\" = t.\"id\" " +
+                "JOIN \"sys\".\"schemas\" s ON t.\"schema_id\" = s.\"id\" " +
+                "JOIN \"sys\".\"objects\" o ON i.\"id\" = o.\"id\" " +
+                "JOIN \"sys\".\"columns\" c ON (t.\"id\" = c.\"table_id\" AND o.\"name\" = c.\"name\") " +
+                "LEFT OUTER JOIN \"sys\".\"keys\" k ON (i.\"name\" = k.\"name\" AND i.\"table_id\" = k.\"table_id\" AND k.\"type\" IN (0,1)) " +	// primary (0) and unique keys (1) only
+                "WHERE 1=1");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schema != null && !schema.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schema));
+            }
+            if (table != null && !table.equals("%")) {
+                query.append(" AND t.\"name\" ").append(composeMatchPart(table));
+            }
+            if (unique) {
+                query.append(" AND k.\"name\" IS NOT NULL");
+            }
+        }
+
+        query.append(" ORDER BY \"NON_UNIQUE\", \"TYPE\", \"INDEX_NAME\", \"ORDINAL_POSITION\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     //== 1.2 methods (JDBC 2)
@@ -2585,6 +3105,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException - if a database access error occurs
      */
     @Override
+    //TODO UDTs: We don't support this right now, but we want to in the future
     public ResultSet getUDTs(
             final String catalog,
             final String schemaPattern,
@@ -2592,7 +3113,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final int[] types
     ) throws SQLException
     {
-        //TODO Do we need this?
         return null;
     }
 
@@ -3036,7 +3556,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database access error occurs
      */
     @Override
-    //TODO Review
     public ResultSet getClientInfoProperties() throws SQLException {
         // for a list of connection properties see also MonetConnection.java constructor MonetConnection(Properties props)
         final String query =
@@ -3095,14 +3614,44 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database access error occurs
      */
     @Override
+    //TODO Check
     public ResultSet getFunctions(
             final String catalog,
             final String schemaPattern,
             final String functionNamePattern
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(800);
+        query.append("SELECT cast(null as char(1)) AS \"FUNCTION_CAT\", " +
+                "s.\"name\" AS \"FUNCTION_SCHEM\", " +
+                "f.\"name\" AS \"FUNCTION_NAME\", " +
+                "cast(f.\"func\" as varchar(9999)) AS \"REMARKS\", " +
+                "CASE WHEN f.\"type\" IN (1,2,3,4,6) THEN ").append(DatabaseMetaData.functionNoTable)
+                .append(" WHEN f.\"type\" IN (5,7) THEN ").append(DatabaseMetaData.functionReturnsTable)
+                .append(" ELSE ").append(DatabaseMetaData.functionResultUnknown).append(" END AS \"FUNCTION_TYPE\", " +
+                // only the id value uniquely identifies a function. Include it to be able to differentiate between multiple overloaded functions with the same name
+                "cast(f.\"id\" as varchar(10)) AS \"SPECIFIC_NAME\" " +
+                "FROM \"sys\".\"functions\" f " +
+                "JOIN \"sys\".\"schemas\" s ON f.\"schema_id\" = s.\"id\" ");
+        // only functions, so exclude procedures (type = 2). Those will to be returned via getProcedures()
+        query.append("WHERE f.\"type\" <> 2");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schemaPattern));
+            }
+            if (functionNamePattern != null && !functionNamePattern.equals("%")) {
+                query.append(" AND f.\"name\" ").append(composeMatchPart(functionNamePattern));
+            }
+        }
+
+        query.append(" ORDER BY \"FUNCTION_SCHEM\", \"FUNCTION_NAME\", \"SPECIFIC_NAME\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     /**
@@ -3172,8 +3721,58 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             final String columnNamePattern
     ) throws SQLException
     {
-        //TODO Do we need this?
-        return null;
+        final StringBuilder query = new StringBuilder(2600);
+        query.append("SELECT cast(null as char(1)) AS \"FUNCTION_CAT\", " +
+                "s.\"name\" AS \"FUNCTION_SCHEM\", " +
+                "f.\"name\" AS \"FUNCTION_NAME\", " +
+                "a.\"name\" AS \"COLUMN_NAME\", " +
+                "cast(CASE a.\"inout\"" +
+                " WHEN 0 THEN (CASE a.\"number\" WHEN 0 THEN ")
+                .append(DatabaseMetaData.functionReturn).append(" ELSE ").append(DatabaseMetaData.functionColumnOut).append(" END)" +
+                " WHEN 1 THEN ").append(DatabaseMetaData.functionColumnIn)
+                .append(" ELSE ").append(DatabaseMetaData.functionColumnUnknown).append(" END AS smallint) AS \"COLUMN_TYPE\", " +
+                "cast(").append(getSQLTypeMap("a.\"type\"")).append(" AS int) AS \"DATA_TYPE\", " +
+                "a.\"type\" AS \"TYPE_NAME\", " +
+                "CASE a.\"type\" WHEN 'tinyint' THEN 3 WHEN 'smallint' THEN 5 WHEN 'int' THEN 10 WHEN 'bigint' THEN 19" +
+                " WHEN 'hugeint' THEN 38 WHEN 'oid' THEN 19 WHEN 'wrd' THEN 19 ELSE a.\"type_digits\" END AS \"PRECISION\", " +
+                "CASE a.\"type\" WHEN 'tinyint' THEN 1 WHEN 'smallint' THEN 2 WHEN 'int' THEN 4 WHEN 'bigint' THEN 8" +
+                " WHEN 'hugeint' THEN 16 WHEN 'oid' THEN 8 WHEN 'wrd' THEN 8 ELSE a.\"type_digits\" END AS \"LENGTH\", " +
+                "cast(CASE WHEN a.\"type\" IN ('tinyint','smallint','int','bigint','hugeint','oid','wrd','decimal','numeric'," +
+                "'time','timetz','timestamp','timestamptz','sec_interval') THEN a.\"type_scale\" ELSE NULL END AS smallint) AS \"SCALE\", " +
+                "cast(CASE WHEN a.\"type\" IN ('tinyint','smallint','int','bigint','hugeint','oid','wrd','decimal','numeric') THEN 10" +
+                " WHEN a.\"type\" IN ('real','float','double') THEN 2 ELSE NULL END AS smallint) AS \"RADIX\", " +
+                "cast(").append(DatabaseMetaData.functionNullableUnknown).append(" AS smallint) AS \"NULLABLE\", " +
+                "cast(null as char(1)) AS \"REMARKS\", " +
+                "cast(CASE WHEN a.\"type\" IN ('char','varchar','clob') THEN a.\"type_digits\" ELSE NULL END as int) AS \"CHAR_OCTET_LENGTH\", " +
+                "cast(a.\"number\" as int) AS \"ORDINAL_POSITION\", " +
+                "cast('' as varchar(3)) AS \"IS_NULLABLE\", " +
+                // the specific name contains the function id, in order to be able to match the args to the correct overloaded function name
+                "cast(f.\"id\" as varchar(10)) AS \"SPECIFIC_NAME\" " +
+                "FROM \"sys\".\"args\" a " +
+                "JOIN \"sys\".\"functions\" f ON a.\"func_id\" = f.\"id\" " +
+                "JOIN \"sys\".\"schemas\" s ON f.\"schema_id\" = s.\"id\" " +
+                // only functions, so exclude procedures (type = 2). Those will to be returned via getProcedureColumns()
+                "WHERE f.\"type\" <> 2");
+
+        if (catalog != null && !catalog.isEmpty()) {
+            // non-empty catalog selection.
+            // as we do not support catalogs this always results in no rows returned
+            query.append(" AND 1=0");
+        } else {
+            if (schemaPattern != null && !schemaPattern.equals("%")) {
+                query.append(" AND s.\"name\" ").append(composeMatchPart(schemaPattern));
+            }
+            if (functionNamePattern != null && !functionNamePattern.equals("%")) {
+                query.append(" AND f.\"name\" ").append(composeMatchPart(functionNamePattern));
+            }
+            if (columnNamePattern != null && !columnNamePattern.equals("%")) {
+                query.append(" AND a.\"name\" ").append(composeMatchPart(columnNamePattern));
+            }
+        }
+
+        query.append(" ORDER BY \"FUNCTION_SCHEM\", \"FUNCTION_NAME\", \"SPECIFIC_NAME\", \"ORDINAL_POSITION\"");
+
+        return executeMetaDataQuery(query.toString());
     }
 
     //== 1.7 methods (JDBC 4.1)
@@ -3305,6 +3904,25 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
             }
         }
         return rs;
+    }
+
+    /**
+     * Returns a SQL match part string where depending on the input value we
+     * compose an exact match (use =) or match with wildcards (use LIKE) or IS NULL
+     *
+     * @param in the string to match
+     * @return the SQL match part string
+     */
+    private final String composeMatchPart(final String in) {
+        if (in == null)
+            return "IS NULL";
+
+        String cmp = "= '";
+        // check if SQL wildcards are used in the input, if so use LIKE
+        if (in.contains("%") || in.contains("_"))
+            cmp = "LIKE '";
+
+        return cmp + in + "'";
     }
     //== end helper methods
 }
