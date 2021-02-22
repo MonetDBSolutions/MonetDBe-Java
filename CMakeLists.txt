@@ -27,7 +27,7 @@ add_jar(monetdbe-java
 find_package(MonetDB CONFIG REQUIRED)
 
 #Link libraries (Java generated header, JNI wrapper and C library)
-add_library(monetdbe-lowlevel SHARED src/jni/monetdbe._lowlevel.c)
+add_library(monetdbe-lowlevel SHARED src/main/jni/monetdbe._lowlevel.c)
 target_compile_options(monetdbe-lowlevel PRIVATE -fPIC)
 
 target_link_libraries(monetdbe-lowlevel

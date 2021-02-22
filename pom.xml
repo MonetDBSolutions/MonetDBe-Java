@@ -12,11 +12,21 @@
     <url>https://www.monetdb.org</url>
 
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.sources>org/monetdb/monetdbe/*.java</java.sources>
         <resource.dir>META-INF/services/</resource.dir>
-        <native.source.dir>src/jni/</native.source.dir>
+        <native.source.dir>src/main/jni/</native.source.dir>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.fommil</groupId>
+            <artifactId>jniloader</artifactId>
+            <version>1.1</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <resources>
@@ -31,9 +41,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.2</version>
                 <configuration>
-                    <includes>
-                        <include>${java.sources}</include>
-                    </includes>
                     <source>8</source>
                     <target>8</target>
                 </configuration>
@@ -42,25 +49,91 @@
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
+                <configuration>
+                    <outputDirectory>${project.build.outputDirectory}/META-INF/</outputDirectory>
+                </configuration>
             </plugin>
+
+            <!--<plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <version>1.0-alpha-8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <sources>
+                        <source>
+                            <directory>${native.source.dir}</directory>
+                            <fileNames>
+                                <fileName>monetdbe._lowlevel.c</fileName>
+                                <fileName>org_monetdb_monetdbe_MonetNative.h</fileName>
+                            </fileNames>
+                        </source>
+                    </sources>
+                    <compilerStartOptions>
+                        <compilerStartOption>-I /Users/bernardo/Monet/MonetDB-Oct2020/lib/</compilerStartOption>
+                        <compilerStartOption>-I ${JAVA_HOME}/include/</compilerStartOption>
+                        <compilerStartOption>-I ${JAVA_HOME}/include/linux/</compilerStartOption>
+                    </compilerStartOptions>
+                    <compilerEndOptions>
+                        <compilerEndOption>-fPIC</compilerEndOption>
+                    </compilerEndOptions>
+                    <linkerStartOptions>
+                        <linkerStartOption>-I ${JAVA_HOME}/include/</linkerStartOption>
+                        <linkerStartOption>-I ${JAVA_HOME}/include/linux/</linkerStartOption>
+                        <linkerStartOption>-I ${JAVA_HOME}/lib/</linkerStartOption>
+                        <linkerStartOption>-L ${basedir}/src/main/cpp/lib</linkerStartOption>
+                    </linkerStartOptions>
+                    <linkerEndOptions>
+                        <linkerEndOption>-shared</linkerEndOption>
+                        <linkerEndOption>-fPIC</linkerEndOption>
+                        <linkerEndOption>-lExample</linkerEndOption>
+                    </linkerEndOptions>
+                </configuration>
+            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>2.2.1</version>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
+                        <id>copy</id>
+                        <phase>compile</phase>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.github.projects</groupId>
+                                    <artifactId>demoproc-native</artifactId>
+                                    <version>1.0</version>
+                                    <type>so</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                                    <destFileName>libexample.so</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <includes>
-                        <include>${java.sources}</include>
-                    </includes>
-                </configuration>
             </plugin>
         </plugins>
     </build>
