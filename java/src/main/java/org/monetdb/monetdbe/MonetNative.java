@@ -15,10 +15,9 @@ public class MonetNative {
             String filename = "/libmonetdbe-lowlevel.so";
 
             if (os_name.startsWith("linux")) {
-                filename = "/libmonetdbe-lowlevel-linux.so";
+                filename = "/libmonetdbe-lowlevel-Linux.so";
             }
             else if (os_name.startsWith("mac")) {
-                System.out.println("Mac");
                 filename = "/libmonetdbe-lowlevel-Mac OS X.so";
             }
             else if (os_name.startsWith("windows")) {

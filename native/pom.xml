@@ -27,19 +27,23 @@
                             <directory>${project.basedir}/jni/</directory>
                             <fileNames>
                                 <fileName>monetdbe._lowlevel.c</fileName>
-                                <fileName>org_monetdb_monetdbe_MonetNative.h</fileName>
                             </fileNames>
                         </source>
                     </sources>
                     <compilerStartOptions>
+                        <!-- MONETDB_PREFIX + include/monetdb/ -->
                         <compilerStartOption>-I /Users/bernardo/Monet/MonetDB-Oct2020/include/monetdb/</compilerStartOption>
+                        <compilerStartOption>-I /home/bernardo/MonetDB-default/include/monetdb/</compilerStartOption>
                         <compilerStartOption>-I ${JAVA_HOME}/include/darwin/</compilerStartOption>
+                        <compilerStartOption>-I ${JAVA_HOME}/include/linux/</compilerStartOption>
                         <compilerStartOption>-I ${JAVA_HOME}/include/</compilerStartOption>
                         <compilerStartOption>-fPIC</compilerStartOption>
                     </compilerStartOptions>
 
                     <linkerStartOptions>
+                        <!-- MONETDB_PREFIX + lib OR lib64-->
                         <linkerStartOption>-L /Users/bernardo/Monet/MonetDB-Oct2020/lib/</linkerStartOption>
+                        <linkerStartOption>-L /home/bernardo/MonetDB-default/lib64/</linkerStartOption>
                         <linkerStartOption>-shared</linkerStartOption>
                         <linkerStartOption>-fPIC</linkerStartOption>
                         <linkerStartOption>-lmonetdbe</linkerStartOption>
