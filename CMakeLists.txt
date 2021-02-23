@@ -16,10 +16,10 @@ find_package(JNI REQUIRED)
 
 #Compile monetdbe-java without linked library, generate headers
 set(CMAKE_JAVA_COMPILE_FLAGS -source 1.8 -target 1.8)
-file(GLOB JAVA_SRC_FILES src/main/java/org/monetdb/monetdbe/*.java)
+file(GLOB JAVA_SRC_FILES java/src/main/java/org/monetdb/monetdbe/*.java)
 add_jar(monetdbe-java
         ${JAVA_SRC_FILES}
-        META-INF/services/java.sql.Driver
+        java/META-INF/services/java.sql.Driver
         GENERATE_NATIVE_HEADERS
         monetdbe-native)
 
@@ -27,7 +27,7 @@ add_jar(monetdbe-java
 find_package(MonetDB CONFIG REQUIRED)
 
 #Link libraries (Java generated header, JNI wrapper and C library)
-add_library(monetdbe-lowlevel SHARED src/main/jni/monetdbe._lowlevel.c)
+add_library(monetdbe-lowlevel SHARED native/jni/monetdbe._lowlevel.c)
 target_compile_options(monetdbe-lowlevel PRIVATE -fPIC)
 
 target_link_libraries(monetdbe-lowlevel

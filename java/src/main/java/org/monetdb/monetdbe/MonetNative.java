@@ -1,11 +1,42 @@
 package org.monetdb.monetdbe;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class MonetNative {
     static {
-        System.loadLibrary("monetdbe-lowlevel");
+        try {
+            String os_name = System.getProperty("os.name").toLowerCase().trim();
+            String filename = "/libmonetdbe-lowlevel.so";
+
+            if (os_name.startsWith("linux")) {
+                filename = "/libmonetdbe-lowlevel-linux.so";
+            }
+            else if (os_name.startsWith("mac")) {
+                System.out.println("Mac");
+                filename = "/libmonetdbe-lowlevel-Mac OS X.so";
+            }
+            else if (os_name.startsWith("windows")) {
+                //TODO Check name
+                filename = "/libmonetdbe-lowlevel-windows.so";
+            }
+
+            Path temp_lib = Files.createTempFile("libmonetdbe-lowlevel",".so");
+            URL is = MonetNative.class.getResource(filename);
+            if (is == null) {
+                throw new IOException("JNI library could not be found.");
+            }
+            Files.copy(is.openStream(), temp_lib, StandardCopyOption.REPLACE_EXISTING);
+            System.load(temp_lib.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //System.loadLibrary("monetdbe-lowlevel");
     }
 
     protected static native ByteBuffer monetdbe_open(String dbdir);

@@ -1,3 +1,5 @@
+package org;
+
 import org.monetdb.monetdbe.*;
 
 import java.math.BigDecimal;
