@@ -4,23 +4,13 @@
 *TODO: Add description and docs*
 
 # Installing MonetDBe-Java
-*TODO: Add dependecies and explain installation better*
-
 ```
 git clone https://github.com/MonetDBSolutions/MonetDBe-Java MonetDBe-Java
 cd MonetDBe-Java
 ```
 ## Compiling monetdbe-java.jar
+The JAVA_HOME and LD_LIBRARY_PATH environment variables must be set before building.
 ```
-$ mkdir build && cd build
-$ cmake ..
-$ make
+$ mvn install
 ```
-This will output a jar file to the build directory (*monetdbe-java.jar*)
-
-## Running the example class
-$MONETDBE_JAVA_PATH is the directory containing the cloned repo.
-```
-$ javac -cp $MONETDBE_JAVA_PATH/build/monetdbe-java.jar $MONETDBE_JAVA_PATH/example/TestMonetDBeJava.java
-$ java -Djava.library.path=$MONETDBE_JAVA_PATH/build/ -classpath $MONETDBE_JAVA_PATH/build/monetdbe-java.jar:$MONETDBE_JAVA_PATH/example/ TestMonetDBeJava
-```
+This will output a jar file to the target directory (*monetdbe-java-src-1.0-SNAPSHOT.jar*)
