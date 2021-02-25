@@ -11,11 +11,12 @@
     </parent>
 
     <artifactId>monetdbe-java-native</artifactId>
-    <packaging>so</packaging>
+    <packaging>dylib</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <build>
         <plugins>
+            <!-- Compile JNI C library for monetdbe-java -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>native-maven-plugin</artifactId>
@@ -46,6 +47,7 @@
                         <linkerStartOption>-shared</linkerStartOption>
                         <linkerStartOption>-fPIC</linkerStartOption>
                         <linkerStartOption>-lmonetdbe</linkerStartOption>
+                        <linkerStartOption>-rpath @executable_path/lib</linkerStartOption>
                     </linkerStartOptions>
                 </configuration>
             </plugin>

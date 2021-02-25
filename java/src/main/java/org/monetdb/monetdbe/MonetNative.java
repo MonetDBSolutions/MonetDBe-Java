@@ -11,21 +11,27 @@ import java.nio.file.StandardCopyOption;
 public class MonetNative {
     static {
         try {
+            //Java doesn't allow to load the library from within the jar
+            //It must be copied to a temporary file before loading
             String os_name = System.getProperty("os.name").toLowerCase().trim();
-            String filename = "/libmonetdbe-lowlevel.so";
+            String filename = "/lib/libmonetdbe-lowlevel.so";
+            String suffix = ".so";
 
             if (os_name.startsWith("linux")) {
-                filename = "/libmonetdbe-lowlevel-Linux.so";
+                filename = "/lib/libmonetdbe-lowlevel.so";
+                suffix = ".so";
             }
             else if (os_name.startsWith("mac")) {
-                filename = "/libmonetdbe-lowlevel-Mac OS X.so";
+                filename = "/lib/libmonetdbe-lowlevel.dylib";
+                suffix = ".dylib";
             }
             else if (os_name.startsWith("windows")) {
-                //TODO Check name
-                filename = "/libmonetdbe-lowlevel-windows.so";
+                //TODO Check
+                filename = "/lib/libmonetdbe-lowlevel.ddl";
+                suffix = ".ddl";
             }
 
-            Path temp_lib = Files.createTempFile("libmonetdbe-lowlevel",".so");
+            Path temp_lib = Files.createTempFile("libmonetdbe-lowlevel",suffix);
             URL is = MonetNative.class.getResource(filename);
             if (is == null) {
                 throw new IOException("JNI library could not be found.");
@@ -34,8 +40,9 @@ public class MonetNative {
             System.load(temp_lib.toString());
         } catch (IOException e) {
             e.printStackTrace();
+            //Try to load through the java.library.path variable
+            System.loadLibrary("monetdbe-lowlevel");
         }
-        //System.loadLibrary("monetdbe-lowlevel");
     }
 
     protected static native ByteBuffer monetdbe_open(String dbdir);

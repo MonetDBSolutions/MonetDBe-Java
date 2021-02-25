@@ -15,21 +15,50 @@
     <name>${project.groupId}:${project.artifactId}</name>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${project.basedir}/META-INF/</directory>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
-                <configuration>
-                    <outputDirectory>${project.build.outputDirectory}/META-INF/</outputDirectory>
-                </configuration>
+                <executions>
+                    <!-- Copy java.sql.Driver resource file for JDBC -->
+                    <execution>
+                        <id>copy-driver</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/META-INF/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/META-INF/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <!-- Copy libmonetdbe library dependencies to lib folder -->
+                    <execution>
+                        <id>copy-lib</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${MonetDB_dir}/lib/</directory>
+                                </resource>
+                                <resource>
+                                    <directory>${MonetDB_dir}/lib64/</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
+            <!-- Copy JNI C library dependency to lib folder -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -47,10 +76,10 @@
                                     <groupId>org.monetdb</groupId>
                                     <artifactId>monetdbe-java-native</artifactId>
                                     <version>1.0-SNAPSHOT</version>
-                                    <type>so</type>
+                                    <type>dylib</type>
                                     <overWrite>false</overWrite>
-                                    <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <destFileName>libmonetdbe-lowlevel-${os.name}.so</destFileName>
+                                    <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                                    <destFileName>libmonetdbe-lowlevel.dylib</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
