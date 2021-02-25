@@ -7,7 +7,7 @@ public class ConnectionTypes {
         //In-Memory DB
         String urlMemory = "jdbc:monetdb://:memory:";
         //Local Persistent DB
-        String urlLocal = "jdbc:monetdb:/Users/bernardo/Monet/test/";
+        String urlLocal = "jdbc:monetdb:/tmp/test/";
         //Remote Proxy DB (needs to have a server running)
         String urlProxy = "mapi:monetdb://localhost:50000/test";
 
@@ -20,6 +20,7 @@ public class ConnectionTypes {
                 memoryConnection.close();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             System.out.println("In-memory database connection failure.");
         }
 
@@ -32,6 +33,7 @@ public class ConnectionTypes {
                 localConnection.close();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             System.out.println("Local persistent connection failure.");
         }
 
@@ -44,6 +46,7 @@ public class ConnectionTypes {
                 proxyConnection.close();
             }
         } catch (SQLException e) {
+            e.printStackTrace();
             System.out.println("Remote proxy database connection failure.");
         }
     }

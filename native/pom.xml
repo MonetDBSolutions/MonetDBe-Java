@@ -16,7 +16,7 @@
 
     <build>
         <plugins>
-            <!-- Compile JNI C library for monetdbe-java -->
+            <!-- Compile JNI C library for monetdbe-java-src -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>native-maven-plugin</artifactId>
@@ -47,7 +47,10 @@
                         <linkerStartOption>-shared</linkerStartOption>
                         <linkerStartOption>-fPIC</linkerStartOption>
                         <linkerStartOption>-lmonetdbe</linkerStartOption>
-                        <linkerStartOption>-rpath @executable_path/lib</linkerStartOption>
+
+                        <!-- For setting rpath
+                        <linkerStartOption>-Wl,-rpath,${MonetDB_dir}/lib</linkerStartOption>
+                        <linkerStartOption>-Wl,-rpath,@loader_path/lib</linkerStartOption>-->
                     </linkerStartOptions>
                 </configuration>
             </plugin>

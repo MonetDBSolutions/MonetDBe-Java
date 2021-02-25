@@ -37,6 +37,7 @@
                         </configuration>
                     </execution>
                     <!-- Copy libmonetdbe library dependencies to lib folder -->
+                    <!-- TODO: Only copy the dependencies, not all libraries-->
                     <execution>
                         <id>copy-lib</id>
                         <phase>compile</phase>
@@ -52,6 +53,16 @@
                                 <resource>
                                     <directory>${MonetDB_dir}/lib64/</directory>
                                 </resource>
+                                <!-- Dependency libraries (are these the only ones?)
+                                <includes>
+                                    <include>libmonetdbe.so</include>
+                                    <include>libmonetdbsql.so</include>
+                                    <include>libmonetdb5.so</include>
+                                    <include>libmapi.so</include>
+                                    <include>libbat.so</include>
+                                    <include>libstream.so</include>
+                                </includes>
+                                -->
                             </resources>
                         </configuration>
                     </execution>
@@ -83,23 +94,6 @@
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

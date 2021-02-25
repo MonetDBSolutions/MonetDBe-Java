@@ -14,35 +14,39 @@ public class MonetNative {
             //Java doesn't allow to load the library from within the jar
             //It must be copied to a temporary file before loading
             String os_name = System.getProperty("os.name").toLowerCase().trim();
-            String filename = "/lib/libmonetdbe-lowlevel.so";
             String suffix = ".so";
-
             if (os_name.startsWith("linux")) {
-                filename = "/lib/libmonetdbe-lowlevel.so";
                 suffix = ".so";
             }
             else if (os_name.startsWith("mac")) {
-                filename = "/lib/libmonetdbe-lowlevel.dylib";
                 suffix = ".dylib";
             }
             else if (os_name.startsWith("windows")) {
-                //TODO Check
-                filename = "/lib/libmonetdbe-lowlevel.ddl";
                 suffix = ".ddl";
             }
 
-            Path temp_lib = Files.createTempFile("libmonetdbe-lowlevel",suffix);
-            URL is = MonetNative.class.getResource(filename);
-            if (is == null) {
-                throw new IOException("JNI library could not be found.");
+            final String[] libs = {"libstream","libbat","libmapi","libmonetdb5","libmonetdbsql","libmonetdbe","libmonetdbe-lowlevel"};
+            for (String l : libs) {
+                loadLib(l,suffix);
             }
-            Files.copy(is.openStream(), temp_lib, StandardCopyOption.REPLACE_EXISTING);
-            System.load(temp_lib.toString());
         } catch (IOException e) {
             e.printStackTrace();
             //Try to load through the java.library.path variable
             System.loadLibrary("monetdbe-lowlevel");
         }
+    }
+
+    static void loadLib(String libName, String suffix) throws IOException {
+        URL is = MonetNative.class.getResource("/lib/" + libName + suffix);
+        if (is == null) {
+            throw new IOException("Library could not be found.");
+        }
+        /*String libPath = is.getPath().substring(5).replace("!","");
+        System.out.println("Loading: " + libPath);
+        System.load(libPath);*/
+        Path temp_lib = Files.createTempFile(libName,suffix);
+        Files.copy(is.openStream(), temp_lib, StandardCopyOption.REPLACE_EXISTING);
+        System.load(temp_lib.toString());
     }
 
     protected static native ByteBuffer monetdbe_open(String dbdir);

@@ -225,21 +225,21 @@ public class MonetColumn {
 
     BigDecimal getBigDecimal(int row) {
         //Translates monetdbe's internal scale format into java's MathContext scale format
-        //TODO Check this translation later
-        int scale = -((BigDecimal.valueOf(this.scale).scale()) - 1);
-
+        //TODO Check this translation
+        //int scale = -((BigDecimal.valueOf(this.scale).scale()) - 1);
+        int scale = ((BigDecimal.valueOf(this.scale).precision()) - 2);
         switch (monetdbeType) {
             case 1:
                 Byte unscaledByte = constData.get(row);
                 return new BigDecimal(unscaledByte.intValue()).movePointRight(scale);
             case 2:
-                Short unscaledShort = constData.getShort(row);
+                Short unscaledShort = getShort(row);
                 return new BigDecimal(unscaledShort.intValue()).movePointRight(scale);
             case 3:
-                Integer unscaledInt = constData.getInt(row);
+                Integer unscaledInt = getInt(row);
                 return new BigDecimal(unscaledInt).movePointLeft(scale);
             case 4:
-                Long unscaledLong = constData.getLong(row);
+                Long unscaledLong = getLong(row);
                 return new BigDecimal(unscaledLong).movePointLeft(scale);
             case 5:
                 BigInteger unscaledBigInt = getBigInteger(row);
