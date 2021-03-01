@@ -139,6 +139,4 @@
         </profile>
     </profiles>
 
-    <!-- TODO Move these to profiles? The include and lib directories can change between OS and arch type -->
-
 </project>
