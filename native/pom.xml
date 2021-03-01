@@ -14,7 +14,6 @@
     <packaging>${packaging.type}</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
 
-    <!--TODO Add arch type to profiles? -->
     <profiles>
         <!-- Linux compilation -->
         <profile>
@@ -110,6 +109,7 @@
 
                             <linkerStartOptions>
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
+                                <!-- Note: On Mac, CMAKE_INSTALL_FULL_LIBDIR returns lib, even for a 64 bit system -->
                                 <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
                                 <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
                                 <linkerStartOption>-shared</linkerStartOption>

@@ -14,7 +14,6 @@
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
 
-    <!--TODO Add arch type to profiles? -->
     <profiles>
         <!-- Linux compilation -->
         <profile>
@@ -113,7 +112,6 @@
         </profile>
     </profiles>
 
-    <!-- TODO Profiles for lib folder? (lib vs lib64) -->
     <build>
         <plugins>
             <plugin>
@@ -137,7 +135,6 @@
                         </configuration>
                     </execution>
                     <!-- Copy libmonetdbe library dependencies to lib folder -->
-                    <!-- TODO: Only copy the dependencies, not all libraries-->
                     <execution>
                         <id>copy-lib</id>
                         <phase>compile</phase>
@@ -149,20 +146,26 @@
                             <resources>
                                 <resource>
                                     <directory>${MonetDB_dir}/lib/</directory>
+                                    <excludes>
+                                        <exclude>monetdb5/**</exclude>
+                                        <exclude>pkgconfig/**</exclude>
+                                        <exclude>python3.9/**</exclude>
+                                        <exclude>systemd/**</exclude>
+                                        <exclude>libMonetODBC.so</exclude>
+                                        <exclude>libMonetODBCs.so</exclude>
+                                    </excludes>
                                 </resource>
                                 <resource>
                                     <directory>${MonetDB_dir}/lib64/</directory>
+                                    <excludes>
+                                        <exclude>monetdb5/**</exclude>
+                                        <exclude>pkgconfig/**</exclude>
+                                        <exclude>python3.9/**</exclude>
+                                        <exclude>systemd/**</exclude>
+                                        <exclude>libMonetODBC.so</exclude>
+                                        <exclude>libMonetODBCs.so</exclude>
+                                    </excludes>
                                 </resource>
-                                <!-- Dependency libraries (are these the only ones?)
-                                <includes>
-                                    <include>libmonetdbe.so</include>
-                                    <include>libmonetdbsql.so</include>
-                                    <include>libmonetdb5.so</include>
-                                    <include>libmapi.so</include>
-                                    <include>libbat.so</include>
-                                    <include>libstream.so</include>
-                                </includes>
-                                -->
                             </resources>
                         </configuration>
                     </execution>
