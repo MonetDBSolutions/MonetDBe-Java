@@ -14,6 +14,105 @@
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
 
+    <!--TODO Add arch type to profiles? -->
+    <profiles>
+        <!-- Linux compilation -->
+        <profile>
+            <id>linux</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Copy JNI C library dependency to lib folder -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.10</version>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.monetdb</groupId>
+                                            <artifactId>monetdbe-java-native</artifactId>
+                                            <version>1.0-SNAPSHOT</version>
+                                            <type>so</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                                            <destFileName>libmonetdbe-lowlevel.so</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Mac compilation -->
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Copy JNI C library dependency to lib folder -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>2.10</version>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.monetdb</groupId>
+                                            <artifactId>monetdbe-java-native</artifactId>
+                                            <version>1.0-SNAPSHOT</version>
+                                            <type>dylib</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                                            <destFileName>libmonetdbe-lowlevel.dylib</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Windows compilation -->
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <!-- TODO Add copy JNI C library -->
+        </profile>
+    </profiles>
+
     <!-- TODO Add profiles for different OS and arch types. Changes the lib folder (lib vs lib64) and the packaging type of monetdbe-java-native -->
     <build>
         <plugins>

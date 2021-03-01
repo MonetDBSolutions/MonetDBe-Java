@@ -1,6 +1,7 @@
 package org.monetdb.monetdbe;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -25,10 +26,11 @@ public class MonetNative {
                 suffix = ".ddl";
             }
 
-            final String[] libs = {"libstream","libbat","libmapi","libmonetdb5","libmonetdbsql","libmonetdbe","libmonetdbe-lowlevel"};
+            final String[] libs = {"libstream","libbat","libmapi","libmonetdb5","libmonetdbsql","libmonetdbe.1","libmonetdbe"};
             for (String l : libs) {
-                loadLib(l,suffix);
+                copyLib(l,suffix);
             }
+            loadLib("libmonetdbe-lowlevel",suffix);
         } catch (IOException e) {
             e.printStackTrace();
             //Try to load through the java.library.path variable
@@ -36,16 +38,26 @@ public class MonetNative {
         }
     }
 
-    static void loadLib(String libName, String suffix) throws IOException {
-        URL is = MonetNative.class.getResource("/lib/" + libName + suffix);
+    static void copyLib(String libName, String suffix) throws IOException {
+        InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName + suffix);
         if (is == null) {
             throw new IOException("Library could not be found.");
         }
-        /*String libPath = is.getPath().substring(5).replace("!","");
+        java.nio.file.Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + libName + suffix).toPath(), StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    static void loadLib(String libName, String suffix) throws IOException {
+        InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName + suffix);
+        if (is == null) {
+            throw new IOException("Library could not be found.");
+        }
+        /* URL is = MonetNative.class.getResource("/lib/" + libName + suffix);
+        String libPath = is.getPath().substring(5).replace("!","");
         System.out.println("Loading: " + libPath);
         System.load(libPath);*/
         Path temp_lib = Files.createTempFile(libName,suffix);
-        Files.copy(is.openStream(), temp_lib, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
+        System.out.println(temp_lib.toString());
         System.load(temp_lib.toString());
     }
 
