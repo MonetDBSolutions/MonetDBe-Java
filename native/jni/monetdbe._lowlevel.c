@@ -130,8 +130,9 @@ JNIEXPORT jboolean JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1get_1
     }
 }
 
-jobject returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetdbe_result **result, monetdbe_cnt *affected_rows, jint maxrows)
+void returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetdbe_result **result, monetdbe_cnt *affected_rows, jint maxrows)
 {
+    jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     //Query with table result
     if ((*result) && (*result)->ncols > 0)
     {
@@ -141,12 +142,12 @@ jobject returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, mon
         jmethodID constructor = (*env)->GetMethodID(env, resultSetClass, "<init>", "(Lorg/monetdb/monetdbe/MonetStatement;Ljava/nio/ByteBuffer;IILjava/lang/String;I)V");
         jobject resultSetObject = (*env)->NewObject(env, resultSetClass, constructor, j_statement, resultNative, (*result)->nrows, (*result)->ncols, resultSetName, maxrows);
         free(affected_rows);
-        return resultSetObject;
+        jfieldID resultSetField = (*env)->GetFieldID(env, statementClass, "resultSet", "Lorg/monetdb/monetdbe/MonetResultSet;");
+        (*env)->SetObjectField(env, j_statement, resultSetField, resultSetObject);
     }
     //Update query
     else
     {
-        jclass statementClass = (*env)->GetObjectClass(env, j_statement);
         if (largeUpdate)
         {
             jfieldID affectRowsField = (*env)->GetFieldID(env, statementClass, "largeUpdateCount", "J");
@@ -159,11 +160,10 @@ jobject returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, mon
         }
         free(affected_rows);
         free(result);
-        return NULL;
     }
 }
 
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement, jboolean largeUpdate, jint maxrows)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement, jboolean largeUpdate, jint maxrows)
 {
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
     monetdbe_cnt *affected_rows = malloc(sizeof(monetdbe_cnt));
@@ -176,12 +176,12 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(
     (*env)->ReleaseStringUTFChars(env, j_sql, sql);
     if (error_msg)
     {
-        printf("Error in monetdbe_query: %s\n", error_msg);
-        return NULL;
+        return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
     {
-        return returnResult(env, j_statement, largeUpdate, result, affected_rows, maxrows);
+        returnResult(env, j_statement, largeUpdate, result, affected_rows, maxrows);
+        return NULL;
     }
 }
 
@@ -676,7 +676,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     return NULL;
 }
 
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execute(JNIEnv *env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate, jint maxrows)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execute(JNIEnv *env, jclass self, jobject j_stmt, jobject j_statement, jboolean largeUpdate, jint maxrows)
 {
     monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
@@ -685,12 +685,12 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1execut
     char *error_msg = monetdbe_execute(stmt, result, affected_rows);
     if (error_msg)
     {
-        printf("Error in monetdbe_execute: %s\n", error_msg);
-        return NULL;
+        return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
     {
-        return returnResult(env, j_statement, largeUpdate, result, affected_rows, maxrows);
+        returnResult(env, j_statement, largeUpdate, result, affected_rows, maxrows);
+        return NULL;
     }
 }
 

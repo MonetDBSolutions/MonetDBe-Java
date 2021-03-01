@@ -119,8 +119,15 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public boolean execute(String sql) throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false, getMaxRows());
-        if (this.resultSet!=null) {
+        //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
+        this.resultSet = null;
+        this.updateCount = 0;
+        //ResultSet and UpdateCount is set within monetdbe_query
+        String error_msg = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false, getMaxRows());
+        if (error_msg != null) {
+            throw new SQLException(error_msg);
+        }
+        else if (this.resultSet!=null) {
             return true;
         }
         //Data manipulation and data definition (Statement.SUCCESS_NO_INFO) queries
@@ -149,8 +156,15 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public long executeLargeUpdate(String sql) throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true, getMaxRows());
-        if (this.resultSet!=null) {
+        //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
+        this.resultSet = null;
+        this.updateCount = 0;
+        //ResultSet and UpdateCount is set within monetdbe_query
+        String error_msg = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true, getMaxRows());
+        if (error_msg != null) {
+            throw new SQLException(error_msg);
+        }
+        else if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
         }
         else {

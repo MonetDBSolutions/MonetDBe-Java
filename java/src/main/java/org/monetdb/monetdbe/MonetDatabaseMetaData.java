@@ -2134,7 +2134,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
                 "cast(null AS char(1)) AS \"SCOPE_CATALOG\", " +
                 "cast(null AS char(1)) AS \"SCOPE_SCHEMA\", " +
                 "cast(null AS char(1)) AS \"SCOPE_TABLE\", " +
-                "cast(null AS smallint) AS \"SOURCE_DATA_TYPE\", " +
+                "cast(null AS char(1)) AS \"SOURCE_DATA_TYPE\", " +
                 "cast(CASE WHEN c.\"default\" IS NOT NULL AND c.\"default\" LIKE 'next value for %' THEN 'YES' ELSE 'NO' END AS varchar(3)) AS \"IS_AUTOINCREMENT\", " +
                 "cast('NO' AS varchar(3)) AS \"IS_GENERATEDCOLUMN\" " +
                 "FROM \"sys\".\"columns\" c " +

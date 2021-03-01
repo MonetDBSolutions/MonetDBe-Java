@@ -89,7 +89,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     public void commit() throws SQLException {
         checkNotClosed();
         if (getAutoCommit())
-            throw new SQLException("Operation not permitted in autocommit");
+            throw new SQLException("COMMIT: not allowed in auto commit mode");
         executeCommand("COMMIT");
     }
 
@@ -136,7 +136,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
             throw new SQLException("timeout is less than 0", "M1M05");
         if (isClosed())
             return false;
-
         Statement st = null;
         ResultSet rs = null;
         boolean isValid = false;
@@ -149,7 +148,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
                 }
             }
         } catch (SQLException e) {
-            //TODO Do something?
+            //TODO Do something? We can't throw the exception, and isValid should be false
         } finally {
             if (rs != null)
                 rs.close();

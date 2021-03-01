@@ -3,7 +3,6 @@ package org.monetdb.monetdbe;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,8 +11,7 @@ import java.nio.file.StandardCopyOption;
 public class MonetNative {
     static {
         try {
-            //Java doesn't allow to load the library from within the jar
-            //It must be copied to a temporary file before loading
+
             String os_name = System.getProperty("os.name").toLowerCase().trim();
             //Mac -> x86_64, Linux -> amd64
             String arch = System.getProperty("os.arch").toLowerCase().trim();
@@ -40,6 +38,8 @@ public class MonetNative {
                 for (String l : dependencyLibs) {
                     copyLib(l);
                 }
+                //Java doesn't allow to load the library from within the jar
+                //It must be copied to a temporary file before loading
                 loadLib(loadLib);
             }
             else {
@@ -81,7 +81,7 @@ public class MonetNative {
 
     protected static native int monetdbe_close(ByteBuffer db);
 
-    protected static native MonetResultSet monetdbe_query(ByteBuffer db, String sql, MonetStatement statement, boolean largeUpdate, int maxrows);
+    protected static native String monetdbe_query(ByteBuffer db, String sql, MonetStatement statement, boolean largeUpdate, int maxrows);
 
     protected static native MonetColumn[] monetdbe_result_fetch_all(ByteBuffer nativeResult, int nrows, int ncols);
 
@@ -95,7 +95,7 @@ public class MonetNative {
 
     protected static native ByteBuffer monetdbe_prepare(ByteBuffer db, String sql, MonetPreparedStatement statement);
 
-    protected static native MonetResultSet monetdbe_execute(ByteBuffer stmt, MonetPreparedStatement statement, boolean largeUpdate, int maxrows);
+    protected static native String monetdbe_execute(ByteBuffer stmt, MonetPreparedStatement statement, boolean largeUpdate, int maxrows);
 
     protected static native String monetdbe_cleanup_statement(ByteBuffer db, ByteBuffer stmt);
 

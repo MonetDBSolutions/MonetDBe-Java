@@ -55,16 +55,22 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public boolean execute() throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_execute(statementNative,this, false, getMaxRows());
-        if (this.resultSet!=null) {
+        //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
+        this.resultSet = null;
+        this.updateCount = 0;
+        //ResultSet and UpdateCount is set within monetdbe_execute
+        String error_msg = MonetNative.monetdbe_execute(statementNative,this, false, getMaxRows());
+        if (error_msg != null) {
+            throw new SQLException(error_msg);
+        }
+        else if (this.resultSet!=null) {
             return true;
         }
         else if (this.updateCount != -1){
             return false;
         }
         else {
-            //TODO Improve this (happens when an error message is sent by the server, p.e. not all parameters are set)
-            throw new SQLException("Server error");
+            throw new SQLException("Error in monetdbe_execute");
         }
     }
 
@@ -163,8 +169,15 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public long executeLargeUpdate() throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_execute(statementNative,this, true,getMaxRows());
-        if (this.resultSet!=null) {
+        //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
+        this.resultSet = null;
+        this.updateCount = 0;
+        //ResultSet and UpdateCount is set within monetdbe_execute
+        String error_msg = MonetNative.monetdbe_execute(statementNative,this, true,getMaxRows());
+        if (error_msg != null) {
+            throw new SQLException(error_msg);
+        }
+        else if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
         }
         else {
