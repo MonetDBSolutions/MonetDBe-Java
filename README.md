@@ -1,16 +1,14 @@
 # MonetDBe-Java
 **Serverless embedded MonetDB in Java**
 
-*TODO: Add description and docs*
-
 # Installing MonetDBe-Java
 ```
 git clone https://github.com/MonetDBSolutions/MonetDBe-Java MonetDBe-Java
 cd MonetDBe-Java
 ```
-## Compiling monetdbe-java.jar
-The JAVA_HOME and LD_LIBRARY_PATH environment variables must be set before building.
+The JAVA_HOME path must be set before building.
 ```
-$ mvn install
+$ mvn install -DMonetDB_dir=/path/to/monetdb/installation
 ```
-This will output a jar file to the target directory (*monetdbe-java-src-1.0-SNAPSHOT.jar*)
+This will install MonetDBe-Java in the local maven repository.
+You can find the jar file in the java/target/ directory (*monetdbe-java-src-1.0-SNAPSHOT.jar*)
