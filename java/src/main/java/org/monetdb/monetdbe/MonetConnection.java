@@ -358,6 +358,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return jdbcURL;
     }
 
+    //TODO: Get user from the database
     public String getUserName() {
         return username;
     }

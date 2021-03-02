@@ -1353,6 +1353,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @return the maximum number of active connections possible at one time; a result of zero means that there is no limit or the limit is not known
      */
     @Override
+    //TODO: Get max connections from database
     public int getMaxConnections() throws SQLException {
         return 0;
     }

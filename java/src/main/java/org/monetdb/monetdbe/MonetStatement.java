@@ -119,19 +119,23 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public boolean execute(String sql) throws SQLException {
         checkNotClosed();
+        int lastUpdateCount = this.updateCount;
+        MonetResultSet lastResultSet = this.resultSet;
         //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
         this.resultSet = null;
-        this.updateCount = 0;
+        this.updateCount = -1;
         //ResultSet and UpdateCount is set within monetdbe_query
         String error_msg = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false, getMaxRows());
         if (error_msg != null) {
+            this.updateCount = lastUpdateCount;
+            this.resultSet = lastResultSet;
             throw new SQLException(error_msg);
         }
         else if (this.resultSet!=null) {
             return true;
         }
         //Data manipulation and data definition (Statement.SUCCESS_NO_INFO) queries
-        else if (this.updateCount > 0 || this.updateCount == Statement.SUCCESS_NO_INFO){
+        else if (this.updateCount >= 0 || this.updateCount == Statement.SUCCESS_NO_INFO){
             return false;
         }
         else {
@@ -156,12 +160,16 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public long executeLargeUpdate(String sql) throws SQLException {
         checkNotClosed();
+        long lastUpdateCount = this.largeUpdateCount;
+        MonetResultSet lastResultSet = this.resultSet;
         //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
         this.resultSet = null;
-        this.updateCount = 0;
+        this.largeUpdateCount = -1;
         //ResultSet and UpdateCount is set within monetdbe_query
         String error_msg = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true, getMaxRows());
         if (error_msg != null) {
+            this.largeUpdateCount = lastUpdateCount;
+            this.resultSet = lastResultSet;
             throw new SQLException(error_msg);
         }
         else if (this.resultSet!=null) {
@@ -342,7 +350,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     public void setQueryTimeout(int seconds) throws SQLException {
         checkNotClosed();
         if (seconds < 0)
-            throw new SQLException("Invalid query timeout");
+            throw new SQLException("Illegal timeout value: " + seconds);
         queryTimeout = seconds;
     }
 

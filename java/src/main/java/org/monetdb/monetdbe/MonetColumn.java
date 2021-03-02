@@ -7,6 +7,7 @@ import java.nio.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
@@ -268,7 +269,7 @@ public class MonetColumn {
             case 13:
                 return ((LocalDateTime) varData[row]).toLocalDate();
             default:
-                return null;
+                return LocalDate.ofEpochDay(0);
         }
     }
 
@@ -282,7 +283,7 @@ public class MonetColumn {
             case 13:
                 return ((LocalDateTime) varData[row]).toLocalTime();
             default:
-                return null;
+                return LocalTime.ofSecondOfDay(0);
         }
     }
 
@@ -292,13 +293,13 @@ public class MonetColumn {
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS][.SSSS][.SS]");
                 return  LocalDateTime.parse((String) varData[row],dtf);
             case 11:
-                return LocalDateTime.now().with((LocalDate) varData[row]);
+                return LocalDateTime.ofEpochSecond(0,0,ZoneOffset.UTC).with((LocalDate) varData[row]);
             case 12:
-                return LocalDateTime.now().with((LocalTime) varData[row]);
+                return LocalDateTime.ofEpochSecond(0,0,ZoneOffset.UTC).with((LocalTime) varData[row]);
             case 13:
                 return (LocalDateTime) varData[row];
             default:
-                return null;
+                return LocalDateTime.ofEpochSecond(0,0,ZoneOffset.UTC);
         }
     }
 

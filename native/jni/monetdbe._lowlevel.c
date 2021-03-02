@@ -132,6 +132,8 @@ JNIEXPORT jboolean JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1get_1
 
 void returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetdbe_result **result, monetdbe_cnt *affected_rows, jint maxrows)
 {
+    //printf("Affected rows after: %d\n\n",(*affected_rows));
+    //fflush(stdout);
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     //Query with table result
     if ((*result) && (*result)->ncols > 0)
@@ -167,8 +169,9 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(
 {
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
     monetdbe_cnt *affected_rows = malloc(sizeof(monetdbe_cnt));
-    //Return value for data definition queries
+    //Return value for data definition queries (should not be changed by monetdbe_query)
     (*affected_rows) = -2;
+
     char *sql = (char *)(*env)->GetStringUTFChars(env, j_sql, NULL);
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
 
@@ -213,7 +216,7 @@ void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetd
         {
             monetdbe_data_time time = timestamps[i].time;
             monetdbe_data_date date = timestamps[i].date;
-            jobject j_timestamp = (*env)->CallStaticObjectMethod(env, j_timestamp_class, timestamp_constructor, (int)date.year, (int)date.month, (int)date.day, (int)time.hours, (int)time.minutes, (int)time.seconds, (int)time.ms);
+            jobject j_timestamp = (*env)->CallStaticObjectMethod(env, j_timestamp_class, timestamp_constructor, (int)date.year, (int)date.month, (int)date.day, (int)time.hours, (int)time.minutes, (int)time.seconds, ((int)time.ms)*1000000);
             (*env)->SetObjectArrayElement(env, j_data, i, j_timestamp);
         }
     }

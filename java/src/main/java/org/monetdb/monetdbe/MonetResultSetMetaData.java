@@ -93,7 +93,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         return false;
     }
 
-    //TODO Verify this
+    //TODO isNullable
     @Override
     public int isNullable(int column) throws SQLException {
         return ResultSetMetaData.columnNullableUnknown;
@@ -104,6 +104,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         return MonetTypes.isSigned(getColumnType(column));
     }
 
+    //TODO Display size is not the data type size
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
         return MonetTypes.getMonetSize(getColumnTypeInt(column)) * 8;

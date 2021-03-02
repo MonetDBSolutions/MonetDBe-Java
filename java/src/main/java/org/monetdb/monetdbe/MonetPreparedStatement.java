@@ -35,7 +35,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         //nParams and monetdbeTypes are set within monetdbe_prepare
         this.statementNative = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
 
-        if (nParams > 0) {
+        if (nParams >= 0) {
             this.parameterMetaData = new MonetParameterMetaData(nParams,monetdbeTypes);
             this.parameters = new Object[nParams];
         }
@@ -55,18 +55,22 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public boolean execute() throws SQLException {
         checkNotClosed();
+        int lastUpdateCount = this.updateCount;
+        MonetResultSet lastResultSet = this.resultSet;
         //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
         this.resultSet = null;
-        this.updateCount = 0;
+        this.updateCount = -1;
         //ResultSet and UpdateCount is set within monetdbe_execute
         String error_msg = MonetNative.monetdbe_execute(statementNative,this, false, getMaxRows());
         if (error_msg != null) {
+            this.updateCount = lastUpdateCount;
+            this.resultSet = lastResultSet;
             throw new SQLException(error_msg);
         }
         else if (this.resultSet!=null) {
             return true;
         }
-        else if (this.updateCount != -1){
+        else if (this.updateCount >= 0 || this.updateCount == Statement.SUCCESS_NO_INFO){
             return false;
         }
         else {
@@ -160,6 +164,41 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     //Overrides Statement's implementation, which batches different queries instead of different parameters for same query
+    public long[] executeLargeBatch() throws SQLException {
+        if (parametersBatch == null || parametersBatch.isEmpty()) {
+            return new long[0];
+        }
+        long[] counts = new long[parametersBatch.size()];
+        long count = -1;
+        Object[] cur_batch;
+
+        for (int i = 0; i < parametersBatch.size(); i++) {
+            //Get batch of parameters
+            cur_batch = parametersBatch.get(i);
+
+            for (int j = 0; j < nParams; j++) {
+                //Set each parameter in current batch
+                setObject(j+1,cur_batch[j]);
+            }
+
+            try {
+                count = executeLargeUpdate();
+            } catch (SQLException e) {
+                //Query returned a resultSet, throw BatchUpdateException
+                throw new BatchUpdateException();
+            }
+            if (count >= 0) {
+                counts[i] = count;
+            }
+            else {
+                counts[i] = Statement.SUCCESS_NO_INFO;
+            }
+        }
+        clearBatch();
+        return counts;
+    }
+
+    //Overrides Statement's implementation, which batches different queries instead of different parameters for same query
     @Override
     public void clearBatch() throws SQLException {
         checkNotClosed();
@@ -169,12 +208,16 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public long executeLargeUpdate() throws SQLException {
         checkNotClosed();
+        long lastUpdateCount = this.largeUpdateCount;
+        MonetResultSet lastResultSet = this.resultSet;
         //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
         this.resultSet = null;
-        this.updateCount = 0;
+        this.largeUpdateCount = -1;
         //ResultSet and UpdateCount is set within monetdbe_execute
         String error_msg = MonetNative.monetdbe_execute(statementNative,this, true,getMaxRows());
         if (error_msg != null) {
+            this.largeUpdateCount = lastUpdateCount;
+            this.resultSet = lastResultSet;
             throw new SQLException(error_msg);
         }
         else if (this.resultSet!=null) {
