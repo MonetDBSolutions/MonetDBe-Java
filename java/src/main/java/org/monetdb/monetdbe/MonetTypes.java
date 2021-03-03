@@ -14,6 +14,7 @@ final class MonetTypes {
         typeMapMonetToSQL.put(2, Types.SMALLINT);
         typeMapMonetToSQL.put(3, Types.INTEGER);
         typeMapMonetToSQL.put(4, Types.BIGINT);
+        typeMapMonetToSQL.put(5, Types.NUMERIC);
         typeMapMonetToSQL.put(6, Types.INTEGER);
         typeMapMonetToSQL.put(7, Types.REAL);
         typeMapMonetToSQL.put(8, Types.DOUBLE);
@@ -23,8 +24,6 @@ final class MonetTypes {
         typeMapMonetToSQL.put(12, Types.TIME);
         typeMapMonetToSQL.put(13, Types.TIMESTAMP);
         typeMapMonetToSQL.put(14, Types.NULL);
-        //TODO Verify this
-        typeMapMonetToSQL.put(5, Types.NUMERIC);
     }
 
     static int getSQLTypeFromMonet(final int monetdbetype) {
@@ -46,6 +45,8 @@ final class MonetTypes {
         typeMapSQLToMonet.put(Types.SMALLINT,2);
         typeMapSQLToMonet.put(Types.INTEGER,3);
         typeMapSQLToMonet.put(Types.BIGINT,4);
+        typeMapSQLToMonet.put(Types.NUMERIC,5);
+        typeMapSQLToMonet.put(Types.DECIMAL,5);
         typeMapSQLToMonet.put(Types.REAL,7);
         typeMapSQLToMonet.put(Types.FLOAT,7);
         typeMapSQLToMonet.put(Types.DOUBLE,8);
@@ -54,19 +55,16 @@ final class MonetTypes {
         typeMapSQLToMonet.put(Types.LONGVARCHAR,9);
         typeMapSQLToMonet.put(Types.NCHAR,9);
         typeMapSQLToMonet.put(Types.LONGNVARCHAR,9);
+        typeMapSQLToMonet.put(Types.CLOB,9);
         typeMapSQLToMonet.put(Types.BLOB,10);
+        typeMapSQLToMonet.put(Types.VARBINARY,10);
+        typeMapSQLToMonet.put(Types.DATALINK,10);
+        typeMapSQLToMonet.put(Types.LONGVARBINARY,10);
+        typeMapSQLToMonet.put(Types.BINARY,10);
         typeMapSQLToMonet.put(Types.DATE,11);
         typeMapSQLToMonet.put(Types.TIME,12);
         typeMapSQLToMonet.put(Types.TIMESTAMP,13);
         typeMapSQLToMonet.put(Types.NULL,14);
-
-        typeMapSQLToMonet.put(Types.NUMERIC,5);
-        typeMapSQLToMonet.put(Types.DECIMAL,5);
-        typeMapSQLToMonet.put(Types.VARBINARY,10);
-        typeMapSQLToMonet.put(Types.CLOB,10);
-        typeMapSQLToMonet.put(Types.DATALINK,10);
-        typeMapSQLToMonet.put(Types.LONGVARBINARY,10);
-        typeMapSQLToMonet.put(Types.BINARY,10);
     }
 
     static int getMonetTypeFromSQL(final int sqltype) {
@@ -217,7 +215,7 @@ final class MonetTypes {
         return monetdbeTypes[monetdbetype];
     }
 
-    //Sizes (static size types)
+    //Sizes in bytes (static size types)
     static int getMonetSize(final int monetdbetype) {
         return sizeMapMonet.get(monetdbetype);
     }

@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Map;
@@ -27,37 +28,39 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     //Columns of fetched data
     private MonetColumn[] columns;
-    //Name defined in monetdbe_result C struct
     private String name;
-    private int maxRows;
 
-    //TODO Check these values
+    //Ignored
     private int resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
     private int concurrency = ResultSet.CONCUR_READ_ONLY;
     private int fetchDirection = ResultSet.FETCH_UNKNOWN;
     private int resultSetHoldability = ResultSet.HOLD_CURSORS_OVER_COMMIT;
+    private int fetchSize;
 
     private SQLWarning warnings;
     private boolean lastReadWasNull = true;
-    private int fetchSize;
     private boolean closed = false;
 
     MonetResultSet(MonetStatement statement, ByteBuffer nativeResult, int nrows, int ncols, String name, int maxRows) {
         this.statement = statement;
         this.nativeResult = nativeResult;
-        //this.tupleCount = nrows;
         this.columnCount = ncols;
         this.curRow = 0;
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nrows,ncols);
 
+        //Failed fetch, destroy resultset
         if (this.columns == null) {
-            //TODO What should we do here? Error in fetching results
+            System.out.println("ResultSet fetch error");
+            try {
+                this.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
         this.metaData = new MonetResultSetMetaData(columns,ncols);
         this.name = name;
 
-        //TODO Check if we should do something else with maxRows
         if (maxRows != 0 && maxRows < nrows) {
             this.tupleCount = maxRows;
         }
@@ -108,11 +111,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    //TODO Verify this
     @Override
     public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-        //This method can probably be improved
-
         checkNotClosed();
         if (columnIndex > columnCount) {
             throw new SQLException("columnIndex is not valid");
@@ -383,52 +383,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    private SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSSS");
-    private SimpleDateFormat timestampFormat  = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS");
-
-    //TODO Change to new way of parsing dates
-    //Uses a Calendar object to set a given timezone
-    private boolean getJavaDate(Calendar cal, String dateStr, int type) throws SQLException {
-        checkNotClosed();
-        if (cal == null)
-            throw new IllegalArgumentException("No Calendar object given!");
-
-        TimeZone ptz = cal.getTimeZone();
-        java.util.Date pdate;
-        final java.text.ParsePosition ppos = new java.text.ParsePosition(0);
-        switch(type) {
-            case Types.DATE:
-                dateFormat.setTimeZone(ptz);
-                pdate = dateFormat.parse(dateStr,ppos);
-                break;
-            case Types.TIME:
-                timeFormat.setTimeZone(ptz);
-                pdate = timeFormat.parse(dateStr,ppos);
-                break;
-            case Types.TIMESTAMP:
-                timestampFormat.setTimeZone(ptz);
-                pdate = timestampFormat.parse(dateStr,ppos);
-
-                // if parsing with timestampFormat failed try to parse it in dateFormat
-                if (pdate == null && dateStr.length() <= 10 && dateStr.contains("-")) {
-                    dateFormat.setTimeZone(ptz);
-                    pdate = dateFormat.parse(dateStr,ppos);
-                }
-                break;
-            default:
-                throw new SQLException("Internal error, unsupported data type: " + type, "01M03");
-        }
-        if (pdate == null) {
-            //Parsing failure
-            return false;
-        }
-        //Set calendar to date parsed from
-        cal.setTime(pdate);
-        return true;
-    }
-
-    public LocalDate getLocalDate(int columnIndex, Calendar cal) throws SQLException {
+    public LocalDate getLocalDate(int columnIndex) throws SQLException {
         checkNotClosed();
         if (curRow <= 0 || curRow > tupleCount)
             throw new SQLException("Current row " + curRow + " does not support operation");
@@ -449,11 +404,18 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public Date getDate(int columnIndex, Calendar cal) throws SQLException {
-        LocalDate val = getLocalDate(columnIndex,cal);
+        LocalDate val = getLocalDate(columnIndex);
+        //Set timezone if there is one
+        if (cal != null && val != null) {
+            val = LocalDateTime.of(val, LocalTime.now())
+                    .atZone(cal.getTimeZone().toZoneId())
+                    .withZoneSameInstant(ZoneOffset.UTC)
+                    .toLocalDate();
+        }
         return val != null ? Date.valueOf(val) : null;
     }
 
-    public LocalTime getLocalTime(int columnIndex, Calendar cal) throws SQLException {
+    public LocalTime getLocalTime(int columnIndex) throws SQLException {
         checkNotClosed();
         if (curRow <= 0 || curRow > tupleCount)
             throw new SQLException("Current row " + curRow + " does not support operation");
@@ -474,11 +436,19 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
-        LocalTime val = getLocalTime(columnIndex,cal);
+        //Get LocalTime without timezone
+        LocalTime val = getLocalTime(columnIndex);
+        //Set timezone if there is one
+        if (cal != null && val != null) {
+            val = LocalDateTime.of(LocalDate.now(), val)
+                    .atZone(cal.getTimeZone().toZoneId())
+                    .withZoneSameInstant(ZoneOffset.UTC)
+                    .toLocalTime();
+        }
         return val != null ? Time.valueOf(val) : null;
     }
 
-    public LocalDateTime getLocalDateTime(int columnIndex, Calendar cal) throws SQLException {
+    public LocalDateTime getLocalDateTime(int columnIndex) throws SQLException {
         checkNotClosed();
         if (curRow <= 0 || curRow > tupleCount)
             throw new SQLException("Current row " + curRow + " does not support operation");
@@ -499,7 +469,13 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
 
     @Override
     public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-        LocalDateTime val = getLocalDateTime(columnIndex,cal);
+        LocalDateTime val = getLocalDateTime(columnIndex);
+        //Set timezone if there is one
+        if (cal != null && val != null) {
+            val = val.atZone(cal.getTimeZone().toZoneId())
+                    .withZoneSameInstant(ZoneOffset.UTC)
+                    .toLocalDateTime();
+        }
         return val != null ? Timestamp.valueOf(val) : null;
     }
 

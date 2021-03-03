@@ -163,7 +163,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
                 }
             }
         } catch (SQLException e) {
-            //TODO Do something? We can't throw the exception, and isValid should be false
         } finally {
             if (rs != null)
                 rs.close();
@@ -314,7 +313,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return properties;
     }
 
-    //TODO Verify this
     @Override
     public void setSchema(String schema) throws SQLException {
         checkNotClosed();
@@ -323,7 +321,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         executeCommand("SET SCHEMA \"" + schema + "\"");
     }
 
-    //TODO Verify this
     @Override
     public String getSchema() throws SQLException {
         checkNotClosed();
@@ -373,9 +370,50 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return jdbcURL;
     }
 
-    //TODO: Get user from the database
-    public String getUserName() {
-        return null;
+    public String getUserName() throws SQLException {
+        checkNotClosed();
+        String cur_user = null;
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            st = createStatement();
+            if (st != null) {
+                rs = st.executeQuery("SELECT CURRENT_USER");
+                if (rs != null) {
+                    if (rs.next())
+                        cur_user = rs.getString(1);
+                }
+            }
+            // do not catch any Exception, just let it propagate
+        } finally {
+            rs.close();
+            st.close();
+        }
+        if (cur_user == null)
+            throw new SQLException("Failed to fetch user name");
+        return cur_user;
+    }
+
+    public int getMaxConnections() throws SQLException {
+        checkNotClosed();
+        int maxConnections = 0;
+        Statement st = null;
+        ResultSet rs = null;
+        try {
+            st = createStatement();
+            if (st != null) {
+                rs = st.executeQuery("SELECT value FROM sys.env() WHERE name = 'max_clients'");
+                if (rs != null) {
+                    if (rs.next())
+                        maxConnections = rs.getInt(1);
+                }
+            }
+            // do not catch any Exception, just let it propagate
+        } finally {
+            rs.close();
+            st.close();
+        }
+        return maxConnections;
     }
 
     //Statements
@@ -393,7 +431,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkNotClosed();
         try {
-            MonetStatement s = new MonetStatement(this, resultSetType, resultSetConcurrency, resultSetHoldability);
+            MonetStatement s = new MonetStatement(this);
             statements.add(s);
             return s;
         } catch (IllegalArgumentException e) {
@@ -452,13 +490,11 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return prepareStatement(sql);
     }
 
-    //TODO Auto-generated keys
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
         throw new SQLFeatureNotSupportedException("prepareStatement(String sql, int[] columnIndexes)");
     }
 
-    //TODO Auto-generated keys
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
         throw new SQLFeatureNotSupportedException("prepareStatement(String sql, String[] columnNames)");

@@ -21,7 +21,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     protected ByteBuffer statementNative;
     private MonetParameterMetaData parameterMetaData;
 
-    //Set within monetdbe_prepare
     protected int nParams;
     protected int[] monetdbeTypes;
 
@@ -55,11 +54,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public boolean execute() throws SQLException {
         checkNotClosed();
+
         int lastUpdateCount = this.updateCount;
         MonetResultSet lastResultSet = this.resultSet;
-        //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
         this.resultSet = null;
         this.updateCount = -1;
+
         //ResultSet and UpdateCount is set within monetdbe_execute
         String error_msg = MonetNative.monetdbe_execute(statementNative,this, false, getMaxRows());
         if (error_msg != null) {
@@ -208,11 +208,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public long executeLargeUpdate() throws SQLException {
         checkNotClosed();
+
         long lastUpdateCount = this.largeUpdateCount;
         MonetResultSet lastResultSet = this.resultSet;
-        //TODO Check this assignment. If we don't delete the previous result set or set the update count to zero, we might get results from the last call
         this.resultSet = null;
         this.largeUpdateCount = -1;
+
         //ResultSet and UpdateCount is set within monetdbe_execute
         String error_msg = MonetNative.monetdbe_execute(statementNative,this, true,getMaxRows());
         if (error_msg != null) {
