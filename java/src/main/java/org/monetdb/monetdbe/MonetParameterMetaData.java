@@ -34,7 +34,7 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
         return parameterCount;
     }
 
-    //TODO Verify this
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int isNullable(int param) throws SQLException {
         return ParameterMetaData.parameterNullableUnknown;
@@ -45,13 +45,13 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
         return MonetTypes.isSigned(getParameterType(param));
     }
 
-    //TODO SCALE
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int getPrecision(int param) throws SQLException {
         return 0;
     }
 
-    //TODO SCALE
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int getScale(int param) throws SQLException {
         return 0;

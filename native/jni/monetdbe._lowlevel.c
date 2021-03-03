@@ -26,7 +26,6 @@ monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_queryti
         remote->port = (int)j_port;
         remote->username = user;
         remote->password = password;
-        //TODO Should the lang be set? Is it a deprecated parameter?
         remote->lang = NULL;
         opts->remote = remote;
 
@@ -36,8 +35,7 @@ monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_queryti
     return opts;
 }
 
-//Returns NULL if database open was not successful
-jobject open_db(JNIEnv *env, jstring j_url, monetdbe_options *opts)
+jstring open_db(JNIEnv *env, jstring j_url, monetdbe_options *opts, jobject j_connection)
 {
     const char *url = NULL;
     if (j_url != NULL)
@@ -52,44 +50,49 @@ jobject open_db(JNIEnv *env, jstring j_url, monetdbe_options *opts)
     {
         (*env)->ReleaseStringUTFChars(env, j_url, url);
     }
-    if (opts != NULL && opts->remote != NULL)
-    {
-        //TODO Free remote connection strings?
-    }
-
     if (error_code != 0)
     {
-        char *error = monetdbe_error(*db);
-        printf("Error in monetdbe_open: %s\n", error);
-        return NULL;
+        char *error_msg = monetdbe_error(*db);
+        return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
     {
-        return (*env)->NewDirectByteBuffer(env, (*db), sizeof(monetdbe_database));
+        //Set DB reference in Connection object that called the method
+        jclass connectionClass = (*env)->GetObjectClass(env, j_connection);
+        jfieldID dbNativeField = (*env)->GetFieldID(env, connectionClass, "dbNative", "Ljava/nio/ByteBuffer;");
+        (*env)->SetObjectField(env, j_connection, dbNativeField,(*env)->NewDirectByteBuffer(env, (*db), sizeof(monetdbe_database)));
+        return NULL;
     }
 }
 
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2(JNIEnv *env, jclass self, jstring j_url)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2 (JNIEnv *env, jclass self, jstring j_url, jobject j_connection)
 {
-    return open_db(env, j_url, NULL);
+    return open_db(env, j_url, NULL, j_connection);
 }
 
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII(JNIEnv *env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIII (JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
 {
     monetdbe_options *opts = set_options(env, j_sessiontimeout, j_querytimeout, j_memorylimit, j_nr_threads, NULL, 0, NULL, NULL);
-    return open_db(env, j_url, opts);
+    return open_db(env, j_url, opts, j_connection);
 }
 
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2(JNIEnv *env, jclass self, jstring j_url, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_host, jint j_port, jstring j_user, jstring j_password)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2 (JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_host, jint j_port, jstring j_user, jstring j_password)
 {
     monetdbe_options *opts = set_options(env, j_sessiontimeout, j_querytimeout, j_memorylimit, j_nr_threads, j_host, j_port, j_user, j_password);
-    return open_db(env, j_url, opts);
+    return open_db(env, j_url, opts, j_connection);
 }
 
-JNIEXPORT jint JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close(JNIEnv *env, jclass self, jobject j_db)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close(JNIEnv *env, jclass self, jobject j_db)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
-    return monetdbe_close(db);
+    int error_code = monetdbe_close(db);
+    if (error_code != 0) {
+        char *error_msg = monetdbe_error(db);
+        return (*env)->NewStringUTF(env, (const char *)error_msg);
+    }
+    else {
+        return NULL;
+    }
 }
 
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1error(JNIEnv *env, jclass self, jobject j_db)
@@ -105,7 +108,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1set_1a
     char *error_msg = monetdbe_set_autocommit(db, j_auto_commit);
     if (error_msg)
     {
-        printf("Error in get_autocommit: %s\n", error_msg);
         return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
@@ -134,6 +136,7 @@ void returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetd
 {
     //printf("Affected rows after: %d\n\n",(*affected_rows));
     //fflush(stdout);
+
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     //Query with table result
     if ((*result) && (*result)->ncols > 0)
@@ -327,6 +330,7 @@ void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name,
     (*env)->SetObjectArrayElement(env, j_columns, index, j_column_object);
 }
 
+//TODO Change return value to string and set jobjectArray through setObjectField?
 JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all(JNIEnv *env, jclass self, jobject j_rs, jint nrows, jint ncols)
 {
     monetdbe_result *rs = (*env)->GetDirectBufferAddress(env, j_rs);
@@ -501,7 +505,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result
     }
 }
 
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
     monetdbe_statement **stmt = malloc(sizeof(monetdbe_statement *));
@@ -510,8 +514,7 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
     char *error_msg = monetdbe_prepare(db, sql, stmt);
     if (error_msg)
     {
-        printf("Error in monetdbe_prepare: %s\n", error_msg);
-        return NULL;
+        return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
     {
@@ -531,7 +534,10 @@ JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         }
 
         (*env)->ReleaseStringUTFChars(env, j_sql, sql);
-        return (*env)->NewDirectByteBuffer(env, (*stmt), sizeof(monetdbe_statement));
+
+        jfieldID statementNativeField = (*env)->GetFieldID(env, statementClass, "statementNative", "Ljava/nio/ByteBuffer;");
+        (*env)->SetObjectField(env, j_statement, statementNativeField, (*env)->NewDirectByteBuffer(env, (*stmt), sizeof(monetdbe_statement)));
+        return NULL;
     }
 }
 

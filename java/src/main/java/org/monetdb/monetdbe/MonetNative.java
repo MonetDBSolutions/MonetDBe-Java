@@ -73,13 +73,13 @@ public class MonetNative {
         System.load(temp_lib.toString());
     }
 
-    protected static native ByteBuffer monetdbe_open(String dbdir);
+    protected static native String monetdbe_open(String dbdir, MonetConnection conn);
 
-    protected static native ByteBuffer monetdbe_open(String dbdir, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads);
+    protected static native String monetdbe_open(String dbdir, MonetConnection conn, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads);
 
-    protected static native ByteBuffer monetdbe_open(String dbdir, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads, String host, int port, String user, String password);
+    protected static native String monetdbe_open(String dbdir, MonetConnection conn, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads, String host, int port, String user, String password);
 
-    protected static native int monetdbe_close(ByteBuffer db);
+    protected static native String monetdbe_close(ByteBuffer db);
 
     protected static native String monetdbe_query(ByteBuffer db, String sql, MonetStatement statement, boolean largeUpdate, int maxrows);
 
@@ -93,7 +93,7 @@ public class MonetNative {
 
     protected static native boolean monetdbe_get_autocommit(ByteBuffer db);
 
-    protected static native ByteBuffer monetdbe_prepare(ByteBuffer db, String sql, MonetPreparedStatement statement);
+    protected static native String monetdbe_prepare(ByteBuffer db, String sql, MonetPreparedStatement statement);
 
     protected static native String monetdbe_execute(ByteBuffer stmt, MonetPreparedStatement statement, boolean largeUpdate, int maxrows);
 

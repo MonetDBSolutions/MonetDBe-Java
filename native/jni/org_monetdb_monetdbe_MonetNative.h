@@ -10,33 +10,33 @@ extern "C" {
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_open
- * Signature: (Ljava/lang/String;)Ljava/nio/ByteBuffer;
+ * Signature: (Ljava/lang/String;Lorg/monetdb/monetdbe/MonetConnection;)Ljava/lang/String;
  */
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2
-  (JNIEnv *, jclass, jstring);
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2
+  (JNIEnv *, jclass, jstring, jobject);
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_open
- * Signature: (Ljava/lang/String;IIII)Ljava/nio/ByteBuffer;
+ * Signature: (Ljava/lang/String;Lorg/monetdb/monetdbe/MonetConnection;IIII)Ljava/lang/String;
  */
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIII
-  (JNIEnv *, jclass, jstring, jint, jint, jint, jint);
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIII
+  (JNIEnv *, jclass, jstring, jobject, jint, jint, jint, jint);
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_open
- * Signature: (Ljava/lang/String;IIIILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)Ljava/nio/ByteBuffer;
+ * Signature: (Ljava/lang/String;Lorg/monetdb/monetdbe/MonetConnection;IIIILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2
-  (JNIEnv *, jclass, jstring, jint, jint, jint, jint, jstring, jint, jstring, jstring);
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2
+  (JNIEnv *, jclass, jstring, jobject, jint, jint, jint, jint, jstring, jint, jstring, jstring);
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_close
- * Signature: (Ljava/nio/ByteBuffer;)I
+ * Signature: (Ljava/nio/ByteBuffer;)Ljava/lang/String;
  */
-JNIEXPORT jint JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close
   (JNIEnv *, jclass, jobject);
 
 /*
@@ -90,9 +90,9 @@ JNIEXPORT jboolean JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1get_1
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_prepare
- * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;Lorg/monetdb/monetdbe/MonetPreparedStatement;)Ljava/nio/ByteBuffer;
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/lang/String;Lorg/monetdb/monetdbe/MonetPreparedStatement;)Ljava/lang/String;
  */
-JNIEXPORT jobject JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare
   (JNIEnv *, jclass, jobject, jstring, jobject);
 
 /*

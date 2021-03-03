@@ -66,6 +66,13 @@ public class MonetColumn {
         return typeName;
     }
 
+    //Translates monetdbe's internal scale format into java's MathContext scale format
+    public int getScaleJDBC() {
+        //TODO Check this translation
+        //int scale = -((BigDecimal.valueOf(this.scale).scale()) - 1);
+        return ((BigDecimal.valueOf(this.scale).precision()) - 2);
+    }
+
     Object getObject (int row) {
         switch (monetdbeType) {
             case 0:
@@ -225,10 +232,7 @@ public class MonetColumn {
     }
 
     BigDecimal getBigDecimal(int row) {
-        //Translates monetdbe's internal scale format into java's MathContext scale format
-        //TODO Check this translation
-        //int scale = -((BigDecimal.valueOf(this.scale).scale()) - 1);
-        int scale = ((BigDecimal.valueOf(this.scale).precision()) - 2);
+        int scale = getScaleJDBC();
         switch (monetdbeType) {
             case 1:
                 Byte unscaledByte = constData.get(row);

@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 
 public class MonetConnection extends MonetWrapper implements Connection {
-    private ByteBuffer dbNative;
+    protected ByteBuffer dbNative;
 
     private int sessiontimeout;
     private int querytimeout;
@@ -24,29 +24,35 @@ public class MonetConnection extends MonetWrapper implements Connection {
     private List<MonetStatement> statements;
 
     MonetConnection(Properties props) throws SQLException, IllegalArgumentException {
-        this.sessiontimeout = Integer.parseInt((String) props.getProperty("sessiontimeout", "0"));
-        this.querytimeout = Integer.parseInt((String) props.getProperty("querytimeout", "0"));
-        this.memorylimit = Integer.parseInt((String) props.getProperty("memorylimit", "0"));
-        this.nr_threads = Integer.parseInt((String) props.getProperty("nr_threads", "0"));
-        this.autoCommit = Boolean.parseBoolean((String) props.getProperty("autocommit", "true"));
+        this.sessiontimeout = Integer.parseInt(props.getProperty("sessiontimeout", "0"));
+        this.querytimeout = Integer.parseInt(props.getProperty("querytimeout", "0"));
+        this.memorylimit = Integer.parseInt(props.getProperty("memorylimit", "0"));
+        this.nr_threads = Integer.parseInt(props.getProperty("nr_threads", "0"));
+        this.autoCommit = Boolean.parseBoolean(props.getProperty("autocommit", "true"));
         this.jdbcURL = props.getProperty("jdbc-url");
         this.username = props.getProperty("user", "");
 
+        String error_msg;
         if (props.containsKey("url")) {
             //Remote proxy databases
-            //Currently, we need to pass both the complete uri and the properties
-            this.dbNative = MonetNative.monetdbe_open(props.getProperty("url"), sessiontimeout, querytimeout, memorylimit, nr_threads, props.getProperty("host", "localhost"), Integer.parseInt(props.getProperty("port", "50000")), props.getProperty("user", "monetdb"), props.getProperty("password", "monetdb"));
+            String url = props.getProperty("url");
+            String host = props.getProperty("host", "localhost");
+            int port = Integer.parseInt(props.getProperty("port", "50000"));
+            String user = props.getProperty("user", "monetdb");
+            String password = props.getProperty("password", "monetdb");
+            error_msg = MonetNative.monetdbe_open(url, this, sessiontimeout, querytimeout, memorylimit, nr_threads, host, port, user, password);
         } else {
             //Local directory and in-memory databases
-            this.dbNative = MonetNative.monetdbe_open(props.getProperty("path", null), sessiontimeout, querytimeout, memorylimit, nr_threads);
+            String path = props.getProperty("path", null);
+            error_msg = MonetNative.monetdbe_open(path, this, sessiontimeout, querytimeout, memorylimit, nr_threads);
         }
 
-        if (dbNative == null) {
-            throw new SQLException("Failure to open database");
+        if (dbNative == null || error_msg != null) {
+            throw new SQLException(error_msg);
         }
 
         //TODO Should I not set it if the autoCommit variable is the default value?
-        MonetNative.monetdbe_set_autocommit(dbNative, autoCommit ? 1 : 0);
+        //MonetNative.monetdbe_set_autocommit(dbNative, autoCommit ? 1 : 0);
         this.metaData = new MonetDatabaseMetaData(this);
         this.properties = props;
         this.statements = new ArrayList<>();
@@ -112,7 +118,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
             }
         }
         statements = null;
-        MonetNative.monetdbe_close(dbNative);
+        String error_msg = MonetNative.monetdbe_close(dbNative);
+        if (error_msg != null) {
+            throw new SQLException(error_msg);
+        }
         dbNative = null;
     }
 
@@ -121,7 +130,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return dbNative == null;
     }
 
-    //TODO The old implementation didn't use the executor. Should this one?
     @Override
     public void abort(Executor executor) throws SQLException {
         checkNotClosed();
@@ -165,7 +173,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
         checkNotClosed();
         if (autoCommit != this.autoCommit) {
             this.autoCommit = autoCommit;
-            MonetNative.monetdbe_set_autocommit(dbNative, autoCommit ? 1 : 0);
+            String error_msg = MonetNative.monetdbe_set_autocommit(dbNative, autoCommit ? 1 : 0);
+            if (error_msg != null) {
+                throw new SQLException(error_msg);
+            }
         }
     }
 
