@@ -4,6 +4,18 @@
 #include <string.h>
 #include <stdio.h>
 
+void set_options_mapi (JNIEnv *env, monetdbe_options *opts, jstring j_port, jstring j_sock) {
+    //MAPI server
+    if (j_port != NULL && j_sock != NULL) {
+        const char *port = (*env)->GetStringUTFChars(env, j_port, NULL);
+        const char *sock = (*env)->GetStringUTFChars(env, j_sock, NULL);
+        monetdbe_mapi_server *mapi = malloc(sizeof(monetdbe_mapi_server));
+        mapi->port = port;
+        mapi->usock = sock;
+        opts->mapi_server = mapi;
+    }
+}
+
 void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password) {
     //Remote proxy
     if (j_host != NULL && j_port > 0 && j_user != NULL && j_password != NULL)

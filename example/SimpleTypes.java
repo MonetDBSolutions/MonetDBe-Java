@@ -55,7 +55,8 @@ public class SimpleTypes {
 
     public static void main(String[] args) {
         try {
-            Connection c = DriverManager.getConnection("jdbc:monetdb://:memory:", new Properties());
+            //Connection c = DriverManager.getConnection("jdbc:monetdb://:memory:", new Properties());
+            Connection c = DriverManager.getConnection("mapi:monetdb://localhost:50000/test", new Properties());
 
             System.out.println("Opened connection");
 

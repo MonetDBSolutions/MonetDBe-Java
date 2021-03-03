@@ -370,6 +370,23 @@ public class TestMonetDBeJava {
         }
     }
 
+    static void connectionProps (MonetConnection c) {
+        try {
+            String schema = c.getSchema();
+            System.out.println("Default schema: " + schema);
+            Statement s = c.createStatement();
+            s.execute("CREATE SCHEMA voc");
+            c.setSchema("voc");
+            schema = c.getSchema();
+            System.out.println("New schema (should be voc): " + schema);
+
+            String user = c.getUserName();
+            System.out.println("Default user: " + user);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
@@ -392,6 +409,8 @@ public class TestMonetDBeJava {
             if (c != null) {
                 System.out.println("Opened connection @ " + url);
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
+
+                connectionProps(c);
 
                 //Create and populate
                 populateDBTable(c);

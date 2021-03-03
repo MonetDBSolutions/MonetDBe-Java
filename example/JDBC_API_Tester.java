@@ -7,6 +7,7 @@
  * Copyright 1997 - July 2008 CWI, August 2008 - 2021 MonetDB B.V.
  */
 
+import java.math.BigInteger;
 import java.sql.*;
 
 import java.io.StringReader;
@@ -40,7 +41,20 @@ final public class JDBC_API_Tester {
 	Connection con;	// main connection shared by all tests
 
 	public static void main(String[] args) throws Exception {
-		String con_URL = args[0];
+		String con_URL;
+		if (args.length > 0) {
+			con_URL = args[0];
+		}
+		else {
+			//Memory DB
+			String urlMemory = "jdbc:monetdb://:memory:";
+			//Local DB
+			String urlLocal = "jdbc:monetdb:/Users/bernardo/Monet/test/";
+			//Proxy DB
+			String urlProxy = "mapi:monetdb://localhost:50000/test?user=monetdb&password=monetdb";
+
+			con_URL = urlProxy;
+		}
 
 		JDBC_API_Tester jt = new JDBC_API_Tester();
 		jt.sb = new StringBuilder(sbInitLen);
@@ -84,7 +98,7 @@ final public class JDBC_API_Tester {
 		jt.BugConcurrent_sequences(con_URL);
 		//TODO Wrong affected rows value
 		jt.BugResultSetMetaData_Bug_6183();
-		//TODO: Get user and get max connections are wrong
+		//TODO: Can't connect as VOC on remote connection for some reason (remote connection has bugs still)
 		jt.Bug_Connect_as_voc_getMetaData_Failure_Bug_6388(con_URL);*/
 
 
@@ -92,7 +106,7 @@ final public class JDBC_API_Tester {
 		//jt.Test_CallableStmt();
 		//TODO: Bind DateTime not correct
 		//jt.Test_PStimedate();
-		//TODO: TimeZone in DateTime
+		//TODO: Bind DateTime not correct
 		//jt.Test_PStimezone();
 		//TODO Decimal in bind
 		//jt.BugDecimalRound_Bug_3561();
@@ -213,6 +227,87 @@ final public class JDBC_API_Tester {
 				"6. select...passed :)\n" +
 				"7. commit...passed :)\n");
 	}
+
+    private void Test_Int128() {
+        sb.setLength(0);	// clear the output log buffer
+
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        // check first if datatype hugeint is supported on this server
+        boolean supportsHugeInt = false;
+        try {
+            stmt = con.createStatement();
+            // query sys.types to find out if sql datatype hugeint is supported
+            rs = stmt.executeQuery("SELECT sqlname from sys.types where sqlname = 'hugeint';");
+            if (rs != null && rs.next()) {
+                String sqlname = rs.getString(1);
+                if ("hugeint".equals(sqlname))
+                    supportsHugeInt = true;
+            }
+        } catch (SQLException e) {
+            sb.append("FAILED: ").append(e.getMessage()).append("\n");
+        }
+
+        if (!supportsHugeInt) {
+            closeStmtResSet(stmt, rs);
+            compareExpectedOutput("Test_Int128", "");
+            return;	// skip the rest of the test
+        }
+
+        // test whether we can represent a full-size int128 as JDBC results
+        PreparedStatement insertStatement = null;
+        try {
+            stmt.executeUpdate("CREATE TABLE HUGEINTT (I HUGEINT)");
+            stmt.executeUpdate("CREATE TABLE HUGEDECT (I DECIMAL(38,19))");
+
+            BigInteger bi = new BigInteger("123456789012345678909876543210987654321");
+            BigDecimal bd = new BigDecimal("1234567890123456789.9876543210987654321");
+
+            insertStatement = con.prepareStatement("INSERT INTO HUGEINTT VALUES (?)");
+            insertStatement.setBigDecimal(1, new BigDecimal(bi));
+            insertStatement.executeUpdate();
+            insertStatement.close();
+
+            stmt.executeUpdate("INSERT INTO HUGEDECT VALUES (" + bd + ");");
+
+            rs = stmt.executeQuery("SELECT I FROM HUGEINTT");
+            rs.next();
+            BigInteger biRes = rs.getBigDecimal(1).toBigInteger();
+            rs.close();
+            sb.append("Expecting " + bi + ", got " + biRes).append("\n");
+            if (!bi.equals(biRes)) {
+                sb.append("value of bi is NOT equal to biRes!\n");
+            }
+
+            rs = stmt.executeQuery("SELECT I FROM HUGEDECT");
+            rs.next();
+            BigDecimal bdRes = rs.getBigDecimal(1);
+            rs.close();
+            sb.append("Expecting " + bd + ", got " + bdRes).append("\n");
+            if (!bd.equals(bdRes)) {
+                sb.append("value of bd is NOT equal to bdRes!\n");
+            }
+        } catch (SQLException e) {
+            sb.append("FAILED: ").append(e.getMessage()).append("\n");
+        }
+
+        // cleanup
+        try {
+            stmt.executeUpdate("DROP TABLE IF EXISTS HUGEINTT");
+            stmt.executeUpdate("DROP TABLE IF EXISTS HUGEDECT");
+            sb.append("SUCCESS\n");
+        } catch (SQLException e) {
+            sb.append("FAILED: ").append(e.getMessage()).append("\n");
+        }
+        closeStmtResSet(insertStatement, null);
+        closeStmtResSet(stmt, rs);
+
+        compareExpectedOutput("Test_Int128",
+                "Expecting 123456789012345678909876543210987654321, got 123456789012345678909876543210987654321\n" +
+                        "Expecting 1234567890123456789.9876543210987654321, got 1234567890123456789.9876543210987654321\n" +
+                        "SUCCESS\n");
+    }
 
 	//TODO Check why the expected output for isValid is true (it currently returns SQLException:sql.execute:25005!Current transaction is aborted (please ROLLBACK))
 	private void Test_CisValid() {
@@ -1561,7 +1656,7 @@ final public class JDBC_API_Tester {
 			"0. true	true\n");
 	}
 
-	//TODO: Timezone
+	//TODO: Bind DateTime
 	private void Test_PStimezone() {
 		sb.setLength(0);	// clear the output log buffer
 
@@ -3277,13 +3372,16 @@ final public class JDBC_API_Tester {
 				"Cleanup TABLE t1\n");
 	}
 
-	//TODO: Get user and get max connections are wrong
+	//TODO: Can't connect as VOC on remote connection for some reason (remote connection has bugs still)
 	private void Bug_Connect_as_voc_getMetaData_Failure_Bug_6388(String arg0) {
 		sb.setLength(0);	// clear the output log buffer
 
 		Statement stmt1 = null;
 		// create user, schema and alter schema default schema
 		try {
+			DatabaseMetaData dbmd = con.getMetaData();
+			System.out.println(dbmd.getUserName());
+			System.out.println(dbmd.getMaxConnections());
 			sb.append("1. CREATE USER voc").append("\n");
 			stmt1 = con.createStatement();
 			stmt1.executeUpdate("CREATE USER \"voc\" WITH PASSWORD 'voc' NAME 'VOC Explorer' SCHEMA \"sys\"");
@@ -3349,6 +3447,7 @@ final public class JDBC_API_Tester {
 
 			sb.append("voc meta data Test completed successfully").append("\n");
 		} catch (SQLException e) {
+			System.out.println("\n\n" + e.getMessage());
 			sb.append("FAILED fetching MonetDatabaseMetaData. ").append(e.getMessage()).append("\n");
 		} finally {
 			try {
