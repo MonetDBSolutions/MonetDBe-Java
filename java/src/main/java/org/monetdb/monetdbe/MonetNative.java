@@ -54,7 +54,7 @@ public class MonetNative {
 
     //Copy libraries to temporary location, to be in the rpath of libmonetdbe-lowlevel
     static void copyLib(String libName) throws IOException {
-        System.out.println("Copying: " + libName);
+        //System.out.println("Copying: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
         if (is == null) {
             throw new IOException("Library could not be found.");
@@ -63,7 +63,7 @@ public class MonetNative {
     }
 
     static void loadLib(String libName) throws IOException {
-        System.out.println("Loading: " + libName);
+        //System.out.println("Loading: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
         if (is == null) {
             throw new IOException("Library could not be found.");
