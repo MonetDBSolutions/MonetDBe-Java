@@ -26,10 +26,10 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_open
- * Signature: (Ljava/lang/String;Lorg/monetdb/monetdbe/MonetConnection;IIIILjava/lang/String;ILjava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ * Signature: (Ljava/lang/String;Lorg/monetdb/monetdbe/MonetConnection;IIIILjava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2
-  (JNIEnv *, jclass, jstring, jobject, jint, jint, jint, jint, jstring, jint, jstring, jstring);
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2
+  (JNIEnv *, jclass, jstring, jobject, jint, jint, jint, jint, jstring, jint, jstring, jstring, jstring);
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative

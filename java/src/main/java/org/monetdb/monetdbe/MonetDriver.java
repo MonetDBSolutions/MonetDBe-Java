@@ -10,7 +10,7 @@ final public class MonetDriver implements java.sql.Driver {
     //jdbc:monetdb//:memory:
     //Local
     //jdbc:monetdb:<databaseDirectory>
-    //TODO Support this syntax
+    //TODO Support this syntax? Does it even make sense?
     //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
     //Remote
     //mapi:monetdb://<host>[:<port>]/<database>
@@ -27,6 +27,7 @@ final public class MonetDriver implements java.sql.Driver {
     }
 
     private Connection connectJDBC(String url, Properties info) throws SQLException {
+        //TODO Do we want to parse options as URI queries with local and memory databases?
         if (!url.startsWith(MEMORYURL)) {
             //Local database
             //Remove leading 'jdbc:monetdb:'
@@ -59,8 +60,13 @@ final public class MonetDriver implements java.sql.Driver {
         if (uri_port > 0)
             info.put("port", Integer.toString(uri_port));
 
-        //TODO Is there any query parameter that should be used (besides user and password)?
-        //Check URI query parameters
+        //Database
+        String database = uri.getPath();
+        if (database != null)
+            //Remove the leading / from the database name
+            info.put("database",database.substring(1));
+
+        //Check URI query parameters (user, password, other options)
         final String uri_query = uri.getQuery();
         if (uri_query != null) {
             int pos;
@@ -116,6 +122,8 @@ final public class MonetDriver implements java.sql.Driver {
         prop.description = "The password to use when authenticating on the database server";
         dpi[1] = prop;
 
+        //TODO Add host and port and database?
+
         prop = new DriverPropertyInfo("session_timeout", "0");
         prop.required = false;
         prop.description = "Graceful terminate the session after a few seconds";
@@ -135,6 +143,8 @@ final public class MonetDriver implements java.sql.Driver {
         prop.required = false;
         prop.description = "Maximum number of worker treads, limits level of parallelism";
         dpi[5] = prop;
+
+        //TODO Add autocommit?
 
         return dpi;
     }

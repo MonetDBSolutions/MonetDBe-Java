@@ -15,7 +15,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
     private boolean autoCommit;
 
     private String jdbcURL;
-    private String username;
 
     private MonetDatabaseMetaData metaData;
     private SQLWarning warnings;
@@ -28,34 +27,42 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.querytimeout = Integer.parseInt(props.getProperty("querytimeout", "0"));
         this.memorylimit = Integer.parseInt(props.getProperty("memorylimit", "0"));
         this.nr_threads = Integer.parseInt(props.getProperty("nr_threads", "0"));
-        this.autoCommit = Boolean.parseBoolean(props.getProperty("autocommit", "true"));
         this.jdbcURL = props.getProperty("jdbc-url");
-        this.username = props.getProperty("user", "");
 
         String error_msg;
-        if (props.containsKey("url")) {
-            //Remote proxy databases
-            String url = props.getProperty("url");
+
+        //Remote proxy databases
+        //TODO Find better condition for figuring out if its remote proxy?
+        if (props.containsKey("host") && props.containsKey("database")) {
             String host = props.getProperty("host", "localhost");
             int port = Integer.parseInt(props.getProperty("port", "50000"));
+            String database = props.getProperty("database","test");
             String user = props.getProperty("user", "monetdb");
             String password = props.getProperty("password", "monetdb");
-            error_msg = MonetNative.monetdbe_open(url, this, sessiontimeout, querytimeout, memorylimit, nr_threads, host, port, user, password);
-        } else {
-            //Local directory and in-memory databases
+
+            //Remote connections pass a null argument for URL
+            error_msg = MonetNative.monetdbe_open(null, this, sessiontimeout, querytimeout, memorylimit, nr_threads, host, port, database, user, password);
+        }
+        //Local directory and in-memory databases
+        else {
+            //Directory for local, null for in-memory
             String path = props.getProperty("path", null);
             error_msg = MonetNative.monetdbe_open(path, this, sessiontimeout, querytimeout, memorylimit, nr_threads);
         }
 
+        //Error when opening db
         if (dbNative == null || error_msg != null) {
             throw new SQLException(error_msg);
         }
 
-        //TODO Should I not set it if the autoCommit variable is the default value?
-        //MonetNative.monetdbe_set_autocommit(dbNative, autoCommit ? 1 : 0);
         this.metaData = new MonetDatabaseMetaData(this);
         this.properties = props;
         this.statements = new ArrayList<>();
+
+        //Auto-commit defaults to true. If the passed property is different, change it
+        this.autoCommit = true;
+        if (props.containsKey("autocommit") && props.getProperty("autocommit").equals("false"))
+            setAutoCommit(false);
     }
 
     protected ByteBuffer getDbNative() {
@@ -253,10 +260,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return typeMap;
     }
 
-    //TODO Implement UDTs?
-    //A user may enter a custom mapping for a UDT in this type map.
-    //When a UDT is retrieved from a data source with the method ResultSet.getObject, the getObject method will check the connection's type map to see if there is an entry for that UDT.
-    //If so, the getObject method will map the UDT to the class indicated. If there is no entry, the UDT will be mapped using the standard mapping.
+    //TODO UDTs
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
         checkNotClosed();
@@ -371,7 +375,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     //TODO: Get user from the database
     public String getUserName() {
-        return username;
+        return null;
     }
 
     //Statements

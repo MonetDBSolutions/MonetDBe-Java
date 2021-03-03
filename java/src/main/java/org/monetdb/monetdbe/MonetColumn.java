@@ -21,12 +21,7 @@ public class MonetColumn {
     private int monetdbeType;
     private String typeName;
 
-    public MonetColumn(String name, int monetdbeType) {
-        this.name = name;
-        this.monetdbeType = monetdbeType;
-        this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
-    }
-
+    //Constant lenght data types (called from monetdbe_result_fetch_all)
     public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double scale) {
         this.name = name;
         this.monetdbeType = monetdbeType;
@@ -35,19 +30,12 @@ public class MonetColumn {
         this.scale = scale;
     }
 
+    //Variable lenght data types (called from monetdbe_result_fetch_all)
     public MonetColumn(String name, int monetdbeType, Object[] varData) {
         this.name = name;
         this.monetdbeType = monetdbeType;
         this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
         this.varData = varData;
-    }
-
-    Buffer getConstData() {
-        return constData;
-    }
-
-    Object[] getVarData() {
-        return varData;
     }
 
     String getName() {
@@ -66,10 +54,8 @@ public class MonetColumn {
         return typeName;
     }
 
-    //Translates monetdbe's internal scale format into java's MathContext scale format
+    //Translates monetdbe's internal scale format into java's MathContext scale format (1000.0 to 3)
     public int getScaleJDBC() {
-        //TODO Check this translation
-        //int scale = -((BigDecimal.valueOf(this.scale).scale()) - 1);
         return ((BigDecimal.valueOf(this.scale).precision()) - 2);
     }
 
@@ -110,7 +96,6 @@ public class MonetColumn {
         if (monetdbeType == 0) {
             return constData.get(row)!=0;
         }
-        //TODO Check this conversion
         else if (monetdbeType > 0 && monetdbeType < 9) {
             return ((Number) getObject(row)).byteValue() != 0;
         }
