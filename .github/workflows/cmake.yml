@@ -10,7 +10,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    container: monetdb/dev-builds:Oct2020
+    container: monetdb/dev-builds:default
 
     steps:
     - uses: actions/checkout@v2
