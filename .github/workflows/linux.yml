@@ -10,6 +10,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    container: monetdb/dev-builds:default
 
     steps:
     - uses: actions/checkout@v2
@@ -17,5 +18,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+
+    - name: Install Maven
+      run: apt install -y maven
+
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn install -DMonetDB_dir=/usr/local
