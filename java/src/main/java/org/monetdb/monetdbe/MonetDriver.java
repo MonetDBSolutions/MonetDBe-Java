@@ -7,16 +7,14 @@ import java.util.logging.Logger;
 
 final public class MonetDriver implements java.sql.Driver {
     //Memory
-    //jdbc:monetdb//:memory:
+    //jdbc:monetdb:memory:?property=propertyValue
     //Local
-    //jdbc:monetdb:<databaseDirectory>
-    //TODO Support this syntax? Does it even make sense?
-    //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
+    //jdbc:monetdb:file:<databaseDirectory>?property=propertyValue
     //Remote
-    //mapi:monetdb://<host>[:<port>]/<database>
+    //mapi:monetdb://<host>[:<port>]/<database>?property=propertyValue
     static final String MONETURL = "jdbc:monetdb:";
     static final String MAPIURL = "mapi:monetdb:";
-    static final String MEMORYURL = "jdbc:monetdb://:memory:";
+    static final String MEMORYURL = "jdbc:monetdb:memory:";
 
     static {
         try {
@@ -26,14 +24,33 @@ final public class MonetDriver implements java.sql.Driver {
         }
     }
 
+    private void parseOptions (String urlQuery, Properties info) {
+        //Check URI query parameters (user, password, other options)
+        if (urlQuery != null) {
+            int pos;
+            // handle additional connection properties separated by the & character
+            final String args[] = urlQuery.split("&");
+            for (int i = 0; i < args.length; i++) {
+                pos = args[i].indexOf('=');
+                if (pos > 0)
+                    info.put(args[i].substring(0, pos), args[i].substring(pos + 1));
+            }
+        }
+    }
+
     private Connection connectJDBC(String url, Properties info) throws SQLException {
-        //TODO Do we want to parse options as URI queries with local and memory databases?
+        //For in-memory databases, leave the path property NULL
         if (!url.startsWith(MEMORYURL)) {
             //Local database
-            //Remove leading 'jdbc:monetdb:'
-            info.put("path",url.substring(13));
+            //Remove leading 'jdbc:monetdb:file:' from directory path
+            info.put("path",url.substring(18));
         }
-        //For in-memory databases, leave the path property NULL
+
+        //Parse additional options in URL query string
+        if (url.contains("?")) {
+            //TODO Is this substring correct for getting the URL query from the local and memory URL formats?
+            parseOptions(url.substring(url.lastIndexOf('?') +1),info);
+        }
         return new MonetConnection(info);
     }
 
@@ -48,6 +65,7 @@ final public class MonetDriver implements java.sql.Driver {
         }
 
         //Full URL
+        //TODO: Not used
         info.put("url",url);
 
         //Host
@@ -66,18 +84,10 @@ final public class MonetDriver implements java.sql.Driver {
             //Remove the leading / from the database name
             info.put("database",database.substring(1));
 
-        //Check URI query parameters (user, password, other options)
+        //Parse additional options in URL query string
         final String uri_query = uri.getQuery();
-        if (uri_query != null) {
-            int pos;
-            // handle additional connection properties separated by the & character
-            final String args[] = uri_query.split("&");
-            for (int i = 0; i < args.length; i++) {
-                pos = args[i].indexOf('=');
-                if (pos > 0)
-                    info.put(args[i].substring(0, pos), args[i].substring(pos + 1));
-            }
-        }
+        parseOptions(uri_query,info);
+
         return new MonetConnection(info);
     }
 

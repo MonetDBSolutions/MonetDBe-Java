@@ -148,11 +148,11 @@ public class Taxi {
     }
 
     public static void main(String[] args) {
-        if (args.length < 2) {
+        if (args.length < 1) {
             System.out.println("Please input the yellow_tripdata_2016_01.csv dataset");
             return;
         }
-        String csvPath = args[1];
+        String csvPath = args[0];
 
         Connection conn = null;
         try {

@@ -5,9 +5,9 @@ import java.sql.SQLException;
 public class ConnectionTypes {
     public static void main(String[] args) {
         //In-Memory DB
-        String urlMemory = "jdbc:monetdb://:memory:";
+        String urlMemory = "jdbc:monetdb:memory:";
         //Local Persistent DB
-        String urlLocal = "jdbc:monetdb:/tmp/test/";
+        String urlLocal = "jdbc:monetdb:file:/tmp/test/";
         //Remote Proxy DB (needs to have a server running)
         String urlProxy = "mapi:monetdb://localhost:50000/test";
 
@@ -48,6 +48,20 @@ public class ConnectionTypes {
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Remote proxy database connection failure.");
+        }
+
+        //Connecting to in-memory DB with auto-commit turned off
+        try {
+            Connection memoryConnection = DriverManager.getConnection(urlMemory.concat("?autocommit=false"),null);
+
+            if (memoryConnection != null) {
+                boolean ac = memoryConnection.getAutoCommit();
+                System.out.println("In-memory database with autocommit off returns: " + ac + " (should be false)");
+                memoryConnection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("In-memory database connection failure.");
         }
     }
 }

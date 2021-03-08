@@ -84,34 +84,27 @@ final public class JDBC_API_Tester {
 		/*
 		//TODO: Affected rows
 		jt.Test_PStypes();
-		//TODO getColumnPrivileges doesn't return any rows
-		jt.Test_Dobjects();
 		//TODO: Affected rows
 		jt.Test_Rbooleans();
+		//TODO: Affected rows
+		jt.Test_Sbatching();
+		//TODO Affected rows
+		jt.BugResultSetMetaData_Bug_6183();
+		//TODO getColumnPrivileges doesn't return any rows
+		jt.Test_Dobjects();
+		//TODO: Isn't this test wrong?
+		jt.BugConcurrent_sequences(con_URL);
 		//TODO: Some differences in converting DateTime and String values + Warnings?
 		jt.Test_RtimedateTest_Rtimedate();
 		//TODO: Display size in expected output doesn't make much sense + Null values of numeric types aren't null, but 0
 		jt.Test_Rmetadata();
-		//TODO: Affected rows
-		jt.Test_Sbatching();
-		//TODO: Isn't this test wrong?
-		jt.BugConcurrent_sequences(con_URL);
-		//TODO Wrong affected rows value
-		jt.BugResultSetMetaData_Bug_6183();
 		//TODO: Can't connect as VOC on remote connection for some reason (remote connection has bugs still)
 		jt.Bug_Connect_as_voc_getMetaData_Failure_Bug_6388(con_URL);*/
 
-
-		//TODO: URL data returns type_unkown from metadata and quotes are kept in the URL values
-		//jt.Test_CallableStmt();
 		//TODO: Bind DateTime not correct
 		//jt.Test_PStimedate();
 		//TODO: Bind DateTime not correct
 		//jt.Test_PStimezone();
-		//TODO Decimal in bind
-		//jt.BugDecimalRound_Bug_3561();
-		//TODO: GetMoreResults
-		//jt.Bug_LargeQueries_6571_6693(con_URL);
 		//TODO: ResultSetMetadata in PreparedStatement
 		//jt.Bug_PrepStmtSetObject_CLOB_6349();
 		//TODO: ResultSetMetadata in PreparedStatement
@@ -120,16 +113,22 @@ final public class JDBC_API_Tester {
 		//jt.Test_PSmetadata();
 		//TODO: GetMoreResults
 		//jt.Test_Clargequery();
-		//TODO: Savepoint
-		//jt.Test_Csavepoints();
-		//TODO: Int128
-		//jt.Test_Int128();
-		//TODO: Auto-Generated Keys
-		//jt.Test_PSgeneratedkeys();
-		//TODO: INET/URL
-		//jt.Test_PSsqldata();
 		//TODO: GetMoreResults
 		//jt.Test_Smoreresults();
+		//TODO: GetMoreResults
+		//jt.Bug_LargeQueries_6571_6693(con_URL);
+		//TODO: Int128
+		//jt.Test_Int128();
+		//TODO Decimal in bind
+		//jt.BugDecimalRound_Bug_3561();
+		//TODO: URL data returns type_unkown from metadata and quotes are kept in the URL values
+		//jt.Test_CallableStmt();
+		//TODO: Auto-Generated Keys
+		//jt.Test_PSgeneratedkeys();
+		//TODO: Savepoint
+		//jt.Test_Csavepoints();
+		//TODO: INET/URL
+		//jt.Test_PSsqldata();
 		//TODO: INET/URL
 		//jt.Test_Rsqldata();
 		//TODO: INET/URL
