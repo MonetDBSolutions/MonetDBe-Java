@@ -8,21 +8,39 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+//TODO Improve
 public class MonetDataSource extends MonetWrapper implements DataSource {
     private String url;
     private final MonetDriver driver;
 
-    //TODO use loginTimeout?
     private int loginTimeout = 0;
 
     private String user;
     private String password;
+    private String description;
 
     public MonetDataSource() {
-        user = "monetdb";
-        password = "monetdb";
-        url = "jdbc:monetdb://:memory:";
-        driver = new MonetDriver();
+        this.user = "monetdb";
+        this.password = "monetdb";
+        this.url = "jdbc:monetdb://:memory:";
+        this.description = "MonetDB embedded database";
+        this.driver = new MonetDriver();
+    }
+
+    public MonetDataSource(String url) {
+        this.url = url;
+        this.user = "monetdb";
+        this.password = "monetdb";
+        this.description = "MonetDB embedded database";
+        this.driver = new MonetDriver();
+    }
+
+    public MonetDataSource(String url, String user, String password) {
+        this.url = url;
+        this.user = user;
+        this.password = password;
+        this.description = "MonetDB embedded database";
+        this.driver = new MonetDriver();
     }
 
     @Override
@@ -49,16 +67,30 @@ public class MonetDataSource extends MonetWrapper implements DataSource {
         return loginTimeout;
     }
 
-    //TODO LogWriter
     @Override
     public PrintWriter getLogWriter() throws SQLException {
         return null;
     }
 
-    //TODO LogWriter
     @Override
     public void setLogWriter(PrintWriter out) throws SQLException {
 
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     @Override

@@ -11,8 +11,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     protected SQLWarning warnings;
     protected List<String> batch;
 
-    private int maxRows = 0;
-    private long largeMaxRows = 0;
     protected int updateCount = -1;
     protected long largeUpdateCount = -1;
     private int queryTimeout = 0;
@@ -20,13 +18,16 @@ public class MonetStatement extends MonetWrapper implements Statement {
     private boolean closed = false;
     private boolean closeOnCompletion = false;
 
-    //TODO Are these actually used?
-    private int fetchDirection = ResultSet.FETCH_UNKNOWN;
+    //ResultSet variables
+    private int maxRows = 0;
+    //This one isn't used right now
+    private long largeMaxRows = 0;
+    //These ones are ignored
     private int fetchSize;
+    private int fetchDirection = ResultSet.FETCH_UNKNOWN;
     private int resultSetType = ResultSet.TYPE_SCROLL_INSENSITIVE;
     private int resultSetConcurrency = ResultSet.CONCUR_READ_ONLY;
     private int resultSetHoldability = ResultSet.HOLD_CURSORS_OVER_COMMIT;
-    private boolean poolable = false;
 
     public MonetStatement(MonetConnection conn) {
         this.conn = conn;
@@ -34,6 +35,14 @@ public class MonetStatement extends MonetWrapper implements Statement {
         this.batch = new ArrayList<>();
     }
 
+    public MonetStatement(MonetConnection conn, int queryTimeout) {
+        this.conn = conn;
+        this.resultSet = null;
+        this.batch = new ArrayList<>();
+        this.queryTimeout = queryTimeout;
+    }
+
+    //TODO Should we delete this one? We don't user these ResultSet variables
     public MonetStatement(MonetConnection conn, int resultSetType, int resultSetConcurrency, int resultSetHoldability) {
         this.conn = conn;
         this.resultSet = null;
@@ -41,16 +50,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
         this.resultSetConcurrency = resultSetConcurrency;
         this.resultSetHoldability = resultSetHoldability;
         this.batch = new ArrayList<>();
-    }
-
-    public MonetStatement(MonetConnection conn, int resultSetType, int resultSetConcurrency, int resultSetHoldability, int queryTimeout) {
-        this.conn = conn;
-        this.resultSet = null;
-        this.resultSetType = resultSetType;
-        this.resultSetConcurrency = resultSetConcurrency;
-        this.resultSetHoldability = resultSetHoldability;
-        this.batch = new ArrayList<>();
-        this.queryTimeout = queryTimeout;
     }
 
     private final void addWarning(final String reason, final String sqlstate) {
@@ -64,7 +63,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
 
     public void checkNotClosed() throws SQLException {
         if (isClosed())
-            throw new SQLException("Connection is closed", "M1M20");
+            throw new SQLException("Statement is closed", "M1M20");
     }
 
     //Close
@@ -108,7 +107,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     }
 
     //Called by the result set object when closed
-    //Close open statement if closeOnCompletion() was called
+    //Close statement if closeOnCompletion() was called
     protected void closeIfComplete () throws SQLException {
         if (!closed && closeOnCompletion) {
             close();
@@ -119,17 +118,28 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public boolean execute(String sql) throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false);
-        if (this.resultSet!=null) {
+
+        int lastUpdateCount = this.updateCount;
+        MonetResultSet lastResultSet = this.resultSet;
+        this.resultSet = null;
+        this.updateCount = -1;
+
+        //ResultSet and UpdateCount is set within monetdbe_query
+        String error_msg = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false, getMaxRows());
+        if (error_msg != null) {
+            this.updateCount = lastUpdateCount;
+            this.resultSet = lastResultSet;
+            throw new SQLException(error_msg);
+        }
+        else if (this.resultSet!=null) {
             return true;
         }
-        //Data manipulation queries
-        else if (this.updateCount!=-1){
+        //Data manipulation and data definition (Statement.SUCCESS_NO_INFO) queries
+        else if (this.updateCount >= 0 || this.updateCount == Statement.SUCCESS_NO_INFO){
             return false;
         }
-        //Data definition queries
         else {
-            return false;
+            throw new SQLException("Error in monetdbe_query");
         }
     }
 
@@ -150,8 +160,20 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public long executeLargeUpdate(String sql) throws SQLException {
         checkNotClosed();
-        this.resultSet = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true);
-        if (this.resultSet!=null) {
+
+        long lastUpdateCount = this.largeUpdateCount;
+        MonetResultSet lastResultSet = this.resultSet;
+        this.resultSet = null;
+        this.largeUpdateCount = -1;
+
+        //ResultSet and UpdateCount is set within monetdbe_query
+        String error_msg = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true, getMaxRows());
+        if (error_msg != null) {
+            this.largeUpdateCount = lastUpdateCount;
+            this.resultSet = lastResultSet;
+            throw new SQLException(error_msg);
+        }
+        else if (this.resultSet!=null) {
             throw new SQLException("Query produced a result set", "M1M17");
         }
         else {
@@ -328,7 +350,9 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
         checkNotClosed();
-        //Not possible currently, may be a future feature
+        if (seconds < 0)
+            throw new SQLException("Illegal timeout value: " + seconds);
+        queryTimeout = seconds;
     }
 
     @Override
@@ -408,17 +432,15 @@ public class MonetStatement extends MonetWrapper implements Statement {
         return resultSetHoldability;
     }
 
-    //TODO Poolable statements
     @Override
     public void setPoolable(boolean poolable) throws SQLException {
-        checkNotClosed();
-        this.poolable = poolable;
+        throw new SQLFeatureNotSupportedException("Poolable statements are currently not supported by the driver.");
     }
 
     @Override
     public boolean isPoolable() throws SQLException {
         checkNotClosed();
-        return this.poolable;
+        return false;
     }
 
     @Override

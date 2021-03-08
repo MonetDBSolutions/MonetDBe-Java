@@ -6,11 +6,17 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 final public class MonetDriver implements java.sql.Driver {
+    //Memory
     //jdbc:monetdb//:memory:
+    //Local
+    //jdbc:monetdb:<databaseDirectory>
+    //TODO Support this syntax? Does it even make sense?
     //jdbc:monetdb://<host>[:<port>]/<databaseDirectory>
+    //Remote
     //mapi:monetdb://<host>[:<port>]/<database>
     static final String MONETURL = "jdbc:monetdb:";
     static final String MAPIURL = "mapi:monetdb:";
+    static final String MEMORYURL = "jdbc:monetdb://:memory:";
 
     static {
         try {
@@ -21,7 +27,8 @@ final public class MonetDriver implements java.sql.Driver {
     }
 
     private Connection connectJDBC(String url, Properties info) throws SQLException {
-        if (!url.equals("jdbc:monetdb://:memory:")) {
+        //TODO Do we want to parse options as URI queries with local and memory databases?
+        if (!url.startsWith(MEMORYURL)) {
             //Local database
             //Remove leading 'jdbc:monetdb:'
             info.put("path",url.substring(13));
@@ -36,30 +43,30 @@ final public class MonetDriver implements java.sql.Driver {
             //Remove leading "mapi:" and get valid URI
             uri = new URI(url.substring(5));
         } catch (java.net.URISyntaxException e) {
-            System.out.println("Uri '" + url.substring(5) + "' not parseable");
+            System.out.println("Uri '" + url + "' not parseable");
             return null;
         }
 
-        info.put("url","mapi:" + uri.toString());
+        //Full URL
+        info.put("url",url);
 
-        final String uri_host = uri.getHost();
-        if (uri_host == null)
-            return null;
-        info.put("host", uri_host);
+        //Host
+        String uri_host = uri.getHost();
+        if (uri_host != null)
+            info.put("host", uri_host);
 
+        //Port
         int uri_port = uri.getPort();
         if (uri_port > 0)
             info.put("port", Integer.toString(uri_port));
 
-        //Check database path
-        String uri_path = uri.getPath();
-        if (uri_path != null && !uri_path.isEmpty()) {
-            uri_path = uri_path.trim();
-            if (!uri_path.isEmpty())
-                info.put("path", uri_path);
-        }
+        //Database
+        String database = uri.getPath();
+        if (database != null)
+            //Remove the leading / from the database name
+            info.put("database",database.substring(1));
 
-        //Check URI query
+        //Check URI query parameters (user, password, other options)
         final String uri_query = uri.getQuery();
         if (uri_query != null) {
             int pos;
@@ -71,9 +78,6 @@ final public class MonetDriver implements java.sql.Driver {
                     info.put(args[i].substring(0, pos), args[i].substring(pos + 1));
             }
         }
-        /*for (String s : info.stringPropertyNames()) {
-            System.out.println(s + " " + info.getProperty(s));
-        }*/
         return new MonetConnection(info);
     }
 
@@ -86,6 +90,7 @@ final public class MonetDriver implements java.sql.Driver {
         if (info == null)
             info = new Properties();
 
+        info.setProperty("jdbc-url",url);
         if (url.startsWith(MONETURL)) {
             return connectJDBC(url,info);
         }
@@ -117,6 +122,8 @@ final public class MonetDriver implements java.sql.Driver {
         prop.description = "The password to use when authenticating on the database server";
         dpi[1] = prop;
 
+        //TODO Add host and port and database?
+
         prop = new DriverPropertyInfo("session_timeout", "0");
         prop.required = false;
         prop.description = "Graceful terminate the session after a few seconds";
@@ -137,11 +144,7 @@ final public class MonetDriver implements java.sql.Driver {
         prop.description = "Maximum number of worker treads, limits level of parallelism";
         dpi[5] = prop;
 
-        prop = new DriverPropertyInfo("language", "sql");
-        prop.required = false;
-        prop.description = "What language to use for MonetDB conversations (experts only)";
-        prop.choices = new String[] { "sql", "mal" };
-        dpi[6] = prop;
+        //TODO Add autocommit?
 
         return dpi;
     }
@@ -154,6 +157,30 @@ final public class MonetDriver implements java.sql.Driver {
     @Override
     public int getMinorVersion() {
         return 1;
+    }
+
+    static final int getDriverMajorVersion() {
+        return 1;
+    }
+
+    static final int getDriverMinorVersion() {
+        return 1;
+    }
+
+    static final String getDriverVersion() {
+        return getDriverMajorVersion() + "." + getDriverMinorVersion();
+    }
+
+    static final int getDatabaseMajorVersion() {
+        return 11;
+    }
+
+    static final int getDatabaseMinorVersion() {
+        return 40;
+    }
+
+    static final String getDatabaseVersion() {
+        return getDatabaseMajorVersion() + "." + getDatabaseMinorVersion();
     }
 
     @Override

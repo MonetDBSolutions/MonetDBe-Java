@@ -34,7 +34,7 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
         return parameterCount;
     }
 
-    //TODO Verify this
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int isNullable(int param) throws SQLException {
         return ParameterMetaData.parameterNullableUnknown;
@@ -45,13 +45,13 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
         return MonetTypes.isSigned(getParameterType(param));
     }
 
-    //TODO SCALE
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int getPrecision(int param) throws SQLException {
         return 0;
     }
 
-    //TODO SCALE
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int getScale(int param) throws SQLException {
         return 0;
@@ -61,7 +61,7 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
     @Override
     public int getParameterType(int param) throws SQLException {
         try {
-            return sqlTypes[param];
+            return sqlTypes[param-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -71,7 +71,7 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
     @Override
     public String getParameterTypeName(int param) throws SQLException {
         try {
-            return monetTypes[param];
+            return monetTypes[param-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }
@@ -80,7 +80,7 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
     @Override
     public String getParameterClassName(int param) throws SQLException {
         try {
-            return javaTypes[param];
+            return javaTypes[param-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }

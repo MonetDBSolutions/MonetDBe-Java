@@ -17,7 +17,6 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
      *  { [?=] call <procedure-name> [(<arg1>,<arg2>, ...)] }
      * and remove the JDBC escapes pairs: { and }
      */
-    //TODO Check if I can use this in this state or if I should change something
     final private static String removeEscapes(final String query) {
         if (query == null)
             return null;
@@ -61,7 +60,6 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
      *  this will only succeed for strings like: "1", "2", "3", etc
      *  throws SQLException if it cannot convert the string to an integer number
      */
-    //TODO Check if I can use this in this state or if I should change something
     final private int nameToIndex(final String parameterName) throws SQLException {
         if (parameterName == null)
             throw new SQLException("Missing parameterName value", "22002");

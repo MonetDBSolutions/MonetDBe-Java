@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.monetdb</groupId>
+        <artifactId>monetdbe-java</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>monetdbe-java-native</artifactId>
+    <packaging>${packaging.type}</packaging>
+    <name>${project.groupId}:${project.artifactId}</name>
+
+    <profiles>
+        <!-- Linux compilation -->
+        <profile>
+            <id>linux</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <packaging.type>so</packaging.type>
+            </properties>
+
+            <build>
+                <plugins>
+                    <!-- Compile JNI C library for monetdbe-java-src -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>1.0-alpha-9</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <sources>
+                                <source>
+                                    <directory>${project.basedir}/jni/</directory>
+                                    <fileNames>
+                                        <fileName>monetdbe._lowlevel.c</fileName>
+                                    </fileNames>
+                                </source>
+                            </sources>
+                            <compilerStartOptions>
+                                <!-- MONETDB_PREFIX + include/monetdb/ -->
+                                <compilerStartOption>-I ${MonetDB_dir}/include/monetdb/</compilerStartOption>
+                                <compilerStartOption>-I ${JAVA_HOME}/include/linux/</compilerStartOption>
+                                <compilerStartOption>-I ${JAVA_HOME}/include/</compilerStartOption>
+                                <compilerStartOption>-fPIC</compilerStartOption>
+                            </compilerStartOptions>
+
+                            <linkerStartOptions>
+                                <!-- MONETDB_PREFIX + lib OR lib64-->
+                                <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
+                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
+                                <linkerStartOption>-shared</linkerStartOption>
+                                <linkerStartOption>-fPIC</linkerStartOption>
+                                <linkerStartOption>-lmonetdbe</linkerStartOption>
+
+                                <!-- For setting rpath-->
+                                <linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption>
+                            </linkerStartOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Mac compilation -->
+        <profile>
+            <id>mac</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+            </activation>
+            <properties>
+                <packaging.type>dylib</packaging.type>
+            </properties>
+
+            <build>
+                <plugins>
+                    <!-- Compile JNI C library for monetdbe-java-src -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>1.0-alpha-9</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <sources>
+                                <source>
+                                    <directory>${project.basedir}/jni/</directory>
+                                    <fileNames>
+                                        <fileName>monetdbe._lowlevel.c</fileName>
+                                    </fileNames>
+                                </source>
+                            </sources>
+                            <compilerStartOptions>
+                                <!-- MONETDB_PREFIX + include/monetdb/ -->
+                                <compilerStartOption>-I ${MonetDB_dir}/include/monetdb/</compilerStartOption>
+                                <compilerStartOption>-I ${JAVA_HOME}/include/darwin/</compilerStartOption>
+                                <compilerStartOption>-I ${JAVA_HOME}/include/</compilerStartOption>
+                                <compilerStartOption>-fPIC</compilerStartOption>
+                            </compilerStartOptions>
+
+                            <linkerStartOptions>
+                                <!-- MONETDB_PREFIX + lib OR lib64-->
+                                <!-- Note: On Mac, CMAKE_INSTALL_FULL_LIBDIR returns lib, even for a 64 bit system -->
+                                <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
+                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
+                                <linkerStartOption>-shared</linkerStartOption>
+                                <linkerStartOption>-fPIC</linkerStartOption>
+                                <linkerStartOption>-lmonetdbe</linkerStartOption>
+
+                                <!-- For setting rpath-->
+                                <linkerStartOption>-Wl,-rpath,@loader_path/.</linkerStartOption>
+                            </linkerStartOptions>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Windows compilation -->
+        <profile>
+            <id>windows</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <properties>
+                <packaging.type>dll</packaging.type>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>

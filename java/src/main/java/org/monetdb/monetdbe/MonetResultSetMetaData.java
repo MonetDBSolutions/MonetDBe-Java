@@ -11,23 +11,29 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     private final int[] types;
     /** The MonetDB types of the columns in this ResultSet as strings */
     private final String[] monetTypes;
+    /** The MonetDB types of the columns in this ResultSet as ints */
+    private final int[] monetTypesInt;
     /** The JDBC SQL types of the columns in this ResultSet */
     private final int[] sqlTypes;
     /** The name of the Java classes corresponding to the columns in this ResultSet */
     private final String[] javaTypes;
 
-    //TODO Is this useful?
+    private final int[] scales;
+
     //Constructor for PreparedStatement without query execution
     public MonetResultSetMetaData(String[] resultNames, int[] resultMonetTypes, int ncols) {
         this.names = resultNames;
         this.types = resultMonetTypes;
 
         this.monetTypes = new String[ncols];
+        this.monetTypesInt = new int[ncols];
         this.sqlTypes = new int[ncols];
         this.javaTypes = new String[ncols];
+        this.scales = new int[ncols];
 
         for(int i = 0; i<ncols; i++ ) {
             monetTypes[i] = MonetTypes.getMonetTypeString(resultMonetTypes[i]);
+            monetTypesInt[i] = resultMonetTypes[i];
             sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(resultMonetTypes[i]);
             javaTypes[i] = MonetTypes.getClassForMonetType(resultMonetTypes[i]).getName();
         }
@@ -38,15 +44,19 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         this.names = new String[ncols];
         this.types = new int[ncols];
         this.monetTypes = new String[ncols];
+        this.monetTypesInt = new int[ncols];
         this.sqlTypes = new int[ncols];
         this.javaTypes = new String[ncols];
+        this.scales = new int[ncols];
 
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
             types[i] = columns[i].getMonetdbeType();
             monetTypes[i] = columns[i].getTypeName();
+            monetTypesInt[i] = columns[i].getMonetdbeType();
             sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(columns[i].getMonetdbeType());
             javaTypes[i] = MonetTypes.getClassForMonetType(columns[i].getMonetdbeType()).getName();
+            scales[i] = columns[i].getScaleJDBC();
         }
     }
 
@@ -59,7 +69,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         return names.length;
     }
 
-    //TODO Verify. Should we call getColumns to check if it is an auto-increment numerical column?
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public boolean isAutoIncrement(int column) throws SQLException {
         return false;
@@ -69,7 +79,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     public boolean isCaseSensitive(final int column) throws SQLException {
         switch (getColumnType(column)) {
             case Types.CHAR:
-            case Types.LONGVARCHAR: // MonetDB doesn't use type LONGVARCHAR, it's here for completeness
+            case Types.LONGVARCHAR:
             case Types.CLOB:
             case Types.VARCHAR:
                 return true;
@@ -88,7 +98,7 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         return false;
     }
 
-    //TODO Verify this
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public int isNullable(int column) throws SQLException {
         return ResultSetMetaData.columnNullableUnknown;
@@ -99,9 +109,11 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         return MonetTypes.isSigned(getColumnType(column));
     }
 
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
+    //Similar to getPrecision
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        return MonetTypes.getMonetSize(getColumnType(column));
+        return 0;
     }
 
     @Override
@@ -118,29 +130,28 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         }
     }
 
-    //TODO TABLE NAMES
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public String getSchemaName(int column) throws SQLException {
-        //Where do I get table and schema names in the resultset?
         return null;
     }
 
-    //TODO TABLE NAMES
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public String getTableName(int column) throws SQLException {
         return null;
     }
 
-    //TODO SCALE
+    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
+    //Similar to getColumnDisplaySize
     @Override
     public int getPrecision(int column) throws SQLException {
         return 0;
     }
 
-    //TODO SCALE
     @Override
     public int getScale(int column) throws SQLException {
-        return 0;
+        return scales[column-1];
     }
 
     @Override
@@ -163,6 +174,15 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     public String getColumnTypeName(int column) throws SQLException {
         try {
             return monetTypes[column-1];
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
+    }
+
+    //MonetDB type
+    public int getColumnTypeInt(int column) throws SQLException {
+        try {
+            return monetTypesInt[column-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }

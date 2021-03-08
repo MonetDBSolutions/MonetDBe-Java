@@ -1,6 +1,10 @@
 #Revise
 cmake_minimum_required(VERSION 3.10)
 
+#Project
+project(MonetDBe-Java)
+include(UseJava)
+
 #Set CMAKE library find variables
 set(CMAKE_FIND_LIBRARY_PREFIXES "lib")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".so" ".lib" ".a" ".dylib")
@@ -10,16 +14,12 @@ find_package(Java 1.8 REQUIRED)
 set(JAVA_AWT_LIBRARY NotNeeded)
 find_package(JNI REQUIRED)
 
-#Project
-include(UseJava)
-project(MonetDBe-Java)
-
 #Compile monetdbe-java without linked library, generate headers
 set(CMAKE_JAVA_COMPILE_FLAGS -source 1.8 -target 1.8)
-file(GLOB JAVA_SRC_FILES src/main/java/org/monetdb/monetdbe/*.java)
+file(GLOB JAVA_SRC_FILES java/src/main/java/org/monetdb/monetdbe/*.java)
 add_jar(monetdbe-java
         ${JAVA_SRC_FILES}
-        META-INF/services/java.sql.Driver
+        java/META-INF/services/java.sql.Driver
         GENERATE_NATIVE_HEADERS
         monetdbe-native)
 
@@ -27,7 +27,7 @@ add_jar(monetdbe-java
 find_package(MonetDB CONFIG REQUIRED)
 
 #Link libraries (Java generated header, JNI wrapper and C library)
-add_library(monetdbe-lowlevel SHARED src/jni/monetdbe._lowlevel.c)
+add_library(monetdbe-lowlevel SHARED native/jni/monetdbe._lowlevel.c)
 target_compile_options(monetdbe-lowlevel PRIVATE -fPIC)
 
 target_link_libraries(monetdbe-lowlevel

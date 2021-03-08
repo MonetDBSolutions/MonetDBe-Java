@@ -1,0 +1,55 @@
+== PASSED == 
+Test_Cautocommit
+Test_CisValid
+Test_Cmanycon
+Test_Creplysize
+Test_Ctransaction
+Test_FetchSize
+Test_PSgetObject
+Test_PSlargeamount
+Test_PSlargeresponse
+Test_PSmanycon
+Test_PSsomeamount
+Test_PStypes
+Test_CallableStmt
+Test_Rbooleans
+Test_Rmetadata
+BugConcurrent_clients_SF_1504657
+BugExecuteUpdate_Bug_3350
+BugSetQueryTimeout_Bug_3357
+BugResultSetMetaData_Bug_6183
+Bug_IsValid_Timeout_Bug_6782 (Change: Test tries to set timeout after closing)
+Test_Csendthread
+Test_Sbatching (Change: Update count for a drop is not SUCCESS_NO_INFO)
+Bug_Connect_as_voc_getMetaData_Failure_Bug_6388
+Test_PSlargebatchval
+Test_Rtimedate
+
+== NOT YET IMPLEMENTED ==
+Test_Rpositioning (DatabaseMetadata not complete)
+BugDatabaseMetaData_Bug_3356 (DatabaseMetadata not complete)
+Test_Wrapper (DatabaseMetadata not complete)
+
+BugConcurrent_sequences (Fails on 4. Table t1 is not there)
+
+Test_PStimedate (Bind DateTime not correct)
+Test_Int128 (Bind BigDecimal not implemented)
+BugDecimalRound_Bug_3561 (Bind BigDecimal not implemented)
+Test_PSmetadata (ResultSet metadata on Prepared Statement)
+Bug_PrepStmtSetObject_CLOB_6349 (ResultSet metadata on Prepared Statement)
+Bug_PrepStmtSetString_6382 (Bind of monetdbe_type_unkown)
+
+Test_Clargequery (GetMoreResults)
+Test_Smoreresults (GetMoreResuts)
+Bug_LargeQueries_6571_6693 (GetMoreResults / Various results from a single query execution)
+Test_PStimezone (TimeZone in DateTime)
+Test_PSgeneratedkeys (Auto-Generated Keys)
+Test_Csavepoints (Savepoints)
+Test_Dobjects (UDTs)
+Test_PSsqldata (SQLData)
+Test_Rsqldata (SQLData)
+JDBC_API_Tester (Contains various tests)
+
+== OTHER ==
+SQLcopyinto - Other library
+Test_Cforkbomb - Not working

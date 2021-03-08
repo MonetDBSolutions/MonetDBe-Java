@@ -9,7 +9,6 @@ public class TestMonetDBeJava {
     private static void populateDBTable(MonetConnection c) {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
-
             System.out.println("Create table");
             s.execute("CREATE TABLE a (b boolean, s smallint, i int, l bigint, r real, f float, st string, da date, t time, ts timestamp);");
 
@@ -44,16 +43,16 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Bool: " + rs.getBoolean(0));
-                System.out.println("Short: " + rs.getShort(1));
-                System.out.println("Int: " + rs.getInt(2));
-                System.out.println("Long: " + rs.getLong(3));
-                System.out.println("Float: " + rs.getFloat(4));
-                System.out.println("Double: " + rs.getDouble(5));
-                System.out.println("String: " + rs.getString(6));
-                System.out.println("Date: " + rs.getDate(7));
-                System.out.println("Time: " + rs.getTime(8));
-                System.out.println("Timestamp: " + rs.getTimestamp(9));
+                System.out.println("Bool: " + rs.getBoolean(1));
+                System.out.println("Short: " + rs.getShort(2));
+                System.out.println("Int: " + rs.getInt(3));
+                System.out.println("Long: " + rs.getLong(4));
+                System.out.println("Float: " + rs.getFloat(5));
+                System.out.println("Double: " + rs.getDouble(6));
+                System.out.println("String: " + rs.getString(7));
+                System.out.println("Date: " + rs.getDate(8));
+                System.out.println("Time: " + rs.getTime(9));
+                System.out.println("Timestamp: " + rs.getTimestamp(10));
                 System.out.println();
             }
         } catch (SQLException e) {
@@ -74,9 +73,9 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             System.out.println("\nPrepared statement resultSet:");
             while (rs.next()) {
-                System.out.println("String: " + rs.getString(0));
-                System.out.println("Int: " + rs.getInt(1));
-                System.out.println("Float: " + rs.getFloat(2));
+                System.out.println("String: " + rs.getString(1));
+                System.out.println("Int: " + rs.getInt(2));
+                System.out.println("Float: " + rs.getFloat(3));
                 System.out.println();
             }
         } catch (SQLException e) {
@@ -142,9 +141,9 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             System.out.println("\nPrepared statement resultSet:");
             while (rs.next()) {
-                System.out.println("Date: " + rs.getDate(0));
-                System.out.println("Time: " + rs.getTime(1));
-                System.out.println("Timestamp: " + rs.getTimestamp(2));
+                System.out.println("Date: " + rs.getDate(1));
+                System.out.println("Time: " + rs.getTime(2));
+                System.out.println("Timestamp: " + rs.getTimestamp(3));
                 System.out.println();
             }
         } catch (SQLException e) {
@@ -161,9 +160,9 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Int: " + rs.getLong(0));
-                System.out.println("Double: " + rs.getDouble(1));
+                System.out.println("Int: " + rs.getLong(1));
                 System.out.println("Double: " + rs.getDouble(2));
+                System.out.println("Double: " + rs.getDouble(3));
                 System.out.println();
             }
         } catch (SQLException e) {
@@ -185,10 +184,10 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                long blob_len = rs.getBlob(0).length();
+                long blob_len = rs.getBlob(1).length();
                 System.out.println("Blob length: " + blob_len);
                 if (blob_len > 0) {
-                    System.out.println("Blob first byte: " + rs.getBlob(0).getBytes(1,2)[0]);
+                    System.out.println("Blob first byte: " + rs.getBlob(1).getBytes(1,2)[0]);
                 }
                 else {
                     System.out.println("Null Blob");
@@ -202,7 +201,7 @@ public class TestMonetDBeJava {
             psSelect.setBlob(1,new MonetBlob("12aa803F".getBytes()));
             MonetResultSet rsSelect = (MonetResultSet) psSelect.executeQuery();
             rsSelect.beforeFirst();
-            System.out.println("rsp: " + rsSelect.getBlob(0).length());
+            System.out.println("rsp: " + rsSelect.getBlob(1).length());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -214,26 +213,28 @@ public class TestMonetDBeJava {
         try {
             MonetStatement s = (MonetStatement) c.createStatement();
             System.out.println("\nCreate int128 table and insert rows");
-            s.executeUpdate("CREATE TABLE big (bigi HUGEINT, bigd DECIMAL(16,8));");
+            s.executeUpdate("CREATE TABLE big (bigi HUGEINT, bigd DECIMAL(32,16));");
             s.executeUpdate("INSERT INTO big VALUES " +
-                    "(9323372036854775807,439.498)," +
+                    "(9323372036854775807,43949.8)," +
                     "(9323372,38.2)," +
+                    "(9323372,3.2123)," +
+                    "(9323372,38534543.22)," +
                     "(NULL,NULL);");
             System.out.println("Update Count Statement int128: " + s.getUpdateCount() +"\n");
 
-            System.out.println("Insert into int128 table with prepared query");
+            /*System.out.println("Insert into int128 table with prepared query");
             MonetPreparedStatement ps = (MonetPreparedStatement) c.prepareStatement("INSERT INTO big VALUES (940000000000,?);");
             //ps.setHugeInteger(1,new BigInteger("9400000000000000000"));
             ps.setBigDecimal(1,new BigDecimal(1328922).movePointLeft(5));
-            System.out.println("Update Count Prepared int128: " + ps.getUpdateCount() +"\n");
+            System.out.println("Update Count Prepared int128: " + ps.getUpdateCount() +"\n");*/
 
-            s.executeQuery("SELECT bigi,bigd FROM big;");
+            s.executeQuery("SELECT * FROM big;");
             MonetResultSet rs = (MonetResultSet) s.getResultSet();
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("BigInteger: " + rs.getHugeInt(0));
-                System.out.println("Decimal: " + rs.getBigDecimal(1));
+                System.out.println("BigInteger: " + rs.getHugeInt(1));
+                System.out.println("Decimal: " + rs.getBigDecimal(2));
                 System.out.println();
             }
         } catch (SQLException e) {
@@ -291,7 +292,7 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Bool: " + rs.getBoolean(0));
+                System.out.println("Bool: " + rs.getBoolean(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -326,7 +327,7 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("Bool: " + rs.getBoolean(0));
+                System.out.println("Bool: " + rs.getBoolean(1));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -349,7 +350,7 @@ public class TestMonetDBeJava {
             MonetResultSet rs = (MonetResultSet) s.executeQuery("SELECT * FROM t;");
             rs.first();
             try {
-                System.out.println("ResultSet from non-commited table (should not return anything?): " + rs.getObject(0));
+                System.out.println("ResultSet from non-commited table (should not return anything?): " + rs.getObject(1));
             } catch (SQLException e) {
                 System.out.println("ResultSet from non-commited table did not return anything");
             }
@@ -360,7 +361,7 @@ public class TestMonetDBeJava {
             rs = (MonetResultSet) s.executeQuery("SELECT * FROM t;");
             rs.first();
             try {
-                System.out.println("ResultSet from commited table (should return tuple): " + rs.getObject(0) + "\n");
+                System.out.println("ResultSet from commited table (should return tuple): " + rs.getObject(1) + "\n");
             } catch (SQLException e) {
                 System.out.println("ResultSet from commited table did not return anything\n");
             }
@@ -372,7 +373,6 @@ public class TestMonetDBeJava {
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
-
             //Memory DB
             String urlMemory = "jdbc:monetdb://:memory:";
             //Local DB
@@ -380,7 +380,7 @@ public class TestMonetDBeJava {
             //Proxy DB
             String urlProxy = "mapi:monetdb://localhost:50000/test";
 
-            String url = urlLocal;
+            String url = urlMemory;
 
             //Timeout properties
             info.setProperty("sessiontimeout","1");
@@ -400,7 +400,8 @@ public class TestMonetDBeJava {
                 //queryDBPreparedStatement(c);
                 //queryDBPreparedStatementDate(c);
                 //insertDBPreparedStatementDate(c);
-                insertDBPreparedStatementNulls(c);
+
+                //insertDBPreparedStatementNulls(c);
 
                 //Query and drop
                 queryDBStatement(c);
