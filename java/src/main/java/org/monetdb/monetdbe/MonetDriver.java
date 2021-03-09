@@ -5,6 +5,27 @@ import java.sql.*;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+/**
+ * A JDBC Driver for the embedded version of the MonetDB RDBMS.
+ *
+ * This driver will be used by the DriverManager to determine if an URL
+ * is to be handled by this driver, and if it does, then this driver
+ * will supply a Connection suitable for MonetDB-embedded.
+ *
+ * <p>This Driver supports in-memory databases, local file databases and
+ * connection to another MonetDB instance through its MAPI URL.
+ * Valid MonetDBe-Java URLs:</p>
+ * <ul>
+ *   <li>In-memory database: <tt>jdbc:monetdb:memory:</tt></li>
+ *   <li>Local file database: <tt>jdbc:monetdb:file:/path/to/directory/</tt></li>
+ *   <li>Remote database: <tt>mapi:monetdb://&lt;host&gt;[:&lt;port&gt;]/&lt;database&gt;</tt></li>
+ * </ul>
+ * where [:&lt;port&gt;] denotes that a port is optional. If not
+ * given, the default (50000) will be used.
+ *
+ * <p>Additional connection properties can be set in the URL, with the following format:
+ * <tt>jdbc:monetdb:memory:?property=propertyValue</tt></p>
+ */
 final public class MonetDriver implements java.sql.Driver {
     //Memory
     //jdbc:monetdb:memory:?property=propertyValue
@@ -12,7 +33,9 @@ final public class MonetDriver implements java.sql.Driver {
     //jdbc:monetdb:file:<databaseDirectory>?property=propertyValue
     //Remote
     //mapi:monetdb://<host>[:<port>]/<database>?property=propertyValue
+    /** The prefix of an in-memory or local file MonetDB URL */
     static final String MONETURL = "jdbc:monetdb:";
+    /** The prefix of a MAPI URL (remote connection) */
     static final String MAPIURL = "mapi:monetdb:";
     static final String MEMORYURL = "jdbc:monetdb:memory:";
 
@@ -39,21 +62,27 @@ final public class MonetDriver implements java.sql.Driver {
     }
 
     private Connection connectJDBC(String url, Properties info) throws SQLException {
-        //For in-memory databases, leave the path property NULL
-        if (!url.startsWith(MEMORYURL)) {
+        if (url.startsWith(MEMORYURL)) {
+            //For in-memory databases, leave the path property NULL
+            info.put("connectionType","memory");
+        }
+        else {
             //Local database
             //Remove leading 'jdbc:monetdb:file:' from directory path
+            //TODO Verify it is a correct path?
             info.put("path",url.substring(18));
+            info.put("connectionType","file");
         }
 
         //Parse additional options in URL query string
         if (url.contains("?")) {
-            //TODO Is this substring correct for getting the URL query from the local and memory URL formats?
+            //TODO Is this substring operation correct for getting the URL query from the local and memory URL formats?
             parseOptions(url.substring(url.lastIndexOf('?') +1),info);
         }
         return new MonetConnection(info);
     }
 
+    //TODO Should we use defaults for configurations which were not set, or throw an exception? (e.g. database not set -> use "test" database)
     private Connection connectMapi(String url, Properties info) throws SQLException {
         final URI uri;
         try {
@@ -63,10 +92,6 @@ final public class MonetDriver implements java.sql.Driver {
             System.out.println("Uri '" + url + "' not parseable");
             return null;
         }
-
-        //Full URL
-        //TODO: Not used
-        info.put("url",url);
 
         //Host
         String uri_host = uri.getHost();
@@ -88,9 +113,31 @@ final public class MonetDriver implements java.sql.Driver {
         final String uri_query = uri.getQuery();
         parseOptions(uri_query,info);
 
+        info.put("connectionType","remote");
         return new MonetConnection(info);
     }
 
+    /**
+     * Attempts to make a database connection to the given URL. The driver
+     * should return "null" if it realizes it is the wrong kind of driver to
+     * connect to the given URL. This will be common, as when the JDBC driver
+     * manager is asked to connect to a given URL it passes the URL to each
+     * loaded driver in turn.
+     *
+     * The driver should throw an SQLException if it is the right driver to
+     * connect to the given URL but has trouble connecting to the database.
+     *
+     * The java.util.Properties argument can be used to pass arbitrary string
+     * tag/value pairs as connection arguments. Normally at least "user" and
+     * "password" properties should be included in the Properties object.
+     *
+     * @param url the URL of the database to which to connect
+     * @param info a list of arbitrary string tag/value pairs as connection
+     *        arguments. Normally at least a "user" and "password" property
+     *        should be included
+     * @return a Connection object that represents a connection to the URL
+     * @throws SQLException if a database access error occurs
+     */
     @Override
     public Connection connect(String url, Properties info) throws SQLException {
         if (url == null)
@@ -110,11 +157,36 @@ final public class MonetDriver implements java.sql.Driver {
         return null;
     }
 
+    /**
+     * Retrieves whether the driver thinks that it can open a connection to the
+     * given URL. Typically drivers will return true if they understand the
+     * subprotocol specified in the URL and false if they do not.
+     *
+     * @param url the URL of the database
+     * @return true if this driver understands the given URL; false otherwise
+     */
     @Override
     public boolean acceptsURL(final String url) {
         return url != null && (url.startsWith(MONETURL) || url.startsWith(MAPIURL));
     }
 
+    /**
+     * Gets information about the possible properties for this driver.
+     *
+     * The getPropertyInfo method is intended to allow a generic GUI tool to
+     * discover what properties it should prompt a human for in order to get
+     * enough information to connect to a database. Note that depending on the
+     * values the human has supplied so far, additional values may become
+     * necessary, so it may be necessary to iterate though several calls to the
+     * getPropertyInfo method.
+     *
+     * @param url the URL of the database to which to connect
+     * @param info a proposed list of tag/value pairs that will be sent on
+     *        connect open
+     * @return an array of DriverPropertyInfo objects describing possible
+     *         properties. This array may be an empty array if no properties
+     *         are required.
+     */
     @Override
     public DriverPropertyInfo[] getPropertyInfo(final String url, final Properties info) {
         if (!acceptsURL(url))
@@ -159,14 +231,24 @@ final public class MonetDriver implements java.sql.Driver {
         return dpi;
     }
 
+    /**
+     * Retrieves the driver's major version number. Initially this should be 1.
+     *
+     * @return this driver's major version number
+     */
     @Override
     public int getMajorVersion() {
         return 1;
     }
 
+    /**
+     * Gets the driver's minor version number. Initially this should be 0.
+     *
+     * @return this driver's minor version number
+     */
     @Override
     public int getMinorVersion() {
-        return 1;
+        return 0;
     }
 
     static final int getDriverMajorVersion() {
@@ -177,7 +259,12 @@ final public class MonetDriver implements java.sql.Driver {
         return 1;
     }
 
-    static final String getDriverVersion() {
+    /**
+     * Gets the driver's full version number as a String.
+     *
+     * @return this driver's full version number
+     */
+    public static final String getDriverVersion() {
         return getDriverMajorVersion() + "." + getDriverMinorVersion();
     }
 
@@ -189,16 +276,34 @@ final public class MonetDriver implements java.sql.Driver {
         return 40;
     }
 
-    static final String getDatabaseVersion() {
+    /**
+     * Gets the database's full version number as a String.
+     *
+     * @return this database's full version number
+     */
+    public static final String getDatabaseVersion() {
         return getDatabaseMajorVersion() + "." + getDatabaseMinorVersion();
     }
 
+    /**
+     * Reports whether this driver is a genuine JDBC Compliant&trade; driver. A
+     * driver may only report true here if it passes the JDBC compliance tests;
+     * otherwise it is required to return false.
+     *
+     * @return true if this driver is JDBC Compliant; false otherwise
+     */
     @Override
     public boolean jdbcCompliant() {
-        // We're not fully JDBC compliant, but what we support is compliant
         return false;
     }
 
+    /**
+     * Return the parent Logger of all the Loggers used by this data source (not supported).
+     *
+     * @return the parent Logger for this data source
+     * @throws SQLFeatureNotSupportedException if the data source does
+     *         not use java.util.logging
+     */
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         throw new SQLFeatureNotSupportedException("getParentLogger");

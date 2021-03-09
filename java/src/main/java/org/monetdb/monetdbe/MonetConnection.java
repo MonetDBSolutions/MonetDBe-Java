@@ -4,29 +4,66 @@ import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.Executor;
-
+/**
+ * A {@link Connection} suitable for the MonetDB database.
+ *
+ * This connection represents a connection (session) to a MonetDB
+ * database. SQL statements are executed and results are returned within
+ * the context of a connection. This Connection object holds a physical
+ * connection to the MonetDB database.
+ *
+ * A Connection object's database should able to provide information
+ * describing its tables, its supported SQL grammar, its stored
+ * procedures, the capabilities of this connection, and so on. This
+ * information is obtained with the getMetaData method.
+ *
+ * Note: By default a Connection object is in auto-commit mode, which
+ * means that it automatically commits changes after executing each
+ * statement. If auto-commit mode has been disabled, the method commit
+ * must be called explicitly in order to commit changes; otherwise,
+ * database changes will not be saved.
+ *
+ * The current state of this connection is that it nearly implements the
+ * whole Connection interface.
+ */
 public class MonetConnection extends MonetWrapper implements Connection {
+    /** The pointer to the C database object */
     protected ByteBuffer dbNative;
-
+    /** The property options for this Connection object */
+    private Properties properties;
+    /** The statements created with this Connection object */
+    private List<MonetStatement> statements;
+    /** The stack of warnings for this Connection object */
+    private SQLWarning warnings;
+    /** The timeout to gracefully terminate the session */
     private int sessiontimeout;
+    /** The timeout to gracefully terminate the query */
     private int querytimeout;
+    /** The amount of RAM to be used, in MB */
     private int memorylimit;
+    /** Maximum number of worker treads, limits level of parallelism */
     private int nr_threads;
+    /** Whether this Connection is in autocommit mode */
     private boolean autoCommit;
-
+    /** The full MonetDB JDBC Connection URL used for this Connection */
     private String jdbcURL;
 
-    private MonetDatabaseMetaData metaData;
-    private SQLWarning warnings;
-    private Map<String, Class<?>> typeMap = new HashMap<String, Class<?>>();
-    private Properties properties;
-    private List<MonetStatement> statements;
-
+    /**
+     * Constructor of a Connection for MonetDB.
+     *
+     * @param props a Property hashtable holding the properties needed for connecting
+     * @throws SQLException if a database error occurs
+     * @throws IllegalArgumentException if one of the required arguments is null or empty
+     */
+    //TODO Verify input argument format and throw IllegalArgumentException when needed
     MonetConnection(Properties props) throws SQLException, IllegalArgumentException {
+        //Set database options
         this.sessiontimeout = Integer.parseInt(props.getProperty("sessiontimeout", "0"));
         this.querytimeout = Integer.parseInt(props.getProperty("querytimeout", "0"));
         this.memorylimit = Integer.parseInt(props.getProperty("memorylimit", "0"));
         this.nr_threads = Integer.parseInt(props.getProperty("nr_threads", "0"));
+
+        //Necessary for DatabaseMetadata method
         this.jdbcURL = props.getProperty("jdbc-url");
 
         String error_msg;
@@ -54,8 +91,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         if (dbNative == null || error_msg != null) {
             throw new SQLException(error_msg);
         }
-
-        this.metaData = new MonetDatabaseMetaData(this);
         this.properties = props;
         this.statements = new ArrayList<>();
 
@@ -65,24 +100,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
             setAutoCommit(false);
     }
 
-    protected ByteBuffer getDbNative() {
-        return dbNative;
-    }
-
-    private void addWarning(final String reason, final String sqlstate) {
-        final SQLWarning warn = new SQLWarning(reason, sqlstate);
-        if (warnings == null) {
-            warnings = warn;
-        } else {
-            warnings.setNextWarning(warn);
-        }
-    }
-
-    private void checkNotClosed() throws SQLException {
-        if (isClosed())
-            throw new SQLException("Connection is closed", "M1M20");
-    }
-
+    /**
+     * Helper method to execute SQL statements within Connection methods.
+     * Used in commit(), rollback() and setSchema()
+     */
     private void executeCommand(String sql) throws SQLException {
         checkNotClosed();
         MonetStatement st = null;
@@ -98,6 +119,15 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     //Transactions and closing
+    /**
+     * Makes all changes made since the previous commit/rollback
+     * permanent and releases any database locks currently held by this
+     * Connection object.  This method should be used only when
+     * auto-commit mode has been disabled.
+     *
+     * @throws SQLException if a database access error occurs
+     * @see #setAutoCommit(boolean)
+     */
     @Override
     public void commit() throws SQLException {
         checkNotClosed();
@@ -106,6 +136,14 @@ public class MonetConnection extends MonetWrapper implements Connection {
         executeCommand("COMMIT");
     }
 
+    /**
+     * Undoes all changes made in the current transaction and releases
+     * any database locks currently held by this Connection object.
+     * This method should be used only when auto-commit mode has been disabled.
+     *
+     * @throws SQLException if a database access error occurs
+     * @see #setAutoCommit(boolean)
+     */
     @Override
     public void rollback() throws SQLException {
         checkNotClosed();
@@ -114,6 +152,25 @@ public class MonetConnection extends MonetWrapper implements Connection {
         executeCommand("ROLLBACK");
     }
 
+    /**
+     * Helper method to test whether the Connection object is closed
+     * When closed, it throws an SQLException
+     */
+    private void checkNotClosed() throws SQLException {
+        if (isClosed())
+            throw new SQLException("Connection is closed", "M1M20");
+    }
+
+    /**
+     * Releases this Connection object's database and JDBC resources
+     * immediately. All Statements created from this Connection will be
+     * closed when this method is called.
+     *
+     * Calling the method close on a Connection object that is already
+     * closed is a no-op.
+     *
+     * @throws SQLException if a database access error occurs
+     */
     @Override
     public void close() throws SQLException {
         checkNotClosed();
@@ -132,11 +189,32 @@ public class MonetConnection extends MonetWrapper implements Connection {
         dbNative = null;
     }
 
+    /**
+     * Retrieves whether this Connection object has been closed.
+     *
+     * This method cannot be called to determine whether a connection
+     * to a database is valid or invalid. A typical client can determine that a
+     * connection is invalid by using the {@link #isValid(int timeout) isValid()} method
+     * or by catching any exceptions that might be thrown
+     * when an operation is attempted.
+     *
+     * @return true if this Connection object is closed; false if it is still open
+     * @throws SQLException if a database access error occurs
+     */
     @Override
     public boolean isClosed() throws SQLException {
         return dbNative == null;
     }
 
+    /**
+     * Terminates an open connection. The current implementation doesn't
+     * use the Executor argument, meaning it is identical to the {@link #close() close()} method.
+     *
+     * @param executor The Executor implementation which will be used by
+     *        abort (not used)
+     * @throws SQLException if a database access error occurs or the
+     *         executor is null
+     */
     @Override
     public void abort(Executor executor) throws SQLException {
         checkNotClosed();
@@ -145,6 +223,23 @@ public class MonetConnection extends MonetWrapper implements Connection {
         close();
     }
 
+    /**
+     * Returns true if the connection has not been closed and is still
+     * valid. The driver will submit a query on the connection to
+     * verify the connection is still valid when this method is called.
+     * The timeout parameter is not currently used (executes as if it is equal to 0).
+     *
+     * The query submitted by the driver to validate the connection
+     * shall be executed in the context of the current transaction.
+     *
+     * @param timeout Not currently used. The time in seconds to wait for the database
+     *        operation used to validate the connection to complete. If
+     *        the timeout period expires before the operation completes,
+     *        this method returns false. A value of 0 indicates a
+     *        timeout is not applied to the database operation.
+     * @return true if the connection is valid, false otherwise
+     * @throws SQLException if the value supplied for timeout is less than 0
+     */
     @Override
     public boolean isValid(int timeout) throws SQLException {
         if (timeout < 0)
@@ -173,7 +268,73 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return isValid;
     }
 
-    //Metadata sets and gets
+
+    //Warnings
+    /**
+     * Retrieves the first warning reported by calls on this Connection
+     * object.  If there is more than one warning, subsequent warnings
+     * will be chained to the first one and can be retrieved by calling
+     * the method SQLWarning.getNextWarning on the warning that was
+     * retrieved previously.
+     *
+     * This method may not be called on a closed connection; doing so
+     * will cause an SQLException to be thrown.
+     *
+     * Note: Subsequent warnings will be chained to this SQLWarning.
+     *
+     * @return the first SQLWarning object or null if there are none
+     * @throws SQLException if a database access error occurs or this method is
+     *         called on a closed connection
+     */
+    @Override
+    public SQLWarning getWarnings() throws SQLException {
+        checkNotClosed();
+        return warnings;
+    }
+
+    private void addWarning(final String reason, final String sqlstate) {
+        final SQLWarning warn = new SQLWarning(reason, sqlstate);
+        if (warnings == null) {
+            warnings = warn;
+        } else {
+            warnings.setNextWarning(warn);
+        }
+    }
+
+    /**
+     * Clears all warnings reported for this Connection object. After a
+     * call to this method, the method getWarnings returns null until a
+     * new warning is reported for this Connection object.
+     *
+     * @throws SQLException if a database access error occurs or this method is called on a closed connection
+     */
+    @Override
+    public void clearWarnings() throws SQLException {
+        checkNotClosed();
+        warnings = null;
+    }
+
+    //Sets and gets
+    /**
+     * Retrieve the C pointer to the database.
+     * Used in ResultSet, Statement and PreparedStatement
+     */
+    protected ByteBuffer getDbNative() {
+        return dbNative;
+    }
+
+    /**
+     * Sets this connection's auto-commit mode to the given state. If a
+     * connection is in auto-commit mode, then all its SQL statements
+     * will be executed and committed as individual transactions.
+     * Otherwise, its SQL statements are grouped into transactions that
+     * are terminated by a call to either the method commit or the
+     * method rollback. By default, new connections are in auto-commit mode.
+     *
+     * @param autoCommit true to enable auto-commit mode; false to disable it
+     * @throws SQLException if a database access error occurs
+     * @see #getAutoCommit()
+     */
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         checkNotClosed();
@@ -186,6 +347,12 @@ public class MonetConnection extends MonetWrapper implements Connection {
         }
     }
 
+    /**
+     * Retrieves the current auto-commit mode for this Connection object.
+     *
+     * @return the current state of this Connection object's auto-commit mode
+     * @see #setAutoCommit(boolean)
+     */
     @Override
     public boolean getAutoCommit() throws SQLException {
         checkNotClosed();
@@ -193,12 +360,31 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return MonetNative.monetdbe_get_autocommit(dbNative);
     }
 
+    /**
+     * Retrieves a DatabaseMetaData object that contains metadata about
+     * the database to which this Connection object represents a
+     * connection. The metadata includes information about the
+     * database's tables, its supported SQL grammar, its stored
+     * procedures, the capabilities of this connection, and so on.
+     *
+     * @throws SQLException if the current language is not SQL
+     * @return a DatabaseMetaData object for this Connection object
+     */
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
         checkNotClosed();
-        return metaData;
+        return new MonetDatabaseMetaData(this);
     }
 
+    /**
+     * Puts this connection in read-only mode as a hint to the driver to
+     * enable database optimizations.  MonetDB doesn't support read-only mode,
+     * hence an SQLWarning is generated if attempted to set to true here.
+     *
+     * @param readOnly true attempts to turn on read-only mode; false disables it
+     * @throws SQLException if a database access error occurs or this
+     *         method is called during a transaction.
+     */
     @Override
     public void setReadOnly(boolean readOnly) throws SQLException {
         checkNotClosed();
@@ -207,24 +393,52 @@ public class MonetConnection extends MonetWrapper implements Connection {
         }
     }
 
+    /**
+     * Retrieves whether this Connection object is in read-only mode.
+     * MonetDB Connection objects are never in read-only mode.
+     *
+     * @return false, as MonetDB doesn't support read-only mode
+     */
     @Override
     public boolean isReadOnly() throws SQLException {
         checkNotClosed();
         return false;
     }
 
+    /**
+     * Sets the given catalog name in order to select a subspace of this
+     * Connection object's database in which to work.  Because MonetDB
+     * does not support catalogs, the driver will silently ignore this request.
+     */
     @Override
     public void setCatalog(String catalog) throws SQLException {
         //ignore this request as MonetDB does not support catalogs
-        throw new SQLFeatureNotSupportedException("setCatalog");
     }
 
+    /**
+     * Retrieves this Connection object's current catalog name. Because MonetDB
+     * does not support catalogs, the driver will return a null.
+     *
+     * @return the current catalog name or null if there is none
+     */
     @Override
     public String getCatalog() throws SQLException {
         // MonetDB does NOT support catalogs
-        throw new SQLFeatureNotSupportedException("getCatalog");
+        return null;
     }
 
+    /**
+     * Attempts to change the transaction isolation level for this
+     * Connection object to the one given. This driver only supports
+     * TRANSACTION_SERIALIZABLE, so a warning will be generated if
+     * another level is set.
+     *
+     * @param level one of the following Connection constants:
+     *        Connection.TRANSACTION_READ_UNCOMMITTED,
+     *        Connection.TRANSACTION_READ_COMMITTED,
+     *        Connection.TRANSACTION_REPEATABLE_READ, or
+     *        Connection.TRANSACTION_SERIALIZABLE.
+     */
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
         checkNotClosed();
@@ -235,37 +449,63 @@ public class MonetConnection extends MonetWrapper implements Connection {
         }
     }
 
+    /**
+     * Retrieves this Connection object's current transaction isolation
+     * level.
+     *
+     * @return the current transaction isolation level, which will be
+     *         Connection.TRANSACTION_SERIALIZABLE
+     */
     @Override
     public int getTransactionIsolation() throws SQLException {
         checkNotClosed();
         return TRANSACTION_SERIALIZABLE;
     }
 
-    @Override
-    public SQLWarning getWarnings() throws SQLException {
-        checkNotClosed();
-        return warnings;
-    }
-
-    @Override
-    public void clearWarnings() throws SQLException {
-        checkNotClosed();
-        warnings = null;
-    }
-
+    /**
+     * Retrieves the Map object associated with this Connection object.
+     * Unless the application has added an entry, the type map returned
+     * will be empty.
+     * Not supported currently.
+     *
+     * @return the java.util.Map object associated with this Connection
+     *         object
+     */
+    //TODO UDTs
     @Override
     public Map<String, Class<?>> getTypeMap() throws SQLException {
         checkNotClosed();
-        return typeMap;
+        throw new SQLFeatureNotSupportedException("getTypeMap()");
     }
 
+    /**
+     * Installs the given TypeMap object as the type map for this
+     * Connection object. The type map will be used for the custom
+     * mapping of SQL structured types and distinct types.
+     * Not supported currently.
+     *
+     * @param map the java.util.Map object to install as the replacement for
+     *        this Connection  object's default type map
+     */
     //TODO UDTs
     @Override
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
         checkNotClosed();
-        typeMap = map;
+        throw new SQLFeatureNotSupportedException("setTypeMap(Map<String, Class<?>> map)");
     }
 
+    /**
+     * Changes the default holdability of ResultSet objects created using this
+     * Connection object to the given holdability. The default holdability of
+     * ResultSet objects can be be determined by invoking DatabaseMetaData.getResultSetHoldability().
+     * This driver only supports HOLD_CURSORS_OVER_COMMIT, so an exception will
+     * be thrown if another one is set
+     *
+     * @param holdability - a ResultSet holdability constant; one of
+     *	ResultSet.HOLD_CURSORS_OVER_COMMIT or
+     *	ResultSet.CLOSE_CURSORS_AT_COMMIT
+     * @throws SQLFeatureNotSupportedException - if a holdability different from HOLD_CURSORS_OVER_COMMIT is set.
+     */
     @Override
     public void setHoldability(int holdability) throws SQLException {
         checkNotClosed();
@@ -273,6 +513,12 @@ public class MonetConnection extends MonetWrapper implements Connection {
             throw new SQLFeatureNotSupportedException("setHoldability(CLOSE_CURSORS_AT_COMMIT)");
     }
 
+    /**
+     * Retrieves the current holdability of ResultSet objects created
+     * using this Connection object.
+     *
+     * @return ResultSet.HOLD_CURSORS_OVER_COMMIT
+     */
     @Override
     public int getHoldability() throws SQLException {
         checkNotClosed();
@@ -301,12 +547,30 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.properties = properties;
     }
 
+    /**
+     * Returns the value of the client info property specified by name.
+     * This method may return null if the specified client info property
+     * has not been set and does not have a default value.
+     * Applications may use the DatabaseMetaData.getClientInfoProperties method
+     * to determine the client info properties supported by the driver.
+     *
+     * @param name - The name of the client info property to retrieve
+     * @return The value of the client info property specified or null
+     */
     @Override
     public String getClientInfo(String name) throws SQLException {
         checkNotClosed();
         return properties.getProperty(name);
     }
 
+    /**
+     * Returns a list containing the name and current value of each client info
+     * property supported by the driver. The value of a client info property may
+     * be null if the property has not been set and does not have a default value.
+     *
+     * @return A Properties object that contains the name and current value
+     *         of each of the client info properties supported by the driver.
+     */
     @Override
     public Properties getClientInfo() throws SQLException {
         checkNotClosed();
