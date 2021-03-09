@@ -265,6 +265,7 @@ final class MonetTypes {
         typeMapSQLNameToSQLInt.put("VARBINARY",Types.VARBINARY);
         typeMapSQLNameToSQLInt.put("LONGVARBINARY",Types.LONGNVARCHAR);
         typeMapSQLNameToSQLInt.put("BINARY",Types.BINARY);
+        typeMapSQLNameToSQLInt.put("CLOB",Types.CLOB);
     }
 
     static int getSQLIntFromSQLName (final String sqlTypeName) {
