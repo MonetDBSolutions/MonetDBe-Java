@@ -513,7 +513,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result
     char *error_msg = monetdbe_cleanup_result(db, rs);
     if (error_msg)
     {
-        printf("Error in monetdbe_result_cleanup:\n%s\n", error_msg);
         return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
