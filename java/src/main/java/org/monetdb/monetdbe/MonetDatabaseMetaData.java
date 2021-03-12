@@ -4,11 +4,7 @@ import java.sql.*;
 import java.util.Map;
 
 /**
- * A DatabaseMetaData object suitable for the MonetDB database.
- *
- * @author Fabian Groffen
- * @author Martin van Dinther
- * @version 1.0
+ * A DatabaseMetaData object suitable for the MonetDB embedded database.
  */
 public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaData {
     private final MonetConnection con;
@@ -777,13 +773,12 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
     //TODO We don't support this right now, but we want to in the future
     @Override
     public boolean supportsMultipleResultSets() {
-        return true;
+        return false;
     }
 
     /**
      * Can we have multiple transactions open at once (on different
      * connections?)
-     * This is the main idea behind the Connection, is it?
      *
      * @return true if so
      */
@@ -3164,7 +3159,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
     @Override
     //TODO We don't support this right now, but we want to in the future
     public boolean supportsMultipleOpenResults() {
-        return true;
+        return false;
     }
 
     /**
@@ -3555,6 +3550,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @return A ResultSet object; each row is a supported client info property
      * @throws SQLException if a database access error occurs
      */
+    //TODO Change to suite MonetDBe options
     @Override
     public ResultSet getClientInfoProperties() throws SQLException {
         // for a list of connection properties see also MonetConnection.java constructor MonetConnection(Properties props)

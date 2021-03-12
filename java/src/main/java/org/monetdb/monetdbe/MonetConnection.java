@@ -194,9 +194,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
      *
      * This method cannot be called to determine whether a connection
      * to a database is valid or invalid. A typical client can determine that a
-     * connection is invalid by using the {@link #isValid(int timeout) isValid()} method
-     * or by catching any exceptions that might be thrown
-     * when an operation is attempted.
+     * connection is invalid by using the {@link #isValid(int timeout) isValid()} method.
      *
      * @return true if this Connection object is closed; false if it is still open
      * @throws SQLException if a database access error occurs
@@ -229,14 +227,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
      * verify the connection is still valid when this method is called.
      * The timeout parameter is not currently used (executes as if it is equal to 0).
      *
-     * The query submitted by the driver to validate the connection
-     * shall be executed in the context of the current transaction.
-     *
      * @param timeout Not currently used. The time in seconds to wait for the database
-     *        operation used to validate the connection to complete. If
-     *        the timeout period expires before the operation completes,
-     *        this method returns false. A value of 0 indicates a
-     *        timeout is not applied to the database operation.
+     *        operation used to validate the connection to complete.
      * @return true if the connection is valid, false otherwise
      * @throws SQLException if the value supplied for timeout is less than 0
      */
@@ -276,11 +268,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
      * will be chained to the first one and can be retrieved by calling
      * the method SQLWarning.getNextWarning on the warning that was
      * retrieved previously.
-     *
-     * This method may not be called on a closed connection; doing so
-     * will cause an SQLException to be thrown.
-     *
-     * Note: Subsequent warnings will be chained to this SQLWarning.
      *
      * @return the first SQLWarning object or null if there are none
      * @throws SQLException if a database access error occurs or this method is
@@ -466,6 +453,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
      * Retrieves the Map object associated with this Connection object.
      * Unless the application has added an entry, the type map returned
      * will be empty.
+     *
      * Not supported currently.
      *
      * @return the java.util.Map object associated with this Connection
@@ -482,6 +470,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
      * Installs the given TypeMap object as the type map for this
      * Connection object. The type map will be used for the custom
      * mapping of SQL structured types and distinct types.
+     *
      * Not supported currently.
      *
      * @param map the java.util.Map object to install as the replacement for
@@ -496,8 +485,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Changes the default holdability of ResultSet objects created using this
-     * Connection object to the given holdability. The default holdability of
-     * ResultSet objects can be be determined by invoking DatabaseMetaData.getResultSetHoldability().
+     * Connection object to the given holdability.
+     *
      * This driver only supports HOLD_CURSORS_OVER_COMMIT, so an exception will
      * be thrown if another one is set
      *
@@ -525,6 +514,22 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
+    /**
+     * Sets the value of the client info property specified by name to the value specified by value.
+     * Options supported by the driver can be determined by calling
+     * {@link Driver#getPropertyInfo(String, Properties)}
+     *
+     * Options set with this method are currently not used, as changing the options
+     * after starting a new connection is not supported. Configurations must be
+     * currently set prior to starting a new connection to the database
+     *
+     * @param name - The name of the client info property to set
+     * @param value - The value to set the client info property to. If the
+     *        value is null, the current value of the specified property is cleared.
+     * @throws SQLClientInfoException - if the database server returns an error
+     *         while setting the clientInfo values on the database server
+     *         or this method is called on a closed connection
+     */
     //TODO Update configurations instead of only changing the properties argument
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
@@ -536,6 +541,23 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.properties.setProperty(name, value);
     }
 
+    /**
+     * Sets the value of the connection's client info properties.
+     * The Properties object contains the names and values of the client info
+     * properties to be set. The set of client info properties contained in the
+     * properties list replaces the current set of client info properties on the connection.
+     * Options supported by the driver can be determined by calling
+     * {@link Driver#getPropertyInfo(String, Properties)}
+     *
+     * Options set with this method are currently not used, as changing the options
+     * after starting a new connection is not supported. Configurations must be
+     * currently set prior to starting a new connection to the database
+     *
+     * @param properties - The list of client info properties to set
+     * @throws SQLClientInfoException - if the database server returns an error
+     * while setting the clientInfo values on the database server
+     * or this method is called on a closed connection
+     */
     //TODO Update configurations instead of only changing the properties argument
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
@@ -551,8 +573,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
      * Returns the value of the client info property specified by name.
      * This method may return null if the specified client info property
      * has not been set and does not have a default value.
-     * Applications may use the DatabaseMetaData.getClientInfoProperties method
-     * to determine the client info properties supported by the driver.
+     * Options supported by the driver can be determined by calling
+     * {@link Driver#getPropertyInfo(String, Properties)}
      *
      * @param name - The name of the client info property to retrieve
      * @return The value of the client info property specified or null
@@ -567,6 +589,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
      * Returns a list containing the name and current value of each client info
      * property supported by the driver. The value of a client info property may
      * be null if the property has not been set and does not have a default value.
+     * Options supported by the driver can be determined by calling
+     * {@link Driver#getPropertyInfo(String, Properties)}
      *
      * @return A Properties object that contains the name and current value
      *         of each of the client info properties supported by the driver.
@@ -577,6 +601,13 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return properties;
     }
 
+    /**
+     * Sets the given schema name to access.
+     *
+     * @param schema the name of a schema in which to work
+     * @throws SQLException if a database access error occurs or this
+     *         method is called on a closed connection
+     */
     @Override
     public void setSchema(String schema) throws SQLException {
         checkNotClosed();
@@ -585,6 +616,13 @@ public class MonetConnection extends MonetWrapper implements Connection {
         executeCommand("SET SCHEMA \"" + schema + "\"");
     }
 
+    /**
+     * Retrieves this Connection object's current schema name.
+     *
+     * @return the current schema name or null if there is none
+     * @throws SQLException if a database access error occurs or this
+     *         method is called on a closed connection
+     */
     @Override
     public String getSchema() throws SQLException {
         checkNotClosed();
@@ -610,13 +648,42 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return cur_schema;
     }
 
+    /**
+     * Sets the maximum period a Connection or objects created from the
+     * Connection will wait for the database to reply to any one
+     * request.
+     *
+     * This functionality is currently not implemented.
+     *
+     * @param executor The Executor implementation which will be used by
+     *        setNetworkTimeout
+     * @param milliseconds The time in milliseconds to wait for the
+     *        database operation to complete
+     * @throws SQLException if a database access error occurs, this
+     *         method is called on a closed connection, the executor is
+     *         null, or the value specified for seconds is less than 0.
+     */
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
         checkNotClosed();
+        if (executor == null || milliseconds < 0)
+            throw new SQLException();
         //Using session timeout for now
         this.sessiontimeout = milliseconds;
     }
 
+    /**
+     * Retrieves the number of milliseconds the driver will wait for a
+     * database request to complete. If the limit is exceeded, a
+     * SQLException is thrown.
+     *
+     * This functionality is currently not implemented.
+     *
+     * @return the current timeout limit in milliseconds; zero means
+     *         there is no limit
+     * @throws SQLException if a database access error occurs or
+     *         this method is called on a closed Connection
+     */
     @Override
     public int getNetworkTimeout() throws SQLException {
         checkNotClosed();
@@ -624,16 +691,34 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return this.sessiontimeout;
     }
 
+    /**
+     * Converts the given SQL statement into the system's native SQL grammar.
+     *
+     * This feature is currently not supported
+     *
+     * @param sql - an SQL statement that may contain one or more '?' parameter placeholders.
+     * @return the native form of this statement
+     */
     @Override
     public String nativeSQL(final String sql) {
         /* there is currently no way to get the native MonetDB rewritten SQL string back, so just return the original string */
         return sql;
     }
 
+    /**
+     * Returns the full JDBC Connection URL used for connecting to the database.
+     * It is called from getURL()in MonetDatabaseMetaData.
+     * @return the MonetDB JDBC Connection URL
+     */
     public String getJdbcURL() {
         return jdbcURL;
     }
 
+    /**
+     * Returns the full JDBC Connection URL used for connecting to the database.
+     * It is called from getUserName()in MonetDatabaseMetaData.
+     * @return the current User Name
+     */
     public String getUserName() throws SQLException {
         checkNotClosed();
         String cur_user = null;
@@ -658,6 +743,12 @@ public class MonetConnection extends MonetWrapper implements Connection {
         return cur_user;
     }
 
+    /**
+     * Returns the maximum number of possible active connections.
+     * It is called from getMaxConnections()in MonetDatabaseMetaData
+     * @return the maximum number of active connections possible at one time;
+     * a result of zero means that there is no limit or the limit is not known
+     */
     public int getMaxConnections() throws SQLException {
         checkNotClosed();
         int maxConnections = 0;
@@ -681,16 +772,72 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     //Statements
+    /**
+     * Creates a Statement object for sending SQL statements to the
+     * database.  SQL statements without parameters are normally
+     * executed using Statement objects. If the same SQL statement is
+     * executed many times, it may be more efficient to use a
+     * PreparedStatement object.
+     *
+     * Result sets created using the returned Statement object will by
+     * default be type TYPE_SCROLL_INSENSITIVE and have a concurrency level of
+     * CONCUR_READ_ONLY and a holdability of HOLD_CURSORS_OVER_COMMIT.
+     *
+     * @return a new default Statement object
+     * @throws SQLException if a database access error occurs
+     */
     @Override
     public Statement createStatement() throws SQLException {
         return createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
+    /**
+     * Creates a Statement object that will generate ResultSet objects
+     * with the given type and concurrency. This method is the same as
+     * the createStatement method above, but it allows the default
+     * result set type and concurrency to be overridden.
+     *
+     * Non-default result set properties are ignored in the current version.
+     *
+     * @param resultSetType a result set type; one of
+     *        ResultSet.TYPE_FORWARD_ONLY, ResultSet.TYPE_SCROLL_INSENSITIVE,
+     *        or ResultSet.TYPE_SCROLL_SENSITIVE
+     * @param resultSetConcurrency a concurrency type; one of
+     *        ResultSet.CONCUR_READ_ONLY or ResultSet.CONCUR_UPDATABLE
+     * @return a new Statement object that will generate ResultSet objects with
+     *         the given type and concurrency
+     * @throws SQLException if a database access error occurs
+     */
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
         return createStatement(resultSetType, resultSetConcurrency, ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
+    /**
+     * Creates a Statement object that will generate ResultSet objects
+     * with the given type, concurrency, and holdability.  This method
+     * is the same as the createStatement method above, but it allows
+     * the default result set type, concurrency, and holdability to be
+     * overridden.
+     *
+     * Non-default result set properties are ignored in the current version.
+     *
+     * @param resultSetType one of the following ResultSet constants:
+     * ResultSet.TYPE_FORWARD_ONLY, ResultSet.TYPE_SCROLL_INSENSITIVE,
+     * or ResultSet.TYPE_SCROLL_SENSITIVE
+     * @param resultSetConcurrency one of the following ResultSet
+     * constants: ResultSet.CONCUR_READ_ONLY or
+     * ResultSet.CONCUR_UPDATABLE
+     * @param resultSetHoldability one of the following ResultSet
+     * constants: ResultSet.HOLD_CURSORS_OVER_COMMIT or
+     * ResultSet.CLOSE_CURSORS_AT_COMMIT
+     *
+     * @return a new Statement object that will generate ResultSet
+     * objects with the given type, concurrency, and holdability
+     * @throws SQLException if a database access error occurs or the
+     * given parameters are not ResultSet constants indicating type,
+     * concurrency, and holdability
+     */
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkNotClosed();
@@ -703,16 +850,59 @@ public class MonetConnection extends MonetWrapper implements Connection {
         }
     }
 
+    /**
+     * Creates a CallableStatement object for calling database stored procedures.
+     * The CallableStatement object provides methods for setting up its IN parameters,
+     * and methods for executing the call to a stored procedure.
+     *
+     * Result sets created using the returned CallableStatement object will by default be type TYPE_SCROLL_INSENSITIVE,
+     * have a concurrency level of CONCUR_READ_ONLY and have holdability of HOLD_CURSORS_OVER_COMMIT.
+     *
+     * @param sql - an SQL statement that may contain one or more '?' parameter placeholders.
+     *	Typically this statement is specified using JDBC call escape syntax.
+     * @return a new default CallableStatement object containing the pre-compiled SQL statement
+     * @throws SQLException - if a database access error occurs or this method is called on a closed connection
+     */
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
         return prepareCall(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
+    /**
+     * Creates a CallableStatement object that will generate ResultSet objects with the given type and concurrency.
+     * This method is the same as the prepareCall method above, but it allows the default result set type and concurrency to be overridden.
+     *
+     * Non-default result set properties are ignored in the current version.
+     *
+     * @param sql - a String object that is the SQL statement to be sent to the database; may contain on or more '?' parameters
+     *	Typically this statement is specified using JDBC call escape syntax.
+     * @param resultSetType - a result set type; one of ResultSet.TYPE_FORWARD_ONLY, ResultSet.TYPE_SCROLL_INSENSITIVE, or ResultSet.TYPE_SCROLL_SENSITIVE
+     * @param resultSetConcurrency - a concurrency type; one of ResultSet.CONCUR_READ_ONLY or ResultSet.CONCUR_UPDATABLE
+     * @return a new CallableStatement object containing the pre-compiled SQL statement that
+     *	will produce ResultSet objects with the given type and concurrency
+     * @throws SQLException - if a database access error occurs, this method is called on a closed connection or
+     *	the given parameters are not ResultSet constants indicating type and concurrency
+     */
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         return prepareCall(sql, resultSetType, resultSetConcurrency, ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
+    /**
+     * Creates a CallableStatement object that will generate ResultSet objects with the given type and concurrency.
+     * This method is the same as the prepareCall method above, but it allows the default result set type, result set concurrency type and holdability to be overridden.
+     *
+     * Non-default result set properties are ignored in the current version.
+     *
+     * @param sql - a String object that is the SQL statement to be sent to the database; may contain on or more '?' parameters
+     *	Typically this statement is specified using JDBC call escape syntax.
+     * @param resultSetType - a result set type; one of ResultSet.TYPE_FORWARD_ONLY, ResultSet.TYPE_SCROLL_INSENSITIVE, or ResultSet.TYPE_SCROLL_SENSITIVE
+     * @param resultSetConcurrency - a concurrency type; one of ResultSet.CONCUR_READ_ONLY or ResultSet.CONCUR_UPDATABLE
+     * @param resultSetHoldability - one of the following ResultSet constants: ResultSet.HOLD_CURSORS_OVER_COMMIT or ResultSet.CLOSE_CURSORS_AT_COMMIT
+     * @return a new CallableStatement object, containing the pre-compiled SQL statement, that will generate ResultSet objects with the given type, concurrency, and holdability
+     * @throws SQLException - if a database access error occurs, this method is called on a closed connection or
+     *	the given parameters are not ResultSet constants indicating type, concurrency, and holdability
+     */
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkNotClosed();
@@ -725,16 +915,84 @@ public class MonetConnection extends MonetWrapper implements Connection {
         }
     }
 
+    /**
+     * Creates a PreparedStatement object for sending parameterized SQL
+     * statements to the database.
+     *
+     * A SQL statement with or without IN parameters can be pre-compiled
+     * and stored in a PreparedStatement object. This object can then be
+     * used to efficiently execute this statement multiple times.
+     *
+     * Result sets created using the returned PreparedStatement object
+     * will by default be type TYPE_SCROLL_INSENSITIVE, have a concurrency level of CONCUR_READ_ONLY
+     * and have holdability of HOLD_CURSORS_OVER_COMMIT
+     *
+     * @param sql an SQL statement that may contain one or more '?' IN
+     *        parameter placeholders
+     * @return a new default PreparedStatement object containing the
+     *         pre-compiled SQL statement
+     * @throws SQLException if a database access error occurs
+     */
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         return prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY, ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
+    /**
+     * Creates a PreparedStatement object that will generate ResultSet
+     * objects with the given type and concurrency.  This method is the
+     * same as the prepareStatement method above, but it allows the
+     * default result set type and concurrency to be overridden.
+     *
+     * Non-default result set properties are ignored in the current version.
+     *
+     * @param sql a String object that is the SQL statement to be sent to the
+     *        database; may contain one or more ? IN parameters
+     * @param resultSetType a result set type; one of
+     *        ResultSet.TYPE_FORWARD_ONLY, ResultSet.TYPE_SCROLL_INSENSITIVE,
+     *        or ResultSet.TYPE_SCROLL_SENSITIVE
+     * @param resultSetConcurrency a concurrency type; one of
+     *        ResultSet.CONCUR_READ_ONLY or ResultSet.CONCUR_UPDATABLE
+     * @return a new PreparedStatement object containing the pre-compiled SQL
+     *         statement that will produce ResultSet objects with the given
+     *         type and concurrency
+     * @throws SQLException if a database access error occurs or the given
+     *         parameters are not ResultSet constants indicating
+     *         type and concurrency
+     */
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
         return prepareStatement(sql, resultSetType, resultSetConcurrency, ResultSet.HOLD_CURSORS_OVER_COMMIT);
     }
 
+    /**
+     * Creates a PreparedStatement object that will generate ResultSet
+     * objects with the given type, concurrency, and holdability.
+     *
+     * This method is the same as the prepareStatement method above, but
+     * it allows the default result set type, concurrency, and
+     * holdability to be overridden.
+     *
+     * Non-default result set properties are ignored in the current version.
+     *
+     * @param sql a String object that is the SQL statement to be sent
+     * to the database; may contain one or more ? IN parameters
+     * @param resultSetType one of the following ResultSet constants:
+     * ResultSet.TYPE_FORWARD_ONLY, ResultSet.TYPE_SCROLL_INSENSITIVE,
+     * or ResultSet.TYPE_SCROLL_SENSITIVE
+     * @param resultSetConcurrency one of the following ResultSet
+     * constants: ResultSet.CONCUR_READ_ONLY or
+     * ResultSet.CONCUR_UPDATABLE
+     * @param resultSetHoldability one of the following ResultSet
+     * constants: ResultSet.HOLD_CURSORS_OVER_COMMIT or
+     * ResultSet.CLOSE_CURSORS_AT_COMMIT
+     * @return a new PreparedStatement object, containing the
+     * pre-compiled SQL statement, that will generate ResultSet objects
+     * with the given type, concurrency, and holdability
+     * @throws SQLException if a database access error occurs or the
+     * given parameters are not ResultSet constants indicating type,
+     * concurrency, and holdability
+     */
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkNotClosed();
@@ -747,75 +1005,132 @@ public class MonetConnection extends MonetWrapper implements Connection {
         }
     }
 
+    /**
+     * Auto-generated keys are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     //TODO Auto-generated keys
     @Override
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
-        checkNotClosed();
-        return prepareStatement(sql);
+        throw new SQLFeatureNotSupportedException("prepareStatement(String sql, int autoGeneratedKeys)");
     }
 
+    /**
+     * Auto-generated keys are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
         throw new SQLFeatureNotSupportedException("prepareStatement(String sql, int[] columnIndexes)");
     }
 
+    /**
+     * Auto-generated keys are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
         throw new SQLFeatureNotSupportedException("prepareStatement(String sql, String[] columnNames)");
     }
 
     //Savepoints
+    /**
+     * Savepoints are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     //TODO Savepoints
     @Override
     public Savepoint setSavepoint() throws SQLException {
-        checkNotClosed();
-        return null;
+        throw new SQLFeatureNotSupportedException("setSavepoint()");
     }
 
+    /**
+     * Savepoints are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public Savepoint setSavepoint(String name) throws SQLException {
-        checkNotClosed();
-        return null;
+        throw new SQLFeatureNotSupportedException("setSavepoint(String name)");
     }
 
+    /**
+     * Savepoints are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
-        checkNotClosed();
+        throw new SQLFeatureNotSupportedException("rollback(Savepoint savepoint)");
     }
 
+    /**
+     * Savepoints are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-        checkNotClosed();
+        throw new SQLFeatureNotSupportedException("releaseSavepoint(Savepoint savepoint)");
     }
 
     //Create Complex Types
+    /**
+     * Constructs an object that implements the Clob interface. The
+     * object returned initially contains no data.
+     *
+     * @return a MonetClob instance
+     * @throws SQLException - if an object that implements the Clob interface can not be constructed,
+     *         this method is called on a closed connection or a database access error occurs.
+     */
     @Override
     public Clob createClob() throws SQLException {
         checkNotClosed();
         return new MonetClob("");
     }
 
+    /**
+     * Constructs an object that implements the Blob interface. The
+     * object returned initially contains no data.
+     *
+     * @return a MonetBlob instance
+     * @throws SQLException - if an object that implements the Blob interface can not be constructed,
+     *         this method is called on a closed connection or a database access error occurs.
+     */
     @Override
     public Blob createBlob() throws SQLException {
         checkNotClosed();
         return new MonetBlob(new byte[1]);
     }
 
+    /**
+     * Arrays are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         throw new SQLFeatureNotSupportedException("createArrayOf");
     }
 
+    /**
+     * Structs are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
         throw new SQLFeatureNotSupportedException("createStruct");
     }
 
+    /**
+     * NClobs are not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public NClob createNClob() throws SQLException {
         throw new SQLFeatureNotSupportedException("createNClob");
     }
 
+    /**
+     * SQL XML is not yet currently supported.
+     * Throws SQLFeatureNotSupportedException.
+     */
     @Override
     public SQLXML createSQLXML() throws SQLException {
         throw new SQLFeatureNotSupportedException("createSQLXML");
