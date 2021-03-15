@@ -348,4 +348,43 @@ public class MonetTypes {
                 return false;
         }
     }
+
+    /**
+     * Retrieves the maximum column size for a given SQL type.
+     * @param sqlType SQL type (int)
+     * @return type precision
+     */
+    //TODO Improve
+    protected static int getPrecision (int sqlType) {
+        switch (sqlType) {
+            case Types.TINYINT:
+                return 3;
+            case Types.SMALLINT:
+                return 5;
+            case Types.INTEGER:
+            case Types.REAL:
+                return 10;
+            case Types.BIGINT:
+            case Types.FLOAT:
+            case Types.DOUBLE:
+                return 19;
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+                //Numeric/Decimal precision
+                return 0;
+            case Types.CHAR:
+            case Types.LONGVARCHAR:
+            case Types.CLOB:
+            case Types.VARCHAR:
+                //Lenght of String
+                return 0;
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+                //Lenght of String converted date
+                return 0;
+            default:
+                return 0;
+        }
+    }
 }

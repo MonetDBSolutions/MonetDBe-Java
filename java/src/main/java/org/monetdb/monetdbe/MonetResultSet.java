@@ -58,7 +58,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             }
         }
 
-        this.metaData = new MonetResultSetMetaData(columns,ncols);
         this.name = name;
 
         if (maxRows != 0 && maxRows < nrows) {
@@ -607,6 +606,9 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
         checkNotClosed();
+        if (metaData == null) {
+            metaData = new MonetResultSetMetaData(columns,columnCount);
+        }
         return metaData;
     }
 

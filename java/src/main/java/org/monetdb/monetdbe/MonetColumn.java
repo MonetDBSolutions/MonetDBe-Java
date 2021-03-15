@@ -13,15 +13,26 @@ import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.BitSet;
 
+/**
+ * Java class representation of a result MonetDB column. Stores data on one column of a {@link MonetResultSet} and allows
+ * for retrieving values from the column through the getX() methods. Allows type conversion according to the JDBC standard
+ * (follows table B6 of the JDBC 4.3 specification).
+ */
 public class MonetColumn {
+    /** Stores constant length types */
     private ByteBuffer constData;
-    private double scale;
+    /** Stores variable length types */
     private Object[] varData;
+    /** Scale for decimal/numerical values */
+    private double scale;
+    /** Column name */
     private String name;
+    /** MonetDBe type (int) */
     private int monetdbeType;
+    /** MonetDBe type name (String), used for ResultSetMetaData */
     private String typeName;
 
-    //Constant lenght data types (called from monetdbe_result_fetch_all)
+    /** Constructor for constant length data types (called from monetdbe_result_fetch_all) */
     public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double scale) {
         this.name = name;
         this.monetdbeType = monetdbeType;
@@ -30,7 +41,7 @@ public class MonetColumn {
         this.scale = scale;
     }
 
-    //Variable lenght data types (called from monetdbe_result_fetch_all)
+    /** Constructor for variable length data types (called from monetdbe_result_fetch_all) */
     public MonetColumn(String name, int monetdbeType, Object[] varData) {
         this.name = name;
         this.monetdbeType = monetdbeType;
@@ -46,19 +57,24 @@ public class MonetColumn {
         return monetdbeType;
     }
 
-    int getSQLType() {
-        return MonetTypes.getSQLTypeFromMonet(monetdbeType);
-    }
-
     String getTypeName() {
         return typeName;
     }
 
-    //Translates monetdbe's internal scale format into java's MathContext scale format (1000.0 to 3)
+    /** Translates MonetDBe's internal scale format into Java's MathContext scale format.
+     *  Example: MonetDBe scale = 1000.0, then Java scale =  3
+     *  @return Scale of current column in Java's MathContext scale format
+     */
     public int getScaleJDBC() {
         return ((BigDecimal.valueOf(this.scale).precision()) - 2);
     }
 
+    /**
+     * Gets the value at a specified row, as the default Java object class for the column's MonetDBe type.
+     *
+     * @param row Row number to get value from
+     * @return Value at specified row, as the default Java object class for this column's type
+     */
     Object getObject (int row) {
         switch (monetdbeType) {
             case 0:
@@ -92,6 +108,14 @@ public class MonetColumn {
         }
     }
 
+    /**
+     * Gets the value at a specified row, as a Boolean object.
+     * Supported types: Boolean, Byte, Short, Integer, Long, Float, Double, Decimal, String.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a Boolean object. Otherwise, returns NULL
+     */
     Boolean getBoolean(int row) {
         if (monetdbeType == 0) {
             return constData.get(row)!=0;
@@ -105,6 +129,14 @@ public class MonetColumn {
         return null;
     }
 
+    /**
+     * Gets the value at a specified row, as a Byte object.
+     * Supported types: Byte, Boolean, Short, Integer, Long, Float, Double, Decimal, String.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a Byte object. Otherwise, returns NULL
+     */
     Byte getByte(int row) {
         if (monetdbeType == 1) {
             return constData.get(row);
@@ -121,6 +153,14 @@ public class MonetColumn {
         return null;
     }
 
+    /**
+     * Gets the value at a specified row, as a Short object.
+     * Supported types: Short, Byte, Boolean, Integer, Long, Float, Double, Decimal, String.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a Short object. Otherwise, returns NULL
+     */
     Short getShort(int row) {
         if (monetdbeType == 2) {
             return constData.asShortBuffer().get(row);
@@ -140,6 +180,14 @@ public class MonetColumn {
         return null;
     }
 
+    /**
+     * Gets the value at a specified row, as a Integer object.
+     * Supported types: Integer, Byte, Boolean, Short, Integer, Long, Float, Double, Decimal, String.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a Integer object. Otherwise, returns NULL
+     */
     Integer getInt(int row) {
         if (monetdbeType == 3) {
             return constData.asIntBuffer().get(row);
@@ -156,6 +204,14 @@ public class MonetColumn {
         return null;
     }
 
+    /**
+     * Gets the value at a specified row, as a Long object.
+     * Supported types: Long, Byte, Boolean, Short, Integer, Float, Double, Decimal, String.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a Long object. Otherwise, returns NULL
+     */
     Long getLong(int row) {
         if (monetdbeType == 4) {
             return constData.asLongBuffer().get(row);
@@ -172,6 +228,14 @@ public class MonetColumn {
         return null;
     }
 
+    /**
+     * Gets the value at a specified row, as a Float object.
+     * Supported types: Float, Byte, Boolean, Short, Integer, Long, Double, Decimal, String
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a Float object. Otherwise, returns NULL
+     */
     Float getFloat(int row) {
         if (monetdbeType == 7) {
             return constData.asFloatBuffer().get(row);
@@ -188,6 +252,14 @@ public class MonetColumn {
         return null;
     }
 
+    /**
+     * Gets the value at a specified row, as a Double object.
+     * Supported types: Double, Byte, Boolean, Short, Integer, Long, Float, Decimal, String
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a Float object. Otherwise, returns NULL
+     */
     Double getDouble(int row) {
         if (monetdbeType == 8) {
             return constData.asDoubleBuffer().get(row);
@@ -204,7 +276,17 @@ public class MonetColumn {
         return null;
     }
 
+    /**
+     * Gets the value at a specified row, as a BigInteger object.
+     * Supported types: Decimal, Numeric
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a BigInteger object. Otherwise, returns NULL
+     */
     BigInteger getBigInteger(int row) {
+        if (monetdbeType != 5)
+            return null;
         int size = MonetTypes.getMonetSize(monetdbeType);
         byte[] byteData = new byte[size];
 
@@ -216,6 +298,14 @@ public class MonetColumn {
         return new BigInteger(byteData);
     }
 
+    /**
+     * Gets the value at a specified row, as a BigDecimal object.
+     * Supported types: Byte, Short, Integer, Long, Decimal
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a BigDecimal object. Otherwise, returns NULL
+     */
     BigDecimal getBigDecimal(int row) {
         int scale = getScaleJDBC();
         switch (monetdbeType) {
@@ -239,6 +329,13 @@ public class MonetColumn {
         }
     }
 
+    /**
+     * Gets the value at a specified row, as a String object.
+     * Supported types: Byte, Boolean, Short, Integer, Long, Float, Double, Decimal, String, Blob, Date, Time, Timestamp
+     *
+     * @param row Row number to get value from
+     * @return Value at specified row as a String object.
+     */
     String getString(int row) {
         if (monetdbeType == 9) {
             return (String) varData[row];
@@ -248,6 +345,44 @@ public class MonetColumn {
         }
     }
 
+    /**
+     * Gets the value at a specified row, as a byte[] object.
+     * Supported types: Blob.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a byte[] object. Otherwise, returns NULL
+     */
+    byte[] getBytes(int row) {
+        if (monetdbeType == 10)
+            return (byte[]) varData[row];
+        else
+            return null;
+    }
+
+    /**
+     * Gets the value at a specified row, as a {@link MonetBlob} object.
+     * Supported types: Blob.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a {@link MonetBlob} object. Otherwise, returns NULL
+     */
+    MonetBlob getBlob(int row) {
+        if (monetdbeType == 10)
+            return new MonetBlob((byte[]) varData[row]);
+        else
+            return null;
+    }
+
+    /**
+     * Gets the value at a specified row, as a LocalDate object.
+     * Supported types: String, Date, Timestamp.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a LocalDate object. Otherwise, returns NULL
+     */
     LocalDate getLocalDate(int row) throws DateTimeParseException {
         switch (monetdbeType) {
             case 9:
@@ -262,6 +397,14 @@ public class MonetColumn {
         }
     }
 
+    /**
+     * Gets the value at a specified row, as a LocalTime object.
+     * Supported types: String, Time, Timestamp.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a LocalTime object. Otherwise, returns NULL
+     */
     LocalTime getLocalTime(int row) throws DateTimeParseException {
         switch (monetdbeType) {
             case 9:
@@ -276,6 +419,14 @@ public class MonetColumn {
         }
     }
 
+    /**
+     * Gets the value at a specified row, as a LocalDateTime object.
+     * Supported types: String, Date, Time, Timestamp.
+     * If the type if not supported, returns NULL.
+     *
+     * @param row Row number to get value from
+     * @return If the column type is supported, value at specified row as a LocalDateTime object. Otherwise, returns NULL
+     */
     LocalDateTime getLocalDateTime(int row) throws DateTimeParseException {
         switch (monetdbeType) {
             case 9:
@@ -290,13 +441,5 @@ public class MonetColumn {
             default:
                 return LocalDateTime.ofEpochSecond(0,0,ZoneOffset.UTC);
         }
-    }
-
-    byte[] getBytes(int row) {
-        return (byte[]) varData[row];
-    }
-
-    MonetBlob getBlob(int row) {
-        return new MonetBlob((byte[]) varData[row]);
     }
 }

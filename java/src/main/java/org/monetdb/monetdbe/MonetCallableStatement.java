@@ -8,16 +8,47 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
 
+/**
+ * A {@link CallableStatement} suitable for the MonetDB database.
+ *
+ * The interface used to execute SQL stored procedures. IN parameter values are set using the set methods inherited from PreparedStatement.
+ * MonetDB does not support OUT or INOUT parameters. Only input parameters are supported.
+ *
+ * This implementation of the CallableStatement interface reuses the implementation of MonetPreparedStatement for
+ * preparing the call statement, bind parameter values and execute the call, possibly multiple times with different parameter values.
+ *
+ * Note: currently we can not implement:
+ * - all getXyz(parameterIndex/parameterName, ...) methods
+ * - all registerOutParameter(parameterIndex/parameterName, int sqlType, ...) methods
+ * - wasNull() method
+ * because output parameters in stored procedures are not supported by MonetDB.
+ */
 public class MonetCallableStatement extends MonetPreparedStatement implements CallableStatement {
-    public MonetCallableStatement(MonetConnection conn, String sql) {
+    /**
+     * MonetCallableStatement constructor which checks the arguments for validity.
+     * A MonetCallableStatement is backed by a {@link MonetPreparedStatement}, which deals with most of the required stuff of this class.
+     *
+     * @param conn the connection that created this Statement
+     * @param sql - an SQL CALL statement that may contain one or more '?' parameter placeholders.
+     *	Typically this statement is specified using JDBC call escape syntax:
+     *	{ call procedure_name [(?,?, ...)] }
+     *	or
+     *	{ ?= call procedure_name [(?,?, ...)] }
+     *
+     * @throws IllegalArgumentException is one of the arguments is null or empty
+     */
+    MonetCallableStatement(MonetConnection conn, String sql) {
         super(conn,removeEscapes(sql));
     }
 
-    /** parse call query string on
+    /** Parses call query string on
      *  { [?=] call <procedure-name> [(<arg1>,<arg2>, ...)] }
      * and remove the JDBC escapes pairs: { and }
+     *
+     * @param query Query string to be escaped
+     * @return Escaped query string
      */
-    final private static String removeEscapes(final String query) {
+    private static String removeEscapes(final String query) {
         if (query == null)
             return null;
 
@@ -56,11 +87,14 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
         return buf.toString();
     }
 
-    /** utility method to convert a parameter name to an int (which represents the parameter index)
-     *  this will only succeed for strings like: "1", "2", "3", etc
-     *  throws SQLException if it cannot convert the string to an integer number
+    /** Utility method to convert a parameter name to an int (which represents the parameter index).
+     *  This will only succeed for strings like: "1", "2", "3", etc
+     *
+     *  @param parameterName Parameter index as a String.
+     *  @return Parameter index as integer.
+     *  @throws SQLException if it cannot convert the string to an integer number
      */
-    final private int nameToIndex(final String parameterName) throws SQLException {
+    private int nameToIndex(final String parameterName) throws SQLException {
         if (parameterName == null)
             throw new SQLException("Missing parameterName value", "22002");
         try {
