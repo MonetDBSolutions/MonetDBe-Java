@@ -24,8 +24,6 @@ import java.sql.SQLFeatureNotSupportedException;
  * that it is a real resource expensive workaround that contradicts the
  * sole reason for a Clob: avoidance of huge resource consumption.
  * <b>Use of this class is highly discouraged.</b>
- *
- * @author Fabian Groffen
  */
 public final class MonetClob implements Clob {
 	private StringBuilder buf;

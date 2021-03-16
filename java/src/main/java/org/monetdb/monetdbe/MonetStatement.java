@@ -200,9 +200,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
         }
     }
 
-    //Executes
     /**
-     * The execute method executes the give SQL statement and indicates the form of
+     * The execute method executes the given SQL statement and indicates the form of
      * the first result. You must then use the methods getResultSet or
      * getUpdateCount to retrieve the result (either a ResultSet object or an int representing the update count).
      *

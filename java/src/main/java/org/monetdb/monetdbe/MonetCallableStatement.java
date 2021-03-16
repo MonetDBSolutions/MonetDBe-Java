@@ -42,7 +42,7 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
     }
 
     /** Parses call query string on
-     *  { [?=] call <procedure-name> [(<arg1>,<arg2>, ...)] }
+     *  { [?=] call &lt;procedure-name&gt; [(&lt;arg1&gt;,&lt;arg2&gt;, ...)] }
      * and remove the JDBC escapes pairs: { and }
      *
      * @param query Query string to be escaped
