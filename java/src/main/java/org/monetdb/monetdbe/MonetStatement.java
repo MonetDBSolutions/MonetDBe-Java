@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Statement suitable for the MonetDB embedded database.
+ * A {@link Statement} suitable for the MonetDB embedded database.
  *
  * The object used for executing a static SQL statement and returning
  * the results it produces.
@@ -38,8 +38,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
     private SQLWarning warnings;
     /** Maximum number of rows to fetch for resultset */
     private int maxRows = 0;
-    //This one isn't used right now
     /** Maximum number of rows to fetch for resultset for executeLarge methods */
+    //This one isn't used right now
     private long largeMaxRows = 0;
     //These ones are ignored
     private int fetchSize;

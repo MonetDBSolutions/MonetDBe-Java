@@ -16,6 +16,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+/**
+ * A {@link PreparedStatement} suitable for the MonetDB embedded database.
+ *
+ * An object that represents a precompiled SQL statement. A SQL statement is precompiled and stored in a PreparedStatement object.
+ * This object can then be used to efficiently execute this statement multiple times.
+ *
+ * Note: The setter methods (setShort, setString, and so on) for setting IN parameter values must specify types that are compatible with
+ * the defined SQL type of the input parameter. For instance, if the IN parameter has SQL type INTEGER, then the method setInt should be used.
+ * If arbitrary parameter type conversions are required, the method setObject should be used with a target SQL type.
+ */
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     //Native pointer to C statement
     protected ByteBuffer statementNative;
