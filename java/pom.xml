@@ -174,30 +174,29 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
+                            <!-- This should only include the necessary libraries -->
                             <resources>
                                 <resource>
                                     <directory>${MonetDB_dir}/lib/</directory>
-                                    <excludes>
-                                        <exclude>monetdb5/**</exclude>
-                                        <exclude>pkgconfig/**</exclude>
-                                        <exclude>python3.*/**</exclude>
-                                        <exclude>python3/**</exclude>
-                                        <exclude>systemd/**</exclude>
-                                        <exclude>libMonetODBC.so</exclude>
-                                        <exclude>libMonetODBCs.so</exclude>
-                                    </excludes>
+                                    <includes>
+                                        <include>libstream.*</include>
+                                        <include>libbat.*</include>
+                                        <include>libmapi.*</include>
+                                        <include>libmonetdb5.*</include>
+                                        <include>libmonetdbsql.*</include>
+                                        <include>libmonetdbe.*</include>
+                                    </includes>
                                 </resource>
                                 <resource>
                                     <directory>${MonetDB_dir}/lib64/</directory>
-                                    <excludes>
-                                        <exclude>monetdb5/**</exclude>
-                                        <exclude>pkgconfig/**</exclude>
-                                        <exclude>python3.*/**</exclude>
-                                        <exclude>python3/**</exclude>
-                                        <exclude>systemd/**</exclude>
-                                        <exclude>libMonetODBC.so</exclude>
-                                        <exclude>libMonetODBCs.so</exclude>
-                                    </excludes>
+                                    <includes>
+                                        <include>libstream.*</include>
+                                        <include>libbat.*</include>
+                                        <include>libmapi.*</include>
+                                        <include>libmonetdb5.*</include>
+                                        <include>libmonetdbsql.*</include>
+                                        <include>libmonetdbe.*</include>
+                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>

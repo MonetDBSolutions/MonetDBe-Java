@@ -86,8 +86,8 @@ public class MonetNative {
         Stream<Path> walk = Files.walk(myPath, 1);
         for (Iterator<Path> it = walk.iterator(); it.hasNext();){
             String s = it.next().toString();
-            System.out.println("Copying: " + s + " -> " + s.substring(5));
-            if (!s.equals("/lib/")) {
+            System.out.println("Copying: " + s);
+            if (!s.equals("/lib/") && !s.equals("/lib")) {
                 copyLib(s.substring(5));
             }
         }
