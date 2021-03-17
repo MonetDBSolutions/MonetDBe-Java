@@ -26,4 +26,4 @@ jobs:
     - name: Check contents of jar file
       run: jar tf java/target/monetdbe-java-src-1.0-SNAPSHOT.jar && ldd java/target/classes/lib/lib* && readelf -d java/target/classes/lib/lib*
     - name: Run example class
-      run: javac -cp java/target/monetdbe-java-src-1.0-SNAPSHOT.jar example/SimpleTypes.java && java -classpath java/target/monetdbe-java-src-1.0-SNAPSHOT.jar:example SimpleTypes
+      run: echo $LD_LIBRARY_PATH && javac -cp java/target/monetdbe-java-src-1.0-SNAPSHOT.jar example/SimpleTypes.java && java -classpath java/target/monetdbe-java-src-1.0-SNAPSHOT.jar:example SimpleTypes
