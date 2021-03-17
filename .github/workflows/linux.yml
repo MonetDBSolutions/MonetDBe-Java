@@ -18,6 +18,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Setup Maven
+      uses: stCarolas/setup-maven@v4
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
