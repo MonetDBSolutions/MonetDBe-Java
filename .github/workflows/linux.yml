@@ -18,8 +18,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+      #We were getting a "mvn not found" error
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Build with Maven
       run: mvn -B package --file pom.xml -DMonetDB_dir=/usr/local/
-
+    - name: Check contents of jar file
+      run: jar tf java/target/monetdbe-java-src-1.0-SNAPSHOT.jar
+    - name: Run example class
+      run: javac -cp java/target/monetdbe-java-src-1.0-SNAPSHOT.jar example/SimpleTypes.java && java -classpath java/target/monetdbe-java-src-1.0-SNAPSHOT.jar:example SimpleTypes
