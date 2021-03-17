@@ -1,0 +1,56 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  windows_build:
+    runs-on: windows-2019
+    env:
+      branch: Oct2020
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+          
+      - name: Install vcpkg packages
+        uses: lukka/run-vcpkg@v5
+        with:
+          vcpkgArguments: --triplet x64-windows libiconv openssl libxml2 pcre zlib getopt bzip2 curl
+          vcpkgGitCommitId: e803bf11296d8e7900dafb41e7b1224778d33dc6
+          appendedCacheKey: ${{ hashFiles(env.vcpkgResponseFile) }}
+      - name: Get monetdb
+        run: |
+          Set-Location c:\
+          curl.exe https://dev.monetdb.org/hg/MonetDB/archive/${{ env.branch }}.zip -O
+          unzip.exe ${{ env.branch }}.zip
+      - name: Compile and install MonetDB
+        run: |
+          mkdir c:\MonetDB-${{ env.branch }}\build
+          Set-Location c:\MonetDB-${{ env.branch }}\build
+          dir $Env:VCPKG_ROOT\scripts\buildsystems
+          dir $Env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake
+          cmake -G "Visual Studio 16 2019" `
+            -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=D:\a\MonetDBe-Python\MonetDBe-Python\vcpkg\scripts\buildsystems\vcpkg.cmake `
+            -DCMAKE_INSTALL_PREFIX=C:\monetdb `
+            -DTESTING=OFF `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DASSERT=OFF `
+            -DODBC=false `
+            -DPY3INTEGRATION=OFF `
+            -DINT128=OFF `
+            ..
+          cmake --build . --target ALL_BUILD --parallel 4  --config Release
+          cmake --build . --target INSTALL  --config Release
+    
