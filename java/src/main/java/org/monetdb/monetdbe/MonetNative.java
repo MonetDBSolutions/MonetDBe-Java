@@ -29,8 +29,8 @@ public class MonetNative {
                 loadLib = "libmonetdbe-lowlevel.so";
             } else if (os_name.startsWith("mac")) {
                 //TODO Check dependencies
-                //dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
-                dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
+                dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
+                //dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
                 loadLib = "libmonetdbe-lowlevel.dylib";
             } else if (os_name.startsWith("windows")) {
                 //TODO depedencyLibs
@@ -48,6 +48,7 @@ public class MonetNative {
             else {
                 //TODO: Error
             }
+            //TODO Delete temp files?
         } catch (IOException e) {
             e.printStackTrace();
             //Try to load through the java.library.path variable
