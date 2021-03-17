@@ -55,11 +55,11 @@
 
                             <linkerStartOptions>
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
-                                <linkerStartOption>-L${MonetDB_dir}/lib/</linkerStartOption>
-                                <linkerStartOption>-L${MonetDB_dir}/lib64/</linkerStartOption>
+                                <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
+                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
-                                <linkerStartOption>-lmonetdbe</linkerStartOption>
+                                <linkerEndOption>-lmonetdbe</linkerEndOption>
 
                                 <!-- For setting rpath-->
                                 <linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption>
