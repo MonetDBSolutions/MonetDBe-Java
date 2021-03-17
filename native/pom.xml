@@ -59,11 +59,13 @@
                                 <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
-                                <linkerEndOption>-lmonetdbe</linkerEndOption>
 
                                 <!-- For setting rpath-->
                                 <linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption>
                             </linkerStartOptions>
+                            <linkerEndOptions>
+                                <linkerEndOption>-lmonetdbe</linkerEndOption>
+                            </linkerEndOptions>
                         </configuration>
                     </plugin>
                 </plugins>
