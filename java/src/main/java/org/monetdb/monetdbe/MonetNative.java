@@ -24,8 +24,8 @@ public class MonetNative {
 
             if (os_name.startsWith("linux")) {
                 //TODO Check dependencies
-                //dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so.1"};
-                dependencyLibs = new String[]{"libbat.so.21", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
+                dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so.1"};
+                //dependencyLibs = new String[]{"libbat.so.21", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
                 loadLib = "libmonetdbe-lowlevel.so";
             } else if (os_name.startsWith("mac")) {
                 //TODO Check dependencies

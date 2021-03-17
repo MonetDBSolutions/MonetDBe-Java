@@ -192,7 +192,7 @@
                                     <excludes>
                                         <exclude>monetdb5/**</exclude>
                                         <exclude>pkgconfig/**</exclude>
-                                        <exclude>python3.9/**</exclude>
+                                        <exclude>python3.*/**</exclude>
                                         <exclude>python3/**</exclude>
                                         <exclude>systemd/**</exclude>
                                         <exclude>libMonetODBC.so</exclude>
