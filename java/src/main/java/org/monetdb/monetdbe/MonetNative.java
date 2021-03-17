@@ -1,12 +1,16 @@
 package org.monetdb.monetdbe;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * Interface for C native methods in MonetDBe-Java. Also loads the compiled monetdbe_lowlevel C library and the libraries on
@@ -38,9 +42,10 @@ public class MonetNative {
             }
 
             if (dependencyLibs != null && loadLib != null) {
-                for (String l : dependencyLibs) {
+                /*for (String l : dependencyLibs) {
                     copyLib(l);
-                }
+                }*/
+                copyAllLibs();
                 //Java doesn't allow to load the library from within the jar
                 //It must be copied to a temporary file before loading
                 loadLib(loadLib);
@@ -53,6 +58,38 @@ public class MonetNative {
             e.printStackTrace();
             //Try to load through the java.library.path variable
             System.loadLibrary("monetdbe-lowlevel");
+        }
+    }
+
+
+    static void copyAllLibs() throws IOException {
+        /*File folder = new File("/lib/");
+        File[] listOfFiles = folder.listFiles();
+        if (listOfFiles != null)
+            for (File f : listOfFiles) {
+                System.out.println("Copying: " + f.getName());
+                copyLib(f.getName());
+            }*/
+        URI uri = null;
+        try {
+            uri = MonetNative.class.getResource("/lib/").toURI();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        Path myPath;
+        if (uri.getScheme().equals("jar")) {
+            FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
+            myPath = fileSystem.getPath("/lib/");
+        } else {
+            myPath = Paths.get(uri);
+        }
+        Stream<Path> walk = Files.walk(myPath, 1);
+        for (Iterator<Path> it = walk.iterator(); it.hasNext();){
+            String s = it.next().toString();
+            if (!s.equals("/lib")) {
+                System.out.println("Copying: " + s.substring(5));
+                copyLib(s.substring(5));
+            }
         }
     }
 
