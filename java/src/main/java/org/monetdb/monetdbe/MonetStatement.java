@@ -138,12 +138,9 @@ public class MonetStatement extends MonetWrapper implements Statement {
     }
 
     /**
-     * Cancels this Statement object if both the DBMS and driver support aborting an SQL statement.
-     *
      * This feature is not currently supported.
      *
-     * @throws SQLException - if a database access error occurs or this method is called on a closed Statement
-     * @throws SQLFeatureNotSupportedException - if the JDBC driver does not support this method
+     * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
     public void cancel() throws SQLException {
@@ -207,10 +204,12 @@ public class MonetStatement extends MonetWrapper implements Statement {
      *
      * Multiple results may result from the SQL statement, but only the first one may be retrieved in the current version.
      *
+     * The result set or update count object variables are set within monetdbe_query().
+     *
      * @param sql any SQL statement
      * @return true if the first result is a ResultSet object; false if it is an
      *         update count or there are no results
-     * @throws SQLException if a database access error occurs
+     * @throws SQLException if a database access error occurs or this method is called on a closed Statement
      */
     @Override
     public boolean execute(String sql) throws SQLException {
@@ -286,6 +285,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
      *
      * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
      *
+     * The result set or large update count object variables are set within monetdbe_query().
+     *
      * @param sql an SQL Data Manipulation Language (DML) statement, such as
      *	INSERT, UPDATE or DELETE; or an SQL statement that returns nothing,
      *	such as a DDL statement.
@@ -319,9 +320,27 @@ public class MonetStatement extends MonetWrapper implements Statement {
         }
     }
 
-    //Batch executes
+    /**
+     * Submits a batch of commands to the database for execution and if all commands execute successfully,
+     * returns an array of update counts. The int elements of the array that is returned are ordered to correspond
+     * to the commands in the batch, which are ordered according to the order in which they were added to the batch.
+     *
+     * The elements in the array returned by the method executeBatch may be one of the following:
+     * <ol>
+     *     <li>A number greater than or equal to zero -- indicates that the command was processed successfull and is an
+     *     update count giving the number of rows in the database that were affected by the command's execution </li>
+     *     <li>A value of SUCCESS_NO_INFO -- indicates that the command was processed successfully
+     *     but that the number of rows affected is unknown </li>
+     * </ol>
+     *
+     * @return an array of update counts containing one element for each command in the batch.
+     * The elements of the array are ordered according to the order in which commands were added to the batch.
+     * @throws SQLException if a database access error occurs or this method is called on a closed Statement
+     * @throws BatchUpdateException if one of the commands sent to the database fails to execute properly or attempts to return a result set
+     */
     @Override
     public int[] executeBatch() throws SQLException {
+        //TODO Implement BatchUpdateException
         checkNotClosed();
         if (batch == null || batch.isEmpty()) {
             return new int[0];
@@ -349,7 +368,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
     }
 
     /**
-     * Adds the given SQL command to the current list of commmands for this
+     * Adds the given SQL command to the current list of commands for this
      * Statement object.  The commands in this list can be executed as a
      * batch by calling the method executeBatch.
      *
@@ -379,8 +398,21 @@ public class MonetStatement extends MonetWrapper implements Statement {
         }
     }
 
+    /**
+     * Submits a batch of commands to the database for execution and if all commands execute successfully,
+     * returns an array of update counts. The long elements of the array that is returned are ordered to correspond
+     * to the commands in the batch, which are ordered according to the order in which they were added to the batch.
+     *
+     * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
+     *
+     * @return an array of update counts containing one element for each command in the batch.
+     * The elements of the array are ordered according to the order in which commands were added to the batch.
+     * @throws SQLException if a database access error occurs or this method is called on a closed Statement
+     * @throws BatchUpdateException if one of the commands sent to the database fails to execute properly or attempts to return a result set
+     */
     @Override
     public long[] executeLargeBatch() throws SQLException {
+        //TODO Implement BatchUpdateException
         checkNotClosed();
         if (batch == null || batch.isEmpty()) {
             return new long[0];
@@ -408,45 +440,61 @@ public class MonetStatement extends MonetWrapper implements Statement {
     }
 
     /**
-     * Currently not supported, will throw a SQLFeatureNotSupportedException
-     * @param current one of the Statement constants indicating what should happen to current ResultSet objects obtained using the method
-     * @return true if the next result is a ResultSet object; false if it is an update count or there are no more results
-     * @throws SQLException if a database access error occurs or this method is called on a closed Statement
-     * @throws SQLFeatureNotSupportedException if DatabaseMetaData.supportsMultipleOpenResults returns false
+     * Feature currently not supported.
+     *
+     * @throws SQLFeatureNotSupportedException This feature is not supported
      */
-    //TODO GETMORERESULTS
     @Override
     public boolean getMoreResults(int current) throws SQLException {
+        //TODO GETMORERESULTS
         //Is it possible to have more than one ResultSet returning from a batch query in MonetDBe?
         checkNotClosed();
         throw new SQLFeatureNotSupportedException("getMoreResults()");
     }
 
     /**
-     * Currently not supported, will throw a SQLFeatureNotSupportedException
+     * Feature currently not supported.
      *
-     * @return true if the next result is a ResultSet object; false if it is an update count or there are no more results
-     * @throws SQLException if a database access error occurs or this method is called on a closed Statement
-     * @throws SQLFeatureNotSupportedException if DatabaseMetaData.supportsMultipleOpenResults returns false
+     * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
     public boolean getMoreResults() throws SQLException {
+        //TODO GETMORERESULTS
         return getMoreResults(Statement.CLOSE_CURRENT_RESULT);
     }
 
-    //Meta gets/sets
+    /**
+     * Retrieves the current result as an update count; if the result is a ResultSet object or there are no more results,
+     * -1 is returned. This method should be called only once per result.
+     *
+     * @return the current result as an update count; -1 if the current result is a ResultSet object or there are no more results
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getUpdateCount() throws SQLException {
         checkNotClosed();
         return this.updateCount;
     }
 
+    /**
+     * Retrieves the current result as a ResultSet object. This method should be called only once per result.
+     *
+     * @return the current result as a ResultSet object or null if the result is an update count or there are no more results
+     * @throws SQLException if  this method is called on a closed Statement
+     */
     @Override
     public ResultSet getResultSet() throws SQLException {
         checkNotClosed();
         return resultSet;
     }
 
+    /**
+     * Sets escape processing on or off.
+     * This feature is not supported by this driver, so calling this method will add a SQL warning.
+     *
+     * @param enable true to enable escape processing; false to disable it
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public void setEscapeProcessing(boolean enable) throws SQLException {
         checkNotClosed();
@@ -454,12 +502,33 @@ public class MonetStatement extends MonetWrapper implements Statement {
             addWarning("setEscapeProcessing: JDBC escape syntax is not supported by this driver", "01M22");
     }
 
+    /**
+     * Retrieves the number of seconds the driver will wait for a Statement object to execute.
+     * If the limit is exceeded, a SQLException is thrown.
+     *
+     * The current version of the driver does not support query timeout, so this limit will have no effect on query execution.
+     *
+     * @return the current query timeout limit in seconds; zero means there is no limit
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getQueryTimeout() throws SQLException {
         checkNotClosed();
         return queryTimeout;
     }
 
+    /**
+     * Sets the number of seconds the driver will wait for a Statement object to execute to the given number of seconds.
+     * By default there is no limit on the amount of time allowed for a running statement to complete.
+     * If the limit is exceeded, an SQLTimeoutException is thrown.
+     *
+     * The driver must apply this limit to the execute, executeQuery and executeUpdate methods.
+     *
+     * The current version of the driver does not support query timeout, so this limit will have no effect on query execution.
+     *
+     * @param seconds the new query timeout limit in seconds; zero means there is no limit
+     * @throws SQLException if this method is called on a closed Statement or the condition seconds >= 0 is not satisfied
+     */
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
         checkNotClosed();
@@ -468,24 +537,58 @@ public class MonetStatement extends MonetWrapper implements Statement {
         queryTimeout = seconds;
     }
 
+    /**
+     * Retrieves the first warning reported by calls on this Statement
+     * object.  If there is more than one warning, subsequent warnings
+     * will be chained to the first one and can be retrieved by calling
+     * the method SQLWarning.getNextWarning on the warning that was
+     * retrieved previously.
+     *
+     * @return the first SQLWarning object or null if there are none
+     * @throws SQLException if a database access error occurs or this method is
+     *         called on a closed connection
+     */
     @Override
     public SQLWarning getWarnings() throws SQLException {
         checkNotClosed();
         return warnings;
     }
 
+    /**
+     * Clears all warnings reported for this Statement object. After a
+     * call to this method, the method getWarnings returns null until a
+     * new warning is reported for this Connection object.
+     *
+     * @throws SQLException if a database access error occurs or this method is called on a closed connection
+     */
     @Override
     public void clearWarnings() throws SQLException {
         checkNotClosed();
         warnings = null;
     }
 
+    /**
+     * Sets the SQL cursor name to the given String, which will be used by subsequent Statement object execute methods.
+     *
+     * Because positioned updates/deletes are not supported by this driver, this will add a SQL warning.
+     *
+     * @param name the new cursor name, which must be unique within a connection
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public void setCursorName(String name) throws SQLException {
         checkNotClosed();
         addWarning("setCursorName: positioned updates/deletes not supported", "01M21");
     }
 
+    /**
+     * Gives the driver a hint as to the direction in which rows will be processed in ResultSet objects
+     * created using this Statement object. The default value is ResultSet.FETCH_FORWARD.
+     *
+     * @param direction the initial direction for processing rows
+     * @throws SQLException if this method is called on a closed Statement or the given direction is not one of
+     * ResultSet.FETCH_FORWARD, ResultSet.FETCH_REVERSE, or ResultSet.FETCH_UNKNOWN
+     */
     @Override
     public void setFetchDirection(int direction) throws SQLException {
         checkNotClosed();
@@ -499,12 +602,27 @@ public class MonetStatement extends MonetWrapper implements Statement {
         }
     }
 
+    /**
+     * Retrieves the direction for fetching rows from database tables that is the default for result sets generated from this Statement object.
+     *
+     * @return the default fetch direction for result sets generated from this Statement object
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getFetchDirection() throws SQLException {
         checkNotClosed();
         return fetchDirection;
     }
 
+    /**
+     * Gives the JDBC driver a hint as to the number of rows that should be fetched from the database when more rows are
+     * needed for ResultSet objects generated by this Statement.
+     *
+     * If the value specified is zero, then the hint is ignored. The default value is zero.
+     *
+     * @param rows the number of rows to fetch
+     * @throws SQLException if this method is called on a closed Statement or the condition rows >= 0 is not satisfied
+     */
     @Override
     public void setFetchSize(int rows) throws SQLException {
         checkNotClosed();
@@ -515,74 +633,154 @@ public class MonetStatement extends MonetWrapper implements Statement {
         }
     }
 
+    /**
+     * Retrieves the number of result set rows that is the default fetch size for ResultSet objects generated from this Statement object.
+     *
+     * @return the default fetch size for result sets generated from this Statement object
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getFetchSize() throws SQLException {
         checkNotClosed();
         return fetchSize;
     }
 
+    /**
+     * Retrieves the result set concurrency for ResultSet objects generated by this Statement object.
+     *
+     * @return either ResultSet.CONCUR_READ_ONLY or ResultSet.CONCUR_UPDATABLE
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getResultSetConcurrency() throws SQLException {
         checkNotClosed();
         return resultSetConcurrency;
     }
 
+    /**
+     * Retrieves the result set type for ResultSet objects generated by this Statement object.
+     *
+     * @return one of ResultSet.TYPE_FORWARD_ONLY, ResultSet.TYPE_SCROLL_INSENSITIVE, or ResultSet.TYPE_SCROLL_SENSITIVE
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getResultSetType() throws SQLException {
         checkNotClosed();
         return resultSetType;
     }
 
+    /**
+     * Retrieves the Connection object that produced this Statement object.
+     *
+     * @return the connection that produced this statement
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public Connection getConnection() throws SQLException {
         checkNotClosed();
         return conn;
     }
 
+    /**
+     * Retrieves the result set holdability for ResultSet objects generated by this Statement object.
+     *
+     * @return either ResultSet.HOLD_CURSORS_OVER_COMMIT or ResultSet.CLOSE_CURSORS_AT_COMMIT
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getResultSetHoldability() throws SQLException {
         checkNotClosed();
         return resultSetHoldability;
     }
 
+    /**
+     * Feature not supported
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public void setPoolable(boolean poolable) throws SQLException {
         throw new SQLFeatureNotSupportedException("Poolable statements are currently not supported by the driver.");
     }
 
+    /**
+     * Returns a value indicating whether the Statement is poolable or not.
+     *
+     * @return false
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public boolean isPoolable() throws SQLException {
         checkNotClosed();
         return false;
     }
 
+    /**
+     * Retrieves the current result as an update count; if the result is a ResultSet object or there are no more results,
+     * -1 is returned. This method should be called only once per result.
+     *
+     * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
+     *
+     * @return the current result as an update count; -1 if the current result is a ResultSet object or there are no more results
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public long getLargeUpdateCount() throws SQLException {
         checkNotClosed();
         return largeUpdateCount;
     }
 
+    /**
+     * Sets the limit for the maximum number of rows that any ResultSet object generated by this Statement object can
+     * contain to the given number. If the limit is exceeded, the excess rows are silently dropped.
+     *
+     * This method should be used when the row limit may exceed Integer.MAX_VALUE.
+     *
+     * @param max the new max rows limit; zero means there is no limit
+     * @throws SQLException if this method is called on a closed Statement or the condition max >= 0 is not satisfied
+     */
     @Override
     public void setLargeMaxRows(long max) throws SQLException {
         checkNotClosed();
         this.largeMaxRows = max;
     }
 
+    /**
+     * Retrieves the maximum number of rows that a ResultSet object produced by this Statement object can contain.
+     * If this limit is exceeded, the excess rows are silently dropped.
+     *
+     * This method should be used when the returned row limit may exceed Integer.MAX_VALUE.
+     *
+     * @return the current maximum number of rows for a ResultSet object produced by this Statement object; zero means there is no limit
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public long getLargeMaxRows() throws SQLException {
         checkNotClosed();
         return largeMaxRows;
     }
 
-    //The old implementation returned a value which overflows the java int
+    /**
+     * Retrieves the maximum number of bytes that can be returned for character and binary column values in a
+     * ResultSet object produced by this Statement object.
+     *
+     * @return zero, meaning there is no column size limit for columns storing character and binary values
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getMaxFieldSize() throws SQLException {
         checkNotClosed();
         // MonetDB supports null terminated strings of max 2GB, see function: int UTF8_strlen();
         //return 2*1024*1024*1024 - 2;
-        return Integer.MAX_VALUE;
+        return 0;
     }
 
+    /**
+     * Sets the limit for the maximum number of bytes that can be returned for character and binary column values in a
+     * ResultSet object produced by this Statement object.
+     *
+     * @param max the new column size limit in bytes; zero means there is no limit
+     * @throws SQLException if this method is called on a closed Statement or the condition max >= 0 is not satisfied
+     */
     @Override
     public void setMaxFieldSize(final int max) throws SQLException {
         checkNotClosed();
@@ -592,12 +790,26 @@ public class MonetStatement extends MonetWrapper implements Statement {
             addWarning("setMaxFieldSize: field size limitation not supported", "01M23");
     }
 
+    /**
+     * Retrieves the maximum number of rows that a ResultSet object produced by this Statement object can contain.
+     * If this limit is exceeded, the excess rows are silently dropped.
+     *
+     * @return the current maximum number of rows for a ResultSet object produced by this Statement object; zero means there is no limit
+     * @throws SQLException if this method is called on a closed Statement
+     */
     @Override
     public int getMaxRows() throws SQLException {
         checkNotClosed();
         return maxRows;
     }
 
+    /**
+     * Sets the limit for the maximum number of rows that any ResultSet object generated by this Statement object can contain to the given number.
+     * If the limit is exceeded, the excess rows are silently dropped.
+     *
+     * @param max the new max rows limit; zero means there is no limit
+     * @throws SQLException if this method is called on a closed Statement or the condition max >= 0 is not satisfied
+     */
     @Override
     public void setMaxRows(int max) throws SQLException {
         checkNotClosed();
@@ -606,54 +818,93 @@ public class MonetStatement extends MonetWrapper implements Statement {
         maxRows = max;
     }
 
-    //Auto-generated keys
     //TODO Generated Keys
+
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
         return false;
     }
 
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public boolean execute(String sql, int[] columnIndexes) throws SQLException {
         return false;
     }
 
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public boolean execute(String sql, String[] columnNames) throws SQLException {
         return false;
     }
 
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
         return 0;
     }
 
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
         return 0;
     }
 
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public int executeUpdate(String sql, String[] columnNames) throws SQLException {
         return 0;
     }
 
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public long executeLargeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
         return 0;
     }
 
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public long executeLargeUpdate(String sql, int[] columnIndexes) throws SQLException {
         return 0;
     }
 
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public long executeLargeUpdate(String sql, String[] columnNames) throws SQLException {
         return 0;
     }
 
-    //TODO Generated Keys
+    /**
+     * Feature not supported.
+     * @throws SQLFeatureNotSupportedException This feature is not supported
+     */
     @Override
     public ResultSet getGeneratedKeys() throws SQLException {
         return null;

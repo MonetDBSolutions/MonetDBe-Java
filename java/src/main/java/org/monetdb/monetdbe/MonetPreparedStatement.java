@@ -192,6 +192,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     @Override
     public int[] executeBatch() throws SQLException {
+        //TODO Implement BatchUpdateException
         checkNotClosed();
         if (parametersBatch == null || parametersBatch.isEmpty()) {
             return new int[0];
@@ -243,6 +244,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * @throws BatchUpdateException if one of the commands sent to the database fails to execute properly or attempts to return a result set
      */
     public long[] executeLargeBatch() throws SQLException {
+        //TODO Implement BatchUpdateException
+        checkNotClosed();
         if (parametersBatch == null || parametersBatch.isEmpty()) {
             return new long[0];
         }
