@@ -62,7 +62,7 @@
                                 <linkerStartOption>-lmonetdbe</linkerStartOption>
 
                                 <!-- For setting rpath-->
-                                <linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption>
+                                <!--<linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption>-->
                             </linkerStartOptions>
                         </configuration>
                     </plugin>
