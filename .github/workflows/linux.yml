@@ -27,5 +27,5 @@ jobs:
       run: jar tf java/target/monetdbe-java-src-1.0-SNAPSHOT.jar
     - name: Run example class
       run: javac -cp java/target/monetdbe-java-src-1.0-SNAPSHOT.jar example/SimpleTypes.java && java -classpath java/target/monetdbe-java-src-1.0-SNAPSHOT.jar:example SimpleTypes
-    - name: Check tmp dir
-      run: ls /tmp/
+    - name: Check tmp libs
+      run: nm -d /tmp/libmonetdbe-lowlevel.so*
