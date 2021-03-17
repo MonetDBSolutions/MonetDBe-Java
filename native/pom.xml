@@ -61,8 +61,10 @@
                                 <linkerStartOption>-fPIC</linkerStartOption>
                                 <!-- For setting rpath-->
                                 <linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption>
-                                <linkerStartOption>-lmonetdbe</linkerStartOption>
                             </linkerStartOptions>
+                            <linkerEndOptions>
+                                <linkerEndOption>-lmonetdbe</linkerEndOption>
+                            </linkerEndOptions>
                         </configuration>
                     </plugin>
                 </plugins>
