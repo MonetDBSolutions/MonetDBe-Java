@@ -27,12 +27,10 @@ public class MonetNative {
             String loadLib = null;
 
             if (os_name.startsWith("linux")) {
-                //TODO Check dependencies
                 dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so"};
                 //dependencyLibs = new String[]{"libbat.so.21", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
                 loadLib = "libmonetdbe-lowlevel.so";
             } else if (os_name.startsWith("mac")) {
-                //TODO Check dependencies
                 dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
                 //dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
                 loadLib = "libmonetdbe-lowlevel.dylib";
@@ -45,7 +43,6 @@ public class MonetNative {
                 for (String l : dependencyLibs) {
                     copyLib(l);
                 }
-                //copyAllLibs();
                 //Java doesn't allow to load the library from within the jar
                 //It must be copied to a temporary file before loading
                 loadLib(loadLib);
@@ -63,13 +60,6 @@ public class MonetNative {
 
 
     static void copyAllLibs() throws IOException {
-        /*File folder = new File("/lib/");
-        File[] listOfFiles = folder.listFiles();
-        if (listOfFiles != null)
-            for (File f : listOfFiles) {
-                System.out.println("Copying: " + f.getName());
-                copyLib(f.getName());
-            }*/
         URI uri = null;
         try {
             uri = MonetNative.class.getResource("/lib/").toURI();
@@ -98,7 +88,7 @@ public class MonetNative {
      * @param libName Full library name to copy to temporary location
      */
     static void copyLib(String libName) throws IOException {
-        //System.out.println("Copying: " + libName);
+        System.out.println("Copying: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
         if (is == null) {
             throw new IOException("Library could not be found.");
