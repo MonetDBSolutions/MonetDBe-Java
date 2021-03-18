@@ -29,6 +29,8 @@ jobs:
           vcpkgArguments: --triplet x64-windows libiconv openssl libxml2 pcre zlib getopt bzip2 curl bison
           vcpkgGitCommitId: e803bf11296d8e7900dafb41e7b1224778d33dc6
           appendedCacheKey: ${{ hashFiles(env.vcpkgResponseFile) }}
+      - name: Install Bison/Flex
+            run: choco install -y winflexbison
       - name: Get monetdb
         run: |
           Set-Location c:\
