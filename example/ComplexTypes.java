@@ -71,7 +71,7 @@ public class ComplexTypes {
 
     public static void main(String[] args) {
         try {
-            Connection c = DriverManager.getConnection("jdbc:monetdb://:memory:", new Properties());
+            Connection c = DriverManager.getConnection("jdbc:monetdb:memory:", new Properties());
 
             System.out.println("Opened connection");
 

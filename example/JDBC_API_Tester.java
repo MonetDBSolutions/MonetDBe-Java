@@ -47,9 +47,9 @@ final public class JDBC_API_Tester {
 		}
 		else {
 			//Memory DB
-			String urlMemory = "jdbc:monetdb://:memory:";
+			String urlMemory = "jdbc:monetdb:memory:y:";
 			//Local DB
-			String urlLocal = "jdbc:monetdb:/Users/bernardo/Monet/test/";
+			String urlLocal = "jdbc:monetdb:file:/Users/bernardo/Monet/test/";
 			//Proxy DB
 			String urlProxy = "mapi:monetdb://localhost:50000/test?user=monetdb&password=monetdb";
 

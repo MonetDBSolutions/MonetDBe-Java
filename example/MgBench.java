@@ -414,7 +414,7 @@ public class MgBench {
         Connection conn;
 
         try {
-            conn = DriverManager.getConnection("jdbc:monetdb://:memory:", null);
+            conn = DriverManager.getConnection("jdbc:monetdb:memory:", null);
             System.out.println("Start mgbench");
             for (int i = 1; i <= create.size(); i++) {
                 loadData(conn,csvPath,i);

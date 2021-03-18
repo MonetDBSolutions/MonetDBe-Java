@@ -29,7 +29,7 @@ jobs:
     - name: Copy via ssh
       uses: garygrossgarten/github-action-scp@v0.7.3
       with:
-          local: D:\a\MonetDBe-Java\MonetDBe-Java\hs_err_pid208.log
+          local: D:\a\MonetDBe-Java\MonetDBe-Java\*.log
           remote: /Users/bernardo/Desktop/
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USER }}

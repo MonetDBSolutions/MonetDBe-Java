@@ -7,7 +7,7 @@ public class HelloWorld {
         Connection conn = null;
         try {
             //In-memory database
-            conn = DriverManager.getConnection("jdbc:monetdb://:memory:",null);
+            conn = DriverManager.getConnection("jdbc:monetdb:memory:",null);
         } catch (SQLException e) {
             e.printStackTrace();
         }

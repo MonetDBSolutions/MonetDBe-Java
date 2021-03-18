@@ -233,7 +233,7 @@ public class TestMonetDBeJava {
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
-                System.out.println("BigInteger: " + rs.getHugeInt(1));
+                System.out.println("BigInteger: " + rs.getBigInteger(1));
                 System.out.println("Decimal: " + rs.getBigDecimal(2));
                 System.out.println();
             }
@@ -387,13 +387,28 @@ public class TestMonetDBeJava {
         }
     }
 
+    static void multipleRS (MonetConnection c) {
+        try {
+            Statement s = c.createStatement();
+            boolean type = s.execute("SELECT 1; SELECT 2; SELECT 3;");
+            if (type) {
+                ResultSet rs = s.getResultSet();
+                while(rs.next()) {
+                    System.out.println(rs.getObject(1));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
             //Memory DB
-            String urlMemory = "jdbc:monetdb://:memory:";
+            String urlMemory = "jdbc:monetdb:memory:";
             //Local DB
-            String urlLocal = "jdbc:monetdb:/Users/bernardo/Monet/test/";
+            String urlLocal = "jdbc:monetdb:file:/Users/bernardo/Monet/test/";
             //Proxy DB
             String urlProxy = "mapi:monetdb://localhost:50000/test";
 
@@ -411,9 +426,10 @@ public class TestMonetDBeJava {
                 System.out.println("Query timeout is " + c.getClientInfo("querytimeout"));
 
                 connectionProps(c);
+                multipleRS(c);
 
                 //Create and populate
-                populateDBTable(c);
+                //populateDBTable(c);
 
                 //Prepared statements
                 //queryDBPreparedStatement(c);
@@ -423,13 +439,13 @@ public class TestMonetDBeJava {
                 //insertDBPreparedStatementNulls(c);
 
                 //Query and drop
-                queryDBStatement(c);
-                dropDBTable(c);
+                //queryDBStatement(c);
+                //dropDBTable(c);
 
                 //Complex types tests
                 //blobInsertQuery(c);
                 //blobPreparedQuery(c);
-                int128Queries(c);
+                //int128Queries(c);
 
                 //Batch tests
                 //batchQueriesStatement(c);

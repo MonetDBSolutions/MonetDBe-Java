@@ -71,7 +71,7 @@ public class Movies {
         Connection conn = null;
         try {
             //Local database
-            conn = DriverManager.getConnection("jdbc:monetdb:" + db, null);
+            conn = DriverManager.getConnection("jdbc:monetdb:file:" + db, null);
         } catch (SQLException e) {
             e.printStackTrace();
         }

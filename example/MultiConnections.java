@@ -6,7 +6,7 @@ public class MultiConnections {
         Statement s1 = null;
         try {
             //Local database
-            conn1 = DriverManager.getConnection("jdbc:monetdb:/tmp/db1",null);
+            conn1 = DriverManager.getConnection("jdbc:monetdb:file:/tmp/db1",null);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -35,7 +35,7 @@ public class MultiConnections {
         Connection conn2 = null;
         Statement s2 = null;
         try {
-            conn2 = DriverManager.getConnection("jdbc:monetdb:/tmp/db1",null);
+            conn2 = DriverManager.getConnection("jdbc:monetdb:file:/tmp/db1",null);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -73,7 +73,7 @@ public class MultiConnections {
         //Connecting to another database
         Connection conn3 = null;
         try {
-            conn3 = DriverManager.getConnection("jdbc:monetdb:/tmp/db2",null);
+            conn3 = DriverManager.getConnection("jdbc:monetdb:file:/tmp/db2",null);
         } catch (SQLException e) {
             e.printStackTrace();
         }

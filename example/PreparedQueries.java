@@ -43,7 +43,7 @@ public class PreparedQueries {
 
     public static void main(String[] args) {
         try {
-            Connection c = DriverManager.getConnection("jdbc:monetdb://:memory:", new Properties());
+            Connection c = DriverManager.getConnection("jdbc:monetdb:memory:", new Properties());
 
             Statement s = c.createStatement();
             s.executeUpdate("CREATE TABLE p (i INTEGER, l BIGINT, f REAL, df FLOAT, s STRING, d DATE, t TIME, ts TIMESTAMP)");
