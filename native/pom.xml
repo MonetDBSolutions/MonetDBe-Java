@@ -153,7 +153,7 @@
                                 <source>
                                     <directory>${project.basedir}\jni\</directory>
                                     <fileNames>
-                                        <fileName>monetdbe._lowlevel.c</fileName>
+                                        <fileName>monetdbe._lowlevel_noint128mapi.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>
