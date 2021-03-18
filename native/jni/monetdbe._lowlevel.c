@@ -61,10 +61,10 @@ jstring open_db(JNIEnv *env, jstring j_url, monetdbe_options *opts, jobject j_co
 
     monetdbe_database *db = malloc(sizeof(monetdbe_database));
 
-    printf("Before monetdbe_open");
+    printf("Before monetdbe_open\n");
     fflush(stdout);
     int error_code = monetdbe_open(db, (char *)url, opts);
-    printf("After monetdbe_open");
+    printf("After monetdbe_open\n");
     fflush(stdout);
 
     if (url != NULL)
