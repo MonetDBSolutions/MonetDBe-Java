@@ -83,7 +83,7 @@ public class MonetNative {
         for (Iterator<Path> it = walk.iterator(); it.hasNext();){
             String s = it.next().toString();
             if (!s.equals("/lib/") && !s.equals("/lib")) {
-                copyLib("/lib/"  + s.substring(5));
+                copyLib("/lib/", s.substring(5));
             }
         }
     }
