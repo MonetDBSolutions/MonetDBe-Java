@@ -54,6 +54,47 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>copy-lib</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
+                                    <!-- This should only include the necessary libraries -->
+                                    <resources>
+                                        <resource>
+                                            <directory>${MonetDB_dir}/lib/</directory>
+                                            <includes>
+                                                <include>libstream.*</include>
+                                                <include>libbat.*</include>
+                                                <include>libmapi.*</include>
+                                                <include>libmonetdb5.*</include>
+                                                <include>libmonetdbsql.*</include>
+                                                <include>libmonetdbe.*</include>
+                                            </includes>
+                                        </resource>
+                                        <resource>
+                                            <directory>${MonetDB_dir}/lib64/</directory>
+                                            <includes>
+                                                <include>libstream.*</include>
+                                                <include>libbat.*</include>
+                                                <include>libmapi.*</include>
+                                                <include>libmonetdb5.*</include>
+                                                <include>libmonetdbsql.*</include>
+                                                <include>libmonetdbe.*</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -92,6 +133,47 @@
                                             <destFileName>libmonetdbe-lowlevel.dylib</destFileName>
                                         </artifactItem>
                                     </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>copy-lib</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
+                                    <!-- This should only include the necessary libraries -->
+                                    <resources>
+                                        <resource>
+                                            <directory>${MonetDB_dir}/lib/</directory>
+                                            <includes>
+                                                <include>libstream.*</include>
+                                                <include>libbat.*</include>
+                                                <include>libmapi.*</include>
+                                                <include>libmonetdb5.*</include>
+                                                <include>libmonetdbsql.*</include>
+                                                <include>libmonetdbe.*</include>
+                                            </includes>
+                                        </resource>
+                                        <resource>
+                                            <directory>${MonetDB_dir}/lib64/</directory>
+                                            <includes>
+                                                <include>libstream.*</include>
+                                                <include>libbat.*</include>
+                                                <include>libmapi.*</include>
+                                                <include>libmonetdb5.*</include>
+                                                <include>libmonetdbsql.*</include>
+                                                <include>libmonetdbe.*</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
                                 </configuration>
                             </execution>
                         </executions>
@@ -138,6 +220,48 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Copy libmonetdbe library dependencies to lib folder -->
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>copy-lib</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}\lib\</outputDirectory>
+                                    <!-- This should only include the necessary libraries -->
+                                    <resources>
+                                        <resource>
+                                            <directory>${MonetDB_dir}\lib\</directory>
+                                            <includes>
+                                                <include>stream.lib</include>
+                                                <include>bat.lib</include>
+                                                <include>mapi.lib</include>
+                                                <include>monetdb5.lib</include>
+                                                <include>monetdbsql.lib</include>
+                                                <include>monetdbe.lib</include>
+                                            </includes>
+                                        </resource>
+                                        <resource>
+                                            <directory>${MonetDB_dir}\lib64\</directory>
+                                            <includes>
+                                                <include>stream.lib</include>
+                                                <include>bat.lib</include>
+                                                <include>mapi.lib</include>
+                                                <include>monetdb5.lib</include>
+                                                <include>monetdbsql.lib</include>
+                                                <include>monetdbe.lib</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -161,42 +285,6 @@
                             <resources>
                                 <resource>
                                     <directory>${project.basedir}/META-INF/</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <!-- Copy libmonetdbe library dependencies to lib folder -->
-                    <execution>
-                        <id>copy-lib</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
-                            <!-- This should only include the necessary libraries -->
-                            <resources>
-                                <resource>
-                                    <directory>${MonetDB_dir}/lib/</directory>
-                                    <includes>
-                                        <include>libstream.*</include>
-                                        <include>libbat.*</include>
-                                        <include>libmapi.*</include>
-                                        <include>libmonetdb5.*</include>
-                                        <include>libmonetdbsql.*</include>
-                                        <include>libmonetdbe.*</include>
-                                    </includes>
-                                </resource>
-                                <resource>
-                                    <directory>${MonetDB_dir}/lib64/</directory>
-                                    <includes>
-                                        <include>libstream.*</include>
-                                        <include>libbat.*</include>
-                                        <include>libmapi.*</include>
-                                        <include>libmonetdb5.*</include>
-                                        <include>libmonetdbsql.*</include>
-                                        <include>libmonetdbe.*</include>
-                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>
