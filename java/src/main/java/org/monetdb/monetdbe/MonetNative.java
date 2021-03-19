@@ -38,7 +38,7 @@ public class MonetNative {
                 loadLib = "libmonetdbe-lowlevel.dylib";
             } else if (os_name.startsWith("windows")) {
                 dependencyLibs = new String[]{"stream.lib","bat.lib","mapi.lib","monetdb5.lib","monetdbsql.lib","monetdbe.lib"};
-                loadLib = "libmonetdbe-lowlevel.ddl";
+                loadLib = "libmonetdbe-lowlevel.dll";
             }
 
             if (dependencyLibs != null && loadLib != null) {
@@ -57,7 +57,7 @@ public class MonetNative {
         } catch (IOException e) {
             e.printStackTrace();
             //Try to load through the java.library.path variable
-            System.loadLibrary("monetdbe-lowlevel");
+            //System.loadLibrary("monetdbe-lowlevel");
         }
     }
 
@@ -93,7 +93,7 @@ public class MonetNative {
         System.out.println("Copying: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
         if (is == null) {
-            throw new IOException("Library could not be found.");
+            throw new IOException("Library " + libName +  " could not be found.");
         }
         Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
@@ -106,7 +106,7 @@ public class MonetNative {
         //System.out.println("Loading: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
         if (is == null) {
-            throw new IOException("Library could not be found.");
+            throw new IOException("Library " + libName +  " could not be found.");
         }
         Path temp_lib = Files.createTempFile(libName, "");
         Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
