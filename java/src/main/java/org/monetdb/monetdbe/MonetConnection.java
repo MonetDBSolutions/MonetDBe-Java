@@ -22,9 +22,6 @@ import java.util.concurrent.Executor;
  * statement. If auto-commit mode has been disabled, the method commit
  * must be called explicitly in order to commit changes; otherwise,
  * database changes will not be saved.
- *
- * The current state of this connection is that it nearly implements the
- * whole Connection interface.
  */
 public class MonetConnection extends MonetWrapper implements Connection {
     /** The pointer to the C database object */
