@@ -25,26 +25,28 @@ public class MonetNative {
 
             String[] dependencyLibs = null;
             String loadLib = null;
+            String directory = "/lib/";
 
             if (os_name.startsWith("linux")) {
                 //dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so"};
-                dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
                 //dependencyLibs = new String[]{"libstream.so.14.0.4","libbat.so.21.1.2","libmapi.so.12.0.6","libmonetdb5.so.30.0.5","libmonetdbsql.so.11.40.0","libmonetdbe.so.1.0.2"};
+                dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
                 loadLib = "libmonetdbe-lowlevel.so";
             } else if (os_name.startsWith("mac")) {
                 //dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
-                dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
                 //dependencyLibs = new String[]{"libstream.14.0.4.dylib", "libbat.21.1.2.dylib", "libmapi.12.0.6.dylib", "libmonetdb5.30.0.5.dylib", "libmonetdbsql.11.40.0.dylib", "libmonetdbe.1.0.2.dylib"};
+                dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
                 loadLib = "libmonetdbe-lowlevel.dylib";
             } else if (os_name.startsWith("windows")) {
                 //TODO depedencyLibs
                 dependencyLibs = new String[]{"stream.lib","bat.lib","mapi.lib","monetdb5.lib","monetdbsql.lib","monetdbe.lib"};
                 loadLib = "libmonetdbe-lowlevel.ddl";
+                directory = "\\lib\\";
             }
 
             if (dependencyLibs != null && loadLib != null) {
                 for (String l : dependencyLibs) {
-                    copyLib(l);
+                    copyLib(directory,l);
                 }
                 //copyAllLibs();
                 //Java doesn't allow to load the library from within the jar
@@ -81,18 +83,19 @@ public class MonetNative {
         for (Iterator<Path> it = walk.iterator(); it.hasNext();){
             String s = it.next().toString();
             if (!s.equals("/lib/") && !s.equals("/lib")) {
-                copyLib(s.substring(5));
+                copyLib("/lib/"  + s.substring(5));
             }
         }
     }
 
     /**
      * Copy libraries to temporary location, to be in the rpath of libmonetdbe-lowlevel
+     * @param directory Directory of library to copy to temporary location
      * @param libName Full library name to copy to temporary location
      */
-    static void copyLib(String libName) throws IOException {
+    static void copyLib(String directory, String libName) throws IOException {
         System.out.println("Copying: " + libName);
-        InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
+        InputStream is = MonetNative.class.getResourceAsStream(directory + libName);
         if (is == null) {
             throw new IOException("Library could not be found.");
         }
