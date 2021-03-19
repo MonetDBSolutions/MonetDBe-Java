@@ -28,8 +28,8 @@ public class MonetNative {
 
             if (os_name.startsWith("linux")) {
                 //dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so"};
-                //dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
-                dependencyLibs = new String[]{"libstream.so.14.0.4","libbat.so.21.1.2","libmapi.so.12.0.6","libmonetdb5.so.30.0.5","libmonetdbsql.so.11.40.0","libmonetdbe.so.1.0.2"};
+                dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
+                //dependencyLibs = new String[]{"libstream.so.14.0.4","libbat.so.21.1.2","libmapi.so.12.0.6","libmonetdb5.so.30.0.5","libmonetdbsql.so.11.40.0","libmonetdbe.so.1.0.2"};
                 loadLib = "libmonetdbe-lowlevel.so";
             } else if (os_name.startsWith("mac")) {
                 //dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
@@ -42,10 +42,10 @@ public class MonetNative {
             }
 
             if (dependencyLibs != null && loadLib != null) {
-                /*for (String l : dependencyLibs) {
+                for (String l : dependencyLibs) {
                     copyLib(l);
-                }*/
-                copyAllLibs();
+                }
+                //copyAllLibs();
                 //Java doesn't allow to load the library from within the jar
                 //It must be copied to a temporary file before loading
                 loadLib(loadLib);
