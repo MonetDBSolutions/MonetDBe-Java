@@ -57,6 +57,7 @@ jobs:
           cmake --build . --target INSTALL  --config Release
 
           dir C:\monetdb\lib\
+          dir C:\monetdb\lib\monetdb5\
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
       - name: Build with Maven

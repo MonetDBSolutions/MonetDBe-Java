@@ -38,6 +38,7 @@ public class MonetNative {
                 loadLib = "libmonetdbe-lowlevel.dylib";
             } else if (os_name.startsWith("windows")) {
                 //TODO depedencyLibs
+                dependencyLibs = new String[]{"stream.lib","bat.lib","mapi.lib","monetdb5.lib","monetdbsql.lib","monetdbe.lib"};
                 loadLib = "libmonetdbe-lowlevel.ddl";
             }
 
