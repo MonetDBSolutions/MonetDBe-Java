@@ -96,6 +96,7 @@ public class MonetNative {
             throw new IOException("Library " + libName +  " could not be found.");
         }
         Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        System.out.println(System.getProperty("java.io.tmpdir") + "/" + libName);
     }
 
     /**
@@ -110,6 +111,7 @@ public class MonetNative {
         }
         Path temp_lib = Files.createTempFile(libName, "");
         Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
+        System.out.println(temp_lib.toString());
         System.load(temp_lib.toString());
     }
 
