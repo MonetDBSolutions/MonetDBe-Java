@@ -61,7 +61,10 @@ jobs:
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
       - name: Build with Maven
-        run: mvn -B package --file pom.xml "-DMonetDB_dir=C:\monetdb"
+        run: |
+          mvn -B package --file pom.xml "-DMonetDB_dir=C:\monetdb"
+          jar tf D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-src-1.0-SNAPSHOT.jar
+
       - name: Run example class (SimpleTypes)
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example

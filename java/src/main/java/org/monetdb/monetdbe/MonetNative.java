@@ -94,7 +94,7 @@ public class MonetNative {
      * @param libName Full library name to copy to temporary location
      */
     static void copyLib(String directory, String libName) throws IOException {
-        System.out.println("Copying: " + libName);
+        System.out.println("Copying: " + directory + libName);
         InputStream is = MonetNative.class.getResourceAsStream(directory + libName);
         if (is == null) {
             throw new IOException("Library could not be found.");
