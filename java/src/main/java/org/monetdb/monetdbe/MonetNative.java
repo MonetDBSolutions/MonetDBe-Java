@@ -28,11 +28,13 @@ public class MonetNative {
 
             if (os_name.startsWith("linux")) {
                 //dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so"};
-                dependencyLibs = new String[]{"libbat.so.21", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
+                //dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
+                dependencyLibs = new String[]{"libstream.so.14.0.4","libbat.so.21.1.2","libmapi.so.12.0.6","libmonetdb5.so.30.0.5","libmonetdbsql.so.11.40.0","libmonetdbe.so.1.0.2"};
                 loadLib = "libmonetdbe-lowlevel.so";
             } else if (os_name.startsWith("mac")) {
                 //dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
-                dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
+                //dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
+                dependencyLibs = new String[]{"libstream.14.0.4.dylib", "libbat.21.1.2.dylib", "libmapi.12.0.6.dylib", "libmonetdb5.30.0.5.dylib", "libmonetdbsql.11.40.0.dylib", "libmonetdbe.1.0.2.dylib"};
                 loadLib = "libmonetdbe-lowlevel.dylib";
             } else if (os_name.startsWith("windows")) {
                 //TODO depedencyLibs
