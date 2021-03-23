@@ -44,7 +44,7 @@ public class MonetNative {
             if (dependencyLibs != null && loadLib != null) {
                 for (String l : dependencyLibs) {
                     if (loadLib.endsWith(".dll")) {
-                        loadLib(l);
+                        copyLib(l);
                     }
                     else {
                         copyLib(l);
