@@ -44,7 +44,7 @@ public class MonetNative {
             if (dependencyLibs != null && loadLib != null) {
                 for (String l : dependencyLibs) {
                     if (loadLib.endsWith(".dll")) {
-                        copyLib(l);
+                        loadLib(l);
                     }
                     else {
                         copyLib(l);
@@ -114,7 +114,9 @@ public class MonetNative {
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
-        Path temp_lib = Files.createTempFile(libName,"");
+        //Path temp_lib = Files.createTempFile(libName,"");
+        //Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
+        Path temp_lib = new java.io.File(System.getProperty("java.io.tmpdir") + libName).toPath();
         Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
         System.out.println(temp_lib.toString());
         System.load(temp_lib.toString());
