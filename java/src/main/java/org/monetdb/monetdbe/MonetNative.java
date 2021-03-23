@@ -95,8 +95,8 @@ public class MonetNative {
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
-        Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
-        System.out.println(System.getProperty("java.io.tmpdir") + "/" + libName);
+        Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        System.out.println(System.getProperty("java.io.tmpdir") + libName);
     }
 
     /**
