@@ -168,12 +168,9 @@
 
                             <linkerStartOptions>
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
-                                <linkerStartOption>-L "${MonetDB_dir}\lib"</linkerStartOption>
-                                <linkerStartOption>-L "${MonetDB_dir}\lib64"</linkerStartOption>
+                                <linkerStartOption>-L "${MonetDB_dir}\bin"</linkerStartOption>
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
-                                <!-- For setting rpath-->
-                                <!--<linkerStartOption>-Wl,-rpath,@loader_path/.</linkerStartOption>-->
                             </linkerStartOptions>
 
                             <linkerEndOptions>

@@ -58,6 +58,8 @@ jobs:
 
           dir C:\monetdb\lib\
           dir C:\monetdb\lib\monetdb5\
+          dir C:\monetdb\bin\
+
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
       - name: Build with Maven

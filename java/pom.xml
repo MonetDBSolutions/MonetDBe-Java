@@ -247,14 +247,14 @@
                                             </includes>
                                         </resource>
                                         <resource>
-                                            <directory>${MonetDB_dir}\lib64\</directory>
+                                            <directory>${MonetDB_dir}\bin\</directory>
                                             <includes>
-                                                <include>stream.lib</include>
-                                                <include>bat.lib</include>
-                                                <include>mapi.lib</include>
-                                                <include>monetdb5.lib</include>
-                                                <include>monetdbsql.lib</include>
-                                                <include>monetdbe.lib</include>
+                                                <include>stream.dll</include>
+                                                <include>bat.dll</include>
+                                                <include>mapi.dll</include>
+                                                <include>monetdb5.dll</include>
+                                                <include>monetdbsql.dll</include>
+                                                <include>monetdbe.dll</include>
                                             </includes>
                                         </resource>
                                     </resources>
