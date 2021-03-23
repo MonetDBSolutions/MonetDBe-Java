@@ -43,7 +43,12 @@ public class MonetNative {
 
             if (dependencyLibs != null && loadLib != null) {
                 for (String l : dependencyLibs) {
-                    copyLib(l);
+                    if (loadLib.endsWith(".dll")) {
+                        loadLib(l);
+                    }
+                    else {
+                        copyLib(l);
+                    }
                 }
                 //copyAllLibs();
                 //Java doesn't allow to load the library from within the jar
@@ -104,12 +109,12 @@ public class MonetNative {
      * @param libName Full library name to load with System.load()
      */
     static void loadLib(String libName) throws IOException {
-        //System.out.println("Loading: " + libName);
+        System.out.println("Loading: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
-        Path temp_lib = Files.createTempFile(libName.substring(0,libName.length()-4), ".dll");
+        Path temp_lib = Files.createTempFile(libName,"");
         Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
         System.out.println(temp_lib.toString());
         System.load(temp_lib.toString());
