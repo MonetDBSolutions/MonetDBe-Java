@@ -60,6 +60,8 @@ jobs:
           dir C:\monetdb\lib\monetdb5\
           dir C:\monetdb\bin\
 
+          dir $Env:VCPKG_ROOT\installed\x64-windows\bin\*.dll
+
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
       - name: Build with Maven
