@@ -149,7 +149,6 @@
                                 </goals>
                                 <configuration>
                                     <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
-                                    <!-- This should only include the necessary libraries -->
                                     <resources>
                                         <resource>
                                             <directory>${MonetDB_dir}/lib/</directory>

@@ -61,6 +61,15 @@ jobs:
           dir C:\monetdb\bin\
 
           dir $Env:VCPKG_ROOT\installed\x64-windows\bin\*.dll
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libcrypto-1_1-x64.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\iconv-2.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libxml2.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\pcre.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\zlib1.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\lzma.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\charset-1.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\bz2.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libcurl.dll C:\Users\runneradmin\AppData\Local\Temp\.
 
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
