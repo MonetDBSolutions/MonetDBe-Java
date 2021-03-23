@@ -109,7 +109,7 @@ public class MonetNative {
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
-        Path temp_lib = Files.createTempFile(libName, "");
+        Path temp_lib = Files.createTempFile(libName.substring(0,libName.length()-4), ".dll");
         Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
         System.out.println(temp_lib.toString());
         System.load(temp_lib.toString());
