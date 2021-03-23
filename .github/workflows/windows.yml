@@ -57,8 +57,18 @@ jobs:
           cmake --build . --target INSTALL  --config Release
 
           dir C:\monetdb\bin\
-          dir $Env:VCPKG_ROOT\bin/
+          dir $Env:VCPKG_ROOT\bin\
 
+          dir $Env:VCPKG_ROOT\installed\x64-windows\bin\*.dll
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libcrypto-1_1-x64.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\iconv-2.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libxml2.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\pcre.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\zlib1.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\lzma.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\charset-1.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\bz2.dll C:\Users\runneradmin\AppData\Local\Temp\.
+          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libcurl.dll C:\Users\runneradmin\AppData\Local\Temp\.
 
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
@@ -69,17 +79,6 @@ jobs:
 
       - name: Run example class (SimpleTypes)
         run: |
-          dir $Env:VCPKG_ROOT\installed\x64-windows\bin\*.dll
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libcrypto-1_1-x64.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\iconv-2.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libxml2.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\pcre.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\zlib1.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\lzma.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\charset-1.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\bz2.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-          Copy-Item $Env:VCPKG_ROOT\installed\x64-windows\bin\libcurl.dll D:\a\MonetDBe-Java\MonetDBe-Java\java\target\classes\lib\.
-
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
           javac -cp ..\java\target\monetdbe-java-src-1.0-SNAPSHOT.jar SimpleTypes.java
           dir ..\java\target
