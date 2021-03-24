@@ -89,8 +89,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * By contrast, the method nullsAreSortedAtStart indicates whether NULL values are sorted at the beginning regardless of sort order.
      *
      * @return true because MonetDB shows NULL values at the beginning upon ORDER BY .. ASC
-     *
-     * @return negative of nullsAreSortedHigh()
      * @see #nullsAreSortedHigh()
      */
     @Override

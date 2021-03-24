@@ -102,6 +102,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
     /**
      * Helper method to test whether the Statement object is closed
      * When closed, it throws an SQLException
+     *
+     * @throws SQLException if this method is called on a closed Statement
      */
     public void checkNotClosed() throws SQLException {
         if (isClosed())
@@ -119,6 +121,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
      * A Statement object is automatically closed when it is garbage collected.
      * When a Statement object is closed, its current ResultSet object, if one
      * exists, is also closed.
+     *
+     * @throws SQLException if this method is called on a closed Statement
      */
     @Override
     public void close() throws SQLException {
@@ -190,6 +194,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
     /**
      * Called by the result set object when it is closed
      * Used to close statement if closeOnCompletion() was called
+     *
+     * @throws SQLException if this method is called on a closed Statement
      */
     protected void closeIfComplete () throws SQLException {
         if (!closed && closeOnCompletion) {
@@ -527,7 +533,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
      * The current version of the driver does not support query timeout, so this limit will have no effect on query execution.
      *
      * @param seconds the new query timeout limit in seconds; zero means there is no limit
-     * @throws SQLException if this method is called on a closed Statement or the condition seconds >= 0 is not satisfied
+     * @throws SQLException if this method is called on a closed Statement or the condition seconds &gt;= 0 is not satisfied
      */
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
@@ -621,7 +627,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
      * If the value specified is zero, then the hint is ignored. The default value is zero.
      *
      * @param rows the number of rows to fetch
-     * @throws SQLException if this method is called on a closed Statement or the condition rows >= 0 is not satisfied
+     * @throws SQLException if this method is called on a closed Statement or the condition rows &gt;= 0 is not satisfied
      */
     @Override
     public void setFetchSize(int rows) throws SQLException {
@@ -736,7 +742,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
      * This method should be used when the row limit may exceed Integer.MAX_VALUE.
      *
      * @param max the new max rows limit; zero means there is no limit
-     * @throws SQLException if this method is called on a closed Statement or the condition max >= 0 is not satisfied
+     * @throws SQLException if this method is called on a closed Statement or the condition max &gt;= 0 is not satisfied
      */
     @Override
     public void setLargeMaxRows(long max) throws SQLException {
@@ -779,7 +785,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
      * ResultSet object produced by this Statement object.
      *
      * @param max the new column size limit in bytes; zero means there is no limit
-     * @throws SQLException if this method is called on a closed Statement or the condition max >= 0 is not satisfied
+     * @throws SQLException if this method is called on a closed Statement or the condition max &gt;= 0 is not satisfied
      */
     @Override
     public void setMaxFieldSize(final int max) throws SQLException {
@@ -808,7 +814,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
      * If the limit is exceeded, the excess rows are silently dropped.
      *
      * @param max the new max rows limit; zero means there is no limit
-     * @throws SQLException if this method is called on a closed Statement or the condition max >= 0 is not satisfied
+     * @throws SQLException if this method is called on a closed Statement or the condition max &gt;= 0 is not satisfied
      */
     @Override
     public void setMaxRows(int max) throws SQLException {

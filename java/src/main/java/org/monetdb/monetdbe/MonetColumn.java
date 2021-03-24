@@ -32,7 +32,13 @@ public class MonetColumn {
     /** MonetDBe type name (String), used for ResultSetMetaData */
     private String typeName;
 
-    /** Constructor for constant length data types (called from monetdbe_result_fetch_all) */
+    /** Constructor for constant length data types (called from monetdbe_result_fetch_all)
+     *
+     * @param name Column name
+     * @param monetdbeType MonetDBe type (int)
+     * @param constData Column data
+     * @param scale Scale for decimal values
+     */
     public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double scale) {
         this.name = name;
         this.monetdbeType = monetdbeType;
@@ -41,7 +47,12 @@ public class MonetColumn {
         this.scale = scale;
     }
 
-    /** Constructor for variable length data types (called from monetdbe_result_fetch_all) */
+    /** Constructor for variable length data types (called from monetdbe_result_fetch_all)
+     *
+     * @param name Column name
+     * @param monetdbeType MonetDBe type (int)
+     * @param varData Column data
+     */
     public MonetColumn(String name, int monetdbeType, Object[] varData) {
         this.name = name;
         this.monetdbeType = monetdbeType;

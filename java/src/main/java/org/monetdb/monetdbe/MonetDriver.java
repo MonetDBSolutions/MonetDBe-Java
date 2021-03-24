@@ -16,15 +16,15 @@ import java.util.logging.Logger;
  * connection to another MonetDB instance through its MAPI URL.
  * Valid MonetDBe-Java URLs:</p>
  * <ul>
- *   <li>In-memory database: <tt>jdbc:monetdb:memory:</tt></li>
- *   <li>Local file database: <tt>jdbc:monetdb:file:/path/to/directory/</tt></li>
- *   <li>Remote database: <tt>mapi:monetdb://&lt;host&gt;[:&lt;port&gt;]/&lt;database&gt;</tt></li>
+ *   <li>In-memory database: {@code jdbc:monetdb:memory:}</li>
+ *   <li>Local file database: {@code jdbc:monetdb:file:/path/to/directory/}</li>
+ *   <li>Remote database: {@code mapi:monetdb://&lt;host&gt;[:&lt;port&gt;]/&lt;database&gt;}</li>
  * </ul>
  * where [:&lt;port&gt;] denotes that a port is optional. If not
  * given, the default (50000) will be used.
  *
  * <p>Additional connection properties can be set in the URL, with the following format:
- * <tt>jdbc:monetdb:memory:?property=propertyValue</tt></p>
+ * {@code jdbc:monetdb:memory:?property=propertyValue}</p>
  */
 final public class MonetDriver implements java.sql.Driver {
     //Memory

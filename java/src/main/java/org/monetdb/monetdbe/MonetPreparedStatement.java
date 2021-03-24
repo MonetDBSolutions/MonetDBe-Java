@@ -368,7 +368,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     /**
      * Clears the current parameter values immediately.
      * Current version also cleans up the prepared statement, closing this object.
-     * @throws SQLException
+     * @throws SQLException if this method is called on a closed PreparedStatement
      */
     @Override
     public void clearParameters() throws SQLException {
@@ -699,7 +699,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      *
      * @param parameterIndex Parameter index (starts at 1)
      * @param x the object containing the input parameter value
-     * @throws SQLException
+     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
+     * if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {

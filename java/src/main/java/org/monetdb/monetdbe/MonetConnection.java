@@ -302,6 +302,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
     /**
      * Retrieve the C pointer to the database.
      * Used in ResultSet, Statement and PreparedStatement
+     *
+     * @return C pointer to the database
      */
     protected ByteBuffer getDbNative() {
         return dbNative;
@@ -714,7 +716,9 @@ public class MonetConnection extends MonetWrapper implements Connection {
     /**
      * Returns the full JDBC Connection URL used for connecting to the database.
      * It is called from getUserName()in MonetDatabaseMetaData.
+     *
      * @return the current User Name
+     * @throws SQLException if the user could not be fetched or if this method is called on a closed Connection
      */
     public String getUserName() throws SQLException {
         checkNotClosed();
@@ -745,6 +749,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
      * It is called from getMaxConnections()in MonetDatabaseMetaData
      * @return the maximum number of active connections possible at one time;
      * a result of zero means that there is no limit or the limit is not known
+     * @throws SQLException if this method is called on a closed Connection
      */
     public int getMaxConnections() throws SQLException {
         checkNotClosed();

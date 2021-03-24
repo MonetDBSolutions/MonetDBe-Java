@@ -1563,6 +1563,8 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     /**
      * Similar to getBigInteger(int), uses columnLabel instead.
      * @param columnLabel the label for the column specified with the SQL AS clause or the column's name
+     * @return the column value; if the value is SQL NULL, the value returned is null
+     * @throws SQLException if the columnIndex is not valid or this method is called on a closed result set
      * @see #getBigInteger(int)
      */
     public BigInteger getBigInteger(String columnLabel) throws SQLException {
