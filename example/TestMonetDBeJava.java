@@ -402,6 +402,29 @@ public class TestMonetDBeJava {
         }
     }
 
+    static void connectionStrings () {
+        try {
+            Connection conn1 = DriverManager.getConnection("jdbc:monetdb:file:/tmp/test1");
+            System.out.println("Conn 1: " + conn1.getAutoCommit());
+            conn1.close();
+
+            Connection conn2 = DriverManager.getConnection("jdbc:monetdb:file:/tmp/test2?autoCommit=false");
+            System.out.println("Conn 2: " + conn2.getAutoCommit());
+            conn2.close();
+
+            Connection conn3 = DriverManager.getConnection("jdbc:monetdb:memory:");
+            System.out.println("Conn 3: " + conn3.getAutoCommit());
+            conn3.close();
+
+            Connection conn4 = DriverManager.getConnection("jdbc:monetdb:memory:?autocommit=false");
+            System.out.println("Conn 4: " + conn4.getAutoCommit());
+            conn4.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         try {
             Properties info = new Properties();
@@ -459,7 +482,7 @@ public class TestMonetDBeJava {
             } else {
                 System.out.println("No connection was made");
             }
-
+            connectionStrings();
         } catch (SQLException e) {
             e.printStackTrace();
         }

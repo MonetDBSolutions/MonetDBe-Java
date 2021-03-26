@@ -76,7 +76,7 @@ public class ComplexTypes {
             System.out.println("Opened connection");
 
             createAndInsert(c);
-            //insertNulls(c);
+            insertNulls(c);
             queryDB(c);
 
             c.close();

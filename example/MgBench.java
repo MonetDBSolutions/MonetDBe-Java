@@ -410,7 +410,12 @@ public class MgBench {
     }
 
     public static void main(String[] args) {
-        String csvPath = "/Users/bernardo/Monet/MonetDBe-Java/temp/";
+        if (args.length != 1) {
+            System.out.println("Please input the directory containing the MgBench csv files." +
+                    "\nUsage: MgBench /path/to/csv/directory");
+            return;
+        }
+        String csvPath = args[0];
         Connection conn;
 
         try {

@@ -113,6 +113,14 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1cleanu
 
 /*
  * Class:     org_monetdb_monetdbe_MonetNative
+ * Method:    monetdbe_clear_bindings
+ * Signature: (Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1clear_1bindings
+  (JNIEnv *, jclass, jobject, jobject);
+
+/*
+ * Class:     org_monetdb_monetdbe_MonetNative
  * Method:    monetdbe_bind_bool
  * Signature: (Ljava/nio/ByteBuffer;IZ)Ljava/lang/String;
  */

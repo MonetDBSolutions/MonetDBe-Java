@@ -67,7 +67,7 @@ public class Movies {
     }
 
     public static void main(String[] args) {
-        String db = "/tmp/movies.mdbe";
+        String db = "/tmp/movies";
         Connection conn = null;
         try {
             //Local database
