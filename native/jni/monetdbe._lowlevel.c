@@ -433,15 +433,17 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
             }
             case 5:
             {
-                monetdbe_column_int128_t *c_int128_t = (monetdbe_column_int128_t *)(*column);
-                for (int i = 0; i < c_int128_t->count; i++)
-                {
-                    if (c_int128_t->is_null(&c_int128_t->data[i]) == 1)
+                #ifdef HAVE_HGE
+                    monetdbe_column_int128_t *c_int128_t = (monetdbe_column_int128_t *)(*column);
+                    for (int i = 0; i < c_int128_t->count; i++)
                     {
-                        c_int128_t->data[i] = 0;
+                        if (c_int128_t->is_null(&c_int128_t->data[i]) == 1)
+                        {
+                            c_int128_t->data[i] = 0;
+                        }
                     }
-                }
-                addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, 5, 128 * c_int128_t->count, i, c_int128_t->scale);
+                    addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, 5, 128 * c_int128_t->count, i, c_int128_t->scale);
+                #endif
                 break;
             }
             case 6:
@@ -609,9 +611,11 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1hugeint(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jobject data)
 {
-    //TODO Parse a BigInteger to int128
-    __int128 bind_data = (__int128)1;
-    return bind_parsed_data(env, j_stmt, &bind_data, parameter_nr);
+    #ifdef HAVE_HGE
+        //TODO Parse a BigInteger to int128
+        __int128 bind_data = (__int128)1;
+        return bind_parsed_data(env, j_stmt, &bind_data, parameter_nr);
+    #endif
 }
 
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1string(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jstring data)
@@ -724,5 +728,12 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1cleanu
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
     monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
     char *error_msg = monetdbe_cleanup_statement(db, stmt);
+    return (*env)->NewStringUTF(env, (const char *)error_msg);
+}
+
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1clear_1bindings (JNIEnv * env, jclass self, jobject j_db, jobject j_stmt) {
+    monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
+    monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
+    char *error_msg = monetdbe_clear_bindings(db, stmt);
     return (*env)->NewStringUTF(env, (const char *)error_msg);
 }

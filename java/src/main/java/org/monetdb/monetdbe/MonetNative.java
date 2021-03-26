@@ -66,42 +66,17 @@ public class MonetNative {
         }
     }
 
-
-    static void copyAllLibs() throws IOException {
-        URI uri = null;
-        try {
-            uri = MonetNative.class.getResource("/lib/").toURI();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-        Path myPath;
-        if (uri.getScheme().equals("jar")) {
-            FileSystem fileSystem = FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap());
-            myPath = fileSystem.getPath("/lib/");
-        } else {
-            myPath = Paths.get(uri);
-        }
-        Stream<Path> walk = Files.walk(myPath, 1);
-        for (Iterator<Path> it = walk.iterator(); it.hasNext();){
-            String s = it.next().toString();
-            if (!s.equals("/lib/") && !s.equals("/lib")) {
-                copyLib(s.substring(5));
-            }
-        }
-    }
-
     /**
      * Copy libraries to temporary location, to be in the rpath of libmonetdbe-lowlevel
      * @param libName Full library name to copy to temporary location
      */
     static void copyLib(String libName) throws IOException {
-        System.out.println("Copying: " + libName);
+        //System.out.println("Copying: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
         Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
-        System.out.println(System.getProperty("java.io.tmpdir") + libName);
     }
 
     /**
@@ -109,7 +84,7 @@ public class MonetNative {
      * @param libName Full library name to load with System.load()
      */
     static void loadLib(String libName) throws IOException {
-        System.out.println("Loading: " + libName);
+        //System.out.println("Loading: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
@@ -118,7 +93,6 @@ public class MonetNative {
         //Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
         Path temp_lib = new java.io.File(System.getProperty("java.io.tmpdir") + libName).toPath();
         Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
-        System.out.println(temp_lib.toString());
         System.load(temp_lib.toString());
     }
 
@@ -265,6 +239,14 @@ public class MonetNative {
      * @return Error message
      */
     protected static native String monetdbe_cleanup_statement(ByteBuffer db, ByteBuffer stmt);
+
+    /**
+     *
+     * @param db
+     * @param stmt
+     * @return
+     */
+    protected static native String monetdbe_clear_bindings(ByteBuffer db, ByteBuffer stmt);
 
     /**
      * Binds boolean parameter to prepared statement.

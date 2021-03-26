@@ -62,12 +62,11 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
         //Necessary for DatabaseMetadata method
         this.jdbcURL = props.getProperty("jdbc-url");
-
         String error_msg;
 
         //Remote proxy databases
         //TODO Find better condition for figuring out if its remote proxy?
-        if (props.containsKey("host") && props.containsKey("database")) {
+        if (props.getProperty("connectionType").equals("remote")) {
             String host = props.getProperty("host", "localhost");
             int port = Integer.parseInt(props.getProperty("port", "50000"));
             String database = props.getProperty("database","test");

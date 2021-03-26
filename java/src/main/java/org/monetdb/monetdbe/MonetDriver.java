@@ -25,6 +25,17 @@ import java.util.logging.Logger;
  *
  * <p>Additional connection properties can be set in the URL, with the following format:
  * {@code jdbc:monetdb:memory:?property=propertyValue}</p>
+ *
+ * Available properties:
+ * <ul>
+ *     <li>user</li>
+ *     <li>password</li>
+ *     <li>autocommit</li>
+ *     <li>session_timeout</li>
+ *     <li>query_timeout</li>
+ *     <li>memory_limit</li>
+ *     <li>nr_threads</li>
+ * </ul>
  */
 final public class MonetDriver implements java.sql.Driver {
     //Memory
@@ -56,7 +67,7 @@ final public class MonetDriver implements java.sql.Driver {
             for (int i = 0; i < args.length; i++) {
                 pos = args[i].indexOf('=');
                 if (pos > 0)
-                    info.put(args[i].substring(0, pos), args[i].substring(pos + 1));
+                    info.put(args[i].substring(0, pos).toLowerCase(), args[i].substring(pos + 1));
             }
         }
     }
@@ -68,9 +79,14 @@ final public class MonetDriver implements java.sql.Driver {
         }
         else {
             //Local database
-            //Remove leading 'jdbc:monetdb:file:' from directory path
             //TODO Verify it is a correct path?
-            info.put("path",url.substring(18));
+            //Remove leading 'jdbc:monetdb:file:' from directory path
+            String path = url.substring(18);
+            if (path.indexOf('?') != -1)
+                //Remove URL query from end of string
+                info.put("path",path.substring(0,path.indexOf('?')));
+            else
+                info.put("path",path);
             info.put("connectionType","file");
         }
 
@@ -226,7 +242,10 @@ final public class MonetDriver implements java.sql.Driver {
         prop.description = "Maximum number of worker treads, limits level of parallelism";
         dpi[5] = prop;
 
-        //TODO Add autocommit?
+        prop = new DriverPropertyInfo("autocommit", "true");
+        prop.required = false;
+        prop.description = "If the autocommit mode is on or off.";
+        dpi[6] = prop;
 
         return dpi;
     }

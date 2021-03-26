@@ -374,7 +374,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void clearParameters() throws SQLException {
         //TODO: Use cleanup function which doesn't clean up the Prepared Statement
         checkNotClosed();
-        MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
+        MonetNative.monetdbe_clear_bindings(conn.dbNative,statementNative);
+        //MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
         close();
     }
 
