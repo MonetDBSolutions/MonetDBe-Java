@@ -8,7 +8,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-//TODO Improve
+//TODO Implement correctly?
 public class MonetDataSource extends MonetWrapper implements DataSource {
     private String url;
     private final MonetDriver driver;

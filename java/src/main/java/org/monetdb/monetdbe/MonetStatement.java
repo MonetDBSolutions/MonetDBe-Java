@@ -72,7 +72,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
         this.queryTimeout = queryTimeout;
     }
 
-    //TODO Should we delete this one? We don't use these ResultSet variables
     /**
      * MonetStatement constructor with parameterized result set options.
      *
@@ -346,7 +345,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
      */
     @Override
     public int[] executeBatch() throws SQLException {
-        //TODO Implement BatchUpdateException
         checkNotClosed();
         if (batch == null || batch.isEmpty()) {
             return new int[0];
@@ -359,7 +357,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
             try {
                 count = executeUpdate(query);
             } catch (SQLException e) {
-                //Query returned a resultSet, throw BatchUpdateException
+                //Query returned a resultSet or query failed, throw BatchUpdateException
                 throw new BatchUpdateException();
             }
             if (count >= 0) {
@@ -418,7 +416,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
      */
     @Override
     public long[] executeLargeBatch() throws SQLException {
-        //TODO Implement BatchUpdateException
         checkNotClosed();
         if (batch == null || batch.isEmpty()) {
             return new long[0];
@@ -431,7 +428,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
             try {
                 count = executeLargeUpdate(query);
             } catch (SQLException e) {
-                //Query returned a resultSet, throw BatchUpdateException
+                //Query returned a resultSet or query failed, throw BatchUpdateException
                 throw new BatchUpdateException();
             }
             if (count >= 0) {

@@ -86,7 +86,7 @@ public class MonetTypes {
      * @return MonetDBe type (int)
      */
     protected static int getMonetTypeFromSQL(final int sqltype) {
-        return typeMapSQLToMonet.get(sqltype);
+        return typeMapSQLToMonet.getOrDefault(sqltype,14);
     }
 
     /**

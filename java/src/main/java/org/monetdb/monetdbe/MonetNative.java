@@ -1,20 +1,18 @@
 package org.monetdb.monetdbe;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.stream.Stream;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
 
 /**
- * Interface for C native methods in MonetDBe-Java. Also loads the compiled monetdbe_lowlevel C library and the libraries on
+ * Interface for C native methods in MonetDBe-Java.
+ * Loads the compiled monetdbe_lowlevel C library and the libraries on
  * which it depends (found in the lib/ directory of the jar).
+ * Because Java can't read libraries from inside the JAR, they are copied to a temporary location before load.
  */
 public class MonetNative {
     static {
@@ -50,15 +48,13 @@ public class MonetNative {
                         copyLib(l);
                     }
                 }
-                //copyAllLibs();
                 //Java doesn't allow to load the library from within the jar
                 //It must be copied to a temporary file before loading
                 loadLib(loadLib);
             }
             else {
-                //TODO: Error
+                throw new IOException("Library dependencies could not be found");
             }
-            //TODO Delete temp files?
         } catch (IOException e) {
             e.printStackTrace();
             //Try to load through the java.library.path variable
@@ -240,12 +236,7 @@ public class MonetNative {
      */
     protected static native String monetdbe_cleanup_statement(ByteBuffer db, ByteBuffer stmt);
 
-    /**
-     *
-     * @param db
-     * @param stmt
-     * @return
-     */
+    //TODO
     protected static native String monetdbe_clear_bindings(ByteBuffer db, ByteBuffer stmt);
 
     /**

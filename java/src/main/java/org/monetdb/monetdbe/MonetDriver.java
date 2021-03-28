@@ -23,18 +23,27 @@ import java.util.logging.Logger;
  * where [:&lt;port&gt;] denotes that a port is optional. If not
  * given, the default (50000) will be used.
  *
- * <p>Additional connection properties can be set in the URL, with the following format:
- * {@code jdbc:monetdb:memory:?property=propertyValue}</p>
+ * <p>Additional connection properties can be set in the URL query, with the following format:</p>
+ * {@code
+ * jdbc:monetdb:memory:?property=propertyValue
+ * }
+ *
+ * Or they can be set through the Properties object passed as an argument to DriverManager.getConnection():
+ * <pre>{@code
+ * Properties props = new Properties();
+ * props.setProperty("autocommit","false");
+ * Connection c = DriverManager.getConnection("jdbc:monetdb:memory:", props);
+ * }</pre>
  *
  * Available properties:
  * <ul>
- *     <li>user</li>
- *     <li>password</li>
- *     <li>autocommit</li>
- *     <li>session_timeout</li>
- *     <li>query_timeout</li>
- *     <li>memory_limit</li>
- *     <li>nr_threads</li>
+ *     <li><b>user</b> - Username for remote connections</li>
+ *     <li><b>password</b> - Password for remote connections</li>
+ *     <li><b>autocommit</b> - Autocommit mode</li>
+ *     <li><b>session_timeout</b> - Session timeout, time in seconds to terminate session</li>
+ *     <li><b>query_timeout</b> - Query timeout, time in seconds to terminate single query</li>
+ *     <li><b>memory_limit</b> - Memory limit in MBs</li>
+ *     <li><b>nr_threads</b> - Maximum number of worker treads</li>
  * </ul>
  */
 final public class MonetDriver implements java.sql.Driver {
@@ -48,6 +57,7 @@ final public class MonetDriver implements java.sql.Driver {
     static final String MONETURL = "jdbc:monetdb:";
     /** The prefix of a MAPI URL (remote connection) */
     static final String MAPIURL = "mapi:monetdb:";
+    /** The in-memory database URL */
     static final String MEMORYURL = "jdbc:monetdb:memory:";
 
     static {
@@ -83,7 +93,7 @@ final public class MonetDriver implements java.sql.Driver {
             //Remove leading 'jdbc:monetdb:file:' from directory path
             String path = url.substring(18);
             if (path.indexOf('?') != -1)
-                //Remove URL query from end of string
+                //Remove URL query from end of string if it exists
                 info.put("path",path.substring(0,path.indexOf('?')));
             else
                 info.put("path",path);
@@ -92,7 +102,6 @@ final public class MonetDriver implements java.sql.Driver {
 
         //Parse additional options in URL query string
         if (url.contains("?")) {
-            //TODO Is this substring operation correct for getting the URL query from the local and memory URL formats?
             parseOptions(url.substring(url.lastIndexOf('?') +1),info);
         }
         return new MonetConnection(info);

@@ -192,7 +192,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     @Override
     public int[] executeBatch() throws SQLException {
-        //TODO Implement BatchUpdateException
         checkNotClosed();
         if (parametersBatch == null || parametersBatch.isEmpty()) {
             return new int[0];
@@ -213,7 +212,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             try {
                 count = executeUpdate();
             } catch (SQLException e) {
-                //Query returned a resultSet, throw BatchUpdateException
+                //Query returned a resultSet or query failed, throw BatchUpdateException
                 throw new BatchUpdateException();
             }
             if (count >= 0) {
@@ -265,7 +264,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             try {
                 count = executeLargeUpdate();
             } catch (SQLException e) {
-                //Query returned a resultSet, throw BatchUpdateException
+                //Query returned a resultSet or query failed, throw BatchUpdateException
                 throw new BatchUpdateException();
             }
             if (count >= 0) {
@@ -374,8 +373,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void clearParameters() throws SQLException {
         //TODO: Use cleanup function which doesn't clean up the Prepared Statement
         checkNotClosed();
-        MonetNative.monetdbe_clear_bindings(conn.dbNative,statementNative);
-        //MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
+        //MonetNative.monetdbe_clear_bindings(conn.dbNative,statementNative);
+        MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
         close();
     }
 
@@ -722,11 +721,16 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        //TODO Add check for SQL Types we don't support, throw SQLFeatureNotSupportedException in those cases
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
         int monettype = MonetTypes.getMonetTypeFromSQL(sqlType);
+
+        //If we don't support the sqlType, throw exception. 14 corresponds to monetdbe_type_unkown
+        if (monettype == 14) {
+            throw new SQLFeatureNotSupportedException("sqlType not supported");
+        }
+
         String error_msg = MonetNative.monetdbe_bind_null(conn.getDbNative(),monettype,statementNative,parameterIndex-1);
         if (error_msg != null) {
             throw new SQLException(error_msg);

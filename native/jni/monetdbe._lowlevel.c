@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 
+//TODO Add ifdef MONETDB_VERSION to exclude code if the version is older
 void set_options_mapi (JNIEnv *env, monetdbe_options *opts, jstring j_port, jstring j_sock) {
     //MAPI server
     if (j_port != NULL && j_sock != NULL) {
@@ -16,6 +17,7 @@ void set_options_mapi (JNIEnv *env, monetdbe_options *opts, jstring j_port, jstr
     }
 }
 
+//TODO Add ifdef MONETDB_VERSION to exclude code if the version is older
 void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password) {
     //Remote proxy
     if (j_host != NULL && j_port > 0 && j_user != NULL && j_password != NULL)
@@ -652,7 +654,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 
     monetdbe_data_blob *bind_data = malloc(sizeof(monetdbe_data_blob));
     bind_data->size = size;
-    //TODO Is this cast incorrect?
     bind_data->data = (char *)c_data;
     jstring ret_str = bind_parsed_data(env, j_stmt, bind_data, (int)parameter_nr);
 
