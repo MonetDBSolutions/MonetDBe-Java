@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>org.monetdb</groupId>
-        <artifactId>monetdbe-java</artifactId>
+        <artifactId>monetdbe-java-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
