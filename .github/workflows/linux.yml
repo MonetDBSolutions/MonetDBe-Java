@@ -23,7 +23,5 @@ jobs:
       uses: stCarolas/setup-maven@v4
     - name: Build with Maven
       run: mvn -B package --file pom.xml -DMonetDB_dir=/usr/local
-    - name: Check dependecies
-      run: jar tf java/target/monetdbe-java-src-1.0-SNAPSHOT.jar && ldd java/target/classes/lib/lib* && readelf -d java/target/classes/lib/lib*
     - name: Run example class (SimpleTypes)
       run: javac -cp java/target/monetdbe-java-src-1.0-SNAPSHOT.jar example/SimpleTypes.java && java -classpath java/target/monetdbe-java-src-1.0-SNAPSHOT.jar:example SimpleTypes

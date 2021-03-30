@@ -18,9 +18,6 @@ public class MonetNative {
     static {
         try {
             String os_name = System.getProperty("os.name").toLowerCase().trim();
-            //Mac -> x86_64, Linux -> amd64
-            String arch = System.getProperty("os.arch").toLowerCase().trim();
-
             String[] dependencyLibs = null;
             String loadLib = null;
 
@@ -42,8 +39,6 @@ public class MonetNative {
                 dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
                 loadLib = "libmonetdbe-lowlevel.dll";
             }
-
-
 
             if (dependencyLibs != null && loadLib != null) {
                 for (String l : dependencyLibs) {
