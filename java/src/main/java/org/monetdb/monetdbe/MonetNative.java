@@ -37,7 +37,7 @@ public class MonetNative {
                 loadLib = "libmonetdbe-lowlevel.dylib";
             } else if (os_name.startsWith("windows")) {
                 dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
-                dependencydependecyLibs = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll"};
+                dependencydependecyLibs = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll","libcrypto-1_1-x64.dll","pcre.dll","libxml2.dll"};
                 loadLib = "libmonetdbe-lowlevel.dll";
             }
 
