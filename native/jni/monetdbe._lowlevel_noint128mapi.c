@@ -498,7 +498,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         if (nParams > 0)
         {
             jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
-            (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, (int *)(*stmt)->type);
+            (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, (jint *)((*stmt)->type));
             jfieldID paramTypesField = (*env)->GetFieldID(env, statementClass, "monetdbeTypes", "[I");
             (*env)->SetObjectField(env, j_statement, paramTypesField, j_parameterTypes);
         }
