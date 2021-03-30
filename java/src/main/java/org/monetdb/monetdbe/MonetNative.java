@@ -22,7 +22,6 @@ public class MonetNative {
             String arch = System.getProperty("os.arch").toLowerCase().trim();
 
             String[] dependencyLibs = null;
-            String[] dependencydependecyLibs = null;
             String loadLib = null;
 
             if (os_name.startsWith("linux")) {
@@ -36,14 +35,15 @@ public class MonetNative {
                 //dependencyLibs = new String[]{"libstream.14.0.4.dylib", "libbat.21.1.2.dylib", "libmapi.12.0.6.dylib", "libmonetdb5.30.0.5.dylib", "libmonetdbsql.11.40.0.dylib", "libmonetdbe.1.0.2.dylib"};
                 loadLib = "libmonetdbe-lowlevel.dylib";
             } else if (os_name.startsWith("windows")) {
+                String[] transitiveDependencies = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll","libcrypto-1_1-x64.dll","pcre.dll","libxml2.dll"};
+                for (String td : transitiveDependencies) {
+                    loadLib(td);
+                }
                 dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
-                dependencydependecyLibs = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll","libcrypto-1_1-x64.dll","pcre.dll","libxml2.dll"};
                 loadLib = "libmonetdbe-lowlevel.dll";
             }
 
-            for (String dd : dependencydependecyLibs) {
-                System.load("C:\\Users\\bernardo\\AppData\\Local\\Temp\\"+ dd);
-            }
+
 
             if (dependencyLibs != null && loadLib != null) {
                 for (String l : dependencyLibs) {

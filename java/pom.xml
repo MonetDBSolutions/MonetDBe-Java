@@ -242,6 +242,19 @@
                                                 <include>monetdbe.dll</include>
                                             </includes>
                                         </resource>
+                                        <resource>
+                                            <directory>${VCPKG_ROOT}\installed\x64-windows\bin\</directory>
+                                            <includes>
+                                                <include>libcrypto-1_1-x64.dll</include>
+                                                <include>iconv-2.dll</include>
+                                                <include>libxml2.dll</include>
+                                                <include>pcre.dll</include>
+                                                <include>zlib1.dll</include>
+                                                <include>lzma.dll</include>
+                                                <include>bz2.dll</include>
+                                                <include>libcurl.dll</include>
+                                            </includes>
+                                        </resource>
                                     </resources>
                                 </configuration>
                             </execution>
