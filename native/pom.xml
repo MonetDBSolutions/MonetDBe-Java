@@ -219,13 +219,11 @@
 
                             <linkerStartOptions>
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
-                                <linkerStartOption>/LIBPATH:"${MonetDB_dir}\bin"</linkerStartOption>
+                                <linkerStartOption>/LIBPATH:"${MonetDB_dir}\lib"</linkerStartOption>
                                 <linkerStartOption>/DLL</linkerStartOption>
+                                <linkerStartOption>/MACHINE:X64</linkerStartOption>
+                                <linkerStartOption>monetdbe.lib</linkerStartOption>
                             </linkerStartOptions>
-
-                            <linkerEndOptions>
-                                <linkerEndOption>-lmonetdbe</linkerEndOption>
-                            </linkerEndOptions>
                         </configuration>
                     </plugin>
                 </plugins>
