@@ -54,10 +54,14 @@ jobs:
           cmake --build . --target INSTALL  --config Release
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
+      - name: Activate VC build tools
+        run: |
+          "C:/Program Files/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+          
       - name: Build with Maven
         run: |
           mvn -B package --file pom.xml "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT"
-          jar tf D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-src-1.0-SNAPSHOT.jar
+          jar tf D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT.jar
       - name: Run example class (SimpleTypes)
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
