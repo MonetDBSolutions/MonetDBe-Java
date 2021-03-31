@@ -57,7 +57,7 @@ jobs:
       - name: Activate VC build tools
         run: |
           "C:/Program Files/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-          
+      - uses: ilammy/msvc-dev-cmd@v1
       - name: Build with Maven
         run: |
           mvn -B package --file pom.xml "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT"

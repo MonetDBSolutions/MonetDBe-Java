@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <!--<distributionManagement>
+    <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -26,18 +26,18 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
-    </distributionManagement>-->
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>nexus-snapshots</id>
-            <url>http://localhost:8081/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
-        <!--<site>
-            <id>javadoc-site</id>
-            <url>https://monetdbsolutions.github.com/MonetDBe-Java</url>
-        </site>-->
     </distributionManagement>
+
+    <!--<distributionManagement>
+         <snapshotRepository>
+             <id>nexus-snapshots</id>
+             <url>http://localhost:8081/nexus/content/repositories/snapshots/</url>
+         </snapshotRepository>
+         <site>
+             <id>javadoc-site</id>
+             <url>https://monetdbsolutions.github.com/MonetDBe-Java</url>
+         </site>
+     </distributionManagement>-->
 
     <scm>
         <connection>scm:git:git@github.com:MonetDBSolutions/MonetDBe-Java.git</connection>
