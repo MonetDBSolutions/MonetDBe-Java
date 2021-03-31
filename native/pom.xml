@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.monetdb</groupId>
+        <groupId>monetdb</groupId>
         <artifactId>monetdbe-java-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
