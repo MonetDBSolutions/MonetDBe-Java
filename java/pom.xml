@@ -39,7 +39,7 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.monetdb</groupId>
+                                            <groupId>monetdb</groupId>
                                             <artifactId>monetdbe-java-native</artifactId>
                                             <version>1.0-SNAPSHOT</version>
                                             <type>so</type>
@@ -122,7 +122,7 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.monetdb</groupId>
+                                            <groupId>monetdb</groupId>
                                             <artifactId>monetdbe-java-native</artifactId>
                                             <version>1.0-SNAPSHOT</version>
                                             <type>dylib</type>
@@ -204,7 +204,7 @@
                                 <configuration>
                                     <artifactItems>
                                         <artifactItem>
-                                            <groupId>org.monetdb</groupId>
+                                            <groupId>monetdb</groupId>
                                             <artifactId>monetdbe-java-native</artifactId>
                                             <version>1.0-SNAPSHOT</version>
                                             <type>dll</type>
