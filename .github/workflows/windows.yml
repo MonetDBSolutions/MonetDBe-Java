@@ -54,11 +54,6 @@ jobs:
           cmake --build . --target INSTALL  --config Release
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
-      - name: Activate VC build tools
-        run: |
-          dir "C:/Program Files"
-          dir "C:/Program Files (x86)"
-          "C:/Program Files/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
       - uses: ilammy/msvc-dev-cmd@v1
       - name: Build with Maven
         run: |

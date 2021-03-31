@@ -96,6 +96,14 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
+    public int getnRows() {
+        return nRows;
+    }
+
+    public int getnColumns() {
+        return nColumns;
+    }
+
     /**
      * Gets the value of the designated column in the current row as an Java object.
      * The type of the Java object will be the default Java object type corresponding to the column's SQL type,

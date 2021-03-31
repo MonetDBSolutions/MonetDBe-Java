@@ -1,3 +1,5 @@
+import org.monetdb.monetdbe.MonetResultSet;
+
 import java.sql.*;
 import java.util.Properties;
 
@@ -36,7 +38,7 @@ public class SimpleTypes {
             Statement s = c.createStatement();
             s.executeQuery("SELECT * FROM simpleT;");
             ResultSet rs = s.getResultSet();
-            System.out.println("Select resultSet: ");
+            System.out.println("Select resultSet (" + ((MonetResultSet)rs).getnRows() + " rows and " + ((MonetResultSet)rs).getnColumns() + " columns): ");
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());
