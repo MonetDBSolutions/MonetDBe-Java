@@ -170,11 +170,8 @@
                                 <linkerStartOption>-L "${MonetDB_dir}\bin"</linkerStartOption>
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
+                                <linkerStartOption>-lmonetdbe</linkerStartOption>
                             </linkerStartOptions>
-
-                            <linkerEndOptions>
-                                <linkerEndOption>-lmonetdbe</linkerEndOption>
-                            </linkerEndOptions>
                         </configuration>
                     </plugin>
                 </plugins>
