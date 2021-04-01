@@ -54,7 +54,8 @@ jobs:
           cmake --build . --target INSTALL  --config Release
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
-      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup VC tools
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Build with Maven
         run: |
           mvn -B package --file pom.xml "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT"

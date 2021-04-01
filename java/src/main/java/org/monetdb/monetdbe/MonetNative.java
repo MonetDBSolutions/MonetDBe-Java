@@ -73,7 +73,7 @@ public class MonetNative {
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
-        Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -88,7 +88,7 @@ public class MonetNative {
         }
         //Path temp_lib = Files.createTempFile(libName,"");
         //Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
-        Path temp_lib = new java.io.File(System.getProperty("java.io.tmpdir") + libName).toPath();
+        Path temp_lib = new java.io.File(System.getProperty("java.io.tmpdir") + "/" +  libName).toPath();
         Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
         System.load(temp_lib.toString());
     }

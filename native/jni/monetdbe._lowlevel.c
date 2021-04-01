@@ -649,8 +649,10 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
         monetdbe_types null_type = (monetdbe_types)type;
     #else
         //If int128 is not defined, add 1 to type to "align" the types after size_t with versions with int128 defined
-        if (type > 5)
-            monetdbe_types null_type = (monetdbe_types) (type+1);
+        if (type > 5) {
+            type = type+1;
+        }
+        monetdbe_types null_type = (monetdbe_types) type;
     #endif
     const void *null_ptr = monetdbe_null(db, null_type);
 
