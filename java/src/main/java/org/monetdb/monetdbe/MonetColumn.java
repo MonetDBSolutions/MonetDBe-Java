@@ -18,7 +18,6 @@ import java.util.BitSet;
  * for retrieving values from the column through the getX() methods. Allows type conversion according to the JDBC standard
  * (follows table B6 of the JDBC 4.3 specification).
  */
-//TODO Fix monetdbe_types (if there is no int128, 5 is size_t and 6 is float)
 public class MonetColumn {
     /** Stores constant length types */
     private ByteBuffer constData;

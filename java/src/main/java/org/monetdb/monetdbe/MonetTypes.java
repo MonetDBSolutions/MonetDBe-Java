@@ -7,7 +7,6 @@ import java.sql.*;
 /**
  * Helper class to convert between MonetDBe types, JDBC SQL types and Java classes.
  */
-//TODO Fix monetdbe_types (if there is no int128, 5 is size_t and 6 is float)
 public class MonetTypes {
     static java.util.Map<Integer, Integer> typeMapMonetToSQL = new java.util.HashMap<Integer, Integer>();
     static {

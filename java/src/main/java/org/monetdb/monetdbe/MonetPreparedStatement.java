@@ -49,7 +49,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * @param conn parent connection
      * @param sql query to prepare
      */
-    //TODO Fix monetdbe_types (if there is no int128, 5 is size_t and 6 is float)
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
         String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
@@ -244,7 +243,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * @throws BatchUpdateException if one of the commands sent to the database fails to execute properly or attempts to return a result set
      */
     public long[] executeLargeBatch() throws SQLException {
-        //TODO Implement BatchUpdateException
         checkNotClosed();
         if (parametersBatch == null || parametersBatch.isEmpty()) {
             return new long[0];
@@ -725,7 +723,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        //TODO Fix monetdbe_types (if there is no int128, 5 is size_t and 6 is float)
         int monettype = MonetTypes.getMonetTypeFromSQL(sqlType);
 
         //If we don't support the sqlType, throw exception. 14 corresponds to monetdbe_type_unkown
