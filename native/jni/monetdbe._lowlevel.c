@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdio.h>
 
-//TODO Add ifdef MONETDB_VERSION to exclude code if the version is older
 void set_options_mapi (JNIEnv *env, monetdbe_options *opts, jstring j_port, jstring j_sock) {
     #ifdef MONETDBE_VERSION
         //MAPI server
@@ -19,7 +18,6 @@ void set_options_mapi (JNIEnv *env, monetdbe_options *opts, jstring j_port, jstr
     #endif
 }
 
-//TODO Add ifdef MONETDB_VERSION to exclude code if the version is older
 void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password) {
     #ifdef MONETDBE_VERSION
         //Remote proxy
@@ -52,8 +50,10 @@ monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_queryti
     opts->querytimeout = (int)j_querytimeout;
     opts->sessiontimeout = (int)j_sessiontimeout;
     opts->nr_threads = (int)j_nr_threads;
-    opts->remote = NULL;
-    opts->mapi_server = NULL;
+    #ifdef MONETDBE_VERSION
+        opts->remote = NULL;
+        opts->mapi_server = NULL;
+    #endif
     return opts;
 }
 
@@ -437,9 +437,9 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, monetdbe_int64_t, 64 * c_int64_t->count, i, c_int64_t->scale);
                 break;
             }
-            case monetdbe_int128_t:
-            {
-                #ifdef HAVE_HGE
+            #ifdef HAVE_HGE
+                case monetdbe_int128_t:
+                {
                     monetdbe_column_int128_t *c_int128_t = (monetdbe_column_int128_t *)(*column);
                     for (int i = 0; i < c_int128_t->count; i++)
                     {
@@ -449,9 +449,9 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                     addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, monetdbe_int128_t, 128 * c_int128_t->count, i, c_int128_t->scale);
-                #endif
-                break;
-            }
+                    break;
+                }
+            #endif
             case monetdbe_float:
             {
                 monetdbe_column_float *c_float = (monetdbe_column_float *)(*column);
@@ -650,7 +650,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     {
         printf("%d %x\n", i, c_data[i]);
     }
-    printf("size: %ld\n", size);
+    printf("size: %ld\n", (long) size);
     fflush(stdout);
 
     monetdbe_data_blob *bind_data = malloc(sizeof(monetdbe_data_blob));
