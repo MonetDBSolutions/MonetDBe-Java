@@ -220,7 +220,12 @@ void addColumnVar(JNIEnv *env, jobjectArray j_columns, int index, int type, char
     jstring j_name = (*env)->NewStringUTF(env, (const char *)name);
     jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
-    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type, j_data);
+    //If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+    #ifdef HAVE_HGE
+        jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type, j_data);
+    #else
+        jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type+1, j_data);
+    #endif
     (*env)->SetObjectArrayElement(env, j_columns, index, j_column_object);
 }
 
@@ -462,9 +467,12 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_float->data[i] = 0;
                     }
                 }
-                printf("Float with type %d and %d rows\n", monetdbe_float, c_float->count);
-                fflush(stdout);
-                addColumnConst(env, j_columns, c_float->data, c_float->name, monetdbe_float, 32 * c_float->count, i, 0);
+                //If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+                #ifdef HAVE_HGE
+                    addColumnConst(env, j_columns, c_float->data, c_float->name, monetdbe_float, 32 * c_float->count, i, 0);
+                #else
+                    addColumnConst(env, j_columns, c_float->data, c_float->name, monetdbe_float+1, 32 * c_float->count, i, 0);
+                #endif
                 break;
             }
             case monetdbe_double:
@@ -477,7 +485,12 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_double->data[i] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_double->data, c_double->name, monetdbe_double, 64 * c_double->count, i, 0);
+                //If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+                #ifdef HAVE_HGE
+                    addColumnConst(env, j_columns, c_double->data, c_double->name, monetdbe_double, 64 * c_double->count, i, 0);
+                #else
+                    addColumnConst(env, j_columns, c_double->data, c_double->name, monetdbe_double+1, 64 * c_double->count, i, 0);
+                #endif
                 break;
             }
             case monetdbe_str:
