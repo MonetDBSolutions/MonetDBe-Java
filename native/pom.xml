@@ -151,7 +151,7 @@
                                 <source>
                                     <directory>${project.basedir}\jni\</directory>
                                     <fileNames>
-                                        <fileName>monetdbe._lowlevel_noint128mapi.c</fileName>
+                                        <fileName>monetdbe._lowlevel.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>
@@ -204,7 +204,7 @@
                                 <source>
                                     <directory>${project.basedir}\jni\</directory>
                                     <fileNames>
-                                        <fileName>monetdbe._lowlevel_noint128mapi.c</fileName>
+                                        <fileName>monetdbe._lowlevel.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>

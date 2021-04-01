@@ -96,11 +96,11 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         }
     }
 
-    public int getnRows() {
+    public int getRowsNumber() {
         return nRows;
     }
 
-    public int getnColumns() {
+    public int getColumnsNumber() {
         return nColumns;
     }
 

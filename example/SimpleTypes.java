@@ -38,7 +38,7 @@ public class SimpleTypes {
             Statement s = c.createStatement();
             s.executeQuery("SELECT * FROM simpleT;");
             ResultSet rs = s.getResultSet();
-            System.out.println("Select resultSet (" + ((MonetResultSet)rs).getnRows() + " rows and " + ((MonetResultSet)rs).getnColumns() + " columns): ");
+            System.out.println("Select resultSet (" + ((MonetResultSet)rs).getRowsNumber() + " rows and " + ((MonetResultSet)rs).getColumnsNumber() + " columns): ");
             rs.beforeFirst();
             while (rs.next()) {
                 System.out.println("Row " + rs.getRow());

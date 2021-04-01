@@ -6,39 +6,43 @@
 
 //TODO Add ifdef MONETDB_VERSION to exclude code if the version is older
 void set_options_mapi (JNIEnv *env, monetdbe_options *opts, jstring j_port, jstring j_sock) {
-    //MAPI server
-    if (j_port != NULL && j_sock != NULL) {
-        const char *port = (*env)->GetStringUTFChars(env, j_port, NULL);
-        const char *sock = (*env)->GetStringUTFChars(env, j_sock, NULL);
-        monetdbe_mapi_server *mapi = malloc(sizeof(monetdbe_mapi_server));
-        mapi->port = port;
-        mapi->usock = sock;
-        opts->mapi_server = mapi;
-    }
+    #ifdef MONETDBE_VERSION
+        //MAPI server
+        if (j_port != NULL && j_sock != NULL) {
+            const char *port = (*env)->GetStringUTFChars(env, j_port, NULL);
+            const char *sock = (*env)->GetStringUTFChars(env, j_sock, NULL);
+            monetdbe_mapi_server *mapi = malloc(sizeof(monetdbe_mapi_server));
+            mapi->port = port;
+            mapi->usock = sock;
+            opts->mapi_server = mapi;
+        }
+    #endif
 }
 
 //TODO Add ifdef MONETDB_VERSION to exclude code if the version is older
 void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password) {
-    //Remote proxy
-    if (j_host != NULL && j_port > 0 && j_user != NULL && j_password != NULL)
-    {
-        const char *user = (*env)->GetStringUTFChars(env, j_user, NULL);
-        const char *password = (*env)->GetStringUTFChars(env, j_password, NULL);
-        const char *host = (*env)->GetStringUTFChars(env, j_host, NULL);
-        const char *database = (*env)->GetStringUTFChars(env, j_database, NULL);
+    #ifdef MONETDBE_VERSION
+        //Remote proxy
+        if (j_host != NULL && j_port > 0 && j_user != NULL && j_password != NULL)
+        {
+            const char *user = (*env)->GetStringUTFChars(env, j_user, NULL);
+            const char *password = (*env)->GetStringUTFChars(env, j_password, NULL);
+            const char *host = (*env)->GetStringUTFChars(env, j_host, NULL);
+            const char *database = (*env)->GetStringUTFChars(env, j_database, NULL);
 
-        monetdbe_remote *remote = malloc(sizeof(monetdbe_remote));
-        remote->host = host;
-        remote->port = (int)j_port;
-        remote->username = user;
-        remote->password = password;
-        remote->database = database;
-        remote->lang = NULL;
-        opts->remote = remote;
+            monetdbe_remote *remote = malloc(sizeof(monetdbe_remote));
+            remote->host = host;
+            remote->port = (int)j_port;
+            remote->username = user;
+            remote->password = password;
+            remote->database = database;
+            remote->lang = NULL;
+            opts->remote = remote;
 
-        //printf("\nRemote options:\nHost: %s\nPort: %d\nDatabase: %s\nUsername: %s\nPassword: %s\n", host, j_port, database, user, password);
-        //fflush(stdout);
-    }
+            //printf("\nRemote options:\nHost: %s\nPort: %d\nDatabase: %s\nUsername: %s\nPassword: %s\n", host, j_port, database, user, password);
+            //fflush(stdout);
+        }
+    #endif
 }
 
 monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
@@ -368,7 +372,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
         {
             switch ((*column)->type)
             {
-            case 0:
+            case monetdbe_bool:
             {
                 monetdbe_column_bool *c_bool = (monetdbe_column_bool *)(*column);
                 for (int i = 0; i < c_bool->count; i++)
@@ -378,10 +382,10 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_bool->data[i] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_bool->data, c_bool->name, 0, 8 * c_bool->count, i, 0);
+                addColumnConst(env, j_columns, c_bool->data, c_bool->name, monetdbe_bool, 8 * c_bool->count, i, 0);
                 break;
             }
-            case 1:
+            case monetdbe_int8_t:
             {
                 monetdbe_column_int8_t *c_int8_t = (monetdbe_column_int8_t *)(*column);
                 for (int i = 0; i < c_int8_t->count; i++)
@@ -391,10 +395,10 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_int8_t->data[i] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, 1, 8 * c_int8_t->count, i, c_int8_t->scale);
+                addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, monetdbe_int8_t, 8 * c_int8_t->count, i, c_int8_t->scale);
                 break;
             }
-            case 2:
+            case monetdbe_int16_t:
             {
                 monetdbe_column_int16_t *c_int16_t = (monetdbe_column_int16_t *)(*column);
                 for (int i = 0; i < c_int16_t->count; i++)
@@ -404,10 +408,10 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_int16_t->data[i] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, 2, 16 * c_int16_t->count, i, c_int16_t->scale);
+                addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, monetdbe_int16_t, 16 * c_int16_t->count, i, c_int16_t->scale);
                 break;
             }
-            case 3:
+            case monetdbe_int32_t:
             {
                 monetdbe_column_int32_t *c_int32_t = (monetdbe_column_int32_t *)(*column);
                 for (int i = 0; i < c_int32_t->count; i++)
@@ -417,10 +421,10 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_int32_t->data[i] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, 3, 32 * c_int32_t->count, i, c_int32_t->scale);
+                addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, monetdbe_int32_t, 32 * c_int32_t->count, i, c_int32_t->scale);
                 break;
             }
-            case 4:
+            case monetdbe_int64_t:
             {
                 monetdbe_column_int64_t *c_int64_t = (monetdbe_column_int64_t *)(*column);
                 for (int i = 0; i < c_int64_t->count; i++)
@@ -430,10 +434,10 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_int64_t->data[i] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, 4, 64 * c_int64_t->count, i, c_int64_t->scale);
+                addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, monetdbe_int64_t, 64 * c_int64_t->count, i, c_int64_t->scale);
                 break;
             }
-            case 5:
+            case monetdbe_int128_t:
             {
                 #ifdef HAVE_HGE
                     monetdbe_column_int128_t *c_int128_t = (monetdbe_column_int128_t *)(*column);
@@ -444,14 +448,11 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                             c_int128_t->data[i] = 0;
                         }
                     }
-                    addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, 5, 128 * c_int128_t->count, i, c_int128_t->scale);
+                    addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, monetdbe_int128_t, 128 * c_int128_t->count, i, c_int128_t->scale);
                 #endif
                 break;
             }
-            case 6:
-                //size_t should not be returned to the Java layer
-                break;
-            case 7:
+            case monetdbe_float:
             {
                 monetdbe_column_float *c_float = (monetdbe_column_float *)(*column);
                 for (int i = 0; i < c_float->count; i++)
@@ -461,10 +462,10 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_float->data[i] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_float->data, c_float->name, 7, 32 * c_float->count, i, 0);
+                addColumnConst(env, j_columns, c_float->data, c_float->name, monetdbe_float, 32 * c_float->count, i, 0);
                 break;
             }
-            case 8:
+            case monetdbe_double:
             {
                 monetdbe_column_double *c_double = (monetdbe_column_double *)(*column);
                 for (int i = 0; i < c_double->count; i++)
@@ -474,30 +475,30 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_double->data[i] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_double->data, c_double->name, 8, 64 * c_double->count, i, 0);
+                addColumnConst(env, j_columns, c_double->data, c_double->name, monetdbe_double, 64 * c_double->count, i, 0);
                 break;
             }
-            case 9:
+            case monetdbe_str:
             {
                 parseColumnString(env, j_columns, i, (monetdbe_column_str *)*column);
                 break;
             }
-            case 10:
+            case monetdbe_blob:
             {
                 parseColumnBlob(env, j_columns, i, (monetdbe_column_blob *)*column);
                 break;
             }
-            case 11:
+            case monetdbe_date:
             {
                 parseColumnDate(env, j_columns, i, (monetdbe_column_date *)*column);
                 break;
             }
-            case 12:
+            case monetdbe_time:
             {
                 parseColumnTime(env, j_columns, i, (monetdbe_column_time *)*column);
                 break;
             }
-            case 13:
+            case monetdbe_timestamp:
             {
                 parseColumnTimestamp(env, j_columns, i, (monetdbe_column_timestamp *)*column);
                 break;
@@ -548,7 +549,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         if (nParams > 0)
         {
             jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
-            (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, (int *)(*stmt)->type);
+            (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, (jint *)(*stmt)->type);
             jfieldID paramTypesField = (*env)->GetFieldID(env, statementClass, "monetdbeTypes", "[I");
             (*env)->SetObjectField(env, j_statement, paramTypesField, j_parameterTypes);
         }
