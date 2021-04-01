@@ -462,6 +462,8 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_float->data[i] = 0;
                     }
                 }
+                printf("Float with type " + monetdbe_float + " and " + c_float->count +  " rows\n");
+                fflush(stdout);
                 addColumnConst(env, j_columns, c_float->data, c_float->name, monetdbe_float, 32 * c_float->count, i, 0);
                 break;
             }
