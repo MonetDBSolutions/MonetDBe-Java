@@ -28,18 +28,6 @@
         </repository>
     </distributionManagement>
 
-    <!-- Local repository deploy
-    <distributionManagement>
-         <snapshotRepository>
-             <id>nexus-snapshots</id>
-             <url>http://localhost:8081/nexus/content/repositories/snapshots/</url>
-         </snapshotRepository>
-         <site>
-             <id>javadoc-site</id>
-             <url>https://monetdbsolutions.github.com/MonetDBe-Java</url>
-         </site>
-     </distributionManagement>-->
-
     <scm>
         <connection>scm:git:git@github.com:MonetDBSolutions/MonetDBe-Java.git</connection>
         <developerConnection>scm:git:git@github.com:MonetDBSolutions/MonetDBe-Java.git</developerConnection>
@@ -48,7 +36,9 @@
     </scm>
 
     <modules>
+        <!-- libmonetdbe shared library compilation -->
         <module>native</module>
+        <!-- monetdbe-java.jar compilation -->
         <module>java</module>
     </modules>
 
@@ -78,6 +68,7 @@
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>3.0.0</version>
             </plugin>
+
             <!-- DEPLOYMENT -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
@@ -97,7 +88,7 @@
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
-                        <phase>verify</phase>
+                        <phase>deploy</phase>
                         <goals>
                             <goal>sign</goal>
                         </goals>

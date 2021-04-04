@@ -21,12 +21,12 @@ public class PreparedQueries {
         Timestamp ts = Timestamp.valueOf("2007-12-24 14:11:40");
         ps.setTimestamp(8,ts);*/
 
-        System.out.println("Clear parameters");
+        /*System.out.println("Clear parameters");
         ps.clearParameters();
         System.out.println("Set Int");
-        ps.setInt(1,2000);
+        ps.setInt(1,2000);*/
         System.out.println("Executing prepared insert");
-        //ps.execute();
+        ps.execute();
     }
 
     private static void preparedNullInsert (Connection c) throws SQLException {

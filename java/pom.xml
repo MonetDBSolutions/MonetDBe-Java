@@ -52,6 +52,7 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Copy libmonetdbe library dependencies to lib folder -->
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <version>3.0.2</version>
@@ -64,7 +65,6 @@
                                 </goals>
                                 <configuration>
                                     <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
-                                    <!-- This should only include the necessary libraries -->
                                     <resources>
                                         <resource>
                                             <directory>${MonetDB_dir}/lib/</directory>
@@ -135,6 +135,7 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Copy libmonetdbe library dependencies to lib folder -->
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <version>3.0.2</version>
@@ -231,6 +232,7 @@
                                 <configuration>
                                     <outputDirectory>${project.build.outputDirectory}\lib\</outputDirectory>
                                     <resources>
+                                        <!-- MonetDB direct dependencies -->
                                         <resource>
                                             <directory>${MonetDB_dir}\bin\</directory>
                                             <includes>
@@ -242,6 +244,7 @@
                                                 <include>monetdbe.dll</include>
                                             </includes>
                                         </resource>
+                                        <!-- Transitive dependencies -->
                                         <resource>
                                             <directory>${VCPKG_ROOT}\installed\x64-windows\bin\</directory>
                                             <includes>
@@ -267,11 +270,11 @@
 
     <build>
         <plugins>
+            <!-- Copy java.sql.Driver resource file for JDBC -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
                 <executions>
-                    <!-- Copy java.sql.Driver resource file for JDBC -->
                     <execution>
                         <id>copy-driver</id>
                         <phase>compile</phase>
@@ -288,14 +291,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>7</source>
-                    <target>7</target>
-                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -127,13 +127,17 @@
             </build>
         </profile>
 
-        <!-- Windows GCC compilation -->
+        <!-- Windows GCC compilation (use -Dwindowsgcc=true to activate) -->
         <profile>
             <id>windows-gcc</id>
             <activation>
                 <os>
                     <family>windows</family>
                 </os>
+                <property>
+                    <name>windowsgcc</name>
+                    <value>true</value>
+                </property>
             </activation>
             <properties>
                 <packaging.type>dll</packaging.type>
@@ -178,12 +182,17 @@
             </build>
         </profile>
 
+        <!-- Windows MSVC compilation (default windows profile) -->
         <profile>
             <id>windows-msvc</id>
             <activation>
                 <os>
                     <family>windows</family>
                 </os>
+                <property>
+                    <name>windowsgcc</name>
+                    <value>!true</value>
+                </property>
             </activation>
             <properties>
                 <packaging.type>dll</packaging.type>
