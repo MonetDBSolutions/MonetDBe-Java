@@ -58,13 +58,14 @@ jobs:
     - name: Compile and install MonetDB
       run: |
         cd MonetDB
-        mkdir build
+        mkdir build MonetDB-default
         cd build
-        cmake ../ -DPY3INTEGRATION=OFF -DWITH_CRYPTO=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF
+        pwd
+        cmake ../  -DCMAKE_INSTALL_PREFIX=../MonetDB-default/ -DPY3INTEGRATION=OFF -DWITH_CRYPTO=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF
         make install
         cd ../../
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -DMonetDB_dir=/usr/local
+      run: mvn -B package --file pom.xml -DMonetDB_dir=./MonetDB/MonetDB-default
     - name: Run example class (SimpleTypes)
       run: |
         javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/SimpleTypes.java

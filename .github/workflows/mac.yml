@@ -1,0 +1,34 @@
+name: MonetDBe-Java MacOS CI (default build from source)
+on:
+  [push,workflow_dispatch,pull_request]
+
+jobs:
+  mac_build:
+    name: mac_build
+    runs-on: macos-11.0
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Setup Maven
+      uses: stCarolas/setup-maven@v4
+    - name: Get monetdb
+      run: |
+        hg clone http://dev.monetdb.org/hg/MonetDB/
+    - name: Compile and install MonetDB
+      run: |
+        cd MonetDB
+        mkdir build MonetDB-default
+        cd build
+        pwd
+        cmake ../  -DCMAKE_INSTALL_PREFIX=../MonetDB-default/ -DPY3INTEGRATION=OFF -DWITH_CRYPTO=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
+        make install
+        cd ../../
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml -DMonetDB_dir=./MonetDB/MonetDB-default
+    - name: Run example class (SimpleTypes)
+      run: |
+        javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/SimpleTypes.java
+        java -classpath java/target/monetdbe-java-1.0-SNAPSHOT.jar:example SimpleTypes
