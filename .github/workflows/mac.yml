@@ -16,7 +16,7 @@ jobs:
       uses: stCarolas/setup-maven@v4
     - name: Get monetdb
       run: |
-        hg clone http://dev.monetdb.org/hg/MonetDB/
+        git clone https://github.com/MonetDB/MonetDB
     - name: Compile and install MonetDB
       run: |
         cd MonetDB
