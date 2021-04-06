@@ -180,7 +180,7 @@
             </build>
         </profile>
 
-        <!-- Windows compilation -->
+        <!-- Windows compilation (MSVC and MinGW) -->
         <profile>
             <id>windows</id>
             <activation>

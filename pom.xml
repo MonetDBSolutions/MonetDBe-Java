@@ -10,11 +10,23 @@
     <url>https://www.monetdb.org</url>
     <packaging>pom</packaging>
 
+    <developers>
+        <developer>
+            <id>bernardo</id>
+            <name>Bernardo Mota</name>
+            <email>bernardo.mota@monetdbsolutions.com</email>
+            <organization>MonetDB</organization>
+            <organizationUrl>https://www.monetdb.org</organizationUrl>
+        </developer>
+    </developers>
+
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <repository.user>MonetDBSolutions</repository.user>
+        <repository.name>MonetDBe-Java</repository.name>
     </properties>
 
     <distributionManagement>
@@ -35,6 +47,11 @@
         <tag>monetdbe-java</tag>
     </scm>
 
+    <issueManagement>
+        <url>https://www.github.com/${repository.user}/${repository.name}/issues</url>
+        <system>Github Issues</system>
+    </issueManagement>
+
     <modules>
         <!-- libmonetdbe shared library compilation -->
         <module>native</module>
@@ -44,8 +61,22 @@
 
     <build>
         <plugins>
-            <!-- DOCUMENTATION -->
-            <!--<plugin>
+            <!-- Jar with source files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Jar with documentation -->
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.2.0</version>
@@ -55,21 +86,14 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <!-- Here to suppress an error that mvn throws (Error fetching link javadoc-bundle-options) -->
+                        <configuration>
+                            <release>11</release>
+                        </configuration>
                     </execution>
                 </executions>
-            </plugin>-->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.7.1</version>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>3.0.0</version>
-            </plugin>
-
-            <!-- DEPLOYMENT -->
+            <!-- Deployment plugins -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -95,7 +119,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
@@ -105,11 +129,24 @@
                     <releaseProfiles>release</releaseProfiles>
                     <goals>deploy</goals>
                 </configuration>
+            </plugin>
+
+            <!-- DOCUMENTATION (Maybe not necessary, deployed outside of maven)
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.6</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.7.1</version>
             </plugin>-->
         </plugins>
     </build>
 
-    <!--<reporting>
+    <!-- DOCUMENTATION (Maybe not necessary, deployed outside of maven)
+    <reporting>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
