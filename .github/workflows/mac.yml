@@ -14,6 +14,9 @@ jobs:
         java-version: 1.8
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
+    - name: Install bison
+      run: |
+        brew install bison openssl
     - name: Get monetdb
       run: |
         git clone https://github.com/MonetDB/MonetDB
