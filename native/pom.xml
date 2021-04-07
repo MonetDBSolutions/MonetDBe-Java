@@ -184,7 +184,7 @@
 
         <!-- Windows MSVC compilation (default windows profile) -->
         <profile>
-            <id>windows-msvc</id>
+            <id>windows</id>
             <activation>
                 <os>
                     <family>windows</family>

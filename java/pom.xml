@@ -266,6 +266,38 @@
                 </plugins>
             </build>
         </profile>
+
+        <!-- Fat Jar package -->
+        <profile>
+            <id>fatjar</id>
+            <build>
+                <plugins>
+                    <!-- Copy all libraries to lib folder -->
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>copy-lib</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}\lib\</outputDirectory>
+                                    <resources>
+                                        <!-- All libraries -->
+                                        <resource>
+                                            <directory>${lib_folder}</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <build>
