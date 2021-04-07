@@ -14,9 +14,6 @@ jobs:
         java-version: 1.8
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
-    - name: Install bison
-      run: |
-        brew install bison openssl
     - name: Get monetdb
       run: |
         git clone https://github.com/MonetDB/MonetDB
@@ -25,12 +22,11 @@ jobs:
         cd MonetDB
         mkdir build MonetDB-default
         cd build
-        pwd
-        cmake ../ -DCMAKE_INSTALL_PREFIX=/home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/ -DPY3INTEGRATION=OFF -DWITH_CRYPTO=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
+        cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/ -DPY3INTEGRATION=OFF -DWITH_CRYPTO=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
         make install
         cd ../../
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -DMonetDB_dir=/home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
+      run: mvn -B package --file pom.xml -DMonetDB_dir=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
     - name: Run example class (SimpleTypes)
       run: |
         javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/SimpleTypes.java
