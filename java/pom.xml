@@ -44,7 +44,7 @@
                                             <version>1.0-SNAPSHOT</version>
                                             <type>so</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                                            <outputDirectory>${project.build.outputDirectory}/lib/linux/</outputDirectory>
                                             <destFileName>libmonetdbe-lowlevel.so</destFileName>
                                         </artifactItem>
                                     </artifactItems>
@@ -64,7 +64,7 @@
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/linux/</outputDirectory>
                                     <resources>
                                         <resource>
                                             <directory>${MonetDB_dir}/lib/</directory>
@@ -127,7 +127,7 @@
                                             <version>1.0-SNAPSHOT</version>
                                             <type>dylib</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                                            <outputDirectory>${project.build.outputDirectory}/lib/mac/</outputDirectory>
                                             <destFileName>libmonetdbe-lowlevel.dylib</destFileName>
                                         </artifactItem>
                                     </artifactItems>
@@ -147,7 +147,7 @@
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
+                                    <outputDirectory>${project.build.outputDirectory}\lib\mac\</outputDirectory>
                                     <resources>
                                         <resource>
                                             <directory>${MonetDB_dir}/lib/</directory>
@@ -210,7 +210,7 @@
                                             <version>1.0-SNAPSHOT</version>
                                             <type>dll</type>
                                             <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
+                                            <outputDirectory>${project.build.outputDirectory}\lib\windows\</outputDirectory>
                                             <destFileName>libmonetdbe-lowlevel.dll</destFileName>
                                         </artifactItem>
                                     </artifactItems>
@@ -230,7 +230,7 @@
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}\lib\</outputDirectory>
+                                    <outputDirectory>${project.build.outputDirectory}\lib\windows\</outputDirectory>
                                     <resources>
                                         <!-- MonetDB direct dependencies -->
                                         <resource>
@@ -267,7 +267,8 @@
             </build>
         </profile>
 
-        <!-- Fat Jar package -->
+        <!-- Fat Jar package
+         (mvn clean package "-Dlib_folder=../fatjar/all64/" -P fatjar,'!mac','!windows','!linux')-->
         <profile>
             <id>fatjar</id>
             <build>
@@ -276,19 +277,24 @@
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <version>3.0.2</version>
+                        <!-- All libraries -->
                         <executions>
                             <execution>
-                                <id>copy-lib</id>
+                                <id>copy-all-lib</id>
                                 <phase>compile</phase>
                                 <goals>
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}\lib\</outputDirectory>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
                                     <resources>
-                                        <!-- All libraries -->
                                         <resource>
-                                            <directory>${lib_folder}</directory>
+                                            <directory>${lib_folder}/lib/</directory>
+                                            <includes>
+                                                <include>linux/**</include>
+                                                <include>mac/**</include>
+                                                <include>windows/**</include>
+                                            </includes>
                                         </resource>
                                     </resources>
                                 </configuration>

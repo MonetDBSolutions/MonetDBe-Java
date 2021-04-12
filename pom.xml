@@ -53,11 +53,32 @@
     </issueManagement>
 
     <modules>
-        <!-- libmonetdbe shared library compilation -->
-        <module>native</module>
-        <!-- monetdbe-java.jar compilation -->
-        <module>java</module>
+
     </modules>
+
+    <profiles>
+        <!-- Build a cross-platform fat jar from a directory containing all the OS libraries
+        (mvn clean package "-Dlib_folder=../fatjar/all64/" -P fatjar,'!mac','!windows','!linux')-->
+        <profile>
+            <id>fatjar</id>
+            <modules>
+                <module>java</module>
+            </modules>
+        </profile>
+        <!-- Build monetdbe-java from the ground up, for a particular OS (default behaviour) -->
+        <profile>
+            <id>full-build</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <!-- libmonetdbe shared library compilation -->
+                <module>native</module>
+                <!-- monetdbe-java.jar compilation -->
+                <module>java</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>

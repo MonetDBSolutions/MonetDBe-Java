@@ -20,38 +20,44 @@ public class MonetNative {
             String os_name = System.getProperty("os.name").toLowerCase().trim();
             String[] dependencyLibs = null;
             String loadLib = null;
+            String directory = null;
 
             if (os_name.startsWith("linux")) {
                 //dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so"};
                 dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
                 //dependencyLibs = new String[]{"libstream.so.14.0.4","libbat.so.21.1.2","libmapi.so.12.0.6","libmonetdb5.so.30.0.5","libmonetdbsql.so.11.40.0","libmonetdbe.so.1.0.2"};
+
                 loadLib = "libmonetdbe-lowlevel.so";
+                directory = "linux";
             } else if (os_name.startsWith("mac")) {
                 //dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
                 dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
                 //dependencyLibs = new String[]{"libstream.14.0.4.dylib", "libbat.21.1.2.dylib", "libmapi.12.0.6.dylib", "libmonetdb5.30.0.5.dylib", "libmonetdbsql.11.40.0.dylib", "libmonetdbe.1.0.2.dylib"};
+
                 loadLib = "libmonetdbe-lowlevel.dylib";
+                directory = "mac";
             } else if (os_name.startsWith("windows")) {
                 String[] transitiveDependencies = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll","libcrypto-1_1-x64.dll","pcre.dll","libxml2.dll"};
                 for (String td : transitiveDependencies) {
-                    loadLib(td);
+                    loadLib("windows",td);
                 }
                 dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
                 loadLib = "libmonetdbe-lowlevel.dll";
+                directory = "windows";
             }
 
-            if (dependencyLibs != null && loadLib != null) {
+            if (dependencyLibs != null && loadLib != null && directory != null) {
                 for (String l : dependencyLibs) {
                     if (loadLib.endsWith(".dll")) {
-                        loadLib(l);
+                        loadLib("windows",l);
                     }
                     else {
-                        copyLib(l);
+                        copyLib(directory,l);
                     }
                 }
                 //Java doesn't allow to load the library from within the jar
                 //It must be copied to a temporary file before loading
-                loadLib(loadLib);
+                loadLib(directory,loadLib);
             }
             else {
                 throw new IOException("Library dependencies could not be found");
@@ -65,11 +71,12 @@ public class MonetNative {
 
     /**
      * Copy libraries to temporary location, to be in the rpath of libmonetdbe-lowlevel
+     * @param directory Directory to copy from. Each OS has its own directory (linux, mac, windows)
      * @param libName Full library name to copy to temporary location
      */
-    static void copyLib(String libName) throws IOException {
+    static void copyLib(String directory, String libName) throws IOException {
         //System.out.println("Copying: " + libName);
-        InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
+        InputStream is = MonetNative.class.getResourceAsStream("/lib/" + directory + "/" + libName);
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
@@ -78,11 +85,12 @@ public class MonetNative {
 
     /**
      * Copy library to temporary location, as Java cannot load it from within the jar
+     * @param directory Directory to copy from. Each OS has its own directory (linux, mac, windows)
      * @param libName Full library name to load with System.load()
      */
-    static void loadLib(String libName) throws IOException {
+    static void loadLib(String directory, String libName) throws IOException {
         //System.out.println("Loading: " + libName);
-        InputStream is = MonetNative.class.getResourceAsStream("/lib/" + libName);
+        InputStream is = MonetNative.class.getResourceAsStream("/lib/" + directory + "/" + libName);
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
