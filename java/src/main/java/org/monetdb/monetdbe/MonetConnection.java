@@ -98,6 +98,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
     /**
      * Helper method to execute SQL statements within Connection methods.
      * Used in commit(), rollback() and setSchema()
+     * @param sql SQL query to execute
+     * @throws SQLException if an exception occurs in createStatement(), execute() or close()
      */
     private void executeCommand(String sql) throws SQLException {
         checkNotClosed();
@@ -150,6 +152,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     /**
      * Helper method to test whether the Connection object is closed
      * When closed, it throws an SQLException
+     * @throws SQLException if the Connection is closed
      */
     private void checkNotClosed() throws SQLException {
         if (isClosed())

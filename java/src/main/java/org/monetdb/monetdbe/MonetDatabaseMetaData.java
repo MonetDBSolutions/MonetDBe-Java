@@ -340,7 +340,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
 
     /**
      * Internal utility method getConcatenatedStringFromQuery(String query)
-     * args: query: SQL SELECT query. Only the output of the first column is concatenated.
+     * @param query: SQL SELECT query. Only the output of the first column is concatenated.
      * @return a String of query result values concatenated into one string, and values separated by comma's
      */
     private String getConcatenatedStringFromQuery(final String query) {
@@ -3879,9 +3879,12 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
     //== internal helper methods which do not belong to the JDBC interface
 
     /**
-     * Internal utility method to create a Statement object, execute a query and return the ResulSet object which allows scrolling.
+     * Internal utility method to create a Statement object, execute a query and return the ResultSet object which allows scrolling.
      * As the Statement object is created internally (the caller does not see it and thus can not close it),
      * we set it to close (and free server resources) when the ResultSet object is closed by the caller.
+     * @param query query to execute
+     * @return the resulting ResultSet object
+     * @throws SQLException error in createStatement(), executeQuery() or close()
      */
     private final ResultSet executeMetaDataQuery(final String query) throws SQLException {
         final Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);

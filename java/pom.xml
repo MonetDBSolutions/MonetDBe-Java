@@ -267,8 +267,7 @@
             </build>
         </profile>
 
-        <!-- Fat Jar package
-         (mvn clean package "-Dlib_folder=../fatjar/all64/" -P fatjar,'!mac','!windows','!linux')-->
+        <!-- Fat Jar package process (activation command in parent pom) -->
         <profile>
             <id>fatjar</id>
             <build>

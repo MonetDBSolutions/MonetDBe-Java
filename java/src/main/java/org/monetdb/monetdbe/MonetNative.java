@@ -71,6 +71,7 @@ public class MonetNative {
      * Copy libraries to temporary location, to be in the rpath of libmonetdbe-lowlevel
      * @param directory Directory to copy from. Each OS has its own directory (linux, mac, windows)
      * @param libName Full library name to copy to temporary location
+     * @throws IOException If the library could not be found
      */
     static void copyLib(String directory, String libName) throws IOException {
         //System.out.println("Copying: " + libName);
@@ -85,6 +86,7 @@ public class MonetNative {
      * Copy library to temporary location, as Java cannot load it from within the jar
      * @param directory Directory to copy from. Each OS has its own directory (linux, mac, windows)
      * @param libName Full library name to load with System.load()
+     * @throws IOException If the library could not be found
      */
     static void loadLib(String directory, String libName) throws IOException {
         //System.out.println("Loading: " + libName);

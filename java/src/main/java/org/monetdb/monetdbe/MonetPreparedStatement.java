@@ -460,11 +460,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     /**
-     * Sets the value of the designated parameter as a bool.
+     * Sets the value of the designated parameter from a bool value.
      *
      * @param parameterIndex Parameter index (starts at 1)
      * @param sqlType the SQL type (as defined in java.sql.Types) of the value to set
      * @param bool value to be set
+     * @throws SQLException if the conversion is not allowed or the BigDecimal object could not be created from the bool
      */
     private void setObjectBool (int parameterIndex, int sqlType, Boolean bool) throws SQLException {
         switch (sqlType) {
@@ -513,13 +514,14 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     /**
-     * Sets the value of the designated parameter as a number type ().
+     * Sets the value of the designated parameter from a number type (Byte, Short, Integer, Float, Double, BigDecimal).
      *
      * @param parameterIndex Parameter index (starts at 1)
      * @param sqlType the SQL type (as defined in java.sql.Types) of the value to set
      * @param num value to be set, as a Number object
      * @param x value to be set, non-cast
      * @param scale scale for Decimal and Numeric types
+     * @throws SQLException if the conversion is not allowed
      */
     private void setObjectNum (int parameterIndex, int sqlType, Number num, Object x, int scale) throws SQLException {
         switch (sqlType) {
@@ -574,11 +576,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     /**
-     * Sets the value of the designated parameter as a date type (Date, Time, Timestamp).
+     * Sets the value of the designated parameter from a date type (Date, Time, Timestamp).
      *
      * @param parameterIndex Parameter index (starts at 1)
      * @param sqlType the SQL type (as defined in java.sql.Types) of the value to set
      * @param x value to be set
+     * @throws SQLException if the conversion is not allowed
      */
     private void setObjectDate (int parameterIndex, int sqlType, Object x) throws SQLException {
         switch (sqlType) {

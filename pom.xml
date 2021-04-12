@@ -52,17 +52,14 @@
         <system>Github Issues</system>
     </issueManagement>
 
-    <modules>
-
-    </modules>
-
     <profiles>
-        <!-- Build and deploy a cross-platform fat jar from a directory containing all the OS libraries,
-        needs to be activated with command:
-        mvn clean package -Dlib_folder=../fatjar/all64/ -P fatjar,'!mac','!windows','!linux'-->
+        <!-- Build and deploy a cross-platform fat jar from a directory containing
+        all the OS libraries, needs to be activated with command:
+        mvn clean package/install/deploy -Dlib_folder=../fatjar/all64/ -P fatjar,'!mac','!windows','!linux' -->
         <profile>
             <id>fatjar</id>
             <modules>
+                <!-- monetdbe-java.jar compilation with cross platform libraries -->
                 <module>java</module>
             </modules>
             <build>

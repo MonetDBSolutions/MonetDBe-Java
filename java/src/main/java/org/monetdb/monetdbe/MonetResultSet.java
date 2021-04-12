@@ -847,6 +847,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     /**
      * Helper method to test whether the ResultSet object is closed
      * When closed, it throws an SQLException
+     * @throws SQLException if the ResultSet object is closed
      */
     private void checkNotClosed() throws SQLException {
         if (isClosed())

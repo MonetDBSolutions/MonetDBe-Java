@@ -44,7 +44,10 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         }
     }
 
-    /** Constructor from a ResultSet returned from a query */
+    /** Constructor from a ResultSet returned from a query
+     * @param columns Array of object representation of a result column, returned from a query
+     * @param ncols Number of columns in ResultSet
+     **/
     MonetResultSetMetaData(MonetColumn[] columns, int ncols) {
         this.names = new String[ncols];
         this.types = new int[ncols];

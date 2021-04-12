@@ -1,3 +1,7 @@
+fatjar/*64/
+other/apidocs/
+
+
 # Compiled class file
 *.class
 

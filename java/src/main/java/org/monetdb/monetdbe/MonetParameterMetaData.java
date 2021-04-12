@@ -20,7 +20,11 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
     /** The name of the Java classes corresponding to the parameters */
     private final String[] javaTypes;
 
-    /** Constructor from types returned from the PREPARE step of a reusable query */
+    /** Constructor from types returned from the PREPARE step of a reusable query
+     *
+     * @param parameterCount Number of parameters in PreparedQuery
+     * @param monetdbeTypes Array of types of parameters in PreparedQuery (monetdbe.h types)
+     **/
     MonetParameterMetaData(int parameterCount, int[] monetdbeTypes) {
         this.parameterCount = parameterCount;
         this.types = monetdbeTypes;
