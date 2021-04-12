@@ -18,6 +18,7 @@ jobs:
       run: |
         brew install bison
         export PATH="$(brew --prefix bison)/bin:$PATH"
+        export LDFLAGS="-L/usr/local/opt/bison/lib"
     - name: Get monetdb
       run: git clone https://github.com/MonetDB/MonetDB
     - name: Compile and install MonetDB
