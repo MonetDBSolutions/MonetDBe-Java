@@ -14,9 +14,12 @@ jobs:
         java-version: 1.8
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
-    - name: Get monetdb
+    - name: Get brew bison
       run: |
-        git clone https://github.com/MonetDB/MonetDB
+        brew install bison
+        export PATH="$(brew --prefix bison)/bin:$PATH"
+    - name: Get monetdb
+      run: git clone https://github.com/MonetDB/MonetDB
     - name: Compile and install MonetDB
       run: |
         cd MonetDB
