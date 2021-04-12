@@ -11,7 +11,7 @@ import java.sql.SQLException;
 /**
  * Interface for C native methods in MonetDBe-Java.
  * Loads the compiled monetdbe_lowlevel C library and the libraries on
- * which it depends (found in the lib/ directory of the jar).
+ * which it depends (found in the lib/ directories of the jar).
  * Because Java can't read libraries from inside the JAR, they are copied to a temporary location before load.
  */
 public class MonetNative {
@@ -37,11 +37,11 @@ public class MonetNative {
                 loadLib = "libmonetdbe-lowlevel.dylib";
                 directory = "mac";
             } else if (os_name.startsWith("windows")) {
+                dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
                 String[] transitiveDependencies = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll","libcrypto-1_1-x64.dll","pcre.dll","libxml2.dll"};
                 for (String td : transitiveDependencies) {
                     loadLib("windows",td);
                 }
-                dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
                 loadLib = "libmonetdbe-lowlevel.dll";
                 directory = "windows";
             }
@@ -64,8 +64,6 @@ public class MonetNative {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            //Try to load through the java.library.path variable
-            //System.loadLibrary("monetdbe-lowlevel");
         }
     }
 
@@ -94,8 +92,6 @@ public class MonetNative {
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
-        //Path temp_lib = Files.createTempFile(libName,"");
-        //Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
         Path temp_lib = new java.io.File(System.getProperty("java.io.tmpdir") + "/" +  libName).toPath();
         Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
         System.load(temp_lib.toString());

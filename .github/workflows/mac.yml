@@ -22,7 +22,7 @@ jobs:
         cd MonetDB
         mkdir build MonetDB-default
         cd build
-        cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/ -DPY3INTEGRATION=OFF -DWITH_CRYPTO=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl
+        cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/ -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl/
         make install
         cd ../../
     - name: Build with Maven
