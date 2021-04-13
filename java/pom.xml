@@ -4,17 +4,17 @@
 
     <parent>
         <groupId>monetdb</groupId>
-        <artifactId>monetdbe-java-parent</artifactId>
-        <version>1.0</version>
+        <artifactId>monetdbe-java</artifactId>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>monetdbe-java</artifactId>
+    <artifactId>monetdbe-java-src</artifactId>
     <packaging>jar</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <properties>
-        <!-- Deploy only this module to maven -->
-        <maven.deploy.skip>false</maven.deploy.skip>
+        <!-- Do not deploy this module to maven -->
+        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <profiles>
@@ -272,8 +272,6 @@
             </build>
         </profile>
 
-        <!-- Fat Jar package and release process
-        mvn clean package/install/deploy -Dlib_folder=../fatjar/all64/ -P fatjar,'!mac','!windows','!linux'-->
         <profile>
             <id>fatjar</id>
             <build>
@@ -305,77 +303,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <!-- Jar with source files -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- Jar with documentation -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.2.0</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <!-- Here to suppress an error that mvn throws (Error fetching link javadoc-bundle-options) -->
-                                <configuration>
-                                    <release>11</release>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- Deployment plugins -->
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org</nexusUrl>
-                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5.3</version>
-                        <configuration>
-                            <autoVersionSubmodules>true</autoVersionSubmodules>
-                            <useReleaseProfile>false</useReleaseProfile>
-                            <releaseProfiles>release</releaseProfiles>
-                            <goals>deploy</goals>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>

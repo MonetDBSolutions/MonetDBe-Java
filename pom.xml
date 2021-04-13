@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>monetdb</groupId>
-    <artifactId>monetdbe-java-parent</artifactId>
-    <version>1.0</version>
+    <artifactId>monetdbe-java</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>MonetDB Embedded JDBC driver</description>
     <url>https://www.monetdb.org</url>
@@ -27,8 +27,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <repository.user>MonetDBSolutions</repository.user>
         <repository.name>MonetDBe-Java</repository.name>
-        <!-- Do not deploy parent pom or monetdbe-native to maven -->
-        <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
     <distributionManagement>
@@ -55,15 +53,85 @@
     </issueManagement>
 
     <profiles>
-        <!-- Build and deploy a cross-platform fat jar from a directory containing
+        <!-- Build a cross-platform fat jar from a directory containing
         all the OS libraries, needs to be activated with command:
-        mvn clean package/install/deploy -Dlib_folder=../fatjar/all64/ -P fatjar,'!mac','!windows','!linux' -->
+        mvn clean package/install/deploy -Dlib_folder=fatjar/1.0/lib -P release,'!fullbuild' -->
         <profile>
-            <id>fatjar</id>
-            <modules>
-                <!-- monetdbe-java.jar compilation with cross platform libraries -->
-                <module>java</module>
-            </modules>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Jar with source files -->
+                    <!--<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>-->
+                    <!-- Jar with documentation -->
+                    <!--<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <release>11</release>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>-->
+                    <!-- Deployment plugins -->
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>2.5.3</version>
+                        <configuration>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <useReleaseProfile>false</useReleaseProfile>
+                            <releaseProfiles>release</releaseProfiles>
+                            <goals>deploy</goals>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <!-- Build monetdbe-java from the ground up, for a particular OS (default behaviour) -->
         <profile>
