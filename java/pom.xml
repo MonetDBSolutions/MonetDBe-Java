@@ -46,7 +46,7 @@
                                         <artifactItem>
                                             <groupId>monetdb</groupId>
                                             <artifactId>monetdbe-java-native</artifactId>
-                                            <version>1.0-SNAPSHOT</version>
+                                            <version>1.0</version>
                                             <type>so</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.outputDirectory}/lib/linux/</outputDirectory>
@@ -129,7 +129,7 @@
                                         <artifactItem>
                                             <groupId>monetdb</groupId>
                                             <artifactId>monetdbe-java-native</artifactId>
-                                            <version>1.0-SNAPSHOT</version>
+                                            <version>1.0</version>
                                             <type>dylib</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.outputDirectory}/lib/mac/</outputDirectory>
@@ -212,7 +212,7 @@
                                         <artifactItem>
                                             <groupId>monetdb</groupId>
                                             <artifactId>monetdbe-java-native</artifactId>
-                                            <version>1.0-SNAPSHOT</version>
+                                            <version>1.0</version>
                                             <type>dll</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.outputDirectory}\lib\windows\</outputDirectory>
