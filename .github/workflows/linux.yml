@@ -19,8 +19,8 @@ jobs:
       run: mvn -B package --file pom.xml -DMonetDB_dir=/usr/local
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/SimpleTypes.java
-        java -classpath java/target/monetdbe-java-1.0-SNAPSHOT.jar:example SimpleTypes
+        javac -cp java/target/monetdbe-java-1.0.jar example/SimpleTypes.java
+        java -classpath java/target/monetdbe-java-1.0.jar:example SimpleTypes
 
   linux_oct_build:
     name: linux_oct_build
@@ -38,8 +38,8 @@ jobs:
       run: mvn -B package --file pom.xml -DMonetDB_dir=/usr/local
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/SimpleTypes.java
-        java -classpath java/target/monetdbe-java-1.0-SNAPSHOT.jar:example SimpleTypes
+        javac -cp java/target/monetdbe-java-1.0.jar example/SimpleTypes.java
+        java -classpath java/target/monetdbe-java-1.0.jar:example SimpleTypes
 
   linux_manual_build:
     name: linux_manual_build
@@ -68,5 +68,5 @@ jobs:
       run: mvn -B package --file pom.xml -DMonetDB_dir=/home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/SimpleTypes.java
-        java -classpath java/target/monetdbe-java-1.0-SNAPSHOT.jar:example SimpleTypes
+        javac -cp java/target/monetdbe-java-1.0.jar example/SimpleTypes.java
+        java -classpath java/target/monetdbe-java-1.0.jar:example SimpleTypes

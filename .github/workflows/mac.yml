@@ -34,5 +34,5 @@ jobs:
       run: mvn -B package --file pom.xml -DMonetDB_dir=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/SimpleTypes.java
-        java -classpath java/target/monetdbe-java-1.0-SNAPSHOT.jar:example SimpleTypes
+        javac -cp java/target/monetdbe-java-1.0.jar example/SimpleTypes.java
+        java -classpath java/target/monetdbe-java-1.0.jar:example SimpleTypes
