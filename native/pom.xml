@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>monetdb</groupId>
-        <artifactId>monetdbe-java-parent</artifactId>
+        <artifactId>monetdbe-java</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
@@ -12,19 +12,14 @@
     <packaging>${packaging.type}</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
 
-    <properties>
-        <!-- Do not deploy this module to maven -->
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
-
     <profiles>
         <!-- Linux compilation -->
         <profile>
             <id>linux</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
                 <os>
                     <family>unix</family>
+                    <name>Linux</name>
                 </os>
             </activation>
             <properties>
@@ -132,61 +127,6 @@
             </build>
         </profile>
 
-        <!-- Windows MinGW GCC compilation (use -Dwindowsgcc=true to activate) -->
-        <profile>
-            <id>windows-gcc</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-                <property>
-                    <name>windowsgcc</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <properties>
-                <packaging.type>dll</packaging.type>
-            </properties>
-            <build>
-                <plugins>
-                    <!-- Compile JNI C library for monetdbe-java-src -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <version>1.0-alpha-9</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <sources>
-                                <source>
-                                    <directory>${project.basedir}\jni\</directory>
-                                    <fileNames>
-                                        <fileName>monetdbe._lowlevel.c</fileName>
-                                    </fileNames>
-                                </source>
-                            </sources>
-                            <compilerProvider>generic</compilerProvider>
-                            <compilerStartOptions>
-                                <!-- MONETDB_PREFIX + include/monetdb/ -->
-                                <compilerStartOption>-I "${MonetDB_dir}\include\monetdb"</compilerStartOption>
-                                <compilerStartOption>-I "${JAVA_HOME}\include\win32"</compilerStartOption>
-                                <compilerStartOption>-I "${JAVA_HOME}\include\win64"</compilerStartOption>
-                                <compilerStartOption>-I "${JAVA_HOME}\include"</compilerStartOption>
-                                <compilerStartOption>-fPIC</compilerStartOption>
-                            </compilerStartOptions>
-
-                            <linkerStartOptions>
-                                <!-- MONETDB_PREFIX + lib OR lib64-->
-                                <linkerStartOption>-L "${MonetDB_dir}\bin"</linkerStartOption>
-                                <linkerStartOption>-shared</linkerStartOption>
-                                <linkerStartOption>-fPIC</linkerStartOption>
-                                <linkerStartOption>-lmonetdbe</linkerStartOption>
-                            </linkerStartOptions>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
         <!-- Windows MSVC compilation (default windows profile) -->
         <profile>
             <id>windows</id>
@@ -241,5 +181,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
