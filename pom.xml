@@ -9,8 +9,7 @@
     <name>${project.groupId}:${project.artifactId}</name>
     <description>MonetDB Embedded JDBC driver</description>
     <url>https://www.monetdb.org</url>
-    <!--<packaging>${packaging.type}</packaging>-->
-    <packaging>pom</packaging>
+    <packaging>${packaging.type}</packaging>
 
     <developers>
         <developer>
@@ -443,6 +442,7 @@
             </build>
         </profile>
 
+        <!-- TODO Maven isn't allowing the packaging type to be set through a property -->
         <!-- Linux/Mac/Windows build: Build native monetdbe-java library from source
             (use option -Dbuilt_type=native to activate, set the -DMonetDB_dir property and set the JAVA_HOME environment variable) -->
         <profile>
