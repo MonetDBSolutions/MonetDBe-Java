@@ -5,11 +5,12 @@
     <parent>
         <groupId>monetdb</groupId>
         <artifactId>monetdbe-java</artifactId>
-        <version>1.0</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>monetdbe-java-native</artifactId>
     <packaging>${packaging.type}</packaging>
+    <description>MonetDBe-Java C shared library (JNI)</description>
     <name>${project.groupId}:${project.artifactId}</name>
 
     <profiles>
@@ -39,7 +40,7 @@
                                 <source>
                                     <directory>${project.basedir}/jni/</directory>
                                     <fileNames>
-                                        <fileName>monetdbe._lowlevel.c</fileName>
+                                        <fileName>monetdbe-java-native.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>
@@ -64,6 +65,8 @@
                             <linkerEndOptions>
                                 <linkerEndOption>-lmonetdbe</linkerEndOption>
                             </linkerEndOptions>
+
+                            <linkerFinalName>monetdbe-java</linkerFinalName>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -95,7 +98,7 @@
                                 <source>
                                     <directory>${project.basedir}/jni/</directory>
                                     <fileNames>
-                                        <fileName>monetdbe._lowlevel.c</fileName>
+                                        <fileName>monetdbe-java-native.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>
@@ -121,13 +124,15 @@
                             <linkerEndOptions>
                                 <linkerEndOption>-lmonetdbe</linkerEndOption>
                             </linkerEndOptions>
+
+                            <linkerFinalName>monetdbe-java</linkerFinalName>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
 
-        <!-- Windows MSVC compilation (default windows profile) -->
+        <!-- Windows compilation -->
         <profile>
             <id>windows</id>
             <activation>
@@ -155,7 +160,7 @@
                                 <source>
                                     <directory>${project.basedir}\jni\</directory>
                                     <fileNames>
-                                        <fileName>monetdbe._lowlevel.c</fileName>
+                                        <fileName>monetdbe-java-native.c</fileName>
                                     </fileNames>
                                 </source>
                             </sources>
@@ -175,10 +180,44 @@
                                 <linkerStartOption>/MACHINE:X64</linkerStartOption>
                                 <linkerStartOption>monetdbe.lib</linkerStartOption>
                             </linkerStartOptions>
+
+                            <linkerFinalName>monetdbe-java</linkerFinalName>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
     </profiles>
+
+    <build>
+        <plugins>
+            <!-- Enforce that MonetDB_dir and JAVA_HOME is set -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-property</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireProperty>
+                                    <property>MonetDB_dir</property>
+                                    <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
+                                </requireProperty>
+                                <requireProperty>
+                                    <property>JAVA_HOME</property>
+                                    <message>You must set the JAVA_HOME property, pointing to the Java installation base directory</message>
+                                </requireProperty>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

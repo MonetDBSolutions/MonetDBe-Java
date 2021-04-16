@@ -24,17 +24,24 @@ public class MonetNative {
 
             if (os_name.startsWith("linux")) {
                 //dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so"};
-                dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
-                //dependencyLibs = new String[]{"libstream.so.14.0.4","libbat.so.21.1.2","libmapi.so.12.0.6","libmonetdb5.so.30.0.5","libmonetdbsql.so.11.40.0","libmonetdbe.so.1.0.2"};
-
-                loadLib = "libmonetdbe-lowlevel.so";
+                //dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
+                //TODO if it's built from source, the sonames could be different
+                dependencyLibs = new String[]{"libstream.so.14.0.4","libbat.so.21.1.3","libmapi.so.12.0.6","libmonetdb5.so.30.0.6","libmonetdbsql.so.11.40.0","libmonetdbe.so.1.0.2"};
+                String[] transitiveDependencies = new String[]{"libcrypto.1.1.dylib","libcurl.4.dylib","liblz4.1.dylib","liblzma.5.dylib","libpcre.0.dylib","libsnappy.1.dylib","libxml2.2.dylib","libbz2.1.0.dylib"};
+                for (String td : transitiveDependencies) {
+                    copyLib("mac",td);
+                }
+                loadLib = "libmonetdbe-java.so";
                 directory = "linux";
             } else if (os_name.startsWith("mac")) {
                 //dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
                 dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
                 //dependencyLibs = new String[]{"libstream.14.0.4.dylib", "libbat.21.1.2.dylib", "libmapi.12.0.6.dylib", "libmonetdb5.30.0.5.dylib", "libmonetdbsql.11.40.0.dylib", "libmonetdbe.1.0.2.dylib"};
-
-                loadLib = "libmonetdbe-lowlevel.dylib";
+                String[] transitiveDependencies = new String[]{"libcrypto.1.1.dylib","libcurl.4.dylib","liblz4.1.dylib","liblzma.5.dylib","libpcre.0.dylib","libsnappy.1.dylib","libxml2.2.dylib","libbz2.1.0.dylib"};
+                for (String td : transitiveDependencies) {
+                    copyLib("mac",td);
+                }
+                loadLib = "libmonetdbe-java.dylib";
                 directory = "mac";
             } else if (os_name.startsWith("windows")) {
                 dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
@@ -42,7 +49,7 @@ public class MonetNative {
                 for (String td : transitiveDependencies) {
                     loadLib("windows",td);
                 }
-                loadLib = "libmonetdbe-lowlevel.dll";
+                loadLib = "libmonetdbe-java.dll";
                 directory = "windows";
             }
 
@@ -74,7 +81,7 @@ public class MonetNative {
      * @throws IOException If the library could not be found
      */
     static void copyLib(String directory, String libName) throws IOException {
-        //System.out.println("Copying: " + libName);
+        System.out.println("Copying: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + directory + "/" + libName);
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
@@ -89,7 +96,7 @@ public class MonetNative {
      * @throws IOException If the library could not be found
      */
     static void loadLib(String directory, String libName) throws IOException {
-        //System.out.println("Loading: " + libName);
+        System.out.println("Loading: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + directory + "/" + libName);
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
