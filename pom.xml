@@ -9,7 +9,8 @@
     <name>${project.groupId}:${project.artifactId}</name>
     <description>MonetDB Embedded JDBC driver</description>
     <url>https://www.monetdb.org</url>
-    <packaging>${packaging.type}</packaging>
+    <!--<packaging>${packaging.type}</packaging>-->
+    <packaging>pom</packaging>
 
     <developers>
         <developer>
@@ -55,9 +56,6 @@
     </issueManagement>
 
     <profiles>
-
-        <!-- TODO change mechanism for loading in Java (no explicit file names) -->
-
         <!-- TODO Only copy the real shared library and not the links -->
         <!-- Linux build: copy direct dependencies
             (default behaviour; must set the -DMonetDB_dir property) -->
@@ -753,6 +751,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.1</version>
                 <configuration>
                     <classifier>${build.type}</classifier>
                 </configuration>

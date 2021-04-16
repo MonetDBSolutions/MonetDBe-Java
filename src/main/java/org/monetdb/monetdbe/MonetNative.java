@@ -22,6 +22,7 @@ public class MonetNative {
             String loadLib = null;
             String directory = null;
 
+            //TODO change mechanism for loading in Java (no explicit file names)
             if (os_name.startsWith("linux")) {
                 //dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so"};
                 //dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};

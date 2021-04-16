@@ -761,4 +761,5 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1clear_
     monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
     char *error_msg = monetdbe_clear_bindings(db, stmt);
     return (*env)->NewStringUTF(env, (const char *)error_msg);*/
+    return NULL;
 }
