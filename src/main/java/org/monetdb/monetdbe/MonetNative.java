@@ -1,12 +1,13 @@
 package org.monetdb.monetdbe;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
-import java.sql.SQLClientInfoException;
-import java.sql.SQLException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Interface for C native methods in MonetDBe-Java.
@@ -17,62 +18,66 @@ import java.sql.SQLException;
 public class MonetNative {
     static {
         try {
+            //TODO Clean up how I resolve dependencies, this must be horrible
             String os_name = System.getProperty("os.name").toLowerCase().trim();
-            String[] dependencyLibs = null;
-            String loadLib = null;
+            String loadLib = "libmonetdbe-java";
+            String loadLibExtension = null;
             String directory = null;
+            List<String> dependencyDirs = new ArrayList<String>(){{ add("direct"); add("transitive"); }};
 
-            //TODO change mechanism for loading in Java (no explicit file names)
             if (os_name.startsWith("linux")) {
-                //dependencyLibs = new String[]{"libstream.so", "libbat.so", "libmapi.so", "libmonetdb5.so", "libmonetdbsql.so", "libmonetdbe.so"};
-                //dependencyLibs = new String[]{"libstream.so.14", "libbat.so.21", "libmapi.so.12", "libmonetdb5.so.30", "libmonetdbsql.so.11", "libmonetdbe.so.1"};
-                //TODO if it's built from source, the sonames could be different
-                dependencyLibs = new String[]{"libstream.so.14.0.4","libbat.so.21.1.3","libmapi.so.12.0.6","libmonetdb5.so.30.0.6","libmonetdbsql.so.11.40.0","libmonetdbe.so.1.0.2"};
-                String[] transitiveDependencies = new String[]{"libcrypto.1.1.dylib","libcurl.4.dylib","liblz4.1.dylib","liblzma.5.dylib","libpcre.0.dylib","libsnappy.1.dylib","libxml2.2.dylib","libbz2.1.0.dylib"};
-                for (String td : transitiveDependencies) {
-                    copyLib("mac",td);
-                }
-                loadLib = "libmonetdbe-java.so";
+                loadLibExtension = ".so";
                 directory = "linux";
             } else if (os_name.startsWith("mac")) {
-                //dependencyLibs = new String[]{"libstream.dylib", "libbat.dylib", "libmapi.dylib", "libmonetdb5.dylib", "libmonetdbsql.dylib", "libmonetdbe.dylib"};
-                dependencyLibs = new String[]{"libstream.14.dylib", "libbat.21.dylib", "libmapi.12.dylib", "libmonetdb5.30.dylib", "libmonetdbsql.11.dylib", "libmonetdbe.1.dylib"};
-                //dependencyLibs = new String[]{"libstream.14.0.4.dylib", "libbat.21.1.2.dylib", "libmapi.12.0.6.dylib", "libmonetdb5.30.0.5.dylib", "libmonetdbsql.11.40.0.dylib", "libmonetdbe.1.0.2.dylib"};
-                String[] transitiveDependencies = new String[]{"libcrypto.1.1.dylib","libcurl.4.dylib","liblz4.1.dylib","liblzma.5.dylib","libpcre.0.dylib","libsnappy.1.dylib","libxml2.2.dylib","libbz2.1.0.dylib"};
-                for (String td : transitiveDependencies) {
-                    copyLib("mac",td);
-                }
-                loadLib = "libmonetdbe-java.dylib";
+                loadLibExtension = ".dylib";
                 directory = "mac";
             } else if (os_name.startsWith("windows")) {
-                dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
-                String[] transitiveDependencies = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll","libcrypto-1_1-x64.dll","pcre.dll","libxml2.dll"};
-                for (String td : transitiveDependencies) {
-                    loadLib("windows",td);
-                }
-                loadLib = "libmonetdbe-java.dll";
+                loadLibExtension = ".dll";
                 directory = "windows";
             }
 
-            if (dependencyLibs != null && loadLib != null && directory != null) {
-                for (String l : dependencyLibs) {
-                    if (loadLib.endsWith(".dll")) {
-                        loadLib("windows",l);
+            if (loadLibExtension != null) {
+                Map<String,List<String>> dependencyMap = listDependencies("mac",dependencyDirs);
+
+                if (dependencyMap != null) {
+                    for (String dependencyType : dependencyMap.keySet()) {
+                        for (String dependencyLib : dependencyMap.get(dependencyType)) {
+                            //Copy direct and transitive dependencies
+                            copyLib(directory + "/" +dependencyType,dependencyLib);
+                        }
                     }
-                    else {
-                        copyLib(directory,l);
-                    }
+                    System.out.println("Copied dependencies to " + System.getProperty("java.io.tmpdir")+"\n");
+                    //Java doesn't allow to load the library from within the jar
+                    //It must be copied to a temporary file before loading
+                    loadLib(directory,loadLib+loadLibExtension);
                 }
-                //Java doesn't allow to load the library from within the jar
-                //It must be copied to a temporary file before loading
-                loadLib(directory,loadLib);
-            }
-            else {
-                throw new IOException("Library dependencies could not be found");
+                else {
+                    throw new IOException("Library dependencies could not be found");
+                }
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //Returns map with direct and transitive dependencies for the OS, based on the current jar
+    static Map<String,List<String>> listDependencies(String subdirectory, List<String> dependencyDirs) throws IOException {
+        URI uri = null;
+        try {
+            uri = MonetNative.class.getResource("/lib/").toURI();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+        Path libRoot = FileSystems.newFileSystem(uri, Collections.emptyMap()).getPath("/lib/"+ subdirectory);
+        Map<String,List<String>> dependencies = Files.walk(libRoot, 2)
+                .collect(Collectors.groupingBy((path -> path.getParent().getFileName().toString()),
+                        Collectors.mapping(
+                                (paths -> paths.getFileName().toString()),
+                                Collectors.toList())));
+        dependencies.keySet().retainAll(dependencyDirs);
+        return dependencies;
     }
 
     /**
@@ -85,7 +90,7 @@ public class MonetNative {
         System.out.println("Copying: " + libName);
         InputStream is = MonetNative.class.getResourceAsStream("/lib/" + directory + "/" + libName);
         if (is == null) {
-            throw new IOException("Library " + libName +  " could not be found.");
+            throw new IOException("Library " + libName +  " in /lib/" + directory + "/ could not be found.");
         }
         Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
