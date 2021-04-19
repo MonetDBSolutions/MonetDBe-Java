@@ -1,0 +1,9 @@
+Linux and Mac libs have not had their load paths changed
+
+Linux libs compiled from:
+	MonetDB 5 server 11.40.0 (hg id: 8523c6d3ec) (64-bit, 128-bit integers)
+	rpath changed with chrpath -r '$ORIGIN/.' *.so*
+
+Mac libs compiled from:
+	
+	rpath changed with
