@@ -37,7 +37,7 @@ public class MonetNative {
             }
 
             if (loadLibExtension != null) {
-                Map<String,List<String>> dependencyMap = listDependencies("mac",dependencyDirs);
+                Map<String,List<String>> dependencyMap = listDependencies(directory,dependencyDirs);
 
                 if (dependencyMap != null) {
                     for (String dependencyType : dependencyMap.keySet()) {
