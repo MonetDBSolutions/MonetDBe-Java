@@ -54,12 +54,14 @@
 
                             <linkerStartOptions>
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
-                                <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
+                                <!--<linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>-->
                                 <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
-                                <!-- For setting rpath-->
-                                <linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption>
+                                <!-- For setting rpath (should be $ORIGIN/. if direct dependencies are copied, ${MonetDB_dir} otherwise)
+                                     Default dev build should not copy direct dependencies, so this is set to ${MonetDB_dir}/lib-->
+                                <!-- <linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption> -->
+                                <linkerStartOption>-Wl,-rpath,${MonetDB_dir}/lib64</linkerStartOption>
                             </linkerStartOptions>
 
                             <linkerEndOptions>
@@ -114,11 +116,14 @@
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
                                 <!-- Note: On Mac, CMAKE_INSTALL_FULL_LIBDIR returns lib, even for a 64 bit system -->
                                 <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
-                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
+                                <!--<linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>-->
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
-                                <!-- For setting rpath-->
-                                <linkerStartOption>-Wl,-rpath,@loader_path/.</linkerStartOption>
+
+                                <!-- For setting rpath (should be @loader_path/. if direct dependencies are copied, ${MonetDB_dir}/lib otherwise)
+                                     Default dev build should not copy direct dependencies, so this is set to ${MonetDB_dir}/lib -->
+                               <!-- <linkerStartOption>-Wl,-rpath,@loader_path/.</linkerStartOption> -->
+                                <linkerStartOption>-Wl,-rpath,${MonetDB_dir}/lib</linkerStartOption>
                             </linkerStartOptions>
 
                             <linkerEndOptions>

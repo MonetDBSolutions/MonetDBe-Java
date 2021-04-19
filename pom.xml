@@ -55,9 +55,31 @@
     </issueManagement>
 
     <profiles>
-        <!-- TODO Only copy the real shared library and not the links -->
-        <!-- Linux build: copy direct dependencies
-            (default behaviour; must set the -DMonetDB_dir property) -->
+        <!-- DEV BUILD -->
+        <!-- TODO Maven isn't allowing the packaging type to be set through a property -->
+        <!-- Linux/Mac/Windows build: Build native monetdbe-java library from source
+            (default behaviour, you must set the -DMonetDB_dir property and set the JAVA_HOME environment variable) -->
+        <profile>
+            <id>native-build</id>
+            <activation>
+                <property>
+                    <name>!build_type</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- To use the native module to compile the native shared library, we must use pom packaging type -->
+                <packaging.type>pom</packaging.type>
+                <build.type>${os.name}</build.type>
+            </properties>
+            <!-- Compile JNI C library -->
+            <modules>
+                <module>native</module>
+            </modules>
+        </profile>
+
+        <!-- SLIM JAR BUILDS -->
+        <!-- Linux build: copy direct dependencies and pre-compiled native monetdbe-java library
+            (can be enabled by using -Dbuild_type=slimjar; must set the -Dlib_folder property) -->
         <profile>
             <id>linux</id>
             <activation>
@@ -65,271 +87,45 @@
                     <family>unix</family>
                     <name>Linux</name>
                 </os>
-            </activation>
-            <properties>
-                <build.type>linux</build.type>
-            </properties>
-            <build>
-                <plugins>
-                    <!-- Copy libmonetdbe direct dependencies to lib folder -->
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>copy-direct-dependencies</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/lib/linux/</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${MonetDB_dir}/lib/</directory>
-                                            <includes>
-                                                <include>libstream.*</include>
-                                                <include>libbat.*</include>
-                                                <include>libmapi.*</include>
-                                                <include>libmonetdb5.*</include>
-                                                <include>libmonetdbsql.*</include>
-                                                <include>libmonetdbe.*</include>
-                                            </includes>
-                                        </resource>
-                                        <resource>
-                                            <directory>${MonetDB_dir}/lib64/</directory>
-                                            <includes>
-                                                <include>libstream.*</include>
-                                                <include>libbat.*</include>
-                                                <include>libmapi.*</include>
-                                                <include>libmonetdb5.*</include>
-                                                <include>libmonetdbsql.*</include>
-                                                <include>libmonetdbe.*</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- Enforce that MonetDB_dir is set -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>1.4.1</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-property</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <requireProperty>
-                                            <property>MonetDB_dir</property>
-                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
-                                        </requireProperty>
-                                    </rules>
-                                    <fail>true</fail>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- TODO Only copy the real shared library and not the links -->
-        <!-- Mac build: copy direct dependencies
-            (default behaviour; must set the -DMonetDB_dir property) -->
-        <profile>
-            <id>mac</id>
-            <activation>
-                <os>
-                    <family>mac</family>
-                </os>
-            </activation>
-            <properties>
-                <build.type>mac</build.type>
-            </properties>
-            <build>
-                <plugins>
-                    <!-- Copy libmonetdbe direct dependencies to lib folder -->
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>copy-direct-dependencies</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}\lib\mac\</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${MonetDB_dir}/lib/</directory>
-                                            <includes>
-                                                <include>libstream.*</include>
-                                                <include>libbat.*</include>
-                                                <include>libmapi.*</include>
-                                                <include>libmonetdb5.*</include>
-                                                <include>libmonetdbsql.*</include>
-                                                <include>libmonetdbe.*</include>
-                                            </includes>
-                                        </resource>
-                                        <resource>
-                                            <directory>${MonetDB_dir}/lib64/</directory>
-                                            <includes>
-                                                <include>libstream.*</include>
-                                                <include>libbat.*</include>
-                                                <include>libmapi.*</include>
-                                                <include>libmonetdb5.*</include>
-                                                <include>libmonetdbsql.*</include>
-                                                <include>libmonetdbe.*</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- Enforce that MonetDB_dir is set -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>1.4.1</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-property</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <requireProperty>
-                                            <property>MonetDB_dir</property>
-                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
-                                        </requireProperty>
-                                    </rules>
-                                    <fail>true</fail>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- TODO Can the windows version work with only direct dependencies?
-             TODO And not load the transitive ones? (currently copying them all in this profile) -->
-        <!-- Windows build: copy direct dependencies
-            (default behaviour; must set the -DMonetDB_dir and the VCPKG_ROOT properties) -->
-        <profile>
-            <id>windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <build.type>windows</build.type>
-            </properties>
-            <build>
-                <plugins>
-                    <!-- Copy libmonetdbe direct dependencies to lib folder -->
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>copy-direct-dependencies</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}\lib\windows\</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${MonetDB_dir}\bin\</directory>
-                                            <includes>
-                                                <include>stream.dll</include>
-                                                <include>bat.dll</include>
-                                                <include>mapi.dll</include>
-                                                <include>monetdb5.dll</include>
-                                                <include>monetdbsql.dll</include>
-                                                <include>monetdbe.dll</include>
-                                            </includes>
-                                        </resource>
-                                        <!-- TODO Transitive dependencies -->
-                                        <resource>
-                                            <directory>${VCPKG_ROOT}\installed\x64-windows\bin\</directory>
-                                            <includes>
-                                                <include>libcrypto-1_1-x64.dll</include>
-                                                <include>iconv-2.dll</include>
-                                                <include>libxml2.dll</include>
-                                                <include>pcre.dll</include>
-                                                <include>zlib1.dll</include>
-                                                <include>lzma.dll</include>
-                                                <include>bz2.dll</include>
-                                                <include>libcurl.dll</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- Enforce that MonetDB_dir and VCPKG_ROOT is set -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>1.4.1</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-property</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <requireProperty>
-                                            <property>MonetDB_dir</property>
-                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
-                                        </requireProperty>
-                                    </rules>
-                                    <fail>true</fail>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Linux build: copy pre-compiled native monetdbe-java library
-            (default behaviour, can be disabled by using -Dbuild_type=native) -->
-        <profile>
-            <id>linux-native-copy</id>
-            <activation>
-                <os>
-                    <family>unix</family>
-                    <name>Linux</name>
-                </os>
                 <property>
                     <name>build_type</name>
-                    <value>!native</value>
+                    <value>slimjar</value>
                 </property>
             </activation>
+            <properties>
+                <build.type>linux-slim</build.type>
+            </properties>
             <build>
                 <plugins>
-                    <!-- Copy MonetDBe-Java C library dependency -->
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <version>3.0.2</version>
                         <executions>
+                            <!-- Copy libmonetdbe direct dependencies to lib folder -->
+                            <execution>
+                                <id>copy-direct-dependencies</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/linux/direct/</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${lib_folder}/linux/direct</directory>
+                                            <includes>
+                                                <include>libstream.so.*.*.*</include>
+                                                <include>libbat.so.*.*.*</include>
+                                                <include>libmapi.so.*.*.*</include>
+                                                <include>libmonetdb5.so.*.*.*</include>
+                                                <include>libmonetdbsql.so.*.*.*</include>
+                                                <include>libmonetdbe.so.*.*.*</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                            <!-- Copy MonetDBe-Java C library dependency -->
                             <execution>
                                 <id>copy-native-lib</id>
                                 <phase>compile</phase>
@@ -340,7 +136,7 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/linux/</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>${project.basedir}/lib/</directory>
+                                            <directory>${lib_folder}/linux</directory>
                                             <includes>
                                                 <include>libmonetdbe-java.so</include>
                                             </includes>
@@ -350,30 +146,80 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Enforce that lib_folder is set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>lib_folder</property>
+                                            <message>You must set the lib_folder property, pointing to the directory where the direct/transitive libraries are.</message>
+                                        </requireProperty>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
 
-        <!-- Mac build: copy pre-compiled native monetdbe-java library
-            (default behaviour, can be disabled by using -Dbuild_type=native) -->
+        <!-- Mac build: copy direct dependencies and pre-compiled native monetdbe-java library
+            (can be enabled by using -Dbuild_type=slimjar; must set the -Dlib_folder property) -->
         <profile>
-            <id>mac-native-copy</id>
+            <id>mac</id>
             <activation>
                 <os>
                     <family>mac</family>
                 </os>
                 <property>
                     <name>build_type</name>
-                    <value>!native</value>
+                    <value>slimjar</value>
                 </property>
             </activation>
+            <properties>
+                <build.type>mac-slim</build.type>
+            </properties>
             <build>
                 <plugins>
-                    <!-- Copy MonetDBe-Java C library dependency -->
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <version>3.0.2</version>
                         <executions>
+                            <!-- Copy libmonetdbe direct dependencies to lib folder -->
+                            <execution>
+                                <id>copy-direct-dependencies</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/mac/direct/</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${lib_folder}/mac/direct</directory>
+                                            <includes>
+                                                <include>libstream.*.*.*.dylib</include>
+                                                <include>libbat.*.*.*.dylib</include>
+                                                <include>libmapi.*.*.*.dylib</include>
+                                                <include>libmonetdb5.*.*.*.dylib</include>
+                                                <include>libmonetdbsql.*.*.*.dylib</include>
+                                                <include>libmonetdbe.*.*.*.dylib</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                            <!-- Copy MonetDBe-Java C library dependency -->
                             <execution>
                                 <id>copy-native-lib</id>
                                 <phase>compile</phase>
@@ -384,7 +230,7 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/mac/</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>${project.basedir}/lib/</directory>
+                                            <directory>${lib_folder}/mac</directory>
                                             <includes>
                                                 <include>libmonetdbe-java.dylib</include>
                                             </includes>
@@ -394,30 +240,98 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Enforce that lib_folder is set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>lib_folder</property>
+                                            <message>You must set the lib_folder property, pointing to the directory where the direct/transitive libraries are.</message>
+                                        </requireProperty>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
 
-        <!-- Windows build: Copy pre-compiled native monetdbe-java library
-            (default behaviour, can be disabled by using -Dbuild_type=native) -->
+        <!-- TODO Can the windows version work with only the mdbe-java lib?
+             TODO Can the windows version work with only direct dependencies?
+             TODO And not load the transitive ones? (currently copying them all in this profile) -->
+        <!-- Windows build: copy direct dependencies and pre-compiled native monetdbe-java library
+            (can be enabled by using -Dbuild_type=slimjar; must set the -Dlib_folder property) -->
         <profile>
-            <id>windows-native-copy</id>
+            <id>windows</id>
             <activation>
                 <os>
                     <family>windows</family>
                 </os>
                 <property>
                     <name>build_type</name>
-                    <value>!native</value>
+                    <value>slimjar</value>
                 </property>
             </activation>
+            <properties>
+                <build.type>windows-slim</build.type>
+            </properties>
             <build>
                 <plugins>
-                    <!-- Copy MonetDBe-Java C library dependency -->
+
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <version>3.0.2</version>
                         <executions>
+                            <!-- Copy libmonetdbe direct dependencies to lib folder -->
+                            <execution>
+                                <id>copy-direct-dependencies</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}\lib\windows\direct</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${lib_folder}\windows\direct</directory>
+                                            <includes>
+                                                <include>stream.dll</include>
+                                                <include>bat.dll</include>
+                                                <include>mapi.dll</include>
+                                                <include>monetdb5.dll</include>
+                                                <include>monetdbsql.dll</include>
+                                                <include>monetdbe.dll</include>
+                                            </includes>
+                                        </resource>
+                                        <!--<<resource>
+                                            directory>${VCPKG_ROOT}\installed\x64-windows\bin\</directory
+                                            <directory>${lib_folder}/windows/transitive</directory>
+                                            <includes>
+                                                <include>libcrypto-1_1-x64.dll</include>
+                                                <include>iconv-2.dll</include>
+                                                <include>libxml2.dll</include>
+                                                <include>pcre.dll</include>
+                                                <include>zlib1.dll</include>
+                                                <include>lzma.dll</include>
+                                                <include>bz2.dll</include>
+                                                <include>libcurl.dll</include>
+                                            </includes>
+                                        </resource>>-->
+                                    </resources>
+                                </configuration>
+                            </execution>
+                            <!-- Copy MonetDBe-Java C library dependency -->
                             <execution>
                                 <id>copy-native-lib</id>
                                 <phase>compile</phase>
@@ -428,7 +342,7 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/windows/</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>${project.basedir}/lib/</directory>
+                                            <directory>${lib_folder}/windows</directory>
                                             <includes>
                                                 <include>libmonetdbe-java.dll</include>
                                             </includes>
@@ -438,33 +352,35 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Enforce that lib_folder is set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>lib_folder</property>
+                                            <message>You must set the lib_folder property, pointing to the directory where the direct/transitive libraries are.</message>
+                                        </requireProperty>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
 
-        <!-- TODO Maven isn't allowing the packaging type to be set through a property -->
-        <!-- Linux/Mac/Windows build: Build native monetdbe-java library from source
-            (use option -Dbuilt_type=native to activate, set the -DMonetDB_dir property and set the JAVA_HOME environment variable) -->
-        <profile>
-            <id>native-build</id>
-            <activation>
-                <property>
-                    <name>build_type</name>
-                    <value>native</value>
-                </property>
-            </activation>
-            <properties>
-                <!-- To use the native module to compile the native shared library, we must use pom packaging type -->
-                <packaging.type>pom</packaging.type>
-            </properties>
-            <!-- Compile JNI C library -->
-            <modules>
-                <module>native</module>
-            </modules>
-        </profile>
-
-        <!-- Fatjar builds -->
-        <!-- Linux fatjar build: copy transitive dependencies
+        <!-- FAT JAR BUILDS -->
+        <!-- Linux fatjar build: copy direct + transitive dependencies
             (enabled by using -Dbuild_type=fatjar and setting -Dlib_folder to the location of the libraries) -->
         <profile>
             <id>linux-transitive-copy</id>
@@ -474,7 +390,7 @@
                     <name>Linux</name>
                 </os>
                 <property>
-                    <name>buildtype</name>
+                    <name>build_type</name>
                     <value>fatjar</value>
                 </property>
             </activation>
@@ -535,7 +451,7 @@
             </build>
         </profile>
 
-        <!-- Mac fatjar build: copy transitive dependencies
+        <!-- Mac fatjar build: copy direct + transitive dependencies
             (enabled by using -Dbuild_type=fatjar and setting -Dlib_folder to the location of the libraries)-->
         <profile>
             <id>mac-transitive-copy</id>
@@ -544,7 +460,7 @@
                     <family>mac</family>
                 </os>
                 <property>
-                    <name>buildtype</name>
+                    <name>build_type</name>
                     <value>fatjar</value>
                 </property>
             </activation>
@@ -605,7 +521,7 @@
             </build>
         </profile>
 
-        <!-- Windows fatjar build: copy transitive dependencies
+        <!-- Windows fatjar build: copy direct + transitive dependencies
             (enabled by using -Dbuild_type=fatjar and setting -Dlib_folder to the location of the libraries)-->
         <profile>
             <id>windows-transitive-copy</id>
@@ -614,7 +530,7 @@
                     <family>windows</family>
                 </os>
                 <property>
-                    <name>buildtype</name>
+                    <name>build_type</name>
                     <value>fatjar</value>
                 </property>
             </activation>
@@ -749,6 +665,7 @@
 
     <build>
         <plugins>
+            <!-- For setting the classifier -->
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.1.1</version>
