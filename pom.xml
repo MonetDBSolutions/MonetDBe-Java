@@ -114,12 +114,12 @@
                                         <resource>
                                             <directory>${lib_folder}/linux/direct</directory>
                                             <includes>
-                                                <include>libstream.so.*.*.*</include>
-                                                <include>libbat.so.*.*.*</include>
-                                                <include>libmapi.so.*.*.*</include>
-                                                <include>libmonetdb5.so.*.*.*</include>
-                                                <include>libmonetdbsql.so.*.*.*</include>
-                                                <include>libmonetdbe.so.*.*.*</include>
+                                                <include>libstream.so.*</include>
+                                                <include>libbat.so.*</include>
+                                                <include>libmapi.so.*</include>
+                                                <include>libmonetdb5.so.*</include>
+                                                <include>libmonetdbsql.so.*</include>
+                                                <include>libmonetdbe.so.*</include>
                                             </includes>
                                         </resource>
                                     </resources>
@@ -208,12 +208,12 @@
                                         <resource>
                                             <directory>${lib_folder}/mac/direct</directory>
                                             <includes>
-                                                <include>libstream.*.*.*.dylib</include>
-                                                <include>libbat.*.*.*.dylib</include>
-                                                <include>libmapi.*.*.*.dylib</include>
-                                                <include>libmonetdb5.*.*.*.dylib</include>
-                                                <include>libmonetdbsql.*.*.*.dylib</include>
-                                                <include>libmonetdbe.*.*.*.dylib</include>
+                                                <include>libstream.*.dylib</include>
+                                                <include>libbat.*.dylib</include>
+                                                <include>libmapi.*.dylib</include>
+                                                <include>libmonetdb5.*.dylib</include>
+                                                <include>libmonetdbsql.*.dylib</include>
+                                                <include>libmonetdbe.*.dylib</include>
                                             </includes>
                                         </resource>
                                     </resources>
