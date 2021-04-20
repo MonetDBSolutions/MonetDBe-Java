@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
  * which it depends (found in the lib/ directories of the jar).
  * Because Java can't read libraries from inside the JAR, they are copied to a temporary location before load.
  */
+//TODO Clean up libraries in temporary location?
 public class MonetNative {
     static {
         try {
@@ -43,18 +44,16 @@ public class MonetNative {
                     for (String dependencyType : dependencyMap.keySet()) {
                         for (String dependencyLib : dependencyMap.get(dependencyType)) {
                             //Copy direct and transitive dependencies
-                            copyLib(directory + "/" +dependencyType,dependencyLib);
+                            copyLib(directory + "/" + dependencyType,dependencyLib);
                         }
                     }
-                    System.out.println("Copied dependencies to " + System.getProperty("java.io.tmpdir")+"\n");
-                    //Java doesn't allow to load the library from within the jar
-                    //It must be copied to a temporary file before loading
-                    loadLib(directory,loadLib+loadLibExtension);
+                    if (dependencyMap.size() > 0)
+                        System.out.println("Copied dependencies to " + System.getProperty("java.io.tmpdir")+"\n");
                 }
                 else {
                     throw new IOException("Library dependencies could not be found");
                 }
-
+                loadLib(directory,loadLib+loadLibExtension);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,7 +65,7 @@ public class MonetNative {
         URI uri = null;
         try {
             uri = MonetNative.class.getResource("/lib/").toURI();
-        } catch (URISyntaxException e) {
+        } catch (URISyntaxException | NullPointerException e) {
             e.printStackTrace();
             return null;
         }
