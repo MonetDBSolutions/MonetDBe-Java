@@ -7,5 +7,6 @@ Linux libs compiled from:
 	rpath changed with chrpath -r '$ORIGIN/.'
 
 Mac libs compiled from:
-	
+	Default MonetDB 5 server 11.40.0 (hg id: a5c0c9dd80) (64-bit, 128-bit integers)	(/Users/bernardo/Monet/Git-MonetDB2/)
+	Oct MonetDB 5 server 11.39.16 (hg id: 9234a40fbaf7) (64-bit, 128-bit integers) (/Users/bernardo/Monet/MonetDB-Oct2020)
 	rpath changed with
