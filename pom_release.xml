@@ -9,7 +9,7 @@
     <name>${project.groupId}:${project.artifactId}</name>
     <description>MonetDB Embedded JDBC driver</description>
     <url>https://www.monetdb.org</url>
-    <packaging>${packaging.type}</packaging>
+    <packaging>jar</packaging>
 
     <developers>
         <developer>
@@ -28,7 +28,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <repository.user>MonetDBSolutions</repository.user>
         <repository.name>MonetDBe-Java</repository.name>
-        <packaging.type>jar</packaging.type>
     </properties>
 
     <distributionManagement>
@@ -55,28 +54,6 @@
     </issueManagement>
 
     <profiles>
-        <!-- DEV BUILD -->
-        <!-- TODO Maven isn't allowing the packaging type to be set through a property -->
-        <!-- Linux/Mac/Windows build: Build native monetdbe-java library from source
-            (default behaviour, you must set the -DMonetDB_dir property and set the JAVA_HOME environment variable) -->
-        <profile>
-            <id>native-build</id>
-            <activation>
-                <property>
-                    <name>!build_type</name>
-                </property>
-            </activation>
-            <properties>
-                <!-- To use the native module to compile the native shared library, we must use pom packaging type -->
-                <packaging.type>pom</packaging.type>
-                <build.type>${os.name}</build.type>
-            </properties>
-            <!-- Compile JNI C library -->
-            <modules>
-                <module>native</module>
-            </modules>
-        </profile>
-
         <!-- SLIM JAR BUILDS -->
         <!-- Linux build: copy direct dependencies and pre-compiled native monetdbe-java library
             (can be enabled by using -Dbuild_type=slimjar; must set the -Dlib_folder property) -->

@@ -67,8 +67,6 @@
                             <linkerEndOptions>
                                 <linkerEndOption>-lmonetdbe</linkerEndOption>
                             </linkerEndOptions>
-
-                            <linkerFinalName>libmonetdbe-java</linkerFinalName>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -115,8 +113,8 @@
                             <linkerStartOptions>
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
                                 <!-- Note: On Mac, CMAKE_INSTALL_FULL_LIBDIR returns lib, even for a 64 bit system -->
+                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
                                 <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
-                                <!--<linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>-->
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
 
@@ -129,8 +127,6 @@
                             <linkerEndOptions>
                                 <linkerEndOption>-lmonetdbe</linkerEndOption>
                             </linkerEndOptions>
-
-                            <linkerFinalName>libmonetdbe-java</linkerFinalName>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -185,8 +181,6 @@
                                 <linkerStartOption>/MACHINE:X64</linkerStartOption>
                                 <linkerStartOption>monetdbe.lib</linkerStartOption>
                             </linkerStartOptions>
-
-                            <linkerFinalName>libmonetdbe-java</linkerFinalName>
                         </configuration>
                     </plugin>
                 </plugins>

@@ -25,9 +25,8 @@
             </activation>
             <build>
                 <plugins>
-                    <!-- TODO Figure out why the dependency plugin stopped working -->
                     <!-- Copy JNI C library dependency to lib folder -->
-                    <!--<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <version>2.10</version>
@@ -53,30 +52,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>copy-native-lib-new</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/lib/linux/</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${project.basedir}/../native/target</directory>
-                                            <includes>
-                                                <include>libmonetdbe-java.so</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -92,9 +67,8 @@
             </activation>
             <build>
                 <plugins>
-                    <!-- TODO Figure out why the dependency plugin stopped working -->
                     <!-- Copy JNI C library dependency to lib folder -->
-                    <!--<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <version>2.10</version>
@@ -120,30 +94,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>copy-native-lib-new</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/lib/mac/</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${project.basedir}/../native/target</directory>
-                                            <includes>
-                                                <include>libmonetdbe-java.dylib</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -159,9 +109,8 @@
             </activation>
             <build>
                 <plugins>
-                    <!-- TODO Figure out why the dependency plugin stopped working -->
                     <!-- Copy JNI C library dependency to lib folder -->
-                    <!--<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <version>2.10</version>
@@ -187,30 +136,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>copy-native-lib-new</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/lib/windows/</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${project.basedir}/../native/target</directory>
-                                            <includes>
-                                                <include>libmonetdbe-java.dll</include>
-                                            </includes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -219,14 +144,6 @@
 
     <build>
         <plugins>
-            <!-- For setting the jar classifier -->
-            <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.1</version>
-                <configuration>
-                    <classifier>${build.type}</classifier>
-                </configuration>
-            </plugin>
             <!-- Copy java.sql.Driver resource file for JDBC -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
