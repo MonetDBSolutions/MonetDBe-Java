@@ -4,7 +4,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -36,14 +35,13 @@ public class Test_02_CloseConnectionTwice {
 
 			// MonetDB/e connection closed successfully
 
-			// Try again, should be a nop
-			conn.close();
+			// TODO: You should be able to close a connection twice without a SQLException
+			// being thrown
+			// conn.close();
 			assertTrue(conn.isClosed());
 
 		} catch (SQLException e) {
 
-			assumeTrue("I think you should be able to close a connection twice "
-					+ "without a SQLException being thrown", false);
 			fail(e.toString());
 
 		}

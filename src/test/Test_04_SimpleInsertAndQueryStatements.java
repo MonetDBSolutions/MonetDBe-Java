@@ -41,7 +41,7 @@ public class Test_04_SimpleInsertAndQueryStatements {
 				try (ResultSet rs = statement.executeQuery("SELECT * FROM test04;")) {
 					assertEquals(3, ((MonetResultSet) rs).getRowsNumber());
 					assertEquals(3, ((MonetResultSet) rs).getColumnsNumber());
-					
+
 					rs.next();
 					assertEquals(1, rs.getRow());
 					assertEquals(false, rs.getBoolean(1));
