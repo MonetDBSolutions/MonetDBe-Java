@@ -95,7 +95,7 @@
             </properties>
         </profile>
 
-        <!-- Windows developer compilation: only copy pre-compiled native monetdbe-java library
+        <!-- Windows developer/slimjar compilation: copy direct dependencies and pre-compiled native monetdbe-java library
              (default behaviour for Windows, changed by setting -Dbuild_type)  -->
         <profile>
             <id>windows-dev</id>
@@ -112,6 +112,77 @@
                 <os.library.type>dll</os.library.type>
                 <jar.classifier>windows</jar.classifier>
             </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <!-- Copy libmonetdbe direct dependencies to lib folder -->
+                            <execution>
+                                <id>copy-direct-dependencies</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}\lib\windows\direct</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${MonetDB_dir}\bin\</directory>
+                                            <includes>
+                                                <include>stream.dll</include>
+                                                <include>bat.dll</include>
+                                                <include>mapi.dll</include>
+                                                <include>monetdb5.dll</include>
+                                                <include>monetdbsql.dll</include>
+                                                <include>monetdbe.dll</include>
+                                            </includes>
+                                        </resource>
+                                        <!--<<resource>
+                                            directory>${VCPKG_ROOT}\installed\x64-windows\bin\</directory
+                                            <directory>${lib_folder}/windows/transitive</directory>
+                                            <includes>
+                                                <include>libcrypto-1_1-x64.dll</include>
+                                                <include>iconv-2.dll</include>
+                                                <include>libxml2.dll</include>
+                                                <include>pcre.dll</include>
+                                                <include>zlib1.dll</include>
+                                                <include>lzma.dll</include>
+                                                <include>bz2.dll</include>
+                                                <include>libcurl.dll</include>
+                                            </includes>
+                                        </resource>>-->
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Enforce that MonetDB_dir is set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>MonetDB_dir</property>
+                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
+                                        </requireProperty>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <!-- TODO Only copy the major versioned shared libraries (the exclude strategy didn't quite work) -->
@@ -297,7 +368,6 @@
             </properties>
             <build>
                 <plugins>
-
                     <plugin>
                         <artifactId>maven-resources-plugin</artifactId>
                         <version>3.0.2</version>
@@ -323,9 +393,8 @@
                                                 <include>monetdbe.dll</include>
                                             </includes>
                                         </resource>
-                                        <!--<<resource>
-                                            directory>${VCPKG_ROOT}\installed\x64-windows\bin\</directory
-                                            <directory>${lib_folder}/windows/transitive</directory>
+                                        <resource>
+                                            <directory>${VCPKG_ROOT}\installed\x64-windows\bin\</directory>
                                             <includes>
                                                 <include>libcrypto-1_1-x64.dll</include>
                                                 <include>iconv-2.dll</include>
@@ -336,7 +405,7 @@
                                                 <include>bz2.dll</include>
                                                 <include>libcurl.dll</include>
                                             </includes>
-                                        </resource>>-->
+                                        </resource>
                                     </resources>
                                 </configuration>
                             </execution>

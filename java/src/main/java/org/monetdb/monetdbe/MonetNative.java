@@ -40,15 +40,25 @@ public class MonetNative {
             if (loadLibExtension != null) {
                 Map<String,List<String>> dependencyMap = listDependencies(directory,dependencyDirs);
                 if (dependencyMap != null) {
-                    for (String dependencyType : dependencyMap.keySet()) {
-                        for (String dependencyLib : dependencyMap.get(dependencyType)) {
-                            //Copy direct and transitive dependencies
-                            copyLib(directory + "/" + dependencyType,dependencyLib);
-                            if (loadLibExtension.equals(".dll")) {
-                                loadLib(directory + "/" + dependencyType, dependencyLib);
+                    if (!loadLibExtension.equals(".dll")) {
+                        for (String dependencyType : dependencyMap.keySet()) {
+                            for (String dependencyLib : dependencyMap.get(dependencyType)) {
+                                //Copy direct and transitive dependencies
+                                copyLib(directory + "/" + dependencyType,dependencyLib);
                             }
                         }
                     }
+                    else {
+                        String[] transitiveDependencies = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll","libcrypto-1_1-x64.dll","pcre.dll","libxml2.dll"};
+                        for (String td : transitiveDependencies) {
+                            loadLib("windows/transitive/",td);
+                        }
+                        String[] dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
+                        for (String td : dependencyLibs) {
+                            loadLib("windows/direct/",td);
+                        }
+                    }
+
                     if (dependencyMap.size() > 0)
                         System.out.println("Copied dependencies to " + System.getProperty("java.io.tmpdir")+"\n");
                 }
