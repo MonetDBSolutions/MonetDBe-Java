@@ -9,5 +9,7 @@ public class Configuration {
 	protected static final String AUTOCOMMIT_FALSE_PARM = "?autocommit=false";
 
 	protected static final String[] CONNECTIONS = { MEMORY_CONNECTION, LOCAL_CONNECTION };
+	
+	protected static final String TAXI_CSV = "./testdata/taxi/yellow_tripdata_2016-01.csv";
 
 }
