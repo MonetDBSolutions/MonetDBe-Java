@@ -171,7 +171,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
      */
     @Override
     public void close() throws SQLException {
-        checkNotClosed();
+        if (isClosed())
+            return;
         for (MonetStatement s : statements) {
             try {
                 s.close();

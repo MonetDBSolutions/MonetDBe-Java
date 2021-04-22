@@ -503,7 +503,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
             BigDecimal val = columns[columnIndex-1].getBigDecimal(curRow-1);
             if (val == null) {
                 lastReadWasNull = true;
-                return BigDecimal.ZERO;
+                return null;
             }
             lastReadWasNull = false;
             return val;
