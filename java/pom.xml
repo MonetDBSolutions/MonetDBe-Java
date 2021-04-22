@@ -2,95 +2,192 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>monetdb</groupId>
-        <artifactId>monetdbe-java</artifactId>
-        <version>1.0-SNAPSHOT</version>
-    </parent>
-
-    <artifactId>monetdbe-java-jdbc</artifactId>
-    <packaging>jar</packaging>
-    <description>MonetDBe-Java JDBC source</description>
+    <groupId>monetdb</groupId>
+    <artifactId>monetdbe-java</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
+    <description>MonetDB Embedded JDBC driver</description>
+    <url>https://www.monetdb.org</url>
+    <packaging>jar</packaging>
 
+    <developers>
+        <developer>
+            <id>bernardo</id>
+            <name>Bernardo Mota</name>
+            <email>bernardo.mota@monetdbsolutions.com</email>
+            <organization>MonetDB</organization>
+            <organizationUrl>https://www.monetdb.org</organizationUrl>
+        </developer>
+    </developers>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <repository.user>MonetDBSolutions</repository.user>
+        <repository.name>MonetDBe-Java</repository.name>
+        <!--<build.type>${os.name}</build.type>-->
+    </properties>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:git@github.com:MonetDBSolutions/MonetDBe-Java.git</connection>
+        <developerConnection>scm:git:git@github.com:MonetDBSolutions/MonetDBe-Java.git</developerConnection>
+        <url>https://github.com/MonetDBSolutions/MonetDBe-Java</url>
+        <tag>monetdbe-java</tag>
+    </scm>
+
+    <issueManagement>
+        <url>https://www.github.com/${repository.user}/${repository.name}/issues</url>
+        <system>Github Issues</system>
+    </issueManagement>
+
+    <!-- TODO Maybe change the goal of maven-dependency-plugin from copy to copy-lib? It would allow us to mention the dependency before the profile section -->
     <profiles>
-        <!-- Linux compilation -->
+        <!-- DEV BUILDS -->
+        <!-- Linux developer compilation: only copy pre-compiled native monetdbe-java library
+             (default behaviour for Linux, changed by setting -Dbuild_type) -->
         <profile>
-            <id>linux</id>
+            <id>linux-dev</id>
             <activation>
                 <os>
                     <family>unix</family>
                     <name>Linux</name>
                 </os>
+                <property>
+                    <name>!build_type</name>
+                </property>
             </activation>
-            <build>
-                <plugins>
-                    <!-- Copy JNI C library dependency to lib folder -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>2.10</version>
-                        <executions>
-                            <execution>
-                                <id>copy-native-lib</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy</goal>
-                                </goals>
-                                <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>monetdb</groupId>
-                                            <artifactId>monetdbe-java-native</artifactId>
-                                            <version>1.0-SNAPSHOT</version>
-                                            <type>so</type>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.outputDirectory}/lib/linux</outputDirectory>
-                                            <destFileName>libmonetdbe-java.so</destFileName>
-                                        </artifactItem>
-                                    </artifactItems>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
+            <properties>
+                <os.name.clean>linux</os.name.clean>
+                <os.library.type>so</os.library.type>
+                <jar.classifier>linux</jar.classifier>
+            </properties>
         </profile>
 
-        <!-- Mac compilation -->
+        <!-- Mac developer compilation: only copy pre-compiled native monetdbe-java library
+             (default behaviour for Mac, changed by setting -Dbuild_type)  -->
         <profile>
-            <id>mac</id>
+            <id>mac-dev</id>
             <activation>
                 <os>
                     <family>mac</family>
                 </os>
+                <property>
+                    <name>!build_type</name>
+                </property>
             </activation>
+            <properties>
+                <os.name.clean>mac</os.name.clean>
+                <os.library.type>dylib</os.library.type>
+                <jar.classifier>mac</jar.classifier>
+            </properties>
+        </profile>
+
+        <!-- Windows developer compilation: only copy pre-compiled native monetdbe-java library
+             (default behaviour for Windows, changed by setting -Dbuild_type)  -->
+        <profile>
+            <id>windows-dev</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+                <property>
+                    <name>!build_type</name>
+                </property>
+            </activation>
+            <properties>
+                <os.name.clean>windows</os.name.clean>
+                <os.library.type>dll</os.library.type>
+                <jar.classifier>windows</jar.classifier>
+            </properties>
+        </profile>
+
+        <!-- TODO Only copy the major versioned shared libraries (the exclude strategy didn't quite work) -->
+        <!-- TODO Change their rpath (linux and mac) -->
+        <!-- SLIM JAR BUILDS -->
+        <!-- Linux build: copy direct dependencies and pre-compiled native monetdbe-java library
+            (can be enabled by using -Dbuild_type=slimjar; must set the -DMonetDB_dir property) -->
+        <profile>
+            <id>linux-slim</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                    <name>Linux</name>
+                </os>
+                <property>
+                    <name>build_type</name>
+                    <value>slimjar</value>
+                </property>
+            </activation>
+            <properties>
+                <os.name.clean>linux</os.name.clean>
+                <os.library.type>so</os.library.type>
+                <jar.classifier>linux-slim</jar.classifier>
+            </properties>
             <build>
                 <plugins>
-                    <!-- Copy JNI C library dependency to lib folder -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>2.10</version>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
                         <executions>
+                            <!-- Copy libmonetdbe direct dependencies to lib folder -->
                             <execution>
-                                <id>copy-native-lib</id>
+                                <id>copy-direct-dependencies</id>
                                 <phase>compile</phase>
                                 <goals>
-                                    <goal>copy</goal>
+                                    <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>monetdb</groupId>
-                                            <artifactId>monetdbe-java-native</artifactId>
-                                            <version>1.0-SNAPSHOT</version>
-                                            <type>dylib</type>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.outputDirectory}/lib/mac</outputDirectory>
-                                            <destFileName>libmonetdbe-java.dylib</destFileName>
-                                        </artifactItem>
-                                    </artifactItems>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/linux/direct/</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <!-- TODO Only lib64 (not lib)? -->
+                                            <directory>${MonetDB_dir}/lib64/</directory>
+                                            <includes>
+                                                <include>libstream.so.*</include>
+                                                <include>libbat.so.*</include>
+                                                <include>libmapi.so.*</include>
+                                                <include>libmonetdb5.so.*</include>
+                                                <include>libmonetdbsql.so.*</include>
+                                                <include>libmonetdbe.so.*</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Enforce that MonetDB_dir is set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>MonetDB_dir</property>
+                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
+                                        </requireProperty>
+                                    </rules>
+                                    <fail>true</fail>
                                 </configuration>
                             </execution>
                         </executions>
@@ -99,40 +196,171 @@
             </build>
         </profile>
 
-        <!-- Windows compilation -->
+        <!-- Mac build: copy direct dependencies and pre-compiled native monetdbe-java library
+            (can be enabled by using -Dbuild_type=slimjar; must set the -Dlib_folder property) -->
+        <profile>
+            <id>mac-slim</id>
+            <activation>
+                <os>
+                    <family>mac</family>
+                </os>
+                <property>
+                    <name>build_type</name>
+                    <value>slimjar</value>
+                </property>
+            </activation>
+            <properties>
+                <os.name.clean>mac</os.name.clean>
+                <os.library.type>dylib</os.library.type>
+                <jar.classifier>mac-slim</jar.classifier>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <!-- Copy libmonetdbe direct dependencies to lib folder -->
+                            <execution>
+                                <id>copy-direct-dependencies</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/mac/direct/</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <!-- TODO Only lib (not lib64)? -->
+                                            <directory>${MonetDB_dir}/lib/</directory>
+                                            <includes>
+                                                <include>libstream.*.dylib</include>
+                                                <include>libbat.*.dylib</include>
+                                                <include>libmapi.*.dylib</include>
+                                                <include>libmonetdb5.*.dylib</include>
+                                                <include>libmonetdbsql.*.dylib</include>
+                                                <include>libmonetdbe.*.dylib</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Enforce that MonetDB_dir is set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>MonetDB_dir</property>
+                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
+                                        </requireProperty>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- TODO Can the windows version work with only the mdbe-java lib?
+             TODO Can the windows version work with only direct dependencies?
+             TODO And not load the transitive ones? (currently copying them all in this profile) -->
+        <!-- Windows build: copy direct dependencies and pre-compiled native monetdbe-java library
+            (can be enabled by using -Dbuild_type=slimjar; must set the -Dlib_folder property) -->
         <profile>
             <id>windows</id>
             <activation>
                 <os>
                     <family>windows</family>
                 </os>
+                <property>
+                    <name>build_type</name>
+                    <value>slimjar</value>
+                </property>
             </activation>
+            <properties>
+                <os.name.clean>windows</os.name.clean>
+                <os.library.type>dll</os.library.type>
+                <jar.classifier>windows-slim</jar.classifier>
+            </properties>
             <build>
                 <plugins>
-                    <!-- Copy JNI C library dependency to lib folder -->
+
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>2.10</version>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
                         <executions>
+                            <!-- Copy libmonetdbe direct dependencies to lib folder -->
                             <execution>
-                                <id>copy-native-lib</id>
+                                <id>copy-direct-dependencies</id>
                                 <phase>compile</phase>
                                 <goals>
-                                    <goal>copy</goal>
+                                    <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <artifactItems>
-                                        <artifactItem>
-                                            <groupId>monetdb</groupId>
-                                            <artifactId>monetdbe-java-native</artifactId>
-                                            <version>1.0-SNAPSHOT</version>
-                                            <type>dll</type>
-                                            <overWrite>false</overWrite>
-                                            <outputDirectory>${project.build.outputDirectory}/lib/windows</outputDirectory>
-                                            <destFileName>libmonetdbe-java.dll</destFileName>
-                                        </artifactItem>
-                                    </artifactItems>
+                                    <outputDirectory>${project.build.outputDirectory}\lib\windows\direct</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${MonetDB_dir}\bin\</directory>
+                                            <includes>
+                                                <include>stream.dll</include>
+                                                <include>bat.dll</include>
+                                                <include>mapi.dll</include>
+                                                <include>monetdb5.dll</include>
+                                                <include>monetdbsql.dll</include>
+                                                <include>monetdbe.dll</include>
+                                            </includes>
+                                        </resource>
+                                        <!--<<resource>
+                                            directory>${VCPKG_ROOT}\installed\x64-windows\bin\</directory
+                                            <directory>${lib_folder}/windows/transitive</directory>
+                                            <includes>
+                                                <include>libcrypto-1_1-x64.dll</include>
+                                                <include>iconv-2.dll</include>
+                                                <include>libxml2.dll</include>
+                                                <include>pcre.dll</include>
+                                                <include>zlib1.dll</include>
+                                                <include>lzma.dll</include>
+                                                <include>bz2.dll</include>
+                                                <include>libcurl.dll</include>
+                                            </includes>
+                                        </resource>>-->
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Enforce that MonetDB_dir is set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>MonetDB_dir</property>
+                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
+                                        </requireProperty>
+                                    </rules>
+                                    <fail>true</fail>
                                 </configuration>
                             </execution>
                         </executions>
@@ -144,7 +372,43 @@
 
     <build>
         <plugins>
-            <!-- Copy java.sql.Driver resource file for JDBC -->
+            <!-- For setting the classifier -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <classifier>${jar.classifier}</classifier>
+                </configuration>
+            </plugin>
+            <!-- Copy JNI C library dependency to lib folder -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.10</version>
+                <executions>
+                    <execution>
+                        <id>copy-native-lib</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>monetdb</groupId>
+                                    <artifactId>monetdbe-java-native</artifactId>
+                                    <version>1.0-SNAPSHOT</version>
+                                    <type>${os.library.type}</type>
+                                    <overWrite>false</overWrite>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/${os.name.clean}</outputDirectory>
+                                    <destFileName>libmonetdbe-java.${os.library.type}</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Copy java.sql.Driver resource file for JDBC (in META-INF/services/java.sql.Driver) -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.0.2</version>
@@ -165,6 +429,76 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Jar with source files -->
+            <!--<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
+            <!-- Jar with documentation -->
+            <!--<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <release>11</release>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>-->
+            <!-- Deployment plugins -->
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org</nexusUrl>
+                    <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <releaseProfiles>release</releaseProfiles>
+                    <goals>deploy</goals>
+                </configuration>
             </plugin>
         </plugins>
     </build>
