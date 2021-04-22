@@ -17,9 +17,9 @@ public class Test_03_AutoCommit {
 
 	@Test
 	public void autoCommit() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> {
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> {
 			autoCommit(x, true);
-			autoCommit(x + Configuration.AUTOCOMMIT_FALSE_PARM, false);
+			autoCommit(x + AllTests.AUTOCOMMIT_FALSE_PARM, false);
 		});
 	}
 

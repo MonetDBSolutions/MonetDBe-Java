@@ -27,7 +27,7 @@ public class Test_08_ComplexPreparedStatements {
 
 	@Test
 	public void complexPreparedStatements() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> complexPreparedStatements(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> complexPreparedStatements(x));
 	}
 
 	private void complexPreparedStatements(String connectionUrl) {

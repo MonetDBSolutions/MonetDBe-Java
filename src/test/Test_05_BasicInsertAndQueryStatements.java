@@ -20,7 +20,7 @@ public class Test_05_BasicInsertAndQueryStatements {
 
 	@Test
 	public void basicInsertAndQueryStatements() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> basicInsertAndQueryStatements(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> basicInsertAndQueryStatements(x));
 	}
 
 	private void basicInsertAndQueryStatements(String connectionUrl) {

@@ -19,7 +19,7 @@ public class Test_13_Schema {
 
 	@Test
 	public void schema() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> schema(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> schema(x));
 	}
 
 	private void schema(String connectionUrl) {
@@ -34,10 +34,10 @@ public class Test_13_Schema {
             
 			// Create table and insert values
 			try (Statement statement = conn.createStatement()) {
-				statement.execute("CREATE SCHEMA voc;");
+				statement.execute("CREATE SCHEMA test13_voc;");
 				
-	            conn.setSchema("voc");
-	            assertEquals("voc", conn.getSchema());
+	            conn.setSchema("test13_voc");
+	            assertEquals("test13_voc", conn.getSchema());
 	            assertEquals("monetdb", ((MonetConnection) conn).getUserName());
 	            
 	            conn.setSchema("sys");
@@ -47,7 +47,7 @@ public class Test_13_Schema {
 			
 			try (Statement statement = conn.createStatement()) {
 				// Clean up
-				statement.execute("DROP SCHEMA voc;");
+				statement.execute("DROP SCHEMA test13_voc;");
 
 				assertEquals(-2, statement.getUpdateCount()); // -2: drop succeeded
 			}

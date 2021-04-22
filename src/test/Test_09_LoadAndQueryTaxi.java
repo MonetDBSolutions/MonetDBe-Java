@@ -24,7 +24,7 @@ public class Test_09_LoadAndQueryTaxi {
 	@Test
 	public void loadAndQueryTaxi() {
 		// Stream.of(Configuration.CONNECTIONS).forEach(x -> loadAndQueryTaxi(x));
-		loadAndQueryTaxi(Configuration.MEMORY_CONNECTION);
+		loadAndQueryTaxi(AllTests.MEMORY_CONNECTION);
 	}
 
 	private void loadAndQueryTaxi(String connectionUrl) {
@@ -60,10 +60,10 @@ public class Test_09_LoadAndQueryTaxi {
 			
 			try (Statement statement = conn.createStatement()) {
 				try {
-					File raw = new File(Configuration.TAXI_CSV);
+					File raw = new File(AllTests.TAXI_CSV);
 					File canonicalFile = raw.isAbsolute()
 							? raw.getCanonicalFile()
-							: new File(new File("."), Configuration.TAXI_CSV).getCanonicalFile();
+							: new File(new File("."), AllTests.TAXI_CSV).getCanonicalFile();
 					assertTrue(canonicalFile.exists());
 					assertTrue(canonicalFile.isFile());
 					assertTrue(canonicalFile.canRead());
@@ -75,7 +75,7 @@ public class Test_09_LoadAndQueryTaxi {
 					assertEquals(ROW_COUNT, rows);
 					
 				} catch (IOException e) {
-					fail("File " + Configuration.TAXI_CSV + " cannot be found: " + e.toString());
+					fail("File " + AllTests.TAXI_CSV + " cannot be found: " + e.toString());
 				}
 			}
 			

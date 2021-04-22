@@ -23,7 +23,7 @@ public class Test_07_SimplePreparedStatements {
 
 	@Test
 	public void simplePreparedStatements() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> simplePreparedStatements(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> simplePreparedStatements(x));
 	}
 
 	private void simplePreparedStatements(String connectionUrl) {

@@ -10,7 +10,17 @@ import org.junit.runners.Suite.SuiteClasses;
 		Test_06_ComplexInsertAndQueryStatements.class, Test_07_SimplePreparedStatements.class,
 		Test_08_ComplexPreparedStatements.class, Test_09_LoadAndQueryTaxi.class, Test_10_MetaData.class,
 		Test_11_ConcurrentConnections.class, Test_12_BatchesAndJoinsMovies.class,
-		Test_13_Schema.class })
+		Test_13_Schema.class, Test_14_MultipleResultSet.class, Test_15_Transactions.class })
 public class AllTests {
+
+	protected static final String MEMORY_CONNECTION = "jdbc:monetdb:memory:";
+	protected static final String LOCAL_CONNECTION = "jdbc:monetdb:file:./testdata/localdb";
+	protected static final String PROXY_CONNECTION = "mapi:monetdb://localhost:50000/test";
+	
+	protected static final String[] CONNECTIONS = { MEMORY_CONNECTION, LOCAL_CONNECTION };
+
+	protected static final String AUTOCOMMIT_FALSE_PARM = "?autocommit=false";
+	
+	protected static final String TAXI_CSV = "./testdata/taxi/yellow_tripdata_2016-01.csv";
 
 }

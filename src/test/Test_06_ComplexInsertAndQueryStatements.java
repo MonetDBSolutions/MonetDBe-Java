@@ -27,7 +27,7 @@ public class Test_06_ComplexInsertAndQueryStatements {
 
 	@Test
 	public void complexInsertAndQueryStatements() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> complexInsertAndQueryStatements(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> complexInsertAndQueryStatements(x));
 	}
 
 	private void complexInsertAndQueryStatements(String connectionUrl) {

@@ -22,9 +22,9 @@ public class Test_11_ConcurrentConnections {
 		Connection conn2 = null;
 		Connection conn3 = null;
 		
-		try (Connection conn1 = DriverManager.getConnection(Configuration.LOCAL_CONNECTION, null)) {
+		try (Connection conn1 = DriverManager.getConnection(AllTests.LOCAL_CONNECTION, null)) {
 
-			assertNotNull("Could not connect to database with connection string: " + Configuration.LOCAL_CONNECTION,
+			assertNotNull("Could not connect to database with connection string: " + AllTests.LOCAL_CONNECTION,
 					conn1);
 			assertFalse(conn1.isClosed());
 
@@ -41,9 +41,9 @@ public class Test_11_ConcurrentConnections {
 			}
 
 			// Connection to same database
-			conn2 = DriverManager.getConnection(Configuration.LOCAL_CONNECTION, null);
+			conn2 = DriverManager.getConnection(AllTests.LOCAL_CONNECTION, null);
 
-			assertNotNull("Could not connect to database with connection string: " + Configuration.LOCAL_CONNECTION,
+			assertNotNull("Could not connect to database with connection string: " + AllTests.LOCAL_CONNECTION,
 					conn2);
 			assertFalse(conn1.isClosed());
 			assertFalse(conn2.isClosed());
@@ -63,9 +63,9 @@ public class Test_11_ConcurrentConnections {
 
 			// Connecting to another database
 			// TODO: Allow multiple concurrent connections
-			conn3 = DriverManager.getConnection(Configuration.MEMORY_CONNECTION, null);
+			conn3 = DriverManager.getConnection(AllTests.MEMORY_CONNECTION, null);
 
-			assertNotNull("Could not connect to database with connection string: " + Configuration.MEMORY_CONNECTION,
+			assertNotNull("Could not connect to database with connection string: " + AllTests.MEMORY_CONNECTION,
 					conn3);
 			assertFalse(conn1.isClosed());
 			assertFalse(conn2.isClosed());

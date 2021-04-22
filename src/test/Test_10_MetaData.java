@@ -24,7 +24,7 @@ public class Test_10_MetaData {
 
 	@Test
 	public void metaData() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> metaData(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> metaData(x));
 	}
 
 	private void metaData(String connectionUrl) {

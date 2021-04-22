@@ -16,7 +16,7 @@ public class Test_02_CloseConnectionTwice {
 
 	@Test
 	public void CloseConnectionTwice() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> CloseConnectionTwice(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> CloseConnectionTwice(x));
 	}
 
 	private void CloseConnectionTwice(String connectionUrl) {

@@ -30,7 +30,7 @@ public class Test_12_BatchesAndJoinsMovies {
     
 	@Test
 	public void batchesAndJoinsMovies() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> batchesAndJoinsMovies(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(x -> batchesAndJoinsMovies(x));
 	}
 
 	private void batchesAndJoinsMovies(String connectionUrl) {
