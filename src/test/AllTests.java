@@ -9,7 +9,8 @@ import org.junit.runners.Suite.SuiteClasses;
 		Test_04_SimpleInsertAndQueryStatements.class, Test_05_BasicInsertAndQueryStatements.class,
 		Test_06_ComplexInsertAndQueryStatements.class, Test_07_SimplePreparedStatements.class,
 		Test_08_ComplexPreparedStatements.class, Test_09_LoadAndQueryTaxi.class, Test_10_MetaData.class,
-		Test_11_ConcurrentConnections.class, Test_12_BatchesAndJoinsMovies.class })
+		Test_11_ConcurrentConnections.class, Test_12_BatchesAndJoinsMovies.class,
+		Test_13_Schema.class })
 public class AllTests {
 
 }

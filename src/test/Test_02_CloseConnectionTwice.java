@@ -35,9 +35,7 @@ public class Test_02_CloseConnectionTwice {
 
 			// MonetDB/e connection closed successfully
 
-			// TODO: You should be able to close a connection twice without a SQLException
-			// being thrown
-			// conn.close();
+			conn.close();
 			assertTrue(conn.isClosed());
 
 		} catch (SQLException e) {

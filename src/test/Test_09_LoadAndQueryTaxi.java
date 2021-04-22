@@ -22,7 +22,7 @@ public class Test_09_LoadAndQueryTaxi {
 	private static final int ROW_COUNT = 10906858;
 
 	@Test
-	public void preparedStatements() {
+	public void loadAndQueryTaxi() {
 		// Stream.of(Configuration.CONNECTIONS).forEach(x -> loadAndQueryTaxi(x));
 		loadAndQueryTaxi(Configuration.MEMORY_CONNECTION);
 	}

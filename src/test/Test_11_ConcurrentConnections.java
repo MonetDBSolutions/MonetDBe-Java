@@ -17,11 +17,12 @@ import org.junit.Test;
 public class Test_11_ConcurrentConnections {
 
 	@Test
-	public void openAndCloseConnection() {
-		try {
-
-			@SuppressWarnings("resource")
-			Connection conn1 = DriverManager.getConnection(Configuration.LOCAL_CONNECTION, null);
+	public void concurrentConnections() {
+		
+		Connection conn2 = null;
+		Connection conn3 = null;
+		
+		try (Connection conn1 = DriverManager.getConnection(Configuration.LOCAL_CONNECTION, null)) {
 
 			assertNotNull("Could not connect to database with connection string: " + Configuration.LOCAL_CONNECTION,
 					conn1);
@@ -40,8 +41,7 @@ public class Test_11_ConcurrentConnections {
 			}
 
 			// Connection to same database
-			@SuppressWarnings("resource")
-			Connection conn2 = DriverManager.getConnection(Configuration.LOCAL_CONNECTION, null);
+			conn2 = DriverManager.getConnection(Configuration.LOCAL_CONNECTION, null);
 
 			assertNotNull("Could not connect to database with connection string: " + Configuration.LOCAL_CONNECTION,
 					conn2);
@@ -63,8 +63,7 @@ public class Test_11_ConcurrentConnections {
 
 			// Connecting to another database
 			// TODO: Allow multiple concurrent connections
-			@SuppressWarnings("resource")
-			Connection conn3 = DriverManager.getConnection(Configuration.MEMORY_CONNECTION, null);
+			conn3 = DriverManager.getConnection(Configuration.MEMORY_CONNECTION, null);
 
 			assertNotNull("Could not connect to database with connection string: " + Configuration.MEMORY_CONNECTION,
 					conn3);
@@ -90,24 +89,31 @@ public class Test_11_ConcurrentConnections {
 				assertEquals(3, rs.getInt(1));
 			}
 
-			try (Statement s1 = conn1.createStatement(); Statement s3 = conn3.createStatement()) {
-				s1.execute("DROP TABLE test11;");
-				s3.execute("DROP TABLE test11;");
-			}
-
-			conn1.close();
-			conn2.close();
-			conn3.close();
-			assertTrue(conn1.isClosed());
-			assertTrue(conn2.isClosed());
-			assertTrue(conn3.isClosed());
-
-			// MonetDB/e connections closed successfully
+			
 
 		} catch (SQLException e) {
 
 			fail(e.toString());
 
+		} finally {
+			try {
+				if (conn2 != null) {
+					try (Statement s = conn2.createStatement()) {
+						s.execute("DROP TABLE test11;");
+					}
+					conn2.close();
+					assertTrue(conn2.isClosed());
+				}
+				if (conn3 != null) {
+					try (Statement s = conn3.createStatement()) {
+						s.execute("DROP TABLE test11;");
+					}
+					conn3.close();
+					assertTrue(conn3.isClosed());
+				}
+			} catch (SQLException e) {
+				fail(e.toString());
+			}
 		}
 	}
 }

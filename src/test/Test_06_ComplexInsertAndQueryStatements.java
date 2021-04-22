@@ -26,11 +26,11 @@ import org.monetdb.monetdbe.MonetResultSet;
 public class Test_06_ComplexInsertAndQueryStatements {
 
 	@Test
-	public void basicInsertAndQueryStatements() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> basicInsertAndQueryStatements(x));
+	public void complexInsertAndQueryStatements() {
+		Stream.of(Configuration.CONNECTIONS).forEach(x -> complexInsertAndQueryStatements(x));
 	}
 
-	private void basicInsertAndQueryStatements(String connectionUrl) {
+	private void complexInsertAndQueryStatements(String connectionUrl) {
 		try (Connection conn = DriverManager.getConnection(connectionUrl, null)) {
 
 			assertNotNull("Could not connect to database with connection string: " + connectionUrl, conn);

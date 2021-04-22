@@ -26,11 +26,11 @@ import org.monetdb.monetdbe.MonetResultSet;
 public class Test_08_ComplexPreparedStatements {
 
 	@Test
-	public void preparedStatements() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> preparedStatements(x));
+	public void complexPreparedStatements() {
+		Stream.of(Configuration.CONNECTIONS).forEach(x -> complexPreparedStatements(x));
 	}
 
-	private void preparedStatements(String connectionUrl) {
+	private void complexPreparedStatements(String connectionUrl) {
 		try (Connection conn = DriverManager.getConnection(connectionUrl, null)) {
 
 			assertNotNull("Could not connect to database with connection string: " + connectionUrl, conn);

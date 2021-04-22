@@ -23,11 +23,11 @@ import org.monetdb.monetdbe.MonetResultSet;
 public class Test_10_MetaData {
 
 	@Test
-	public void simpleInsertAndQueryStatements() {
-		Stream.of(Configuration.CONNECTIONS).forEach(x -> simpleInsertAndQueryStatements(x));
+	public void metaData() {
+		Stream.of(Configuration.CONNECTIONS).forEach(x -> metaData(x));
 	}
 
-	private void simpleInsertAndQueryStatements(String connectionUrl) {
+	private void metaData(String connectionUrl) {
 		try (Connection conn = DriverManager.getConnection(connectionUrl, null)) {
 
 			assertNotNull("Could not connect to database with connection string: " + connectionUrl, conn);
@@ -60,7 +60,7 @@ public class Test_10_MetaData {
 			assertTrue(StringUtils.isNotBlank(dbMeta.getTimeDateFunctions()));
 
 			try (ResultSet rs = dbMeta.getTableTypes()) {
-				assertTrue(((MonetResultSet) rs).getRowsNumber() >= 10);
+				assertTrue(((MonetResultSet) rs).getRowsNumber() >= 8);
 			}
 			try (ResultSet rs = dbMeta.getProcedures(null, null, null)) {
 				assertTrue(((MonetResultSet) rs).getRowsNumber() > 70);
