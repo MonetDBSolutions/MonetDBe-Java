@@ -35,11 +35,12 @@ public class MonetNative {
             } else if (os_name.startsWith("windows")) {
                 loadLibExtension = ".dll";
                 directory = "windows";
+                System.out.println("windows");
             }
 
             if (loadLibExtension != null) {
                 Map<String,List<String>> dependencyMap = listDependencies(directory,dependencyDirs);
-
+                System.out.println("Windows keys: " + dependencyMap.keySet().size());
                 if (dependencyMap != null) {
                     for (String dependencyType : dependencyMap.keySet()) {
                         for (String dependencyLib : dependencyMap.get(dependencyType)) {
@@ -53,7 +54,9 @@ public class MonetNative {
                 else {
                     throw new IOException("Library dependencies could not be found");
                 }
+                System.out.println("Copying loadLib");
                 loadLib(directory,loadLib+loadLibExtension);
+                System.out.println("Copied");
             }
         } catch (IOException e) {
             e.printStackTrace();
