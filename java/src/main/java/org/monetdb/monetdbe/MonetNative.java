@@ -49,16 +49,17 @@ public class MonetNative {
                         }
                     }
                     else {
+                        //Windows requires that both transitive and direct dependencies be loaded, no Unix automatic loading
+                        //They also need to be loaded in the correct order
                         String[] transitiveDependencies = new String[]{"iconv-2.dll","lzma.dll","zlib1.dll","libcurl.dll","bz2.dll","libcrypto-1_1-x64.dll","pcre.dll","libxml2.dll"};
                         for (String td : transitiveDependencies) {
-                            loadLib("windows/transitive/",td);
+                            loadLib("windows/transitive",td);
                         }
-                        String[] dependencyLibs = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
-                        for (String td : dependencyLibs) {
-                            loadLib("windows/direct/",td);
+                        String[] directDependencies = new String[]{"stream.dll","bat.dll","mapi.dll","monetdb5.dll","monetdbsql.dll","monetdbe.dll"};
+                        for (String td : directDependencies) {
+                            loadLib("windows/direct",td);
                         }
                     }
-
                     if (dependencyMap.size() > 0)
                         System.out.println("Copied dependencies to " + System.getProperty("java.io.tmpdir")+"\n");
                 }

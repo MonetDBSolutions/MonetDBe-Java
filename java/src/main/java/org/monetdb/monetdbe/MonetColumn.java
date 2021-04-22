@@ -336,7 +336,7 @@ public class MonetColumn {
                 BigInteger unscaledBigInt = getBigInteger(row);
                 return new BigDecimal(unscaledBigInt).movePointLeft(scale);
             default:
-                return new BigDecimal(0);
+                return null;
         }
     }
 
