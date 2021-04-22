@@ -90,6 +90,7 @@
             </properties>
         </profile>
 
+        <!-- TODO Change VCPKG_ROOT -->
         <!-- Windows build: copy transitive and direct dependencies and pre-compiled native monetdbe-java library
             (default behaviour; must set the -DMonetDB_dir and -DVCPKG_ROOT properties) -->
         <profile>
@@ -197,7 +198,7 @@
         <!-- TODO Change their rpath (linux and mac) -->
         <!-- SLIM JAR BUILDS -->
         <!-- Linux build: copy direct dependencies and pre-compiled native monetdbe-java library
-            (can be enabled by using -Dbuild_type=slimjar; must set the -DMonetDB_dir property) -->
+            (has to be enabled with -P linux-slim; must set the -DMonetDB_dir property) -->
         <profile>
             <id>linux-slim</id>
             <activation>
@@ -345,6 +346,48 @@
         </profile>
 
         <!-- FATJAR BUILDS -->
+        <!-- Linux fatjar build: copy direct + transitive dependencies
+            (has to be enabled with -P linux-slim,linux-fat)-->
+        <profile>
+            <id>linux-fat</id>
+            <properties>
+                <jar.classifier>linux-fat</jar.classifier>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- Copy Linux transitive dependencies to lib folder -->
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>copy-transitive-dependencies</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/linux/transitive</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <!-- libz, libpcre, libuuid -->
+                                            <!-- TODO Verify if these are enough -->
+                                            <directory>/usr/lib/</directory>
+                                            <includes>
+                                                <include>libz.so.*</include>
+                                                <include>libpcre.so.*</include>
+                                                <include>libuuid.so.*</include>
+                                            </includes>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <!-- Mac fatjar build: copy direct + transitive dependencies
             (has to be enabled with -P mac-slim,mac-fat)-->
         <profile>
@@ -369,7 +412,13 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/mac/transitive</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <!-- TODO -->
+                                            <!-- libz, libpcre, libuuid -->
+                                            <!-- TODO Verify if these are enough -->
+                                            <directory>/usr/lib/</directory>
+                                            <includes>
+                                                <include>libz.*.dylib</include>
+                                                <include>libpcre.*.dylib</include>
+                                            </includes>
                                         </resource>
                                     </resources>
                                 </configuration>
@@ -380,45 +429,14 @@
             </build>
         </profile>
 
+        <!-- TODO Add cross platform fat jar profile -->
+
         <!-- Release profile
             (has to be enabled with -P release / -P release,mac-slim / -P release,mac-slim,mac-fat)-->
         <profile>
             <id>release</id>
             <build>
                 <plugins>
-                    <!-- Jar with source files -->
-                    <!--<plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>3.0.1</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>-->
-                    <!-- Jar with documentation -->
-                    <!--<plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.2.0</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                                <configuration>
-                                    <release>11</release>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>-->
                     <!-- Deployment plugins -->
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
@@ -456,6 +474,39 @@
                             <goals>deploy</goals>
                         </configuration>
                     </plugin>
+                    <!-- Jar with source files -->
+                    <!--<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>-->
+                    <!-- Jar with documentation -->
+                    <!--<plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <release>11</release>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>-->
                 </plugins>
             </build>
         </profile>
