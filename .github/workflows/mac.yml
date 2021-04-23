@@ -15,8 +15,9 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Get brew bison
+      run: brew install bison
+    - name: Set bison path
       run: |
-        brew install bison
         export PATH="/usr/local/opt/bison/bin/:$PATH"
         export LDFLAGS="-L/usr/local/opt/bison/lib/"
         brew link bison --force
