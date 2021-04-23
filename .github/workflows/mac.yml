@@ -20,6 +20,7 @@ jobs:
         export PATH="/usr/local/opt/bison/bin:$PATH"
         export LDFLAGS="-L/usr/local/opt/bison/lib"
         brew link bison --force
+        echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> /Users/runner/.bash_profile
     - name: Get monetdb
       run: git clone https://github.com/MonetDB/MonetDB
     - name: Compile and install MonetDB
@@ -31,8 +32,6 @@ jobs:
         make install
         cd ../../
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -DMonetDB_dir=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
+      run: scripts/build_dev.sh /Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
     - name: Run example class (SimpleTypes)
-      run: |
-        javac -cp java/target/monetdbe-java-1.0.jar example/SimpleTypes.java
-        java -classpath java/target/monetdbe-java-1.0.jar:example SimpleTypes
+      run: scripts/run_dev.sh SimpleTypes

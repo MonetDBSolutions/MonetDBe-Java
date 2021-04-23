@@ -16,11 +16,9 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -DMonetDB_dir=/usr/local
+      run: scripts/build_dev.sh /usr/local
     - name: Run example class (SimpleTypes)
-      run: |
-        javac -cp java/target/monetdbe-java-1.0.jar example/SimpleTypes.java
-        java -classpath java/target/monetdbe-java-1.0.jar:example SimpleTypes
+      run: scripts/run_dev.sh SimpleTypes
 
   linux_oct_build:
     name: linux_oct_build
@@ -35,11 +33,9 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -DMonetDB_dir=/usr/local
+      run: scripts/build_dev.sh /usr/local
     - name: Run example class (SimpleTypes)
-      run: |
-        javac -cp java/target/monetdbe-java-1.0.jar example/SimpleTypes.java
-        java -classpath java/target/monetdbe-java-1.0.jar:example SimpleTypes
+      run: scripts/run_dev.sh SimpleTypes
 
   linux_manual_build:
     name: linux_manual_build
@@ -65,8 +61,6 @@ jobs:
         make install
         cd ../../
     - name: Build with Maven
-      run: mvn -B package --file pom.xml -DMonetDB_dir=/home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
+      run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
     - name: Run example class (SimpleTypes)
-      run: |
-        javac -cp java/target/monetdbe-java-1.0.jar example/SimpleTypes.java
-        java -classpath java/target/monetdbe-java-1.0.jar:example SimpleTypes
+      run: scripts/run_dev.sh SimpleTypes

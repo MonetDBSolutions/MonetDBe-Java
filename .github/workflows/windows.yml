@@ -57,4 +57,4 @@ jobs:
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
           javac -cp D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0.jar SimpleTypes.java
-          java -classpath "D:\a\MonetDBe-Java\MonetDBe-Java\example\;D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0.jar" SimpleTypes
+          java -classpath "D:\a\MonetDBe-Java\MonetDBe-Java\example\;D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT.jar" SimpleTypes
