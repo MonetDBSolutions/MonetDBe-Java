@@ -6,20 +6,19 @@ public class PreparedQueries {
     private static void preparedInsert (Connection c) throws SQLException {
         System.out.println("Preparing insert statement");
 
-        //PreparedStatement ps = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,?,?,?);");
-        PreparedStatement ps = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,'2020-10-31','15:16:59','2007-12-24 14:11:40');");
+        PreparedStatement ps = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,?,?,?);");
 
         ps.setInt(1,1000);
         ps.setLong(2,1000000);
         ps.setFloat(3,3.5f);
         ps.setDouble(4,3.5);
         ps.setString(5,"bye world");
-        /*Date da = Date.valueOf("2020-10-31");
+        Date da = Date.valueOf("2020-10-31");
         ps.setDate(6,da);
         Time t = Time.valueOf("15:16:59");
         ps.setTime(7,t);
         Timestamp ts = Timestamp.valueOf("2007-12-24 14:11:40");
-        ps.setTimestamp(8,ts);*/
+        ps.setTimestamp(8,ts);
 
         /*System.out.println("Clear parameters");
         ps.clearParameters();
@@ -32,16 +31,15 @@ public class PreparedQueries {
     private static void preparedNullInsert (Connection c) throws SQLException {
         System.out.println("Inserting NULL values");
 
-        //PreparedStatement p = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,?,?,?);");
-        PreparedStatement p = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,NULL,NULL,NULL);");
+        PreparedStatement p = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,?,?,?);");
         p.setNull(1,Types.INTEGER);
         p.setNull(2,Types.BIGINT);
         p.setNull(3,Types.REAL);
         p.setNull(4,Types.DOUBLE);
         p.setNull(5,Types.VARCHAR);
-        /*p.setNull(6,Types.DATE);
+        p.setNull(6,Types.DATE);
         p.setNull(7,Types.TIME);
-        p.setNull(8,Types.TIMESTAMP);*/
+        p.setNull(8,Types.TIMESTAMP);
         p.execute();
     }
 
