@@ -52,9 +52,12 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
       - name: Build with Maven
         run: |
-          mvn -B package --file pom.xml "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT"
+          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
+          mvn install "-DMonetDB_dir=C:\monetdb"
+          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
+          mvn install "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT"
       - name: Run example class (SimpleTypes)
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
-          javac -cp D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0.jar SimpleTypes.java
-          java -classpath "D:\a\MonetDBe-Java\MonetDBe-Java\example\;D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT.jar" SimpleTypes
+          javac -cp D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT.jar SimpleTypes.java
+          java -classpath ".\;D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT.jar" SimpleTypes

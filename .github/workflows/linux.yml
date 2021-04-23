@@ -63,4 +63,6 @@ jobs:
     - name: Build with Maven
       run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
     - name: Run example class (SimpleTypes)
-      run: scripts/run_dev.sh SimpleTypes
+      run: |
+        ldd java/target/monetdbe-java-1.0-SNAPSHOT.jar
+        scripts/run_dev.sh SimpleTypes
