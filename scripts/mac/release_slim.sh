@@ -13,7 +13,7 @@ mkdir $1/lib-major/
 cp $1/lib/libbat.??.dylib $1/lib/libmapi.??.dylib $1/lib/libmonetdb5.??.dylib $1/lib/libmonetdbe.?.dylib $1/lib/libmonetdbsql.??.dylib $1/lib/libstream.??.dylib $1/lib-major/
 
 cd ../java
-mvn clean install -DMonetDB_dir=$1 -P mac-slim
+mvn clean deploy -DMonetDB_dir=$1 -P mac-slim,release
 
 #REALLY BAD CODE BELOW, REMOVE
 rm -rf $1/lib-major/

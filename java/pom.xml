@@ -189,7 +189,6 @@
             </build>
         </profile>
 
-        <!-- TODO Only copy the major versioned shared libraries (the exclude strategy didn't work) -->
         <!-- TODO Change their rpath (linux and mac) -->
         <!-- SLIM JAR BUILDS -->
         <!-- Linux build: copy direct dependencies and pre-compiled native monetdbe-java library
@@ -217,7 +216,9 @@
                                     <resources>
                                         <resource>
                                             <!-- TODO Only lib64 (not lib)? -->
-                                            <directory>${MonetDB_dir}/lib64/</directory>
+                                            <!--<directory>${MonetDB_dir}/lib64/</directory>-->
+                                            <!-- TODO REMOVE THIS STRATEGY, TERRIBLE CODE -->
+                                            <directory>${MonetDB_dir}/lib-major/</directory>
                                             <includes>
                                                 <include>libstream.so.*</include>
                                                 <include>libbat.so.*</include>
@@ -284,7 +285,9 @@
                                     <resources>
                                         <resource>
                                             <!-- TODO Only lib (not lib64)? -->
-                                            <directory>${MonetDB_dir}/lib/</directory>
+                                            <!--<directory>${MonetDB_dir}/lib/</directory>-->
+                                            <!-- TODO REMOVE THIS STRATEGY, TERRIBLE CODE -->
+                                            <directory>${MonetDB_dir}/lib-major/</directory>
                                             <includes>
                                                 <include>libstream.*.dylib</include>
                                                 <include>libbat.*.dylib</include>
