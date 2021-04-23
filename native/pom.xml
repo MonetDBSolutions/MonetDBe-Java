@@ -27,9 +27,9 @@
     </properties>
 
     <profiles>
-        <!-- Linux compilation -->
+        <!-- Linux compilation settings -->
         <profile>
-            <id>linux</id>
+            <id>linux-dev</id>
             <activation>
                 <os>
                     <family>unix</family>
@@ -38,57 +38,23 @@
             </activation>
             <properties>
                 <packaging.type>so</packaging.type>
+                <include.java>${JAVA_HOME}/include/linux/</include.java>
+                <link.rpath>${MonetDB_dir}/lib64</link.rpath>
             </properties>
-
-            <build>
-                <plugins>
-                    <!-- Compile JNI C library for monetdbe-java-src -->
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <version>1.0-alpha-9</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <sources>
-                                <source>
-                                    <directory>${project.basedir}/jni/</directory>
-                                    <fileNames>
-                                        <fileName>monetdbe-java-native.c</fileName>
-                                    </fileNames>
-                                </source>
-                            </sources>
-                            <compilerStartOptions>
-                                <!-- MONETDB_PREFIX + include/monetdb/ -->
-                                <compilerStartOption>-I ${MonetDB_dir}/include/monetdb/</compilerStartOption>
-                                <compilerStartOption>-I ${JAVA_HOME}/include/linux/</compilerStartOption>
-                                <compilerStartOption>-I ${JAVA_HOME}/include/</compilerStartOption>
-                                <compilerStartOption>-fPIC</compilerStartOption>
-                            </compilerStartOptions>
-
-                            <linkerStartOptions>
-                                <!-- MONETDB_PREFIX + lib OR lib64-->
-                                <!--<linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>-->
-                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
-                                <linkerStartOption>-shared</linkerStartOption>
-                                <linkerStartOption>-fPIC</linkerStartOption>
-                                <!-- For setting rpath (should be $ORIGIN/. if direct dependencies are copied, ${MonetDB_dir} otherwise)
-                                     Default dev build should not copy direct dependencies, so this is set to ${MonetDB_dir}/lib-->
-                                <!-- <linkerStartOption>-Wl,-rpath,$ORIGIN/.</linkerStartOption> -->
-                                <linkerStartOption>-Wl,-rpath,${MonetDB_dir}/lib64</linkerStartOption>
-                            </linkerStartOptions>
-
-                            <linkerEndOptions>
-                                <linkerEndOption>-lmonetdbe</linkerEndOption>
-                            </linkerEndOptions>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
 
-        <!-- Mac compilation -->
+        <!-- For setting rpath for the release jars (should be $ORIGIN/. if direct dependencies are copied)
+             (use -P linux-release to activate) -->
         <profile>
-            <id>mac</id>
+            <id>linux-release</id>
+            <properties>
+                <link.rpath>$ORIGIN/.</link.rpath>
+            </properties>
+        </profile>
+
+        <!-- Mac compilation settings -->
+        <profile>
+            <id>mac-dev</id>
             <activation>
                 <os>
                     <family>mac</family>
@@ -96,8 +62,28 @@
             </activation>
             <properties>
                 <packaging.type>dylib</packaging.type>
+                <include.java>${JAVA_HOME}/include/darwin/</include.java>
+                <link.rpath>${MonetDB_dir}/lib</link.rpath>
             </properties>
+        </profile>
 
+        <!-- For setting rpath for the release jars (should be $ORIGIN/. if direct dependencies are copied)
+             (use -P mac-release to activate) -->
+        <profile>
+            <id>mac-release</id>
+            <properties>
+                <link.rpath>@loader_path/.</link.rpath>
+            </properties>
+        </profile>
+
+        <!-- Linux/Mac compilation -->
+        <profile>
+            <id>linux-mac-build</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
             <build>
                 <plugins>
                     <!-- Compile JNI C library for monetdbe-java-src -->
@@ -118,23 +104,19 @@
                             <compilerStartOptions>
                                 <!-- MONETDB_PREFIX + include/monetdb/ -->
                                 <compilerStartOption>-I ${MonetDB_dir}/include/monetdb/</compilerStartOption>
-                                <compilerStartOption>-I ${JAVA_HOME}/include/darwin/</compilerStartOption>
+                                <compilerStartOption>-I ${include.java}</compilerStartOption>
                                 <compilerStartOption>-I ${JAVA_HOME}/include/</compilerStartOption>
                                 <compilerStartOption>-fPIC</compilerStartOption>
                             </compilerStartOptions>
 
                             <linkerStartOptions>
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
-                                <!-- Note: On Mac, CMAKE_INSTALL_FULL_LIBDIR returns lib, even for a 64 bit system -->
-                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
                                 <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
+                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
 
-                                <!-- For setting rpath (should be @loader_path/. if direct dependencies are copied, ${MonetDB_dir}/lib otherwise)
-                                     Default dev build should not copy direct dependencies, so this is set to ${MonetDB_dir}/lib -->
-                               <!-- <linkerStartOption>-Wl,-rpath,@loader_path/.</linkerStartOption> -->
-                                <linkerStartOption>-Wl,-rpath,${MonetDB_dir}/lib</linkerStartOption>
+                                <linkerStartOption>-Wl,-rpath,${link.rpath}</linkerStartOption>
                             </linkerStartOptions>
 
                             <linkerEndOptions>
@@ -153,10 +135,6 @@
                 <os>
                     <family>windows</family>
                 </os>
-                <property>
-                    <name>windowsgcc</name>
-                    <value>!true</value>
-                </property>
             </activation>
             <properties>
                 <packaging.type>dll</packaging.type>

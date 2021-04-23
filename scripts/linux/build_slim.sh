@@ -6,6 +6,6 @@ if [ $# -eq 0 ]; then
 fi
 
 cd native
-mvn clean install -DMonetDB_dir=$1
+mvn clean install -DMonetDB_dir=$1 -P linux-release
 cd ../java
 mvn clean install -DMonetDB_dir=$1 -P linux-slim
