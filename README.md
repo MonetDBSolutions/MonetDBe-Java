@@ -24,3 +24,20 @@ They should be executed from the repo root directory.
 ```
 $ scripts/build_dev.sh /path/to/monetdb/installation
 ```
+
+## Running an example
+After install, you can run one of the examples in the example/ directory.
+Example for the code below: SimpleTypes.java
+The OS in the jar name can be: linux, mac or windows.
+```
+$ javac -cp java/target/monetdbe-java-1.0-SNAPSHOT-{OS}.jar example/SimpleTypes.java
+$ java -cp java/target/monetdbe-java-1.0-SNAPSHOT-{OS}.jar:example/ SimpleTypes
+```
+
+Alternatively, you can execute a script to run an example, just by passing it the example class name.
+```
+$ scripts/linux/run_dev.sh SimpleTypes
+$ scripts/linux/run_dev.sh HelloWorld
+
+$ scripts/mac/run_dev.sh SimpleTypes
+```
