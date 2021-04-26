@@ -214,10 +214,18 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/linux/direct/</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <!-- TODO Only lib64 (not lib)? -->
-                                            <!--<directory>${MonetDB_dir}/lib64/</directory>-->
-                                            <!-- TODO REMOVE THIS STRATEGY, TERRIBLE CODE -->
-                                            <directory>${MonetDB_dir}/lib-major/</directory>
+                                            <directory>${MonetDB_dir}/lib/</directory>
+                                            <includes>
+                                                <include>libstream.so.*</include>
+                                                <include>libbat.so.*</include>
+                                                <include>libmapi.so.*</include>
+                                                <include>libmonetdb5.so.*</include>
+                                                <include>libmonetdbsql.so.*</include>
+                                                <include>libmonetdbe.so.*</include>
+                                            </includes>
+                                        </resource>
+                                        <resource>
+                                            <directory>${MonetDB_dir}/lib64/</directory>
                                             <includes>
                                                 <include>libstream.so.*</include>
                                                 <include>libbat.so.*</include>
@@ -284,9 +292,7 @@
                                     <resources>
                                         <resource>
                                             <!-- TODO Only lib (not lib64)? -->
-                                            <!--<directory>${MonetDB_dir}/lib/</directory>-->
-                                            <!-- TODO REMOVE THIS STRATEGY, TERRIBLE CODE -->
-                                            <directory>${MonetDB_dir}/lib-major/</directory>
+                                            <directory>${MonetDB_dir}/lib/</directory>
                                             <includes>
                                                 <include>libstream.*.dylib</include>
                                                 <include>libbat.*.dylib</include>
