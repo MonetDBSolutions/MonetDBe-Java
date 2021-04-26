@@ -20,10 +20,10 @@ jobs:
     - name: Run example class (SimpleTypes)
       run: scripts/run_dev.sh SimpleTypes
     - name: Publish Linux default slim jar
-        uses: actions/upload-artifact@v2
-        with:
-          name: monetdbe-java-1.0-SNAPSHOT-linux-slim-default.jar
-          path: /home/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+      uses: actions/upload-artifact@v2
+      with:
+        name: monetdbe-java-1.0-SNAPSHOT-linux-slim-default.jar
+        path: /home/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
 
   linux_oct_slim_build:
     name: linux_oct_build
@@ -42,10 +42,10 @@ jobs:
     - name: Run example class (SimpleTypes)
       run: scripts/run_dev.sh SimpleTypes
     - name: Publish Linux Oct2020 slim jar
-        uses: actions/upload-artifact@v2
-        with:
-          name: monetdbe-java-1.0-SNAPSHOT-linux-slim-oct.jar
-          path: /home/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+      uses: actions/upload-artifact@v2
+      with:
+        name: monetdbe-java-1.0-SNAPSHOT-linux-slim-oct.jar
+        path: /home/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
 
   linux_default_dev_build:
     name: linux_default_build
