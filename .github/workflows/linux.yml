@@ -61,7 +61,7 @@ jobs:
         make install
         cd ../../
     - name: Build with Maven
-      run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
+      run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default
     - name: Run example class (SimpleTypes)
       run: |
         ldd java/target/classes/lib/linux/libmonetdbe-java.so
