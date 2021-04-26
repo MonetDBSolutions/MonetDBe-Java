@@ -12,8 +12,7 @@ cd ..
 
 #REALLY BAD CODE BELOW, REMOVE
 echo 'Changing rpath for dependencies'
-install_name_tool -change $1/lib/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib native/target/monetdbe-java-native.dylib
-otool -l native/target/monetdbe-java-native.dylib
+install_name_tool -change $1/lib/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib /home/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT/monetdbe-java-native-1.0-SNAPSHOT.dylib
 
 echo 'Copying dependency libs to temp folder'
 mkdir $1/lib-major/
