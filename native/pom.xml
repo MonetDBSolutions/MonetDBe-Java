@@ -40,7 +40,7 @@
                 <packaging.type>so</packaging.type>
                 <include.java>${JAVA_HOME}/include/linux/</include.java>
                 <!-- TODO Clean this, on the GH actions machine a 64 linux had the libraries in lib/ instead of lib64/ -->
-                <link.rpath>${MonetDB_dir}/lib,rpath,${MonetDB_dir}/lib64</link.rpath>
+                <link.rpath>${MonetDB_dir}/lib,-rpath,${MonetDB_dir}/lib64</link.rpath>
             </properties>
         </profile>
 
