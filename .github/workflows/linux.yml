@@ -62,7 +62,10 @@ jobs:
         cd ../../
     - name: Build with Maven
       run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default
-    - name: Run example class (SimpleTypes)
+    - name: Check libmonetdbe-java.so linking
       run: |
         ldd java/target/classes/lib/linux/libmonetdbe-java.so
-        scripts/run_dev.sh SimpleTypes
+        ls /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/lib
+        ls /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/lib64
+    - name: Run example class (SimpleTypes)
+      run: scripts/run_dev.sh SimpleTypes

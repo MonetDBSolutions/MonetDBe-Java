@@ -61,3 +61,7 @@ jobs:
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
           javac -cp D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar SimpleTypes.java
           java -classpath ".\;D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar" SimpleTypes
+      - name: Publish Windows jar
+        uses: actions/upload-artifact@v2
+        with:
+          path: D:\a\MonetDBe-Java\MonetDBe-Java\java\target\*.jar
