@@ -39,7 +39,7 @@ jobs:
       #  run: scripts/mac/change_rpath.sh /usr/local/Cellar/monetdb/11.39.15/lib
       #  if: always()
       - name: Build with Maven
-        run: scripts/mac/build_slim.sh /usr/local/Cellar/monetdb/11.39.15/
+        run: scripts/mac/build_slim.sh /usr/local/Cellar/monetdb/11.39.15
       - name: Run example class (SimpleTypes)
         run: scripts/mac/run_slim.sh SimpleTypes
       - name: Publish Mac slim jar

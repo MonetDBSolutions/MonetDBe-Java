@@ -4,7 +4,7 @@ on:
 
 jobs:
   linux_default_slim_build:
-    name: linux_default_build
+    name: linux_default_slim_build
     runs-on: ubuntu-latest
     container: monetdb/dev-builds:default
     steps:
@@ -16,9 +16,9 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Build with Maven
-      run: scripts/build_dev.sh /usr/local
+      run: scripts/linux/build_slim.sh /usr/local
     - name: Run example class (SimpleTypes)
-      run: scripts/run_dev.sh SimpleTypes
+      run: scripts/linux/run_slim.sh SimpleTypes
     - name: Publish Linux default slim jar
       uses: actions/upload-artifact@v2
       with:
@@ -26,7 +26,7 @@ jobs:
         path: /home/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
 
   linux_oct_slim_build:
-    name: linux_oct_build
+    name: linux_oct_slim_build
     runs-on: ubuntu-latest
     container: monetdb/dev-builds:Oct2020
     steps:
@@ -38,9 +38,9 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Build with Maven
-      run: scripts/build_dev.sh /usr/local
+      run: scripts/linux/build_slim.sh /usr/local
     - name: Run example class (SimpleTypes)
-      run: scripts/run_dev.sh SimpleTypes
+      run: scripts/linux/run_slim.sh SimpleTypes
     - name: Publish Linux Oct2020 slim jar
       uses: actions/upload-artifact@v2
       with:
@@ -48,7 +48,7 @@ jobs:
         path: /home/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
 
   linux_default_dev_build:
-    name: linux_default_build
+    name: linux_default_dev_build
     runs-on: ubuntu-latest
     container: monetdb/dev-builds:default
     steps:
@@ -65,7 +65,7 @@ jobs:
       run: scripts/run_dev.sh SimpleTypes
 
   linux_oct_dev_build:
-    name: linux_oct_build
+    name: linux_oct_dev_build
     runs-on: ubuntu-latest
     container: monetdb/dev-builds:Oct2020
     steps:
@@ -82,7 +82,7 @@ jobs:
       run: scripts/run_dev.sh SimpleTypes
 
   linux_manual_dev_build:
-    name: linux_manual_build
+    name: linux_manual_dev_build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -106,14 +106,8 @@ jobs:
         cd ../../
     - name: Build with Maven
       run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default
-    - name: Check OS arch
-      run: |
-        cd java
-        mvn enforcer:display-info
-        cd ..
     - name: Check libmonetdbe-java.so linking
       run: |
         ldd java/target/classes/lib/linux/libmonetdbe-java.so
-        ls /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/lib
     - name: Run example class (SimpleTypes)
       run: scripts/run_dev.sh SimpleTypes
