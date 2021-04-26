@@ -39,7 +39,7 @@
             <properties>
                 <packaging.type>so</packaging.type>
                 <include.java>${JAVA_HOME}/include/linux/</include.java>
-                <link.rpath>${MonetDB_dir}/lib64</link.rpath>
+                <link.rpath>${MonetDB_dir}/lib</link.rpath>
             </properties>
         </profile>
 

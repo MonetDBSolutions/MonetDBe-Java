@@ -189,7 +189,6 @@
             </build>
         </profile>
 
-        <!-- TODO Change their rpath (linux and mac) -->
         <!-- SLIM JAR BUILDS -->
         <!-- Linux build: copy direct dependencies and pre-compiled native monetdbe-java library
             (has to be enabled with -P linux-slim; must set the -DMonetDB_dir property) -->
