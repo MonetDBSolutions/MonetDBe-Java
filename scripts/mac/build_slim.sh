@@ -8,11 +8,12 @@ fi
 echo 'Compiling native'
 cd native
 mvn clean install -DMonetDB_dir=$1 -P mac-release
+cd ..
 
 #REALLY BAD CODE BELOW, REMOVE
 echo 'Changing rpath for dependencies'
-install_name_tool -change $1/lib/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib target/libmonetdbe-java.dylib
-otool -l target/libmonetdbe-java.dylib
+install_name_tool -change $1/lib/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib native/target/monetdbe-java-native.dylib
+otool -l native/target/monetdbe-java-native.dylib
 
 echo 'Copying dependency libs to temp folder'
 mkdir $1/lib-major/
@@ -26,7 +27,7 @@ for file in *; do install_name_tool -add_rpath @loader_path/. $file; done
 cd -
 
 echo 'Compiling jar'
-cd ../java
+cd java
 mvn clean install -DMonetDB_dir=$1 -P mac-slim
 
 #REALLY BAD CODE BELOW, REMOVE
