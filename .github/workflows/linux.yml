@@ -16,7 +16,7 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Install chrpath
-      run: apt-get install chrpath
+      run: apt-get install chrpath patchelf
     - name: Build with Maven
       run: scripts/linux/build_slim.sh /usr/local
     - name: Run example class (SimpleTypes)
@@ -40,7 +40,7 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Install chrpath
-      run: apt-get install chrpath
+      run: apt-get install chrpath patchelf
     - name: Build with Maven
       run: scripts/linux/build_slim.sh /usr/local
     - name: Run example class (SimpleTypes)

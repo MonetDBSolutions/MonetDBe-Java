@@ -20,6 +20,11 @@ jobs:
         run: scripts/build_dev.sh /usr/local
       - name: Run example class (SimpleTypes)
         run: scripts/run_dev.sh SimpleTypes
+      - name: Publish Mac dev jar
+        uses: actions/upload-artifact@v2
+        with:
+          name: monetdbe-java-1.0-SNAPSHOT-mac-dev.jar
+          path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT.jar
 
   mac_brew_slim_build:
       name: mac_brew_slim_build
@@ -35,11 +40,8 @@ jobs:
         uses: stCarolas/setup-maven@v4
       - name: Install monetdb through brew
         run: brew install monetdb
-      #- name: Change rpath of MonetDB libraries
-      #  run: scripts/mac/change_rpath.sh /usr/local/Cellar/monetdb/11.39.15/lib
-      #  if: always()
       - name: Build with Maven
-        run: scripts/mac/build_slim.sh /usr/local/Cellar/monetdb/11.39.15
+        run: scripts/mac/build_slim.sh /usr/local/opt/monetdb
       - name: Run example class (SimpleTypes)
         run: scripts/mac/run_slim.sh SimpleTypes
       - name: Publish Mac slim jar
