@@ -10,7 +10,8 @@ import org.junit.runners.Suite.SuiteClasses;
 		Test_06_ComplexInsertAndQueryStatements.class, Test_07_SimplePreparedStatements.class,
 		Test_08_ComplexPreparedStatements.class, Test_09_LoadAndQueryTaxi.class, Test_10_MetaData.class,
 		Test_11_ConcurrentConnections.class, Test_12_BatchesAndJoinsMovies.class,
-		Test_13_Schema.class, Test_14_MultipleResultSet.class, Test_15_Transactions.class })
+		Test_13_Schema.class, Test_14_MultipleResultSet.class, Test_15_Transactions.class,
+		Test_16_MixedOrderStatements.class, Test_17_QueryInThread.class })
 public class AllTests {
 
 	protected static final String MEMORY_CONNECTION = "jdbc:monetdb:memory:";
