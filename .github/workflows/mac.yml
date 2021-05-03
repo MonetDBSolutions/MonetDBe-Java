@@ -46,13 +46,14 @@ jobs:
         run: |
           cd native
           mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
+          cd ..
       - name: Move direct dependencies (MonetDB libs)
         run: |
           echo 'Copying MonetDB libraries'
-          cd ..
           mkdir lib_major
           cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib lib_major
           ls lib_major
+          ls
       - name: Change rpath of libraries to package
         run: |
           pwd
