@@ -3,8 +3,8 @@ on:
   [push,workflow_dispatch,pull_request]
 
 jobs:
-  linux_oct_dev_build:
-    name: linux_oct_dev_build
+  linux_oct_slim_build:
+    name: linux_oct_slim_build
     runs-on: ubuntu-latest
     container: monetdb/dev-builds:Oct2020
     env:
@@ -28,7 +28,6 @@ jobs:
         echo 'Copying MonetDB libraries'
         mkdir lib_major
         cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? lib_major
-        ls lib_major
     - name: Change rpath of libraries to package
       run: |
         pwd
@@ -37,11 +36,13 @@ jobs:
     - name: Compile Java and package into jar
       run: |
         cd java
-        echo '$PWD'
-        mvn clean install -DDIRECT_LIBS=$PWD/lib_major -P mac-slim
+        mvn clean install -DDIRECT_LIBS=$PWD/lib_major -P linux-slim
         cd ..
     - name: Run example class (SimpleTypes)
-      run: scripts/run_dev.sh SimpleTypes
+      run: |
+        javac -cp java/target/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar example/SimpleTypes.java
+        java -cp java/target/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar:example/ SimpleTypes
+
   linux_default_dev_build:
     name: linux_default_dev_build
     runs-on: ubuntu-latest

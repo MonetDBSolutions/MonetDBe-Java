@@ -214,7 +214,8 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/linux/direct/</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>${MonetDB_dir}/lib/</directory>
+                                            <!--<directory>${MonetDB_dir}/lib/</directory>-->
+                                            <directory>${DIRECT_LIBS}</directory>
                                             <includes>
                                                 <include>libstream.so.*</include>
                                                 <include>libbat.so.*</include>
@@ -224,7 +225,7 @@
                                                 <include>libmonetdbe.so.*</include>
                                             </includes>
                                         </resource>
-                                        <resource>
+                                        <!--<resource>
                                             <directory>${MonetDB_dir}/lib64/</directory>
                                             <includes>
                                                 <include>libstream.so.*</include>
@@ -234,14 +235,14 @@
                                                 <include>libmonetdbsql.so.*</include>
                                                 <include>libmonetdbe.so.*</include>
                                             </includes>
-                                        </resource>
+                                        </resource>-->
                                     </resources>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
                     <!-- Enforce that MonetDB_dir is set -->
-                    <plugin>
+                    <!--<plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <version>1.4.1</version>
@@ -262,7 +263,7 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
+                    </plugin>-->
                 </plugins>
             </build>
         </profile>
@@ -292,7 +293,8 @@
                                     <resources>
                                         <resource>
                                             <!-- TODO Only lib (not lib64)? -->
-                                            <directory>${MonetDB_dir}/lib/</directory>
+                                            <!--<directory>${MonetDB_dir}/lib/</directory>-->
+                                            <directory>${DIRECT_LIBS}</directory>
                                             <includes>
                                                 <include>libstream.*.dylib</include>
                                                 <include>libbat.*.dylib</include>
@@ -308,7 +310,7 @@
                         </executions>
                     </plugin>
                     <!-- Enforce that MonetDB_dir is set -->
-                    <plugin>
+                    <!--<plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <version>1.4.1</version>
@@ -329,7 +331,7 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
+                    </plugin>-->
                 </plugins>
             </build>
         </profile>

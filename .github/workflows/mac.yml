@@ -52,12 +52,8 @@ jobs:
           echo 'Copying MonetDB libraries'
           mkdir lib_major
           cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib lib_major
-          ls lib_major
-          ls
       - name: Change rpath of libraries to package
         run: |
-          pwd
-          ls
           for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -add_rpath @loader_path/. $file; done
       - name: Compile Java and package into jar
         run: |
