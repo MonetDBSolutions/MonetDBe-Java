@@ -55,7 +55,8 @@ jobs:
           ls lib_major
       - name: Change rpath of libraries to package
         run: |
-          for file in lib_major/*; do install_name_tool -add_rpath @loader_path/. $file; done
+          cd lib_major
+          for file in ./*; do install_name_tool -add_rpath @loader_path/. $file; done
       - name: Compile Java and package into jar
         run: |
           cd java
