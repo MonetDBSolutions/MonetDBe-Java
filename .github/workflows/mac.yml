@@ -127,7 +127,7 @@ jobs:
       - name: Compile Java and package into jar
         run: |
           cd java
-          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim, mac-fat
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,mac-fat
           cd ..
       - name: Uninstall MonetDB (to test the jar is portable)
         run: brew uninstall monetdb
