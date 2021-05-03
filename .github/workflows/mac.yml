@@ -26,6 +26,53 @@ jobs:
           name: monetdbe-java-1.0-SNAPSHOT-mac-dev.jar
           path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT.jar
 
+  mac_brew_slim_build:
+      name: mac_brew_slim_build
+      runs-on: macos-latest
+      env:
+        MONETDB_INSTALL=/usr/local
+        MONETDB_LIBS=/usr/local/lib
+      steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v4
+      - name: Install monetdb through brew
+        run: brew install monetdb
+      - name: Install native library (libmonetdbe-java.dylib)
+        run: |
+          cd native
+          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
+      - name: Move direct dependencies (MonetDB libs)
+        run: |
+          echo 'Copying MonetDB libraries'
+          cd ..
+          mkdir lib_major
+          cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib lib_major
+          ls lib_major
+          pwd
+      - name: Change rpath of libraries to package
+        run: |
+          for file in lib_major; do install_name_tool -add_rpath @loader_path/. $file; done
+      - name: Compile Java and package into jar
+        run: |
+          cd java
+          echo '$PWD'
+          mvn clean install -DDIRECT_LIBS=$PWD/lib_major -P mac-slim
+          cd ..
+      - name: Run example class (SimpleTypes)
+        run: |
+          javac -cp java/target/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar example/SimpleTypes.java
+          java -cp java/target/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar:example/ SimpleTypes
+      - name: Publish Mac dev jar
+        uses: actions/upload-artifact@v2
+        with:
+          name: monetdbe-java-1.0-SNAPSHOT-mac-dev.jar
+          path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT.jar
+
 
   #Bison set up was causing problems, solve later
   #mac_manual_build:
