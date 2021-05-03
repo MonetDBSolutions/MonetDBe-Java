@@ -11,7 +11,7 @@ jobs:
         MONETDB_INSTALL: /usr/local
         MONETDB_LIBS: /usr/local/lib
         M2_REPO_JAVA: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
-        ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
       steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -37,22 +37,22 @@ jobs:
       - name: Copy transitive dependencies
         run: |
           echo 'Copying transitive libraries'
-          cp /lib64/libpcre.so.3 /lib64/libz.so.1 $GITHUB_WORKSPACE/collect_libs
+          cp /usr/lib64/libpcre.so.3 /usr/lib64/libz.so.1 $GITHUB_WORKSPACE/collect_libs
       - name: Compile Java and package into jar
         run: |
           cd java
-          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim, linux-fat
           cd ..
       - name: Run example class (SimpleTypes)
         run: |
           javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
           java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
       #TODO Change this to env variable, $var and $env.var didn't work
-      - name: Publish Linux slim jar
+      - name: Publish Linux fat jar
         uses: actions/upload-artifact@v2
         with:
-          name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-          path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+          name: monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
+          path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
 
   linux_oct_slim_build:
     name: linux_oct_slim_build

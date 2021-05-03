@@ -354,7 +354,6 @@
                                             <includes>
                                                 <include>libz.so.*</include>
                                                 <include>libpcre.so.*</include>
-                                                <include>libuuid.so.*</include>
                                             </includes>
                                         </resource>
                                     </resources>
@@ -390,11 +389,12 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/mac/transitive</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <!-- libz, libpcre, libuuid (?) -->
+                                            <!-- libz, libpcre, libcrypto, libuuid (?) -->
                                             <directory>${COLLECT_LIBS}</directory>
                                             <includes>
                                                 <include>libz.*.dylib</include>
                                                 <include>libpcre.*.dylib</include>
+                                                <include>libcrypto.*.dylib</include>
                                             </includes>
                                         </resource>
                                     </resources>

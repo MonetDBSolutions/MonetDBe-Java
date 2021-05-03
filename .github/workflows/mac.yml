@@ -82,6 +82,65 @@ jobs:
           name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
           path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
 
+  mac_brew_fat_build:
+      name: mac_brew_fat_build
+      runs-on: macos-latest
+      env:
+        MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.15
+        MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.15/lib
+        LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
+        M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT
+        M2_REPO_JAVA: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+        ARTIFACT_NATIVE: monetdbe-java-native-1.0-SNAPSHOT.dylib
+        ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
+      steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v4
+      - name: Install monetdb through brew
+        run: brew install monetdb
+      - name: Install native library (libmonetdbe-java.dylib)
+        run: |
+          cd native
+          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
+          cd ..
+      #TODO Find out how this LOAD_PATH (/usr/local/opt/monetdb/lib) is assigned
+      - name: Change load path for libmonetdbe-java dependency (to be rpath dependent)
+        run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
+      - name: Copy direct dependencies (MonetDB libs)
+        run: |
+          mkdir collect_libs
+          cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib collect_libs
+      - name: Change rpath of libraries to package
+        run: |
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
+      - name: Copy transitive dependencies
+        run: |
+          echo 'Copying transitive libraries'
+          cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib /usr/lib/libz.1.dylib $GITHUB_WORKSPACE/collect_libs
+      - name: Compile Java and package into jar
+        run: |
+          cd java
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim
+          cd ..
+      - name: Uninstall MonetDB (to test the jar is portable)
+        run: brew uninstall monetdb
+      - name: Run example class (SimpleTypes)
+        run: |
+          javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
+          java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
+      #TODO Change this to env variable, $var and $env.var didn't work
+      - name: Publish Mac fat jar
+        uses: actions/upload-artifact@v2
+        with:
+          name: monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
+          path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
 
   #Bison set up was causing problems, solve later
   #mac_manual_build:
