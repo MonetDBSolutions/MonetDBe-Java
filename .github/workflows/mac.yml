@@ -47,6 +47,9 @@ jobs:
           cd native
           mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
           cd ..
+      - name: Change load path for libmonetdbe-java dependency
+        run: |
+          install_name_tool -change /usr/local/opt/monetdb/lib/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT/monetdbe-java-native-1.0-SNAPSHOT.dylib
       - name: Move direct dependencies (MonetDB libs)
         run: |
           echo 'Copying MonetDB libraries'
@@ -54,16 +57,13 @@ jobs:
           cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib lib_major
       - name: Change rpath of libraries to package
         run: |
-          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do otool -l $file; done
-          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
-          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
-          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -add_rpath @loader_path/. $file; done
-          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do otool -l $file; done
+          for file in $GITHUB_WORKSPACE/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
+          for file in $GITHUB_WORKSPACE/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
+          for file in $GITHUB_WORKSPACE/lib_major/*; do install_name_tool -add_rpath @loader_path/. $file; done
       - name: Compile Java and package into jar
         run: |
           cd java
-          echo '$PWD'
-          mvn clean install -DDIRECT_LIBS=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major -P mac-slim
+          mvn clean install -DDIRECT_LIBS=$GITHUB_WORKSPACE/lib_major -P mac-slim
           cd ..
       - name: Run example class (SimpleTypes)
         run: |
@@ -73,7 +73,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
-          path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
 
 
   #Bison set up was causing problems, solve later

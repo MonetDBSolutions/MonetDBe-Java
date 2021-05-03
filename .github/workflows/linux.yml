@@ -48,7 +48,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-        path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
 
   linux_default_dev_build:
     name: linux_default_dev_build
