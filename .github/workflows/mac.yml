@@ -30,8 +30,8 @@ jobs:
       name: mac_brew_slim_build
       runs-on: macos-latest
       env:
-        MONETDB_INSTALL: /usr/local
-        MONETDB_LIBS: /usr/local/lib
+        MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.15
+        MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.15/lib
       steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -55,6 +55,8 @@ jobs:
       - name: Change rpath of libraries to package
         run: |
           for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do otool -l $file; done
+          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
+          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
           for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -add_rpath @loader_path/. $file; done
           for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do otool -l $file; done
       - name: Compile Java and package into jar
