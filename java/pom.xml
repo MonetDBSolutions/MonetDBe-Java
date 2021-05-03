@@ -191,7 +191,7 @@
 
         <!-- SLIM JAR BUILDS -->
         <!-- Linux build: copy direct dependencies and pre-compiled native monetdbe-java library
-            (has to be enabled with -P linux-slim; must set the -DMonetDB_dir property) -->
+            (has to be enabled with -P linux-slim; must set the -DCOLLECT_LIBS property) -->
         <profile>
             <id>linux-slim</id>
             <properties>
@@ -215,7 +215,7 @@
                                     <resources>
                                         <resource>
                                             <!--<directory>${MonetDB_dir}/lib/</directory>-->
-                                            <directory>${DIRECT_LIBS}</directory>
+                                            <directory>${COLLECT_LIBS}</directory>
                                             <includes>
                                                 <include>libstream.so.*</include>
                                                 <include>libbat.so.*</include>
@@ -225,24 +225,13 @@
                                                 <include>libmonetdbe.so.*</include>
                                             </includes>
                                         </resource>
-                                        <!--<resource>
-                                            <directory>${MonetDB_dir}/lib64/</directory>
-                                            <includes>
-                                                <include>libstream.so.*</include>
-                                                <include>libbat.so.*</include>
-                                                <include>libmapi.so.*</include>
-                                                <include>libmonetdb5.so.*</include>
-                                                <include>libmonetdbsql.so.*</include>
-                                                <include>libmonetdbe.so.*</include>
-                                            </includes>
-                                        </resource>-->
                                     </resources>
                                 </configuration>
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Enforce that MonetDB_dir is set -->
-                    <!--<plugin>
+                    <!-- Enforce that COLLECT_LIBS is set -->
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <version>1.4.1</version>
@@ -255,21 +244,21 @@
                                 <configuration>
                                     <rules>
                                         <requireProperty>
-                                            <property>MonetDB_dir</property>
-                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
+                                            <property>COLLECT_LIBS</property>
+                                            <message>You must set the COLLECT_LIBS property, pointing to the directory where the dependency libraries are.</message>
                                         </requireProperty>
                                     </rules>
                                     <fail>true</fail>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>
                 </plugins>
             </build>
         </profile>
 
         <!-- Mac build: copy direct dependencies and pre-compiled native monetdbe-java library
-            (has to be enabled with -P mac-slim; must set the -DMonetDB_dir property) -->
+            (has to be enabled with -P mac-slim; must set the -DCOLLECT_LIBS property) -->
         <profile>
             <id>mac-slim</id>
             <properties>
@@ -292,9 +281,8 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/mac/direct/</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <!-- TODO Only lib (not lib64)? -->
                                             <!--<directory>${MonetDB_dir}/lib/</directory>-->
-                                            <directory>${DIRECT_LIBS}</directory>
+                                            <directory>${COLLECT_LIBS}</directory>
                                             <includes>
                                                 <include>libstream.*.dylib</include>
                                                 <include>libbat.*.dylib</include>
@@ -309,8 +297,8 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Enforce that MonetDB_dir is set -->
-                    <!--<plugin>
+                    <!-- Enforce that COLLECT_LIBS is set -->
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-enforcer-plugin</artifactId>
                         <version>1.4.1</version>
@@ -323,15 +311,15 @@
                                 <configuration>
                                     <rules>
                                         <requireProperty>
-                                            <property>MonetDB_dir</property>
-                                            <message>You must set the MonetDB_dir property, pointing to the MonetDB base directory (not the lib/lib64 directory)</message>
+                                            <property>COLLECT_LIBS</property>
+                                            <message>You must set the COLLECT_LIBS property, pointing to the directory where the dependency libraries are.</message>
                                         </requireProperty>
                                     </rules>
                                     <fail>true</fail>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -361,9 +349,8 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/linux/transitive</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <!-- libz, libpcre, libuuid -->
-                                            <!-- TODO Verify if these are enough -->
-                                            <directory>/usr/lib/</directory>
+                                            <!-- libz, libpcre, libuuid (?) -->
+                                            <directory>${COLLECT_LIBS}</directory>
                                             <includes>
                                                 <include>libz.so.*</include>
                                                 <include>libpcre.so.*</include>
@@ -403,9 +390,8 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/mac/transitive</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <!-- libz, libpcre, libuuid -->
-                                            <!-- TODO Verify if these are enough -->
-                                            <directory>/usr/lib/</directory>
+                                            <!-- libz, libpcre, libuuid (?) -->
+                                            <directory>${COLLECT_LIBS}</directory>
                                             <includes>
                                                 <include>libz.*.dylib</include>
                                                 <include>libpcre.*.dylib</include>

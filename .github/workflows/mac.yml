@@ -52,22 +52,22 @@ jobs:
           cd native
           mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
           cd ..
+      #TODO Find out how this LOAD_PATH (/usr/local/opt/monetdb/lib) is assigned
       - name: Change load path for libmonetdbe-java dependency (to be rpath dependent)
         run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
-      - name: Move direct dependencies (MonetDB libs)
+      - name: Copy direct dependencies (MonetDB libs)
         run: |
-          echo 'Copying MonetDB libraries'
-          mkdir lib_major
-          cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib lib_major
+          mkdir collect_libs
+          cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib collect_libs
       - name: Change rpath of libraries to package
         run: |
-          for file in $GITHUB_WORKSPACE/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
-          for file in $GITHUB_WORKSPACE/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
-          for file in $GITHUB_WORKSPACE/lib_major/*; do install_name_tool -add_rpath @loader_path/. $file; done
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
       - name: Compile Java and package into jar
         run: |
           cd java
-          mvn clean install -DDIRECT_LIBS=$GITHUB_WORKSPACE/lib_major -P mac-slim
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim
           cd ..
       - name: Uninstall MonetDB (to test the jar is portable)
         run: brew uninstall monetdb
@@ -75,11 +75,12 @@ jobs:
         run: |
           javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
           java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
+      #TODO Change this to env variable, $var and $env.var didn't work
       - name: Publish Mac slim jar
         uses: actions/upload-artifact@v2
         with:
-          name: $env.ARTIFACT_JAVA
-          path: $env.M2_REPO_JAVA/$env.ARTIFACT_JAVA
+          name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
 
 
   #Bison set up was causing problems, solve later
