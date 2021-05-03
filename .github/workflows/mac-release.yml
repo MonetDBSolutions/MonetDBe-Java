@@ -1,31 +1,8 @@
-name: MonetDBe-Java MacOS CI (default build from source)
+name: MonetDBe-Java MacOS Slim and Fat Jar release (from brew build)
 on:
   [push,workflow_dispatch,pull_request]
 
 jobs:
-  mac_brew_dev_build:
-      name: mac_brew_dev_build
-      runs-on: macos-latest
-      steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Setup Maven
-        uses: stCarolas/setup-maven@v4
-      - name: Install monetdb through brew
-        run: brew install monetdb
-      - name: Build with Maven
-        run: build_dev.sh /usr/local
-      - name: Run example class (SimpleTypes)
-        run: run_dev.sh SimpleTypes
-      - name: Publish Mac dev jar
-        uses: actions/upload-artifact@v2
-        with:
-          name: monetdbe-java-1.0-SNAPSHOT-mac-dev.jar
-          path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT.jar
-
   mac_brew_slim_build:
       name: mac_brew_slim_build
       runs-on: macos-latest
