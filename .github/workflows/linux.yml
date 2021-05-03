@@ -46,11 +46,11 @@ jobs:
       run: |
         javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
         java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
-    - name: Publish Linux dev jar
+    - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
-        name: $ARTIFACT_JAVA
-        path: $M2_REPO_JAVA/$ARTIFACT_JAVA
+        name: $env.ARTIFACT_JAVA
+        path: $env.M2_REPO_JAVA/$env.ARTIFACT_JAVA
 
   linux_default_dev_build:
     name: linux_default_dev_build
