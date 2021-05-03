@@ -63,9 +63,9 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Build with Maven
-      run: scripts/build_dev.sh /usr/local
+      run: build_dev.sh /usr/local
     - name: Run example class (SimpleTypes)
-      run: scripts/run_dev.sh SimpleTypes
+      run: run_dev.sh SimpleTypes
 
   linux_oct_dev_build:
     name: linux_oct_dev_build
@@ -80,9 +80,9 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Build with Maven
-      run: scripts/build_dev.sh /usr/local
+      run: build_dev.sh /usr/local
     - name: Run example class (SimpleTypes)
-      run: scripts/run_dev.sh SimpleTypes
+      run: run_dev.sh SimpleTypes
 
   #linux_manual_dev_build:
   #  name: linux_manual_dev_build
@@ -108,9 +108,9 @@ jobs:
   #      make install
   #      cd ../../
   #  - name: Build with Maven
-  #    run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default
+  #    run: build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default
   #  - name: Check libmonetdbe-java.so linking
   #    run: |
   #      ldd java/target/classes/lib/linux/libmonetdbe-java.so
   #  - name: Run example class (SimpleTypes)
-  #    run: scripts/run_dev.sh SimpleTypes
+  #    run: run_dev.sh SimpleTypes
