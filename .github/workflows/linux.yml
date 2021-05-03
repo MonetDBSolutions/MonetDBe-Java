@@ -19,7 +19,7 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
     - name: Install chrpath
-      uses: apt-get install -y chrpath
+      run: apt-get install -y chrpath
     - name: Install native library (libmonetdbe-java.dylib)
       run: |
         cd native
