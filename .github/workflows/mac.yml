@@ -30,8 +30,8 @@ jobs:
       name: mac_brew_slim_build
       runs-on: macos-latest
       env:
-        MONETDB_INSTALL=/usr/local
-        MONETDB_LIBS=/usr/local/lib
+        MONETDB_INSTALL: /usr/local
+        MONETDB_LIBS: /usr/local/lib
       steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
