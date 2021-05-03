@@ -83,6 +83,7 @@ jobs:
           path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
 
   mac_brew_fat_build:
+      #TODO Add more transitive dependencies
       name: mac_brew_fat_build
       runs-on: macos-latest
       env:

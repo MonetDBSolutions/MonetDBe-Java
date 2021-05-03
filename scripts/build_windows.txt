@@ -1,9 +1,0 @@
-"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
-set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_211\
-cd native
-C:\Users\bernardo\mdbe-java\apache-maven-3.6.3\bin\mvn clean install -DMonetDB_dir=C:\Users\bernardo\mdbe-java\MonetDB-source
-cd ../java/  
-C:\Users\bernardo\mdbe-java\apache-maven-3.6.3\bin\mvn clean install -DMonetDB_dir=C:\Users\bernardo\mdbe-java\MonetDB-source -DVCPKG_ROOT=C:\vcpkg\
-cd ../example 
-"C:\Program Files\Java\jdk1.8.0_211\bin\javac" -classpath "C:\Users\bernardo\mdbe-java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar" SimpleTypes.java
-"C:\Program Files\Java\jdk1.8.0_211\bin\java" -classpath "C:\Users\bernardo\mdbe-java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar;." SimpleTypes

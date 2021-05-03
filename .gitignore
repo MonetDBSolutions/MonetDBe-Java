@@ -1,6 +1,5 @@
-fatjar/*64/
+release-libs
 other/apidocs/
-
 
 # Compiled class file
 *.class
