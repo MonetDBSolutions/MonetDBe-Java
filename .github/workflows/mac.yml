@@ -54,12 +54,14 @@ jobs:
           cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib lib_major
       - name: Change rpath of libraries to package
         run: |
+          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
+          for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
           for file in /Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do install_name_tool -add_rpath @loader_path/. $file; done
       - name: Compile Java and package into jar
         run: |
           cd java
           echo '$PWD'
-          mvn clean install -DDIRECT_LIBS=$PWD/lib_major -P mac-slim
+          mvn clean install -DDIRECT_LIBS=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major -P mac-slim
           cd ..
       - name: Run example class (SimpleTypes)
         run: |
@@ -68,8 +70,8 @@ jobs:
       - name: Publish Mac dev jar
         uses: actions/upload-artifact@v2
         with:
-          name: monetdbe-java-1.0-SNAPSHOT-mac-dev.jar
-          path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT.jar
+          name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
 
 
   #Bison set up was causing problems, solve later
