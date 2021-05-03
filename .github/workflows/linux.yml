@@ -37,8 +37,6 @@ jobs:
       - name: Copy transitive dependencies
         run: |
           echo 'Copying transitive libraries'
-          find -name "libpcre" / 2> /dev/null
-          find -name "libz" / 2> /dev/null
           ls /lib64/
           ls /usr/lib64/
           cp /usr/lib64/libpcre.so.3 /usr/lib64/libz.so.1 $GITHUB_WORKSPACE/collect_libs

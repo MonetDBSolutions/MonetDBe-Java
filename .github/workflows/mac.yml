@@ -124,6 +124,13 @@ jobs:
         run: |
           echo 'Copying transitive libraries'
           cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib /usr/lib/libz.1.dylib $GITHUB_WORKSPACE/collect_libs
+      - name: Change load path of transitive dependecies
+        run: |
+          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmapi.12.dylib
+          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
+          install_name_tool -change /usr/local/opt/pcre/lib/libpcre.1.dylib @rpath/libpcre.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
+          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.11.dylib
+          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
       - name: Compile Java and package into jar
         run: |
           cd java
