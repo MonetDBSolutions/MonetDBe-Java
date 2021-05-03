@@ -32,11 +32,12 @@ jobs:
         cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? lib_major
     - name: Change rpath of libraries to package
       run: |
-        for file in /home/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major/*; do chrpath -r '$ORIGIN/.' $file; done
+        pwd
+        for file in $PWD/../lib_major/*; do chrpath -r '$ORIGIN/.' $file; done
     - name: Compile Java and package into jar
       run: |
         cd java
-        mvn clean install -DDIRECT_LIBS=/home/runner/work/MonetDBe-Java/MonetDBe-Java/lib_major -P linux-slim
+        mvn clean install -DDIRECT_LIBS=$PWD/../lib_major -P linux-slim
         cd ..
     - name: Run example class (SimpleTypes)
       run: |
