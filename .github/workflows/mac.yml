@@ -32,6 +32,11 @@ jobs:
       env:
         MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.15
         MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.15/lib
+        LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
+        M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT
+        M2_REPO_JAVA: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+        ARTIFACT_NATIVE: monetdbe-java-native-1.0-SNAPSHOT.dylib
+        ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
       steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -47,9 +52,8 @@ jobs:
           cd native
           mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
           cd ..
-      - name: Change load path for libmonetdbe-java dependency
-        run: |
-          install_name_tool -change /usr/local/opt/monetdb/lib/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT/monetdbe-java-native-1.0-SNAPSHOT.dylib
+      - name: Change load path for libmonetdbe-java dependency (to be rpath dependent)
+        run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
       - name: Move direct dependencies (MonetDB libs)
         run: |
           echo 'Copying MonetDB libraries'
@@ -65,15 +69,17 @@ jobs:
           cd java
           mvn clean install -DDIRECT_LIBS=$GITHUB_WORKSPACE/lib_major -P mac-slim
           cd ..
+      - name: Uninstall MonetDB (to test the jar is portable)
+        run: brew uninstall monetdb
       - name: Run example class (SimpleTypes)
         run: |
-          javac -cp java/target/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar example/SimpleTypes.java
-          java -cp java/target/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar:example/ SimpleTypes
+          javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
+          java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
       - name: Publish Mac dev jar
         uses: actions/upload-artifact@v2
         with:
-          name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
-          path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          name: $ARTIFACT_JAVA
+          path: $M2_REPO_JAVA/$ARTIFACT_JAVA
 
 
   #Bison set up was causing problems, solve later

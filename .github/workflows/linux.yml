@@ -10,6 +10,8 @@ jobs:
     env:
       MONETDB_INSTALL: /usr/local
       MONETDB_LIBS: /usr/local/lib
+      M2_REPO_JAVA: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
@@ -34,21 +36,21 @@ jobs:
         ls ..
     - name: Change rpath of libraries to package
       run: |
-        for file in /__w/MonetDBe-Java/MonetDBe-Java/lib_major/*; do chrpath -r '$ORIGIN/.' $file; done
+        for file in $GITHUB_WORKSPACE/lib_major/*; do chrpath -r '$ORIGIN/.' $file; done
     - name: Compile Java and package into jar
       run: |
         cd java
-        mvn clean install -DDIRECT_LIBS=/__w/MonetDBe-Java/MonetDBe-Java/lib_major -P linux-slim
+        mvn clean install -DDIRECT_LIBS=$GITHUB_WORKSPACE/lib_major -P linux-slim
         cd ..
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar example/SimpleTypes.java
-        java -cp java/target/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar:example/ SimpleTypes
+        javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
+        java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
     - name: Publish Linux dev jar
       uses: actions/upload-artifact@v2
       with:
-        name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-        path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        name: $ARTIFACT_JAVA
+        path: $M2_REPO_JAVA/$ARTIFACT_JAVA
 
   linux_default_dev_build:
     name: linux_default_dev_build
@@ -84,33 +86,33 @@ jobs:
     - name: Run example class (SimpleTypes)
       run: scripts/run_dev.sh SimpleTypes
 
-  linux_manual_dev_build:
-    name: linux_manual_dev_build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-    - name: Setup Maven
-      uses: stCarolas/setup-maven@v4
-    - name: Get monetdb
-      run: |
-        hg clone http://dev.monetdb.org/hg/MonetDB/
-    - name: Compile and install MonetDB
-      run: |
-        cd MonetDB
-        mkdir build MonetDB-default
-        cd build
-        pwd
-        cmake ../ -DCMAKE_INSTALL_PREFIX=/home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/ -DPY3INTEGRATION=OFF -DWITH_CRYPTO=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF -DINT128=ON -DSTRICT=OFF
-        make install
-        cd ../../
-    - name: Build with Maven
-      run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default
-    - name: Check libmonetdbe-java.so linking
-      run: |
-        ldd java/target/classes/lib/linux/libmonetdbe-java.so
-    - name: Run example class (SimpleTypes)
-      run: scripts/run_dev.sh SimpleTypes
+  #linux_manual_dev_build:
+  #  name: linux_manual_dev_build
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #  - uses: actions/checkout@v2
+  #  - name: Set up JDK 1.8
+  #    uses: actions/setup-java@v1
+  #    with:
+  #      java-version: 1.8
+  #  - name: Setup Maven
+  #    uses: stCarolas/setup-maven@v4
+  #  - name: Get monetdb
+  #    run: |
+  #      hg clone http://dev.monetdb.org/hg/MonetDB/
+  #  - name: Compile and install MonetDB
+  #    run: |
+  #      cd MonetDB
+  #      mkdir build MonetDB-default
+  #      cd build
+  #      pwd
+  #      cmake ../ -DCMAKE_INSTALL_PREFIX=/home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/ -DPY3INTEGRATION=OFF -DWITH_CRYPTO=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF -DINT128=ON -DSTRICT=OFF
+  #      make install
+  #      cd ../../
+  #  - name: Build with Maven
+  #    run: scripts/build_dev.sh /home/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default
+  #  - name: Check libmonetdbe-java.so linking
+  #    run: |
+  #      ldd java/target/classes/lib/linux/libmonetdbe-java.so
+  #  - name: Run example class (SimpleTypes)
+  #    run: scripts/run_dev.sh SimpleTypes
