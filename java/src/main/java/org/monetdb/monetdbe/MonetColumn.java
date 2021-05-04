@@ -380,8 +380,12 @@ public class MonetColumn {
      * @return If the column type is supported, value at specified row as a {@link MonetBlob} object. Otherwise, returns NULL
      */
     MonetBlob getBlob(int row) {
-        if (monetdbeType == 10)
-            return new MonetBlob((byte[]) varData[row]);
+        if (monetdbeType == 10) {
+            if (varData[row] != null)
+                return new MonetBlob((byte[]) varData[row]);
+            else
+                return null;
+        }
         else
             return null;
     }
@@ -395,6 +399,8 @@ public class MonetColumn {
      * @return If the column type is supported, value at specified row as a LocalDate object. Otherwise, returns NULL
      */
     LocalDate getLocalDate(int row) throws DateTimeParseException {
+        if (varData[row] == null)
+            return null;
         switch (monetdbeType) {
             case 9:
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -417,6 +423,8 @@ public class MonetColumn {
      * @return If the column type is supported, value at specified row as a LocalTime object. Otherwise, returns NULL
      */
     LocalTime getLocalTime(int row) throws DateTimeParseException {
+        if (varData[row] == null)
+            return null;
         switch (monetdbeType) {
             case 9:
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss[.SSSSSS][.SSSS][.SS]");
@@ -439,6 +447,8 @@ public class MonetColumn {
      * @return If the column type is supported, value at specified row as a LocalDateTime object. Otherwise, returns NULL
      */
     LocalDateTime getLocalDateTime(int row) throws DateTimeParseException {
+        if (varData[row] == null)
+            return null;
         switch (monetdbeType) {
             case 9:
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSSSSS][.SSSS][.SS]");

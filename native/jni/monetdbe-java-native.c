@@ -257,6 +257,8 @@ void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetd
 
     for (int i = 0; i < column->count; i++)
     {
+        //printf("Fetched timestamp: %d-%d-%d\n",(int)timestamps[i].date.year, (int)timestamps[i].date.month, (int)timestamps[i].date.day);
+        //fflush(stdout);
         if (column->is_null(&timestamps[i]) == 0 && validateDate(timestamps[i].date) && validateTime(timestamps[i].time))
         {
             monetdbe_data_time time = timestamps[i].time;

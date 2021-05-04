@@ -326,7 +326,7 @@
 
         <!-- FATJAR BUILDS -->
         <!-- Linux fatjar build: copy direct + transitive dependencies
-            (has to be enabled with -P linux-slim,linux-fat)-->
+            (has to be enabled with -P linux-slim,linux-fat; must set the -DCOLLECT_LIBS property)-->
         <profile>
             <id>linux-fat</id>
             <properties>
@@ -366,7 +366,7 @@
         </profile>
 
         <!-- Mac fatjar build: copy direct + transitive dependencies
-            (has to be enabled with -P mac-slim,mac-fat)-->
+            (has to be enabled with -P mac-slim,mac-fat; must set the -DCOLLECT_LIBS property)-->
         <profile>
             <id>mac-fat</id>
             <properties>

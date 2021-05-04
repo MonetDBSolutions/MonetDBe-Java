@@ -579,12 +579,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * Sets the value of the designated parameter from a date type (Date, Time, Timestamp).
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param sqlType the SQL type (as defined in java.sql.Types) of the value to set
+     * @param targetSqlType the SQL type (as defined in java.sql.Types) of the value to set
      * @param x value to be set
      * @throws SQLException if the conversion is not allowed
      */
-    private void setObjectDate (int parameterIndex, int sqlType, Object x) throws SQLException {
-        switch (sqlType) {
+    private void setObjectDate (int parameterIndex, int targetSqlType, Object x) throws SQLException {
+        switch (targetSqlType) {
             case Types.DATE:
                 if (x instanceof java.sql.Date) {
                     setDate(parameterIndex, (java.sql.Date) x);
@@ -623,7 +623,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 if (x instanceof Timestamp) {
                     setTimestamp(parameterIndex, (Timestamp)x);
                 } else if (x instanceof java.sql.Date) {
-                    setTimestamp(parameterIndex, new Timestamp(((java.sql.Date)x).getTime()));
+                    setTimestamp(parameterIndex, new java.sql.Timestamp(((java.sql.Date)x).getTime()));
                 } else if (x instanceof java.util.Date) {
                     setTimestamp(parameterIndex, new java.sql.Timestamp(
                             ((java.util.Date)x).getTime()));
@@ -706,8 +706,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
-        int sqltype = MonetTypes.getDefaultSQLTypeForClass(x.getClass());
-        setObject(parameterIndex,x,sqltype,0);
+        int targetSqlType = MonetTypes.getSQLTypeFromMonet(monetdbeTypes[parameterIndex-1]);
+        setObject(parameterIndex,x,targetSqlType,0);
     }
 
     /**
@@ -988,7 +988,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                     .withZoneSameInstant(ZoneOffset.UTC)
                     .toLocalDate();
         }
-
         String error_msg = MonetNative.monetdbe_bind_date(statementNative,parameterIndex-1,(short)localDate.getYear(),(byte)localDate.getMonthValue(),(byte)localDate.getDayOfMonth());
         if (error_msg != null) {
             throw new SQLException(error_msg);
@@ -1051,7 +1050,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                     .withZoneSameInstant(ZoneOffset.UTC)
                     .toLocalDateTime();
         }
-
         String error_msg = MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex-1,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),localDateTime.getNano()*1000);
         if (error_msg != null) {
             throw new SQLException(error_msg);
