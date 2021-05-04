@@ -79,6 +79,7 @@ public class Test_17_QueryInThread {
 				}
 
 				// Now perform the same query in a separate thread
+				// TODO: support query in separate thread and prevent hard JRE crash
 				Thread t = new QueryThread(conn);
 				t.start();
 				t.join(3000);
