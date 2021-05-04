@@ -229,6 +229,24 @@ void addColumnVar(JNIEnv *env, jobjectArray j_columns, int index, int type, char
     (*env)->SetObjectArrayElement(env, j_columns, index, j_column_object);
 }
 
+//True (1) if time is validated, False (0) if otherwise
+int validateTime (monetdbe_data_time t)
+{
+        if (t.hours >= 0 && t.hours < 24 && t.minutes >= 0 && t.minutes < 60 && t.seconds >= 0 && t.seconds < 60 && t.ms >= 0)
+            return 1;
+        else
+            return 0;
+}
+
+//True (1) if date is validated, False (0) if otherwise
+int validateDate (monetdbe_data_date d)
+{
+        if (d.year > 0 && d.month > 0 && d.month <= 12 && d.day > 0 && d.day <= 31)
+            return 1;
+        else
+            return 0;
+}
+
 void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_timestamp *column)
 {
     jclass j_timestamp_class = (*env)->FindClass(env, "Ljava/time/LocalDateTime;");
@@ -239,16 +257,16 @@ void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetd
 
     for (int i = 0; i < column->count; i++)
     {
-        if (column->is_null(&timestamps[i]) == 1)
-        {
-            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
-        }
-        else
+        if (column->is_null(&timestamps[i]) == 0 && validateDate(timestamps[i].date) && validateTime(timestamps[i].time))
         {
             monetdbe_data_time time = timestamps[i].time;
             monetdbe_data_date date = timestamps[i].date;
             jobject j_timestamp = (*env)->CallStaticObjectMethod(env, j_timestamp_class, timestamp_constructor, (int)date.year, (int)date.month, (int)date.day, (int)time.hours, (int)time.minutes, (int)time.seconds, ((int)time.ms)*1000000);
             (*env)->SetObjectArrayElement(env, j_data, i, j_timestamp);
+        }
+        else
+        {
+            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
         }
     }
 
@@ -266,14 +284,14 @@ void parseColumnTime(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
 
     for (int i = 0; i < column->count; i++)
     {
-        if (column->is_null(&times[i]) == 1)
-        {
-            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
-        }
-        else
+        if (column->is_null(&times[i]) == 0 && validateTime(times[i]))
         {
             jobject j_time = (*env)->CallStaticObjectMethod(env, j_time_class, time_constructor, (int)times[i].hours, (int)times[i].minutes, (int)times[i].seconds, (int)times[i].ms);
             (*env)->SetObjectArrayElement(env, j_data, i, j_time);
+        }
+        else
+        {
+            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
         }
     }
 
@@ -291,15 +309,14 @@ void parseColumnDate(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
 
     for (int i = 0; i < column->count; i++)
     {
-        //printf("Date %d %d %d (is_null %d)\n", (int)dates[i].year, (int)dates[i].month, (int)dates[i].day, column->is_null(&dates[i]));
-        if (column->is_null(&dates[i]) == 1)
-        {
-            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
-        }
-        else
+        if (column->is_null(&dates[i]) == 0 && validateDate(dates[i]))
         {
             jobject j_date = (*env)->CallStaticObjectMethod(env, j_date_class, date_constructor, (int)dates[i].year, (int)dates[i].month, (int)dates[i].day);
             (*env)->SetObjectArrayElement(env, j_data, i, j_date);
+        }
+        else
+        {
+            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
         }
     }
 
