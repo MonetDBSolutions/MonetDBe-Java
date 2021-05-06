@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# -eq 0 ]; then
-    echo "No MonetDB directory installation provided"
+    echo "No MonetDB installation directory provided"
     exit 1
 fi
 

@@ -4,6 +4,7 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
 import java.util.*;
@@ -16,10 +17,12 @@ import java.util.stream.Collectors;
  * Because Java can't read libraries from inside the JAR, they are copied to a temporary location before load.
  */
 //TODO Clean up libraries in temporary location?
+//TODO Improve dependencies are resolved, this method must be horrible
+//TODO Turn off debug prints
 public class MonetNative {
     static {
         try {
-            //TODO Clean up how I resolve dependencies, this must be horrible
+            System.out.println("Native C libraries loading info:");
             String os_name = System.getProperty("os.name").toLowerCase().trim();
             String loadLib = "libmonetdbe-java";
             String loadLibExtension = null;
@@ -61,12 +64,13 @@ public class MonetNative {
                         }
                     }
                     if (dependencyMap.size() > 0)
-                        System.out.println("Copied dependencies to " + System.getProperty("java.io.tmpdir")+"\n");
+                        System.out.println("Copied dependencies to " + System.getProperty("java.io.tmpdir"));
                 }
                 else {
                     throw new IOException("Library dependencies could not be found");
                 }
                 loadLib(directory,loadLib+loadLibExtension);
+                System.out.println("End of loading C libraries\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,13 +80,24 @@ public class MonetNative {
     //Returns map with direct and transitive dependencies for the OS, based on the current jar
     static Map<String,List<String>> listDependencies(String subdirectory, List<String> dependencyDirs) throws IOException {
         URI uri = null;
+        Path libRoot = null;
         try {
             uri = MonetNative.class.getResource("/lib/").toURI();
         } catch (URISyntaxException | NullPointerException e) {
             e.printStackTrace();
             return null;
         }
-        Path libRoot = FileSystems.newFileSystem(uri, Collections.emptyMap()).getPath("/lib/"+ subdirectory);
+
+        //Loading within jar
+        if ("jar".equalsIgnoreCase(uri.getScheme())) {
+            libRoot = FileSystems.newFileSystem(uri, Collections.emptyMap()).getPath("/lib/" + subdirectory);
+            System.out.println("Loading dependencies from within jar: " + libRoot.toString());
+        }
+        //Loading from file (IDE execution and maven unit tests)
+        else {
+            libRoot = Paths.get(uri.getPath(),"/" + subdirectory);
+            System.out.println("Loading dependencies from filesystem: " + libRoot.toString());
+        }
         Map<String,List<String>> dependencies = Files.walk(libRoot, 2)
                 .collect(Collectors.groupingBy((path -> path.getParent().getFileName().toString()),
                         Collectors.mapping(
