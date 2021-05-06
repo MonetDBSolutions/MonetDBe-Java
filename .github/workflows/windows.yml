@@ -53,7 +53,8 @@ jobs:
       - name: Set up test environment
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java
-          md testdata\taxi testdata\localdb
+          md testdata\taxi
+          md testdata\localdb
           iwr -outf testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
       - name: Build with Maven (includes testing)
         run: |

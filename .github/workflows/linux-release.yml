@@ -36,8 +36,8 @@ jobs:
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
     - name: Set up test environment
       run: |
-        mkdir -p testdata\taxi testdata\localdb
-        wget -O testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+        mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+        wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
     - name: Compile Java and package into jar (includes testing)
       run: |
         cd java
