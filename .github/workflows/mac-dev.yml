@@ -20,8 +20,3 @@ jobs:
         run: $GITHUB_WORKSPACE/build_dev.sh /usr/local
       - name: Run example class (SimpleTypes)
         run: $GITHUB_WORKSPACE/run_dev.sh SimpleTypes
-      - name: Publish Mac dev jar
-        uses: actions/upload-artifact@v2
-        with:
-          name: monetdbe-java-1.0-SNAPSHOT-mac-dev.jar
-          path: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/java/target/monetdbe-java-1.0-SNAPSHOT.jar

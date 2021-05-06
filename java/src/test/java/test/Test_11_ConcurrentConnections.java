@@ -14,6 +14,8 @@ import java.sql.Statement;
 
 import org.junit.Test;
 
+//TODO Remove comments from concurrent connections when more than one active database are supported (future feature)
+//TODO Currently this only tests concurrent connections to one database
 public class Test_11_ConcurrentConnections {
 
 	@Test
@@ -63,13 +65,14 @@ public class Test_11_ConcurrentConnections {
 
 			// Connecting to another database
 			// TODO: Allow multiple concurrent connections
-			conn3 = DriverManager.getConnection(AllTests.MEMORY_CONNECTION, null);
+			// TODO: This is a plan for future versions, not allowed right now
+			/*conn3 = DriverManager.getConnection(AllTests.MEMORY_CONNECTION, null);
 
 			assertNotNull("Could not connect to database with connection string: " + AllTests.MEMORY_CONNECTION,
-					conn3);
+					conn3);*/
 			assertFalse(conn1.isClosed());
 			assertFalse(conn2.isClosed());
-			assertFalse(conn3.isClosed());
+			/*assertFalse(conn3.isClosed());
 
 			try (Statement s = conn3.createStatement()) {
 				s.executeUpdate("CREATE TABLE test11 (i INTEGER);");
@@ -81,7 +84,7 @@ public class Test_11_ConcurrentConnections {
 					assertTrue(rs.next());
 					assertEquals(40, rs.getInt(1));
 				}
-			}
+			}*/
 
 			// Connection 1 can still be used
 			try (Statement s = conn1.createStatement(); ResultSet rs = s.executeQuery("SELECT sum(i) FROM test11;")) {

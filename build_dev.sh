@@ -5,7 +5,20 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+if [ $# -eq 2 ]; then
+    if [ "$2" == "true" ] || [ "$2" == "false" ]; then
+        skipTests="-DskipTests=${2}"
+    else
+	echo "The second argument (whether to skip tests) must be true or false"
+    fi
+fi
+
 cd native
 mvn clean install -DMonetDB_dir=$1
 cd ../java
-mvn clean install
+mvn clean install $skipTests
+
+#Clean up local test db
+if [ -n "$skipTests" ] && [ "$2" == "false" ]; then
+    rm -rf ../testdata/localdb/
+fi

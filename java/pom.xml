@@ -27,6 +27,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <repository.user>MonetDBSolutions</repository.user>
         <repository.name>MonetDBe-Java</repository.name>
+        <!-- Tests are skipped by default on dev builds -->
+        <skipTests>true</skipTests>
     </properties>
 
     <distributionManagement>
@@ -51,6 +53,20 @@
         <url>https://www.github.com/${repository.user}/${repository.name}/issues</url>
         <system>Github Issues</system>
     </issueManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+    </dependencies>
 
     <profiles>
         <!-- DEV BUILDS -->
@@ -87,7 +103,7 @@
 
         <!-- TODO Change VCPKG_ROOT -->
         <!-- Windows build: copy transitive and direct dependencies and pre-compiled native monetdbe-java library
-            (default behaviour; must set the -DMonetDB_dir and -DVCPKG_ROOT properties) -->
+            (default behaviour; must set the -DMonetDB_dir and -DVCPKG_ROOT properties, tests are turned on) -->
         <profile>
             <id>windows</id>
             <activation>
@@ -99,6 +115,8 @@
                 <os.name.clean>windows</os.name.clean>
                 <os.library.type>dll</os.library.type>
                 <jar.classifier>windows</jar.classifier>
+                <!-- Do not skip tests, as this is the Windows release profile -->
+                <skipTests>false</skipTests>
             </properties>
             <build>
                 <plugins>
@@ -191,11 +209,13 @@
 
         <!-- SLIM JAR BUILDS -->
         <!-- Linux build: copy direct dependencies and pre-compiled native monetdbe-java library
-            (has to be enabled with -P linux-slim; must set the -DCOLLECT_LIBS property) -->
+            (has to be enabled with -P linux-slim; must set the -DCOLLECT_LIBS property, tests are turned on) -->
         <profile>
             <id>linux-slim</id>
             <properties>
                 <jar.classifier>linux-slim</jar.classifier>
+                <!-- Do not skip tests, as this is a release profile -->
+                <skipTests>false</skipTests>
             </properties>
             <build>
                 <plugins>
@@ -258,11 +278,13 @@
         </profile>
 
         <!-- Mac build: copy direct dependencies and pre-compiled native monetdbe-java library
-            (has to be enabled with -P mac-slim; must set the -DCOLLECT_LIBS property) -->
+            (has to be enabled with -P mac-slim; must set the -DCOLLECT_LIBS property, tests are turned on) -->
         <profile>
             <id>mac-slim</id>
             <properties>
                 <jar.classifier>mac-slim</jar.classifier>
+                <!-- Do not skip tests, as this is a release profile -->
+                <skipTests>false</skipTests>
             </properties>
             <build>
                 <plugins>
@@ -326,11 +348,13 @@
 
         <!-- FATJAR BUILDS -->
         <!-- Linux fatjar build: copy direct + transitive dependencies
-            (has to be enabled with -P linux-slim,linux-fat; must set the -DCOLLECT_LIBS property)-->
+            (has to be enabled with -P linux-slim,linux-fat; must set the -DCOLLECT_LIBS property, tests are turned on)-->
         <profile>
             <id>linux-fat</id>
             <properties>
                 <jar.classifier>linux-fat</jar.classifier>
+                <!-- Do not skip tests, as this is a release profile -->
+                <skipTests>false</skipTests>
             </properties>
             <build>
                 <plugins>
@@ -366,11 +390,13 @@
         </profile>
 
         <!-- Mac fatjar build: copy direct + transitive dependencies
-            (has to be enabled with -P mac-slim,mac-fat; must set the -DCOLLECT_LIBS property)-->
+            (has to be enabled with -P mac-slim,mac-fat; must set the -DCOLLECT_LIBS property, tests are turned on)-->
         <profile>
             <id>mac-fat</id>
             <properties>
                 <jar.classifier>mac-fat</jar.classifier>
+                <!-- Do not skip tests, as this is a release profile -->
+                <skipTests>false</skipTests>
             </properties>
             <build>
                 <plugins>
@@ -547,6 +573,18 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Testing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.1</version>
+                <configuration>
+                    <includes>
+                        <include>AllTests.java</include>
+                    </includes>
+                    <skipTests>${skipTests}</skipTests>
+                </configuration>
             </plugin>
         </plugins>
     </build>

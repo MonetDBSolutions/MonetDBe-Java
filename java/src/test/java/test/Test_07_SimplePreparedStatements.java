@@ -1,11 +1,5 @@
 package test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -18,6 +12,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.monetdb.monetdbe.MonetResultSet;
+
+import static org.junit.Assert.*;
 
 public class Test_07_SimplePreparedStatements {
 
@@ -66,9 +62,7 @@ public class Test_07_SimplePreparedStatements {
 					assertEquals(2, rs.getRow());
 					assertEquals(false, rs.getBoolean(1));
 					assertEquals(0, rs.getInt(2));
-					// TODO: ResultSet String should be null instead of empty string
-					// assertNull(rs.getString(3));
-					assertEquals(StringUtils.EMPTY, rs.getString(3));
+					assertNull(rs.getString(3));
 
 					assertFalse(rs.next());
 				}

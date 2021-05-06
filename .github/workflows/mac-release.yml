@@ -41,7 +41,11 @@ jobs:
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
-      - name: Compile Java and package into jar
+      - name: Set up test environment
+        run: |
+          mkdir -p testdata\taxi testdata\localdb
+          wget -O testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+      - name: Compile Java and package into jar (includes testing)
         run: |
           cd java
           mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim

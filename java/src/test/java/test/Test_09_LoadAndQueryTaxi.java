@@ -63,7 +63,7 @@ public class Test_09_LoadAndQueryTaxi {
 					File raw = new File(AllTests.TAXI_CSV);
 					File canonicalFile = raw.isAbsolute()
 							? raw.getCanonicalFile()
-							: new File(new File("."), AllTests.TAXI_CSV).getCanonicalFile();
+							: new File(new File(""), AllTests.TAXI_CSV).getCanonicalFile();
 					assertTrue(canonicalFile.exists());
 					assertTrue(canonicalFile.isFile());
 					assertTrue(canonicalFile.canRead());

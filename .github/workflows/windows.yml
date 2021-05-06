@@ -50,7 +50,12 @@ jobs:
         uses: stCarolas/setup-maven@v4
       - name: Setup VC tools
         uses: ilammy/msvc-dev-cmd@v1
-      - name: Build with Maven
+      - name: Set up test environment
+        run: |
+          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java
+          md testdata\taxi testdata\localdb
+          iwr -outf testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+      - name: Build with Maven (includes testing)
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
           mvn install "-DMonetDB_dir=C:\monetdb"

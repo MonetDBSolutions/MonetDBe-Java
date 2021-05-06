@@ -1,5 +1,6 @@
 release-libs
 other/apidocs/
+testdata
 
 # Compiled class file
 *.class
