@@ -11,7 +11,7 @@ public class MonetTypes {
     static java.util.Map<Integer, Integer> typeMapMonetToSQL = new java.util.HashMap<Integer, Integer>();
     static {
         typeMapMonetToSQL.put(0, Types.BOOLEAN);
-        typeMapMonetToSQL.put(1,Types.TINYINT);
+        typeMapMonetToSQL.put(1, Types.TINYINT);
         typeMapMonetToSQL.put(2, Types.SMALLINT);
         typeMapMonetToSQL.put(3, Types.INTEGER);
         typeMapMonetToSQL.put(4, Types.BIGINT);
