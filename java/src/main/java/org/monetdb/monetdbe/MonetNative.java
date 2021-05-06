@@ -95,7 +95,7 @@ public class MonetNative {
         }
         //Loading from file (IDE execution and maven unit tests)
         else {
-            libRoot = Paths.get(uri.getPath(),"/" + subdirectory);
+            libRoot = Paths.get(uri.getPath(),subdirectory);
             System.out.println("Loading dependencies from filesystem: " + libRoot.toString());
         }
         Map<String,List<String>> dependencies = Files.walk(libRoot, 2)
