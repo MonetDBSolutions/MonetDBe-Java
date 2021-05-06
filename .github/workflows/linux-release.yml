@@ -6,7 +6,7 @@ jobs:
   linux_oct_slim_build:
     name: linux_oct_slim_build
     runs-on: ubuntu-latest
-    container: monetdb/dev-builds:Oct2020_manylinux
+    container: monetdb/dev-builds:Oct2020
     env:
       MONETDB_INSTALL: /usr/local
       MONETDB_LIBS: /usr/local/lib
