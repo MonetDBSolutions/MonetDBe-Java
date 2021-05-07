@@ -37,7 +37,6 @@ public class Test_12_BatchesAndJoinsMovies {
 		try {
 
 			try (Connection conn = DriverManager.getConnection(connectionUrl, null)) {
-
 				assertNotNull("Could not connect to database with connection string: " + connectionUrl, conn);
 				assertFalse(conn.isClosed());
 				assertTrue(conn.getAutoCommit());
@@ -89,6 +88,7 @@ public class Test_12_BatchesAndJoinsMovies {
 		        	assertEquals(TITLES.length, ((MonetResultSet) rs).getRowsNumber());
 					assertEquals(3, ((MonetResultSet) rs).getColumnsNumber());
 		        }
+
 		        try (Statement statement = conn.createStatement();
 		        		ResultSet rs = statement.executeQuery("SELECT Movies.title, Movies.\"year\", Actors.first_name, Actors.\"character\" FROM MovieActors JOIN Movies ON MovieActors.movie_id = Movies.id JOIN Actors ON MovieActors.actor_id = Actors.id;")) {
 		        	assertEquals(33, ((MonetResultSet) rs).getRowsNumber());
@@ -97,7 +97,8 @@ public class Test_12_BatchesAndJoinsMovies {
 		        
 		        // Clean up
 		        try (Statement statement = conn.createStatement()) {
-		        	statement.executeUpdate("DROP TABLE MovieActors;");
+					System.out.println("Dropping MovieActors on connection: " + connectionUrl);
+					statement.executeUpdate("DROP TABLE MovieActors;");
 		        	statement.executeUpdate("DROP TABLE Actors;");
 		        	statement.executeUpdate("DROP TABLE Movies;");
 		        }

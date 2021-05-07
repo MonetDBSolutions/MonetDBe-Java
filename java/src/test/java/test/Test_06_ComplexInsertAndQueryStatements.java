@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.monetdb.monetdbe.MonetResultSet;
 
+//TODO Test has placeholder values for BigDecimal NULL and is incomplete (Time and Timestamp values aren't evaluated)
 public class Test_06_ComplexInsertAndQueryStatements {
 
 	@Test
@@ -41,11 +42,13 @@ public class Test_06_ComplexInsertAndQueryStatements {
 			try (Statement statement = conn.createStatement()) {
 				statement.executeUpdate(
 						"CREATE TABLE test06 (bd NUMERIC, s STRING, b BLOB, d DATE, t TIME, ts TIMESTAMP);");
+				assertEquals(0,statement.getUpdateCount());
 				statement.executeUpdate("INSERT INTO test06 VALUES "
 						+ "(34589.54, 'hello', '12ff803F', current_date, current_time, current_timestamp), "
 						+ "(34012933.888, 'world', '0000803F', str_to_date('23-09-1987', '%d-%m-%Y'), str_to_time('11:40:30', '%H:%M:%S'), str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), "
 						+ "(666.666, 'bye', 'ffffffff', str_to_date('23-09-1990', '%d-%m-%Y'), str_to_time('11:40:35', '%H:%M:%S'), str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M')), "
 						+ "(NULL, NULL, NULL, NULL, NULL, NULL);");
+				assertEquals(4,statement.getUpdateCount());
 
 				// Query table
 				try (ResultSet rs = statement.executeQuery("SELECT * FROM test06;")) {
@@ -60,6 +63,7 @@ public class Test_06_ComplexInsertAndQueryStatements {
 							rs.getBlob(3).getBytes(1, (int) rs.getBlob(3).length()));
 					assertEquals(new Date(Calendar.getInstance().getTimeInMillis()).toString(),
 							rs.getDate(4).toString());
+					//TODO Millisecond values in Time and Timestamps don't work
 					// assertEquals(new Time(Calendar.getInstance().getTimeInMillis()),
 					// rs.getTime(5));
 					// assertEquals(new Timestamp(Calendar.getInstance().getTimeInMillis()),
@@ -91,9 +95,7 @@ public class Test_06_ComplexInsertAndQueryStatements {
 					// assertNull(rs.getBigDecimal(1));
 					assertEquals(new BigDecimal("0.000"), rs.getBigDecimal(1));
 					assertNull(rs.getString(2));
-					// TODO: ResultSet Blob should be null instead of random(?) data
-					// assertNull(rs.getBlob(3));
-					assertNotNull(rs.getBlob(3));
+					assertNull(rs.getBlob(3));
 					assertNull(rs.getDate(4));
 					assertNull(rs.getTime(5));
 					assertNull(rs.getTimestamp(6));

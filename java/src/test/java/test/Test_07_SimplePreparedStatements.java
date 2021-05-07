@@ -15,6 +15,7 @@ import org.monetdb.monetdbe.MonetResultSet;
 
 import static org.junit.Assert.*;
 
+//TODO Placeholder value in the last DROP TABLE command
 public class Test_07_SimplePreparedStatements {
 
 	@Test
@@ -70,7 +71,9 @@ public class Test_07_SimplePreparedStatements {
 				// Clean up
 				statement.executeUpdate("DROP TABLE test07;");
 
-				assertEquals(1, statement.getUpdateCount()); // TODO: explain this '1'
+				//TODO Wrong affected rows number for drop table (1 instead of 2)
+				//assertEquals(1, statement.getUpdateCount()); //2: because we've dropped a table with 2 records
+				assertEquals(1, statement.getUpdateCount()); //Should be 2, but error in C layer
 			}
 
 		} catch (SQLException e) {

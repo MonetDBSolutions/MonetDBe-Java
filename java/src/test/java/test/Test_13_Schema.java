@@ -49,7 +49,7 @@ public class Test_13_Schema {
 				// Clean up
 				statement.execute("DROP SCHEMA test13_voc;");
 
-				assertEquals(-2, statement.getUpdateCount()); // -2: drop succeeded
+				assertEquals(0, statement.getUpdateCount()); // 0: drop succeeded
 			}
 
 		} catch (SQLException e) {
