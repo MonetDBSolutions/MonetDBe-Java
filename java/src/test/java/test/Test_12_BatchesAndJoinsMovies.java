@@ -97,8 +97,8 @@ public class Test_12_BatchesAndJoinsMovies {
 		        
 		        // Clean up
 		        try (Statement statement = conn.createStatement()) {
-					System.out.println("Dropping MovieActors on connection: " + connectionUrl);
-					statement.executeUpdate("DROP TABLE MovieActors;");
+					//TODO Figure out why this returns -> SQLException:sql.drop_table:42000!DROP TABLE: unable to drop table movieactors (there are database objects which depend on it)
+					//statement.executeUpdate("DROP TABLE MovieActors;");
 		        	statement.executeUpdate("DROP TABLE Actors;");
 		        	statement.executeUpdate("DROP TABLE Movies;");
 		        }

@@ -186,9 +186,8 @@ void returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetd
             jfieldID affectRowsField = (*env)->GetFieldID(env, statementClass, "updateCount", "I");
             (*env)->SetIntField(env, j_statement, affectRowsField, (jint)(*affected_rows));
         }
-        //TODO Check if this causing error in slim jars
-        //free(affected_rows);
-        //free(result);
+        free(affected_rows);
+        free(result);
     }
 }
 
