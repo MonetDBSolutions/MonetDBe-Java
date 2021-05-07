@@ -125,7 +125,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
      */
     @Override
     public void close() throws SQLException {
-        checkNotClosed();
+        if (isClosed())
+            return;
         //If there is a result set and it is not closed, close it
         if (resultSet != null && !resultSet.isClosed()) {
             resultSet.close();
@@ -137,7 +138,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
                 MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),((MonetPreparedStatement) this).statementNative);
             }
         }
-        closed = true;
+        this.closed = true;
     }
 
     /**

@@ -186,8 +186,9 @@ void returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetd
             jfieldID affectRowsField = (*env)->GetFieldID(env, statementClass, "updateCount", "I");
             (*env)->SetIntField(env, j_statement, affectRowsField, (jint)(*affected_rows));
         }
-        free(affected_rows);
-        free(result);
+        //TODO Check if this causing error in slim jars
+        //free(affected_rows);
+        //free(result);
     }
 }
 
@@ -195,8 +196,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(
 {
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
     monetdbe_cnt *affected_rows = malloc(sizeof(monetdbe_cnt));
-    //Return value for data definition queries (should not be changed by monetdbe_query)
-    (*affected_rows) = -2;
+    (*affected_rows) = 0;
 
     char *sql = (char *)(*env)->GetStringUTFChars(env, j_sql, NULL);
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
@@ -350,15 +350,20 @@ void parseColumnString(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_
 
 void parseColumnBlob(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_blob *column)
 {
-    //TODO Do NULL check? Is this currently outputting an empty byte array if the row has NULL value?
     jobjectArray j_data = (*env)->NewObjectArray(env, column->count, (*env)->FindClass(env, "[B"), NULL);
     monetdbe_data_blob *blob_data = (monetdbe_data_blob *)column->data;
 
     for (int i = 0; i < column->count; i++)
     {
-        jbyteArray j_byte_array = (*env)->NewByteArray(env, blob_data[i].size);
-        (*env)->SetByteArrayRegion(env, j_byte_array, 0, blob_data[i].size, (jbyte *)blob_data[i].data);
-        (*env)->SetObjectArrayElement(env, j_data, i, j_byte_array);
+        if (column->is_null(&blob_data[i]) == 1)
+        {
+            (*env)->SetObjectArrayElement(env, j_data, i, NULL);
+        }
+        else {
+            jbyteArray j_byte_array = (*env)->NewByteArray(env, blob_data[i].size);
+            (*env)->SetByteArrayRegion(env, j_byte_array, 0, blob_data[i].size, (jbyte *)blob_data[i].data);
+            (*env)->SetObjectArrayElement(env, j_data, i, j_byte_array);
+        }
     }
 
     //Inserting byte[][] in MonetColumn
@@ -664,18 +669,16 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null(JNIEnv *env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
-    #ifdef HAVE_HGE
-        monetdbe_types null_type = (monetdbe_types)type;
-    #else
+    #ifndef HAVE_HGE
         //If int128 is not defined, add 1 to type to "align" the types after size_t with versions with int128 defined
         if (type > 5) {
             type = type+1;
         }
-        monetdbe_types null_type = (monetdbe_types) type;
     #endif
+    monetdbe_types null_type = (monetdbe_types) type;
     const void *null_ptr = monetdbe_null(db, null_type);
 
-    //printf("NULL of type %d\n", null_type);
+    //printf("Bind NULL of type %d\n", null_type);
     //fflush(stdout);
 
     return bind_parsed_data(env, j_stmt, (void *)null_ptr, parameter_nr);

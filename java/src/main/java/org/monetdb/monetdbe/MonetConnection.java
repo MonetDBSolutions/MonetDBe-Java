@@ -174,18 +174,14 @@ public class MonetConnection extends MonetWrapper implements Connection {
         if (isClosed())
             return;
         for (MonetStatement s : statements) {
-            try {
-                s.close();
-            } catch (SQLException e) {
-                //Statement already closed
-            }
+            s.close();
         }
-        statements = null;
+        this.statements = null;
         String error_msg = MonetNative.monetdbe_close(dbNative);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        dbNative = null;
+        this.dbNative = null;
     }
 
     /**

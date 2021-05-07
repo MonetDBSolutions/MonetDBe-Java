@@ -728,7 +728,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
         int monettype = MonetTypes.getMonetTypeFromSQL(sqlType);
 
-        //If we don't support the sqlType, throw exception. 14 corresponds to monetdbe_type_unkown
+        //If we don't support the sqlType, throw exception. 14 corresponds to monetdbe_type_unknown
         if (monettype == 14) {
             throw new SQLFeatureNotSupportedException("sqlType not supported");
         }
