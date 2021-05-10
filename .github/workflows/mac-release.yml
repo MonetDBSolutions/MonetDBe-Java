@@ -24,12 +24,12 @@ jobs:
           server-username: MVN_DEPLOY_USERNAME
           server-password: MVN_DEPLOY_PASSWORD
           gpg-passphrase: MVN_GPG_PASSPHRASE
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v4
       - name: Inspect settings file
         run: |
           ls /Users/runner/.m2/
           cat /Users/runner/.m2/settings.xml
-      - name: Setup Maven
-        uses: stCarolas/setup-maven@v4
       - name: Install monetdb through brew
         run: brew install monetdb
       - name: Install native library (libmonetdbe-java.dylib)
@@ -77,7 +77,7 @@ jobs:
           mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release
           cd ..
         env:
-          MVN_DEPLOY_USERNAME: ${{ secrets.MVN_DEPLOY_USERNAME }}
+          MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
           MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
