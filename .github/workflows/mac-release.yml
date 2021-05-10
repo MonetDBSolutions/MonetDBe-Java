@@ -23,7 +23,6 @@ jobs:
           server-id: ossrh
           server-username: MVN_DEPLOY_USERNAME
           server-password: MVN_DEPLOY_PASSWORD
-          gpg-private-key: MVN_GPG_PRIVATE_KEY
           gpg-passphrase: MVN_GPG_PASSPHRASE
       - name: Inspect settings file
         run: |

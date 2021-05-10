@@ -1,6 +1,7 @@
 name: MonetDBe-Java Linux CI Slim and Fat Jar release (Oct2020 version from Docker)
 on:
-  [push,workflow_dispatch,pull_request]
+#  [push,workflow_dispatch,pull_request]
+  [pull_request]
 
 jobs:
   linux_oct_slim_build:
