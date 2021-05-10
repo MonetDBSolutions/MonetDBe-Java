@@ -9,7 +9,7 @@ jobs:
     container: monetdb/dev-builds:Oct2020_manylinux
     env:
       MONETDB_INSTALL: /usr/local
-      MONETDB_LIBS: /usr/local/lib
+      MONETDB_LIBS: /usr/local/lib64
       M2_REPO_JAVA: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
     steps:
