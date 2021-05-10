@@ -23,13 +23,11 @@ jobs:
         server-username: MVN_DEPLOY_USERNAME
         server-password: MVN_DEPLOY_PASSWORD
         gpg-passphrase: MVN_GPG_PASSPHRASE
-    - name: Setup Maven
-      uses: stCarolas/setup-maven@v4
     - name: Import GPG private key for maven release
       run: |
         echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
         gpg --list-secret-keys
-        cat /root/.m2/settings.xml
+        ls /root/.m2/
     - name: Set up test environment
       run: |
         mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
