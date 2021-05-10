@@ -25,6 +25,9 @@ jobs:
         gpg-passphrase: MVN_GPG_PASSPHRASE
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
+    - name: Start GPG agent
+      run: |
+        gpg-agent --daemon
     - name: Import GPG private key for maven release
       id: import_gpg
       uses: crazy-max/ghaction-import-gpg@v3
