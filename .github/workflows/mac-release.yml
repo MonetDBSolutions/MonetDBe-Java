@@ -1,6 +1,7 @@
 name: MonetDBe-Java MacOS Slim and Fat Jar release (from brew build)
 on:
-  [push,workflow_dispatch,pull_request]
+#  [push,workflow_dispatch,pull_request]
+  [workflow_dispatch]
 
 jobs:
   mac_brew_slim_build:

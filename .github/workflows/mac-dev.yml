@@ -1,7 +1,7 @@
 name: MonetDBe-Java MacOS dev build CI (brew build)
 on:
 #  [push,workflow_dispatch,pull_request]
-  [pull_request]
+  [workflow_dispatch]
 
 jobs:
   mac_brew_dev_build:

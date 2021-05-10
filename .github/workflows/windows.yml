@@ -1,6 +1,7 @@
 name: MonetDBe-Java Windows CI (Oct2020 branch from source)
 on:
-  [push,workflow_dispatch,pull_request]
+#  [push,workflow_dispatch,pull_request]
+  [workflow_dispatch]
 
 jobs:
   windows_build:
