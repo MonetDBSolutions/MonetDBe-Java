@@ -15,8 +15,9 @@ jobs:
         ARTIFACT_NATIVE: monetdbe-java-native-1.0-SNAPSHOT.dylib
         ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
       steps:
+      #Java, maven and gpg setup; download MonetDB from brew and set up test env
       - uses: actions/checkout@v2
-      - name: Set up JDK 1.8 (and maven settings.xml)
+      - name: Set up JDK 1.8 and maven settings.xml
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
@@ -26,19 +27,27 @@ jobs:
           gpg-passphrase: MVN_GPG_PASSPHRASE
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
-      - name: Inspect settings file
-        run: |
-          ls /Users/runner/.m2/
-          cat /Users/runner/.m2/settings.xml
+      - name: Import GPG private key for maven release
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
       - name: Install monetdb through brew
         run: brew install monetdb
+      - name: Set up test environment
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+          wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+
+      #Install native library; collect libraries
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
           cd native
           mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
           cd ..
       #TODO Find out how this LOAD_PATH (/usr/local/opt/monetdb/lib) is assigned
-      - name: Change load path for libmonetdbe-java dependency (to be rpath dependent)
+      - name: Change load path for libmonetdbe dependency (to be rpath dependent)
         run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
       - name: Copy direct dependencies (MonetDB libs)
         run: |
@@ -49,38 +58,20 @@ jobs:
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
-      - name: Set up test environment
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
-          wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-      #- name: Compile Java and package into jar (includes testing)
-      #  run: |
-      #    cd java
-      #    mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim
-      #    cd ..
-      #- name: Set up GPG key
-      #  run: |
-      #    mkdir -p ~/.gnupg/
-      #    printf "$GPG_SIGNING_KEY" | base64 --decode > ~/.gnupg/private.key
-      #    gpg --import ~/.gnupg/private.key
-      #  env:
-      #    GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
-      - name: Import GPG key
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v3
-        with:
-          gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
-      - name: Compile Java and package into jar (includes testing + deploy)
+
+      #Package jar, test and deploy
+      - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release -DskipTests=true
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
           MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+      #Run example and publish jar
       - name: Uninstall MonetDB (to test the jar is portable)
         run: brew uninstall monetdb
       - name: Run example class (SimpleTypes)

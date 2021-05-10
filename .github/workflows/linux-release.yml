@@ -1,7 +1,6 @@
 name: MonetDBe-Java Linux CI Slim and Fat Jar release (Oct2020 version from Docker)
 on:
-#  [push,workflow_dispatch,pull_request]
-  [pull_request]
+  [push,workflow_dispatch,pull_request]
 
 jobs:
   linux_oct_slim_build:
@@ -14,15 +13,32 @@ jobs:
       M2_REPO_JAVA: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
     steps:
+    #Java, maven, gpg and chrpath setup; set up test env
     - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
+    - name: Set up JDK 1.8 and maven settings.xml
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+        server-id: ossrh
+        server-username: MVN_DEPLOY_USERNAME
+        server-password: MVN_DEPLOY_PASSWORD
+        gpg-passphrase: MVN_GPG_PASSPHRASE
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
+    - name: Import GPG private key for maven release
+      id: import_gpg
+      uses: crazy-max/ghaction-import-gpg@v3
+      with:
+        gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+        passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
+    - name: Set up test environment
+      run: |
+        mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+        wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
     - name: Install chrpath
       run: apt-get install -y chrpath
+
+    #Install native library; collect libraries
     - name: Install native library (libmonetdbe-java.dylib)
       run: |
         cd native
@@ -35,15 +51,20 @@ jobs:
     - name: Change rpath of MonetDB libraries to package
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
-    - name: Set up test environment
-      run: |
-        mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
-        wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+
+    #Package jar, test and deploy
     - name: Compile Java and package into jar (includes testing)
       run: |
         cd java
         mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim
         cd ..
+      env:
+        MVN_DEPLOY_USERNAME: monetdb
+        MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+        MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+        MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+    #Run example and publish jar
     - name: Run example class (SimpleTypes)
       run: |
         javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java

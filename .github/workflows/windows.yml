@@ -1,7 +1,6 @@
 name: MonetDBe-Java Windows CI (Oct2020 branch from source)
 on:
-#  [push,workflow_dispatch,pull_request]
-  [pull_request]
+  [push,workflow_dispatch,pull_request]
 
 jobs:
   windows_build:
@@ -10,12 +9,27 @@ jobs:
     env:
       branch: Oct2020
     steps:
+      #Java, maven, gpg and dependencies setup; set up test env
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+          server-id: ossrh
+          server-username: MVN_DEPLOY_USERNAME
+          server-password: MVN_DEPLOY_PASSWORD
+          gpg-passphrase: MVN_GPG_PASSPHRASE
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v4
+      - name: Setup VC tools
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Import GPG private key for maven release
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
       - name: Install vcpkg packages
         uses: lukka/run-vcpkg@v5
         with:
@@ -24,6 +38,14 @@ jobs:
           appendedCacheKey: ${{ hashFiles(env.vcpkgResponseFile) }}
       - name: Install Bison/Flex
         run: choco install -y winflexbison
+      - name: Set up test environment
+        run: |
+          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java
+          md testdata\taxi
+          md testdata\localdb
+          iwr -outf testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+
+      #Download and install MonetDB
       - name: Get monetdb
         run: |
           Set-Location c:\
@@ -47,22 +69,21 @@ jobs:
             ..
           cmake --build . --target ALL_BUILD --parallel 4  --config Release
           cmake --build . --target INSTALL  --config Release
-      - name: Setup Maven
-        uses: stCarolas/setup-maven@v4
-      - name: Setup VC tools
-        uses: ilammy/msvc-dev-cmd@v1
-      - name: Set up test environment
-        run: |
-          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java
-          md testdata\taxi
-          md testdata\localdb
-          iwr -outf testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-      - name: Build with Maven (includes testing)
+
+      #Install native library, collect libraries, package jar, test and deploy
+      - name: Install native library, collect libraries, package jar, test and deploy
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
           mvn install "-DMonetDB_dir=C:\monetdb"
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
-          mvn install "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT"
+          mvn install "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release
+        env:
+          MVN_DEPLOY_USERNAME: monetdb
+          MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+      #Run example and publish jar
       - name: Run example class (SimpleTypes)
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
