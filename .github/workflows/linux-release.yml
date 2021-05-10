@@ -53,10 +53,10 @@ jobs:
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
 
     #Package jar, test and deploy
-    - name: Compile Java and package into jar (includes testing)
+    - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
