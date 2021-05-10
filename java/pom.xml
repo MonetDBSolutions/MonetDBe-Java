@@ -450,7 +450,7 @@
                             <autoReleaseAfterClose>false</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
-                    <plugin>
+                    <!--<plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.6</version>
@@ -462,19 +462,15 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <!--<gpgArguments>
+                                    <gpgArguments>
                                         <arg>- -pinentry-mode</arg>
                                         <arg>loopback</arg>
-                                    </gpgArguments>-->
-                                    <gpgArguments>
-                                        <arg>--batch</arg>
-                                        <arg>--yes</arg>
                                     </gpgArguments>
                                     <passphrase>${gpg.passphrase}</passphrase>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
+                    </plugin>-->
                     <plugin>
                         <groupId>org.simplify4u.plugins</groupId>
                         <artifactId>sign-maven-plugin</artifactId>

@@ -29,6 +29,7 @@ jobs:
       run: |
         echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
         gpg --list-secret-keys
+        echo -e "${{ secrets.MVN_GPG_PASSPHRASE_SIMPLIFY }}" > /github/home/.m2/sign-key.asc
     - name: Set up test environment
       run: |
         mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
