@@ -16,10 +16,19 @@ jobs:
         ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
       steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 1.8
+      - name: Set up JDK 1.8 (and maven settings.xml)
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+          server-id: ossrh
+          server-username: MVN_DEPLOY_USERNAME
+          server-password: MVN_DEPLOY_PASSWORD
+          gpg-private-key: MVN_GPG_PRIVATE_KEY
+          gpg-passphrase: MVN_GPG_PASSPHRASE
+      - name: Inspect settings file
+        run: |
+          ls /Users/runner/.m2/
+          cat /Users/runner/.m2/settings.xml
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
       - name: Install monetdb through brew
@@ -45,11 +54,34 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
           wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-      - name: Compile Java and package into jar (includes testing)
+      #- name: Compile Java and package into jar (includes testing)
+      #  run: |
+      #    cd java
+      #    mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim
+      #    cd ..
+      #- name: Set up GPG key
+      #  run: |
+      #    mkdir -p ~/.gnupg/
+      #    printf "$GPG_SIGNING_KEY" | base64 --decode > ~/.gnupg/private.key
+      #    gpg --import ~/.gnupg/private.key
+      #  env:
+      #    GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
+      - name: Import GPG key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
+      - name: Compile Java and package into jar (includes testing + deploy)
         run: |
           cd java
-          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release
           cd ..
+        env:
+          MVN_DEPLOY_USERNAME: ${{ secrets.MVN_DEPLOY_USERNAME }}
+          MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
       - name: Uninstall MonetDB (to test the jar is portable)
         run: brew uninstall monetdb
       - name: Run example class (SimpleTypes)
