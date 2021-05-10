@@ -27,7 +27,7 @@ jobs:
       run: |
         echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
         gpg --list-secret-keys
-        ls /root/.m2/
+        cat /github/home/.m2/settings.xml
     - name: Set up test environment
       run: |
         mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
