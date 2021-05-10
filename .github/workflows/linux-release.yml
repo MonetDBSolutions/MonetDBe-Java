@@ -25,6 +25,8 @@ jobs:
         gpg-passphrase: MVN_GPG_PASSPHRASE
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
+      with:
+        maven-version: 3.6.0
     - name: Import GPG private key for maven release
       run: |
         echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
