@@ -74,7 +74,7 @@ jobs:
       - name: Compile Java and package into jar (includes testing + deploy)
         run: |
           cd java
-          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release -DskipTests=true
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb
