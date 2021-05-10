@@ -476,6 +476,14 @@
                         </executions>
                     </plugin>
                     <plugin>
+                        <groupId>org.simplify4u.plugins</groupId>
+                        <artifactId>sign-maven-plugin</artifactId>
+                        <version>0.3.1</version>
+                        <configuration>
+                            <keyPass>${gpg.passphrase}</keyPass>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
                         <version>2.5.3</version>
