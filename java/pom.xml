@@ -468,6 +468,7 @@
                                     </gpgArguments>-->
                                     <gpgArguments>
                                         <arg>--batch</arg>
+                                        <arg>--yes</arg>
                                     </gpgArguments>
                                     <passphrase>${gpg.passphrase}</passphrase>
                                 </configuration>
