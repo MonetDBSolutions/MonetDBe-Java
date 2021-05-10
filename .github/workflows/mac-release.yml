@@ -28,12 +28,16 @@ jobs:
           gpg-passphrase: MVN_GPG_PASSPHRASE
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
+        with:
+          maven-version: 3.6.0
       - name: Import GPG private key for maven release
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v3
         with:
           gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
+      - name: Import PGP private key (other plugin)
+        run: echo -e "${{ secrets.MVN_GPG_PASSPHRASE_SIMPLIFY }}" > /Users/runner/.m2/sign-key.asc
       - name: Install monetdb through brew
         run: brew install monetdb
       - name: Set up test environment
