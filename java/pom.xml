@@ -475,9 +475,18 @@
                         <groupId>org.simplify4u.plugins</groupId>
                         <artifactId>sign-maven-plugin</artifactId>
                         <version>0.3.1</version>
-                        <configuration>
-                            <keyPass>${gpg.passphrase}</keyPass>
-                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <keyPass>${gpg.passphrase}</keyPass>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
