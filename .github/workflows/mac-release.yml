@@ -37,7 +37,9 @@ jobs:
           gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
       - name: Import PGP private key (other plugin)
-        run: echo -e "${{ secrets.MVN_GPG_PASSPHRASE_SIMPLIFY }}" > /Users/runner/.m2/sign-key.asc
+        run: |
+          echo -e "${{ secrets.MVN_GPG_PASSPHRASE_SIMPLIFY }}" > /Users/runner/.m2/sign-key.asc
+          cat /Users/runner/.m2/settings.xml
       - name: Install monetdb through brew
         run: brew install monetdb
       - name: Set up test environment
@@ -75,6 +77,7 @@ jobs:
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
           MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+          gpg.passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
       - name: Uninstall MonetDB (to test the jar is portable)
