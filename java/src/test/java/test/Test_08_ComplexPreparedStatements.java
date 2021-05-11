@@ -1,12 +1,5 @@
 package test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -25,6 +18,8 @@ import org.junit.Test;
 import org.monetdb.monetdbe.MonetBlob;
 import org.monetdb.monetdbe.MonetResultSet;
 
+import static org.junit.Assert.*;
+
 //TODO This test isn't complete and has a placeholder value in the last DROP TABLE command
 public class Test_08_ComplexPreparedStatements {
 
@@ -39,8 +34,7 @@ public class Test_08_ComplexPreparedStatements {
 			assertNotNull("Could not connect to database with connection string: " + connectionUrl, conn);
 			assertFalse(conn.isClosed());
 			assertTrue(conn.getAutoCommit());
-			
-			// TODO: Support BLOB datatype
+
 			// Create first table and insert values
 			try (Statement statement = conn.createStatement()) {
 				statement.executeUpdate(
@@ -49,10 +43,8 @@ public class Test_08_ComplexPreparedStatements {
 				/*try (PreparedStatement p = conn.prepareStatement("INSERT INTO test08a VALUES (?, ?, ?, ?, ?, ?);")) {
 					// TODO: Implement setBigDecimal
 					p.setBigDecimal(1, BigDecimal.TEN);
-					/*p.setString(2, "Hello world");
-					// TODO: Implement PreparedStatement.setBlob(int parameterIndex, InputStream inputStream)
-					//p.setBlob(3, new ByteArrayInputStream("Hello world".getBytes()));
-					p.setBlob(3, new MonetBlob("Hello world".getBytes()));
+					p.setString(2, "Hello world");
+					p.setBlob(3, new ByteArrayInputStream("Hello world".getBytes()));
 					p.setDate(4, Date.valueOf("1975-10-25"));
 					p.setTime(5, Time.valueOf("12:24:36"));
 					p.setTimestamp(6, Timestamp.valueOf("1975-10-25 12:24:36"));*/
@@ -60,7 +52,7 @@ public class Test_08_ComplexPreparedStatements {
 				//TODO Remove these temporary values
 				try (PreparedStatement p = conn.prepareStatement("INSERT INTO test08a VALUES (NULL, ?, ?, ?, ?, ?);")) {
 					p.setString(1, "Hello world");
-					p.setBlob(2, new MonetBlob("Hello world".getBytes()));
+					p.setBlob(2, new ByteArrayInputStream("Hello world".getBytes()));
 					p.setDate(3, Date.valueOf("1975-10-25"));
 					p.setTime(4, Time.valueOf("12:24:36"));
 					p.setTimestamp(5, Timestamp.valueOf("1975-10-25 12:24:36"));
@@ -91,8 +83,8 @@ public class Test_08_ComplexPreparedStatements {
 					assertNull(rs.getBigDecimal(1));
 
 					assertEquals("Hello world", rs.getString(2));
-					//TODO Fix this to correctly test the Blob
-					//assertEquals(new MonetBlob("Hello world".getBytes()), ((MonetBlob) rs.getBlob(3)));
+					MonetBlob b = (MonetBlob) rs.getBlob(3);
+					assertArrayEquals("Hello world".getBytes(),b.getBytes(1,(int) b.length()));
 					assertEquals(Date.valueOf("1975-10-25"), rs.getDate(4));
 					assertEquals(Time.valueOf("12:24:36"), rs.getTime(5));
 					assertEquals(Timestamp.valueOf("1975-10-25 12:24:36"), rs.getTimestamp(6));

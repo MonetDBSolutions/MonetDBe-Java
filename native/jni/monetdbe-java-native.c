@@ -798,19 +798,18 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     return bind_parsed_data(env, j_stmt, (void *)null_ptr, parameter_nr);
 }
 
-//TODO Is this way to get the byte array data from Java correct? How do I parse it to char*?
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1blob(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jbyteArray j_data, jlong size)
 {
     jboolean isCopy;
     unsigned char *c_data = (unsigned char *)(*env)->GetByteArrayElements(env, j_data, &isCopy);
 
-    printf("Blob data:\n");
+    /*printf("Blob data:\n");
     for (int i = 0; c_data[i] != '\0'; i++)
     {
         printf("%d %x\n", i, c_data[i]);
     }
     printf("size: %ld\n", (long)size);
-    fflush(stdout);
+    fflush(stdout);*/
 
     monetdbe_data_blob *bind_data = malloc(sizeof(monetdbe_data_blob));
     bind_data->size = size;

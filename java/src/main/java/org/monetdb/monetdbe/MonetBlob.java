@@ -8,9 +8,7 @@
 
 package org.monetdb.monetdbe;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -29,20 +27,36 @@ public final class MonetBlob implements Blob {
 	private byte[] buf;
 
 	/* constructors */
-	public MonetBlob(final byte[] data) {
+	public MonetBlob(byte[] data) {
 		buf = data;
 	}
 
-	public MonetBlob(final String hexString) {
+	public MonetBlob(String hexString) {
 		buf = hexStrToByteArray(hexString);
+	}
+
+	public MonetBlob (InputStream is) {
+		try {
+			buf = inputStreamToByteArray(is,1024);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public MonetBlob (InputStream is, int length) {
+		try {
+			buf = inputStreamToByteArray(is,length);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 
 	/* class utility methods */
-	static final byte[] hexStrToByteArray(final String hexString) {
+	static byte[] hexStrToByteArray(String hexString) {
 		// unpack the HEX (BLOB) notation to real bytes
-		final int len = hexString.length() / 2;
-		final byte[] buf = new byte[len];
+		int len = hexString.length() / 2;
+		byte[] buf = new byte[len];
 		for (int i = 0; i < len; i++) {
 //	was		buf[i] = (byte)Integer.parseInt(hexString.substring(2 * i, (2 * i) + 2), 16);
 			buf[i] = (byte) ((Character.digit(hexString.charAt(2 * i), 16) << 4)
@@ -52,9 +66,20 @@ public final class MonetBlob implements Blob {
 	}
 
 	/* internal utility method */
-	private final void checkBufIsNotNull() throws SQLException {
+	private void checkBufIsNotNull() throws SQLException {
 		if (buf == null)
 			throw new SQLException("This MonetBlob has been freed", "M1M20");
+	}
+
+	static byte[] inputStreamToByteArray (InputStream is, int length) throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		byte[] buffer = new byte[length];
+		int len;
+
+		while ((len = is.read(buffer)) != -1)
+			os.write(buffer, 0, len);
+
+		return os.toByteArray();
 	}
 
 	//== begin interface Blob

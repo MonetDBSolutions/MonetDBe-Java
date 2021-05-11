@@ -19,26 +19,38 @@ import java.util.List;
 
 /**
  * A {@link PreparedStatement} suitable for the MonetDB embedded database.
- *
+ * <p>
  * An object that represents a precompiled SQL statement. A SQL statement is precompiled and stored in a PreparedStatement object.
  * This object can then be used to efficiently execute this statement multiple times.
- *
+ * <p>
  * Note: The setter methods (setShort, setString, and so on) for setting IN parameter values must specify types that are compatible with
  * the defined SQL type of the input parameter. For instance, if the IN parameter has SQL type INTEGER, then the method setInt should be used.
  * If arbitrary parameter type conversions are required, the method setObject should be used with a target SQL type.
  */
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
-    /** The pointer to the C statement object */
+    /**
+     * The pointer to the C statement object
+     */
     protected ByteBuffer statementNative;
-    /** Metadata object containing info about this prepared statement */
+    /**
+     * Metadata object containing info about this prepared statement
+     */
     private MonetParameterMetaData parameterMetaData;
-    /** Number of bind-able parameters */
+    /**
+     * Number of bind-able parameters
+     */
     protected int nParams;
-    /** Array of types of bind-able parameters */
+    /**
+     * Array of types of bind-able parameters
+     */
     protected int[] monetdbeTypes;
-    /** Currently bound parameters */
+    /**
+     * Currently bound parameters
+     */
     private Object[] parameters;
-    /** Array of bound parameters, for use in executeBatch() */
+    /**
+     * Array of bound parameters, for use in executeBatch()
+     */
     private List<Object[]> parametersBatch = null;
 
     /**
@@ -47,12 +59,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The nParams, monetdbeTypes and statementNative variables are set within monetdbe_prepare();
      *
      * @param conn parent connection
-     * @param sql query to prepare
+     * @param sql  query to prepare
      */
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
         //nParams, monetdbeTypes and statementNative variables are set within this function
-        String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
+        String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(), sql, this);
 
         //Failed prepare, destroy statement
         if (this.statementNative == null || error_msg != null) {
@@ -65,7 +77,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         }
 
         if (nParams >= 0) {
-            this.parameterMetaData = new MonetParameterMetaData(nParams,monetdbeTypes);
+            this.parameterMetaData = new MonetParameterMetaData(nParams, monetdbeTypes);
             this.parameters = new Object[nParams];
         }
     }
@@ -75,11 +87,11 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The execute method returns a boolean to indicate the form of the first result.
      * You must then use the methods getResultSet or getUpdateCount to retrieve the result
      * (either a ResultSet object or an int representing the update count).
-     *
+     * <p>
      * Multiple results may result from the SQL statement, but only the first one may be retrieved in the current version.
      *
      * @return true if the first result is a ResultSet object; false if it is an
-     *         update count or there are no results
+     * update count or there are no results
      * @throws SQLException if a database access error occurs or an argument is supplied to this method
      */
     @Override
@@ -92,24 +104,23 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         this.updateCount = -1;
 
         //ResultSet and UpdateCount is set within monetdbe_execute
-        String error_msg = MonetNative.monetdbe_execute(statementNative,this, false, getMaxRows());
+        String error_msg = MonetNative.monetdbe_execute(statementNative, this, false, getMaxRows());
         if (error_msg != null) {
             this.updateCount = lastUpdateCount;
             this.resultSet = lastResultSet;
             throw new SQLException(error_msg);
-        }
-        else if (this.resultSet!=null) {
+        } else if (this.resultSet != null) {
             return true;
-        }
-        else if (this.updateCount >= 0 || this.updateCount == Statement.SUCCESS_NO_INFO){
+        } else if (this.updateCount >= 0 || this.updateCount == Statement.SUCCESS_NO_INFO) {
             return false;
-        }
-        else {
+        } else {
             throw new SQLException("No update count or result set returned");
         }
     }
 
-    /** Override the execute from the Statement to throw a SQLException */
+    /**
+     * Override the execute from the Statement to throw a SQLException
+     */
     @Override
     public boolean execute(final String q) throws SQLException {
         throw new SQLException("This method is not available in a PreparedStatement!", "M1M05");
@@ -128,7 +139,9 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         return getResultSet();
     }
 
-    /** Override the executeQuery from the Statement to throw a SQLException */
+    /**
+     * Override the executeQuery from the Statement to throw a SQLException
+     */
     @Override
     public ResultSet executeQuery(final String q) throws SQLException {
         throw new SQLException("This method is not available in a PreparedStatement!", "M1M05");
@@ -148,7 +161,9 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         return getUpdateCount();
     }
 
-    /** Override the executeUpdate from the Statement to throw a SQLException */
+    /**
+     * Override the executeUpdate from the Statement to throw a SQLException
+     */
     @Override
     public int executeUpdate(final String q) throws SQLException {
         throw new SQLException("This method is not available in a PreparedStatement!", "M1M05");
@@ -158,7 +173,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * Adds a set of parameters to this PreparedStatement object's batch of commands.
      *
      * @throws SQLException if a database access error occurs, this method is called on a closed PreparedStatement
-     * or an argument is supplied to this method
+     *                      or an argument is supplied to this method
      */
     @Override
     public void addBatch() throws SQLException {
@@ -171,7 +186,9 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         parameters = new Object[nParams];
     }
 
-    /** Override the addBatch from the Statement to throw a SQLException */
+    /**
+     * Override the addBatch from the Statement to throw a SQLException
+     */
     @Override
     public void addBatch(final String q) throws SQLException {
         throw new SQLException("This method is not available in a PreparedStatement!", "M1M05");
@@ -182,13 +199,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * If all commands execute successfully, returns an array of update counts.
      * The int elements of the array that is returned are ordered to correspond to the commands in the batch,
      * which are ordered according to the order in which they were added to the batch.
-     *
+     * <p>
      * This method overrides Statement's implementation, which batches different queries instead of
      * different parameters for same prepared query.
      *
      * @return an array of update counts containing one element for each command in the batch.
      * The elements of the array are ordered according to the order in which commands were added to the batch.
-     * @throws SQLException if a database access error occurs or this method is called on a closed PreparedStatement
+     * @throws SQLException         if a database access error occurs or this method is called on a closed PreparedStatement
      * @throws BatchUpdateException if one of the commands sent to the database fails to execute properly or attempts to return a result set
      */
     @Override
@@ -207,7 +224,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
             for (int j = 0; j < nParams; j++) {
                 //Set each parameter in current batch
-                setObject(j+1,cur_batch[j]);
+                setObject(j + 1, cur_batch[j]);
             }
 
             try {
@@ -218,8 +235,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             }
             if (count >= 0) {
                 counts[i] = count;
-            }
-            else {
+            } else {
                 counts[i] = Statement.SUCCESS_NO_INFO;
             }
         }
@@ -232,15 +248,15 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * If all commands execute successfully, returns an array of update counts.
      * The int elements of the array that is returned are ordered to correspond to the commands in the batch,
      * which are ordered according to the order in which they were added to the batch.
-     *
+     * <p>
      * This method overrides Statement's implementation, which batches different queries instead of
      * different parameters for same prepared query.
-     *
+     * <p>
      * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
      *
      * @return an array of update counts containing one element for each command in the batch.
      * The elements of the array are ordered according to the order in which commands were added to the batch.
-     * @throws SQLException if a database access error occurs or this method is called on a closed PreparedStatement
+     * @throws SQLException         if a database access error occurs or this method is called on a closed PreparedStatement
      * @throws BatchUpdateException if one of the commands sent to the database fails to execute properly or attempts to return a result set
      */
     public long[] executeLargeBatch() throws SQLException {
@@ -258,7 +274,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
             for (int j = 0; j < nParams; j++) {
                 //Set each parameter in current batch
-                setObject(j+1,cur_batch[j]);
+                setObject(j + 1, cur_batch[j]);
             }
 
             try {
@@ -269,8 +285,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             }
             if (count >= 0) {
                 counts[i] = count;
-            }
-            else {
+            } else {
                 counts[i] = Statement.SUCCESS_NO_INFO;
             }
         }
@@ -280,7 +295,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Empties this PreparedStatements object's current list of parameters.
-     *
+     * <p>
      * This method overrides Statement's implementation, which clears different batched queries instead of
      * different batched parameters for same prepared query.
      *
@@ -297,13 +312,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The execute method returns a boolean to indicate the form of the first result.
      * You must then use the methods getResultSet or getUpdateCount to retrieve the result
      * (either a ResultSet object or an int representing the update count).
-     *
+     * <p>
      * Multiple results may result from the SQL statement, but only the first one may be retrieved in the current version.
-     *
+     * <p>
      * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
      *
      * @return true if the first result is a ResultSet object; false if it is an
-     *         update count or there are no results
+     * update count or there are no results
      * @throws SQLException if a database access error occurs or an argument is supplied to this method
      */
     @Override
@@ -316,16 +331,14 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         this.largeUpdateCount = -1;
 
         //ResultSet and UpdateCount is set within monetdbe_execute
-        String error_msg = MonetNative.monetdbe_execute(statementNative,this, true,getMaxRows());
+        String error_msg = MonetNative.monetdbe_execute(statementNative, this, true, getMaxRows());
         if (error_msg != null) {
             this.largeUpdateCount = lastUpdateCount;
             this.resultSet = lastResultSet;
             throw new SQLException(error_msg);
-        }
-        else if (this.resultSet!=null) {
+        } else if (this.resultSet != null) {
             throw new SQLException("Query produced a result set", "M1M17");
-        }
-        else {
+        } else {
             return getLargeUpdateCount();
         }
     }
@@ -333,12 +346,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     /**
      * Retrieves a ResultSetMetaData object that contains information about the columns of the ResultSet object that
      * will be returned when this PreparedStatement object is executed.
-     *
+     * <p>
      * Because a PreparedStatement object is precompiled, it is possible to know about the ResultSet object that it will
      * return without having to execute it. Consequently, it is possible to invoke the method getMetaData on a
      * PreparedStatement object rather than waiting to execute it and then invoking the ResultSet.getMetaData method on
      * the ResultSet object that is returned.
-     *
+     * <p>
      * Not currently supported
      *
      * @return the description of a ResultSet object's columns or null if the driver cannot return a ResultSetMetaData object
@@ -354,6 +367,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Retrieves the number, types and properties of this PreparedStatement object's parameters.
+     *
      * @return a ParameterMetaData object that contains information about the number, types and properties
      * for each parameter marker of this PreparedStatement object
      * @throws SQLException if this method is called on a closed PreparedStatement
@@ -367,6 +381,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     /**
      * Clears the current parameter values immediately.
      * Current version also cleans up the prepared statement, closing this object.
+     *
      * @throws SQLException if this method is called on a closed PreparedStatement
      */
     @Override
@@ -374,7 +389,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         //TODO: Use cleanup function which doesn't clean up the Prepared Statement
         checkNotClosed();
         //MonetNative.monetdbe_clear_bindings(conn.dbNative,statementNative);
-        MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),statementNative);
+        MonetNative.monetdbe_cleanup_statement(conn.getDbNative(), statementNative);
         close();
     }
 
@@ -383,11 +398,11 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The given Java object will be converted to the given targetSqlType before being sent to the database.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the object containing the input parameter value
-     * @param targetSqlType the SQL type (as defined in java.sql.Types) to be sent to the database
-     * @param scaleOrLength for java.sql.Types.DECIMAL or java.sql.Types.NUMERIC types, this is the number of digits after the decimal point
+     * @param x              the object containing the input parameter value
+     * @param targetSqlType  the SQL type (as defined in java.sql.Types) to be sent to the database
+     * @param scaleOrLength  for java.sql.Types.DECIMAL or java.sql.Types.NUMERIC types, this is the number of digits after the decimal point
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
@@ -400,9 +415,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         }
 
         if (x instanceof String) {
-            setString(parameterIndex,String.valueOf(x));
-        }
-        else if (x instanceof BigDecimal ||
+            setString(parameterIndex, String.valueOf(x));
+        } else if (x instanceof BigDecimal ||
                 x instanceof Byte ||
                 x instanceof Short ||
                 x instanceof Integer ||
@@ -410,14 +424,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 x instanceof Float ||
                 x instanceof Double) {
             Number num = (Number) x;
-            setObjectNum(parameterIndex,targetSqlType,num,x,scaleOrLength);
-        }
-        else if (x instanceof Boolean) {
+            setObjectNum(parameterIndex, targetSqlType, num, x, scaleOrLength);
+        } else if (x instanceof Boolean) {
             boolean bool = (Boolean) x;
-            setObjectBool(parameterIndex,targetSqlType,bool);
-        }
-        else if (x instanceof BigInteger) {
-            BigInteger num = (BigInteger)x;
+            setObjectBool(parameterIndex, targetSqlType, bool);
+        } else if (x instanceof BigInteger) {
+            BigInteger num = (BigInteger) x;
             switch (targetSqlType) {
                 case Types.BIGINT:
                     setLong(parameterIndex, num.longValue());
@@ -430,8 +442,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 default:
                     throw new SQLException("Conversion not allowed", "M1M05");
             }
-        }
-        else if (x instanceof byte[]) {
+        } else if (x instanceof byte[]) {
             switch (targetSqlType) {
                 case Types.BINARY:
                 case Types.VARBINARY:
@@ -441,8 +452,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 default:
                     throw new SQLException("Conversion not allowed", "M1M05");
             }
-        }
-        else if (x instanceof java.sql.Date ||
+        } else if (x instanceof java.sql.Date ||
                 x instanceof Timestamp ||
                 x instanceof Time ||
                 x instanceof Calendar ||
@@ -450,13 +460,11 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 x instanceof java.time.LocalDate ||
                 x instanceof java.time.LocalTime ||
                 x instanceof java.time.LocalDateTime) {
-            setObjectDate(parameterIndex,targetSqlType,x);
-        }
-        else if (x instanceof MonetBlob || x instanceof Blob) {
+            setObjectDate(parameterIndex, targetSqlType, x);
+        } else if (x instanceof MonetBlob || x instanceof Blob) {
             setBlob(parameterIndex, (Blob) x);
-        }
-        else if (x instanceof java.net.URL) {
-            setURL(parameterIndex,(URL) x);
+        } else if (x instanceof java.net.URL) {
+            setURL(parameterIndex, (URL) x);
         }
     }
 
@@ -464,34 +472,33 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * Sets the value of the designated parameter from a bool value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param sqlType the SQL type (as defined in java.sql.Types) of the value to set
-     * @param bool value to be set
+     * @param sqlType        the SQL type (as defined in java.sql.Types) of the value to set
+     * @param bool           value to be set
      * @throws SQLException if the conversion is not allowed or the BigDecimal object could not be created from the bool
      */
-    private void setObjectBool (int parameterIndex, int sqlType, Boolean bool) throws SQLException {
+    private void setObjectBool(int parameterIndex, int sqlType, Boolean bool) throws SQLException {
         switch (sqlType) {
             case Types.TINYINT:
-                setByte(parameterIndex, (byte)(bool ? 1 : 0));
+                setByte(parameterIndex, (byte) (bool ? 1 : 0));
                 break;
             case Types.SMALLINT:
-                setShort(parameterIndex, (short)(bool ? 1 : 0));
+                setShort(parameterIndex, (short) (bool ? 1 : 0));
                 break;
             case Types.INTEGER:
                 setInt(parameterIndex, (bool ? 1 : 0));  // do not cast to (int) as it generates a compiler warning
                 break;
             case Types.BIGINT:
-                setLong(parameterIndex, (long)(bool ? 1 : 0));
+                setLong(parameterIndex, (long) (bool ? 1 : 0));
                 break;
             case Types.REAL:
             case Types.FLOAT:
-                setFloat(parameterIndex, (float)(bool ? 1.0 : 0.0));
+                setFloat(parameterIndex, (float) (bool ? 1.0 : 0.0));
                 break;
             case Types.DOUBLE:
                 setDouble(parameterIndex, (bool ? 1.0 : 0.0));  // do no cast to (double) as it generates a compiler warning
                 break;
             case Types.DECIMAL:
-            case Types.NUMERIC:
-            {
+            case Types.NUMERIC: {
                 final BigDecimal dec;
                 try {
                     dec = new BigDecimal(bool ? 1.0 : 0.0);
@@ -499,7 +506,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                     throw new SQLException("Internal error: unable to create template BigDecimal: " + e.getMessage(), "M0M03");
                 }
                 setBigDecimal(parameterIndex, dec);
-            } break;
+            }
+            break;
             case Types.BIT:
             case Types.BOOLEAN:
                 setBoolean(parameterIndex, bool);
@@ -518,13 +526,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * Sets the value of the designated parameter from a number type (Byte, Short, Integer, Float, Double, BigDecimal).
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param sqlType the SQL type (as defined in java.sql.Types) of the value to set
-     * @param num value to be set, as a Number object
-     * @param x value to be set, non-cast
-     * @param scale scale for Decimal and Numeric types
+     * @param sqlType        the SQL type (as defined in java.sql.Types) of the value to set
+     * @param num            value to be set, as a Number object
+     * @param x              value to be set, non-cast
+     * @param scale          scale for Decimal and Numeric types
      * @throws SQLException if the conversion is not allowed
      */
-    private void setObjectNum (int parameterIndex, int sqlType, Number num, Object x, int scale) throws SQLException {
+    private void setObjectNum(int parameterIndex, int sqlType, Number num, Object x, int scale) throws SQLException {
         switch (sqlType) {
             case Types.TINYINT:
                 setByte(parameterIndex, num.byteValue());
@@ -552,9 +560,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 } else {
                     if (scale == 0) {
                         setBigDecimal(parameterIndex, new BigDecimal(num.doubleValue()));
-                    }
-                    else {
-                        setBigDecimal(parameterIndex, new BigDecimal(num.doubleValue()).setScale(scale,java.math.RoundingMode.HALF_UP));
+                    } else {
+                        setBigDecimal(parameterIndex, new BigDecimal(num.doubleValue()).setScale(scale, java.math.RoundingMode.HALF_UP));
                     }
                 }
                 break;
@@ -580,23 +587,23 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * Sets the value of the designated parameter from a date type (Date, Time, Timestamp).
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param targetSqlType the SQL type (as defined in java.sql.Types) of the value to set
-     * @param x value to be set
+     * @param targetSqlType  the SQL type (as defined in java.sql.Types) of the value to set
+     * @param x              value to be set
      * @throws SQLException if the conversion is not allowed
      */
-    private void setObjectDate (int parameterIndex, int targetSqlType, Object x) throws SQLException {
+    private void setObjectDate(int parameterIndex, int targetSqlType, Object x) throws SQLException {
         switch (targetSqlType) {
             case Types.DATE:
                 if (x instanceof java.sql.Date) {
                     setDate(parameterIndex, (java.sql.Date) x);
                 } else if (x instanceof Timestamp) {
-                    setDate(parameterIndex, new java.sql.Date(((Timestamp)x).getTime()));
+                    setDate(parameterIndex, new java.sql.Date(((Timestamp) x).getTime()));
                 } else if (x instanceof java.util.Date) {
                     setDate(parameterIndex, new java.sql.Date(
-                            ((java.util.Date)x).getTime()));
+                            ((java.util.Date) x).getTime()));
                 } else if (x instanceof Calendar) {
                     setDate(parameterIndex, new java.sql.Date(
-                            ((Calendar)x).getTimeInMillis()));
+                            ((Calendar) x).getTimeInMillis()));
                 } else if (x instanceof LocalDate) {
                     setDate(parameterIndex, Date.valueOf((LocalDate) x));
                 } else {
@@ -605,15 +612,15 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 break;
             case Types.TIME:
                 if (x instanceof Time) {
-                    setTime(parameterIndex, (Time)x);
+                    setTime(parameterIndex, (Time) x);
                 } else if (x instanceof Timestamp) {
-                    setTime(parameterIndex, new Time(((Timestamp)x).getTime()));
+                    setTime(parameterIndex, new Time(((Timestamp) x).getTime()));
                 } else if (x instanceof java.util.Date) {
                     setTime(parameterIndex, new java.sql.Time(
-                            ((java.util.Date)x).getTime()));
+                            ((java.util.Date) x).getTime()));
                 } else if (x instanceof Calendar) {
                     setTime(parameterIndex, new java.sql.Time(
-                            ((Calendar)x).getTimeInMillis()));
+                            ((Calendar) x).getTimeInMillis()));
                 } else if (x instanceof LocalTime) {
                     setTime(parameterIndex, Time.valueOf((LocalTime) x));
                 } else {
@@ -622,15 +629,15 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 break;
             case Types.TIMESTAMP:
                 if (x instanceof Timestamp) {
-                    setTimestamp(parameterIndex, (Timestamp)x);
+                    setTimestamp(parameterIndex, (Timestamp) x);
                 } else if (x instanceof java.sql.Date) {
-                    setTimestamp(parameterIndex, new java.sql.Timestamp(((java.sql.Date)x).getTime()));
+                    setTimestamp(parameterIndex, new java.sql.Timestamp(((java.sql.Date) x).getTime()));
                 } else if (x instanceof java.util.Date) {
                     setTimestamp(parameterIndex, new java.sql.Timestamp(
-                            ((java.util.Date)x).getTime()));
+                            ((java.util.Date) x).getTime()));
                 } else if (x instanceof Calendar) {
                     setTimestamp(parameterIndex, new java.sql.Timestamp(
-                            ((Calendar)x).getTimeInMillis()));
+                            ((Calendar) x).getTimeInMillis()));
                 } else if (x instanceof LocalDateTime) {
                     setTimestamp(parameterIndex, Timestamp.valueOf((LocalDateTime) x));
                 } else {
@@ -653,15 +660,15 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The given Java object will be converted to the given targetSqlType before being sent to the database.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the object containing the input parameter value
-     * @param targetSqlType the SQL type to be sent to the database
-     * @param scaleOrLength for java.sql.Types.DECIMAL or java.sql.Types.NUMERIC types, this is the number of digits after the decimal point
+     * @param x              the object containing the input parameter value
+     * @param targetSqlType  the SQL type to be sent to the database
+     * @param scaleOrLength  for java.sql.Types.DECIMAL or java.sql.Types.NUMERIC types, this is the number of digits after the decimal point
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType, int scaleOrLength) throws SQLException {
-        setObject(parameterIndex,x,MonetTypes.getSQLIntFromSQLName(targetSqlType.getName()),scaleOrLength);
+        setObject(parameterIndex, x, MonetTypes.getSQLIntFromSQLName(targetSqlType.getName()), scaleOrLength);
     }
 
     /**
@@ -669,13 +676,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The given Java object will be converted to the given targetSqlType before being sent to the database.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the object containing the input parameter value
-     * @param targetSqlType the SQL type to be sent to the database
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     * @param x              the object containing the input parameter value
+     * @param targetSqlType  the SQL type to be sent to the database
+     *                       if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setObject(int parameterIndex, Object x, SQLType targetSqlType) throws SQLException {
-        setObject(parameterIndex,x,targetSqlType,0);
+        setObject(parameterIndex, x, targetSqlType, 0);
     }
 
     /**
@@ -684,42 +691,42 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * except that it assumes a scale of zero.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the object containing the input parameter value
-     * @param targetSqlType the SQL type (as defined in java.sql.Types) to be sent to the database
+     * @param x              the object containing the input parameter value
+     * @param targetSqlType  the SQL type (as defined in java.sql.Types) to be sent to the database
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
-        setObject(parameterIndex,x,targetSqlType,0);
+        setObject(parameterIndex, x, targetSqlType, 0);
     }
 
     /**
      * Sets the value of the designated parameter using the given object.
-     *
+     * <p>
      * The JDBC specification specifies a standard mapping from Java Object types to SQL types.
      * The given argument will be converted to the corresponding SQL type before being sent to the database.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the object containing the input parameter value
+     * @param x              the object containing the input parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
-        int targetSqlType = MonetTypes.getSQLTypeFromMonet(monetdbeTypes[parameterIndex-1]);
-        setObject(parameterIndex,x,targetSqlType,0);
+        int targetSqlType = MonetTypes.getSQLTypeFromMonet(monetdbeTypes[parameterIndex - 1]);
+        setObject(parameterIndex, x, targetSqlType, 0);
     }
 
     /**
      * Sets the designated parameter to SQL NULL.
-     *
+     * <p>
      * Note: You must specify the parameter's SQL type.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param sqlType the SQL type code defined in java.sql.Types
-     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     * @param sqlType        the SQL type code defined in java.sql.Types
+     * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL statement;
+     *                                         if a database access error occurs or this method is called on a closed PreparedStatement
      * @throws SQLFeatureNotSupportedException - if sqlType is not supported
      */
     @Override
@@ -727,172 +734,174 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        int monettype = monetdbeTypes[parameterIndex-1];
+        int monettype = monetdbeTypes[parameterIndex - 1];
 
         //If we don't support the sqlType, throw exception. 14 corresponds to monetdbe_type_unknown
         if (monettype == 14) {
             throw new SQLFeatureNotSupportedException("sqlType not supported");
         }
 
-        String error_msg = MonetNative.monetdbe_bind_null(conn.getDbNative(),monettype,statementNative,parameterIndex-1);
+        String error_msg = MonetNative.monetdbe_bind_null(conn.getDbNative(), monettype, statementNative, parameterIndex - 1);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = null;
+        parameters[parameterIndex - 1] = null;
     }
 
     /**
      * Sets the designated parameter to the given Java boolean value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setBoolean(int parameterIndex, boolean x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_bool(statementNative,parameterIndex-1,x);
+        String error_msg = MonetNative.monetdbe_bind_bool(statementNative, parameterIndex - 1, x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java byte value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setByte(int parameterIndex, byte x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_byte(statementNative,parameterIndex-1,x);
+        String error_msg = MonetNative.monetdbe_bind_byte(statementNative, parameterIndex - 1, x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java short value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setShort(int parameterIndex, short x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_short(statementNative,parameterIndex-1,x);
+        String error_msg = MonetNative.monetdbe_bind_short(statementNative, parameterIndex - 1, x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java int value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setInt(int parameterIndex, int x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_int(statementNative,parameterIndex-1,x);
+        String error_msg = MonetNative.monetdbe_bind_int(statementNative, parameterIndex - 1, x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java long value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setLong(int parameterIndex, long x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_long(statementNative,parameterIndex-1,x);
+        String error_msg = MonetNative.monetdbe_bind_long(statementNative, parameterIndex - 1, x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java float value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setFloat(int parameterIndex, float x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_float(statementNative,parameterIndex-1,x);
+        String error_msg = MonetNative.monetdbe_bind_float(statementNative, parameterIndex - 1, x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java double value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setDouble(int parameterIndex, double x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_double(statementNative,parameterIndex-1,x);
+        String error_msg = MonetNative.monetdbe_bind_double(statementNative, parameterIndex - 1, x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java java.math.BigDecimal value.
+     * Feature not currently supported.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
         //TODO Implement the C function to bind
-        checkNotClosed();
+        throw new SQLFeatureNotSupportedException("setBigDecimal(int, BigDecimal)");
+        /*checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
         Number numberBind;
@@ -922,47 +931,49 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             type = 5;
         }
         MonetNative.monetdbe_bind_decimal(statementNative,numberBind,type,x.scale(),parameterIndex-1);
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex-1] = x;*/
     }
 
     /**
      * Sets the designated parameter to the given Java java.math.BigInteger value.
+     * Feature not currently supported.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     public void setBigInteger(int parameterIndex, BigInteger x) throws SQLException {
         //TODO Implement the C function to bind
-        checkNotClosed();
+        throw new SQLFeatureNotSupportedException("setBigInteger(int, BigInteger)");
+        /*checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
         String error_msg = MonetNative.monetdbe_bind_hugeint(statementNative,parameterIndex-1,x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex-1] = x;*/
     }
 
     /**
      * Sets the designated parameter to the given Java String value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setString(int parameterIndex, String x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_string(statementNative,parameterIndex-1,x);
+        String error_msg = MonetNative.monetdbe_bind_string(statementNative, parameterIndex - 1, x);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
@@ -970,10 +981,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The driver uses the Calendar object to calculate the date taking into account a custom timezone.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
-     * @param cal the Calendar object the driver will use to construct the date
+     * @param x              the parameter value
+     * @param cal            the Calendar object the driver will use to construct the date
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
@@ -989,11 +1000,11 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                     .withZoneSameInstant(ZoneOffset.UTC)
                     .toLocalDate();
         }
-        String error_msg = MonetNative.monetdbe_bind_date(statementNative,parameterIndex-1,(short)localDate.getYear(),(byte)localDate.getMonthValue(),(byte)localDate.getDayOfMonth());
+        String error_msg = MonetNative.monetdbe_bind_date(statementNative, parameterIndex - 1, (short) localDate.getYear(), (byte) localDate.getMonthValue(), (byte) localDate.getDayOfMonth());
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
@@ -1001,10 +1012,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The driver uses the Calendar object to calculate the date taking into account a custom timezone.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
-     * @param cal the Calendar object the driver will use to construct the date
+     * @param x              the parameter value
+     * @param cal            the Calendar object the driver will use to construct the date
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
@@ -1021,11 +1032,11 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                     .toLocalTime();
         }
 
-        String error_msg = MonetNative.monetdbe_bind_time(statementNative,parameterIndex-1,localTime.getHour(),localTime.getMinute(),localTime.getSecond(),localTime.getNano()*1000);
+        String error_msg = MonetNative.monetdbe_bind_time(statementNative, parameterIndex - 1, localTime.getHour(), localTime.getMinute(), localTime.getSecond(), localTime.getNano() * 1000);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
@@ -1033,10 +1044,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * The driver uses the Calendar object to calculate the date taking into account a custom timezone.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
-     * @param cal the Calendar object the driver will use to construct the date
+     * @param x              the parameter value
+     * @param cal            the Calendar object the driver will use to construct the date
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
@@ -1051,123 +1062,162 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                     .withZoneSameInstant(ZoneOffset.UTC)
                     .toLocalDateTime();
         }
-        String error_msg = MonetNative.monetdbe_bind_timestamp(statementNative,parameterIndex-1,localDateTime.getYear(),localDateTime.getMonthValue(),localDateTime.getDayOfMonth(),localDateTime.getHour(),localDateTime.getMinute(),localDateTime.getSecond(),localDateTime.getNano()*1000);
+        String error_msg = MonetNative.monetdbe_bind_timestamp(statementNative, parameterIndex - 1, localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(), localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond(), localDateTime.getNano() * 1000);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java java.sql.Date value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setDate(int parameterIndex, Date x) throws SQLException {
-        setDate(parameterIndex,x,null);
+        setDate(parameterIndex, x, null);
     }
 
     /**
      * Sets the designated parameter to the given Java java.sql.Time value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
-        setTime(parameterIndex,x,null);
+        setTime(parameterIndex, x, null);
     }
 
     /**
      * Sets the designated parameter to the given Java java.sql.Timestamp value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-        setTimestamp(parameterIndex,x,null);
+        setTimestamp(parameterIndex, x, null);
     }
 
     /**
      * Sets the designated parameter to the given Java byte[] value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setBytes(int parameterIndex, byte[] x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        String error_msg = MonetNative.monetdbe_bind_blob(statementNative,parameterIndex-1,x,x.length);
+        String error_msg = MonetNative.monetdbe_bind_blob(statementNative, parameterIndex - 1, x, x.length);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        parameters[parameterIndex-1] = x;
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java java.net.URL value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setURL(int parameterIndex, URL x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        setString(parameterIndex,x.toString());
-        parameters[parameterIndex-1] = x;
+        setString(parameterIndex, x.toString());
+        parameters[parameterIndex - 1] = x;
     }
 
     /**
      * Sets the designated parameter to the given Java java.sql.Blob value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setBlob(int parameterIndex, Blob x) throws SQLException {
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        long size = x.length();
-        if (size > 0) {
-            byte[] blob_data = x.getBytes(1,(int) size);
-            String error_msg = MonetNative.monetdbe_bind_blob(statementNative,parameterIndex-1,blob_data,x.length());
+
+        if (x == null || x.length() <= 0) {
+            setNull(parameterIndex, Types.BLOB);
+        } else {
+            byte[] blob_data = x.getBytes(1, (int) x.length());
+            String error_msg = MonetNative.monetdbe_bind_blob(statementNative, parameterIndex - 1, blob_data, x.length());
             if (error_msg != null) {
                 throw new SQLException(error_msg);
             }
-            parameters[parameterIndex-1] = x;
         }
-        else {
-            setNull(parameterIndex,Types.BLOB);
-        }
+        parameters[parameterIndex - 1] = x;
+    }
+
+    /**
+     * Sets the designated parameter with InputStream object which is sent to the server as a BLOB.
+     *
+     * @param parameterIndex Parameter index (starts at 1)
+     * @param inputStream   An object that contains the data to set the parameter value to
+     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
+     */
+    @Override
+    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
+        checkNotClosed();
+        if (parameterIndex <= 0 || parameterIndex > nParams)
+            throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
+
+        MonetBlob x = new MonetBlob(inputStream);
+        setBlob(parameterIndex,x);
+    }
+
+    /**
+     * Sets the designated parameter with InputStream object which is sent to the server as a BLOB.
+     *
+     * @param parameterIndex Parameter index (starts at 1)
+     * @param inputStream    An object that contains the data to set the parameter value to
+     * @param length        The number of bytes in the parameter data
+     * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement;
+     *                      if the length specified is less than zero
+     */
+    @Override
+    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
+        checkNotClosed();
+        if (parameterIndex <= 0 || parameterIndex > nParams)
+            throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
+        if (length < 0)
+            throw new SQLException("length cannot be less than zero");
+
+        MonetBlob x = new MonetBlob(inputStream,(int) length);
+        setBlob(parameterIndex,x);
     }
 
     /**
      * Sets the designated parameter to the given Java java.sql.Clob value.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param x the parameter value
+     * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
-     * if a database access error occurs or this method is called on a closed PreparedStatement
+     *                      if a database access error occurs or this method is called on a closed PreparedStatement
      */
     @Override
     public void setClob(int parameterIndex, Clob x) throws SQLException {
@@ -1176,14 +1226,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
         long size = x.length();
         if (size > 0) {
-            String error_msg = MonetNative.monetdbe_bind_string(statementNative,parameterIndex-1,x.toString());
+            String error_msg = MonetNative.monetdbe_bind_string(statementNative, parameterIndex - 1, x.toString());
             if (error_msg != null) {
                 throw new SQLException(error_msg);
             }
-            parameters[parameterIndex-1] = x;
-        }
-        else {
-            setNull(parameterIndex,Types.BLOB);
+            parameters[parameterIndex - 1] = x;
+        } else {
+            setNull(parameterIndex, Types.BLOB);
         }
     }
 
@@ -1222,7 +1271,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         }
 
         // simply serialise the Reader data into a large buffer
-        final CharBuffer buf = CharBuffer.allocate((int)length); // have to down cast
+        final CharBuffer buf = CharBuffer.allocate((int) length); // have to down cast
         try {
             reader.read(buf);
             // We have to rewind the buffer, because otherwise toString() returns "".
@@ -1238,35 +1287,38 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * This version of the method setNull is supposed to be used for user-defined types and REF type parameters.
      * Because MonetDBe currently doesn't support UDFs, this behaves similarly to setNull(int parameterIndex, int sqlType).
      *
-     * @see #setNull(int,int)
+     * @see #setNull(int, int)
      */
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
         //Ignore typeName parameter, no support for Ref and UDFs in monetdbe
-        setNull(parameterIndex,sqlType);
+        setNull(parameterIndex, sqlType);
     }
 
     /**
      * Similar to setString(int,String).
-     * @see #setString(int,String)
+     *
+     * @see #setString(int, String)
      */
     @Override
     public void setNString(int parameterIndex, String value) throws SQLException {
-        setString(parameterIndex,value);
+        setString(parameterIndex, value);
     }
 
     /**
      * Similar to setClob(int,Reader,long).
-     * @see #setClob(int,Reader,long)
+     *
+     * @see #setClob(int, Reader, long)
      */
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-        setClob(parameterIndex, reader, (long)length);
+        setClob(parameterIndex, reader, (long) length);
     }
 
     /**
      * Similar to setClob(int,Reader,long).
-     * @see #setClob(int,Reader,long)
+     *
+     * @see #setClob(int, Reader, long)
      */
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
@@ -1275,7 +1327,8 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Similar to setClob(int,Reader).
-     * @see #setClob(int,Reader)
+     *
+     * @see #setClob(int, Reader)
      */
     @Override
     public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
@@ -1284,24 +1337,27 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Similar to setClob(int,Reader).
-     * @see #setClob(int,Reader)
+     *
+     * @see #setClob(int, Reader)
      */
     @Override
     public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
-        setClob(parameterIndex,value);
+        setClob(parameterIndex, value);
     }
 
     /**
      * Similar to setClob(int,Reader,long).
-     * @see #setClob(int,Reader,long)
+     *
+     * @see #setClob(int, Reader, long)
      */
     @Override
     public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
-        setClob(parameterIndex,value,length);
+        setClob(parameterIndex, value, length);
     }
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1311,6 +1367,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1320,6 +1377,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1329,6 +1387,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1338,6 +1397,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1347,6 +1407,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1356,6 +1417,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1365,24 +1427,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
-     * @throws SQLFeatureNotSupportedException This feature is not supported
-     */
-    @Override
-    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
-        throw new SQLFeatureNotSupportedException("setBlob(int parameterIndex, InputStream inputStream)");
-    }
-
-    /**
-     * Feature not supported.
-     * @throws SQLFeatureNotSupportedException This feature is not supported
-     */
-    @Override
-    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-        throw new SQLFeatureNotSupportedException("setBlob(int parameterIndex, InputStream inputStream, long lenght)");
-    }
-
-    /**
-     * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1392,6 +1437,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1401,6 +1447,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1410,6 +1457,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1419,6 +1467,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1428,6 +1477,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
@@ -1437,6 +1487,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Feature not supported.
+     *
      * @throws SQLFeatureNotSupportedException This feature is not supported
      */
     @Override
