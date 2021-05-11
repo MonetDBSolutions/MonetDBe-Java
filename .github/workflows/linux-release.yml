@@ -6,12 +6,12 @@ jobs:
   linux_oct_slim_build:
     name: linux_oct_slim_build
     runs-on: ubuntu-latest
-    #container: monetdb/dev-builds:Oct2020_manylinux
-    container: monetdb/dev-builds:Oct2020
+    container: monetdb/dev-builds:Oct2020_manylinux
+    #container: monetdb/dev-builds:Oct2020
     env:
       MONETDB_INSTALL: /usr/local
-      MONETDB_LIBS: /usr/local/lib
-      #MONETDB_LIBS: /usr/local/lib64
+      #MONETDB_LIBS: /usr/local/lib
+      MONETDB_LIBS: /usr/local/lib64
       M2_REPO_JAVA: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
     steps:
@@ -29,24 +29,25 @@ jobs:
       uses: stCarolas/setup-maven@v4
       with:
         maven-version: 3.6.0
-    - name: Import GPG private key for maven release
-      id: import_gpg
-      uses: crazy-max/ghaction-import-gpg@v3
-      with:
-        gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
-        passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
     #- name: Import GPG private key for maven release
-    #  run: |
-    #    echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
-    #    gpg --list-secret-keys
+    #  id: import_gpg
+    #  uses: crazy-max/ghaction-import-gpg@v3
+    #  with:
+    #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+    #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
+    - name: Import GPG private key for maven release
+      run: |
+        echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
+        gpg --list-secret-keys
+        echo -e "${{ secrets.MVN_GPG_PASSPHRASE_SIMPLIFY }}" > /github/home/.m2/sign-key.asc
     - name: Set up test environment
       run: |
         mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
         wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-    - name: Install chrpath
-      run: apt-get install -y chrpath
     #- name: Install chrpath
-    #  run: yum install -y chrpath
+    #  run: apt-get install -y chrpath
+    - name: Install chrpath
+      run: yum install -y chrpath
 
     #Install native library; collect libraries
     - name: Install native library (libmonetdbe-java.dylib)
@@ -68,13 +69,14 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release -s /github/home/.m2/settings.xml -DskipTests=true
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
         MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
         MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
         MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+        gpg.passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
     #Run example and publish jar
     - name: Run example class (SimpleTypes)
