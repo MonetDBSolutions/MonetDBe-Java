@@ -30,9 +30,15 @@ jobs:
       with:
         maven-version: 3.6.0
     - name: Import GPG private key for maven release
-      run: |
-        echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
-        gpg --list-secret-keys
+      id: import_gpg
+      uses: crazy-max/ghaction-import-gpg@v3
+      with:
+        gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+        passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
+    #- name: Import GPG private key for maven release
+    #  run: |
+    #    echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
+    #    gpg --list-secret-keys
     - name: Set up test environment
       run: |
         mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
