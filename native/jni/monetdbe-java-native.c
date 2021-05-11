@@ -4,43 +4,46 @@
 #include <string.h>
 #include <stdio.h>
 
-void set_options_mapi (JNIEnv *env, monetdbe_options *opts, jstring j_port, jstring j_sock) {
-    #ifdef MONETDBE_VERSION
-        //MAPI server
-        if (j_port != NULL && j_sock != NULL) {
-            const char *port = (*env)->GetStringUTFChars(env, j_port, NULL);
-            const char *sock = (*env)->GetStringUTFChars(env, j_sock, NULL);
-            monetdbe_mapi_server *mapi = malloc(sizeof(monetdbe_mapi_server));
-            mapi->port = port;
-            mapi->usock = sock;
-            opts->mapi_server = mapi;
-        }
-    #endif
+void set_options_mapi(JNIEnv *env, monetdbe_options *opts, jstring j_port, jstring j_sock)
+{
+#ifdef MONETDBE_VERSION
+    //MAPI server
+    if (j_port != NULL && j_sock != NULL)
+    {
+        const char *port = (*env)->GetStringUTFChars(env, j_port, NULL);
+        const char *sock = (*env)->GetStringUTFChars(env, j_sock, NULL);
+        monetdbe_mapi_server *mapi = malloc(sizeof(monetdbe_mapi_server));
+        mapi->port = port;
+        mapi->usock = sock;
+        opts->mapi_server = mapi;
+    }
+#endif
 }
 
-void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password) {
-    #ifdef MONETDBE_VERSION
-        //Remote proxy
-        if (j_host != NULL && j_port > 0 && j_user != NULL && j_password != NULL)
-        {
-            const char *user = (*env)->GetStringUTFChars(env, j_user, NULL);
-            const char *password = (*env)->GetStringUTFChars(env, j_password, NULL);
-            const char *host = (*env)->GetStringUTFChars(env, j_host, NULL);
-            const char *database = (*env)->GetStringUTFChars(env, j_database, NULL);
+void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password)
+{
+#ifdef MONETDBE_VERSION
+    //Remote proxy
+    if (j_host != NULL && j_port > 0 && j_user != NULL && j_password != NULL)
+    {
+        const char *user = (*env)->GetStringUTFChars(env, j_user, NULL);
+        const char *password = (*env)->GetStringUTFChars(env, j_password, NULL);
+        const char *host = (*env)->GetStringUTFChars(env, j_host, NULL);
+        const char *database = (*env)->GetStringUTFChars(env, j_database, NULL);
 
-            monetdbe_remote *remote = malloc(sizeof(monetdbe_remote));
-            remote->host = host;
-            remote->port = (int)j_port;
-            remote->username = user;
-            remote->password = password;
-            remote->database = database;
-            remote->lang = NULL;
-            opts->remote = remote;
+        monetdbe_remote *remote = malloc(sizeof(monetdbe_remote));
+        remote->host = host;
+        remote->port = (int)j_port;
+        remote->username = user;
+        remote->password = password;
+        remote->database = database;
+        remote->lang = NULL;
+        opts->remote = remote;
 
-            //printf("\nRemote options:\nHost: %s\nPort: %d\nDatabase: %s\nUsername: %s\nPassword: %s\n", host, j_port, database, user, password);
-            //fflush(stdout);
-        }
-    #endif
+        //printf("\nRemote options:\nHost: %s\nPort: %d\nDatabase: %s\nUsername: %s\nPassword: %s\n", host, j_port, database, user, password);
+        //fflush(stdout);
+    }
+#endif
 }
 
 monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
@@ -50,10 +53,10 @@ monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_queryti
     opts->querytimeout = (int)j_querytimeout;
     opts->sessiontimeout = (int)j_sessiontimeout;
     opts->nr_threads = (int)j_nr_threads;
-    #ifdef MONETDBE_VERSION
-        opts->remote = NULL;
-        opts->mapi_server = NULL;
-    #endif
+#ifdef MONETDBE_VERSION
+    opts->remote = NULL;
+    opts->mapi_server = NULL;
+#endif
     return opts;
 }
 
@@ -82,26 +85,26 @@ jstring open_db(JNIEnv *env, jstring j_url, monetdbe_options *opts, jobject j_co
         //Set DB reference in Connection object that called the method
         jclass connectionClass = (*env)->GetObjectClass(env, j_connection);
         jfieldID dbNativeField = (*env)->GetFieldID(env, connectionClass, "dbNative", "Ljava/nio/ByteBuffer;");
-        (*env)->SetObjectField(env, j_connection, dbNativeField,(*env)->NewDirectByteBuffer(env, (*db), sizeof(monetdbe_database)));
+        (*env)->SetObjectField(env, j_connection, dbNativeField, (*env)->NewDirectByteBuffer(env, (*db), sizeof(monetdbe_database)));
         return NULL;
     }
 }
 
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2 (JNIEnv *env, jclass self, jstring j_url, jobject j_connection)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2(JNIEnv *env, jclass self, jstring j_url, jobject j_connection)
 {
     return open_db(env, j_url, NULL, j_connection);
 }
 
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIII (JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIII(JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
 {
     monetdbe_options *opts = set_options(env, j_sessiontimeout, j_querytimeout, j_memorylimit, j_nr_threads);
     return open_db(env, j_url, opts, j_connection);
 }
 
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2 (JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2(JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password)
 {
     monetdbe_options *opts = set_options(env, j_sessiontimeout, j_querytimeout, j_memorylimit, j_nr_threads);
-    set_options_remote(env,opts,j_host, j_port, j_database, j_user, j_password);
+    set_options_remote(env, opts, j_host, j_port, j_database, j_user, j_password);
     return open_db(env, j_url, opts, j_connection);
 }
 
@@ -109,11 +112,13 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close(
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
     int error_code = monetdbe_close(db);
-    if (error_code != 0) {
+    if (error_code != 0)
+    {
         char *error_msg = monetdbe_error(db);
         return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
-    else {
+    else
+    {
         return NULL;
     }
 }
@@ -219,31 +224,31 @@ void addColumnVar(JNIEnv *env, jobjectArray j_columns, int index, int type, char
     jstring j_name = (*env)->NewStringUTF(env, (const char *)name);
     jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
-    //If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
-    #ifdef HAVE_HGE
-        jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type, j_data);
-    #else
-        jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type+1, j_data);
-    #endif
+//If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+#ifdef HAVE_HGE
+    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type, j_data);
+#else
+    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type + 1, j_data);
+#endif
     (*env)->SetObjectArrayElement(env, j_columns, index, j_column_object);
 }
 
 //True (1) if time is validated, False (0) if otherwise
-int validateTime (monetdbe_data_time t)
+int validateTime(monetdbe_data_time t)
 {
-        if (t.hours >= 0 && t.hours < 24 && t.minutes >= 0 && t.minutes < 60 && t.seconds >= 0 && t.seconds < 60 && t.ms >= 0)
-            return 1;
-        else
-            return 0;
+    if (t.hours >= 0 && t.hours < 24 && t.minutes >= 0 && t.minutes < 60 && t.seconds >= 0 && t.seconds < 60 && t.ms >= 0)
+        return 1;
+    else
+        return 0;
 }
 
 //True (1) if date is validated, False (0) if otherwise
-int validateDate (monetdbe_data_date d)
+int validateDate(monetdbe_data_date d)
 {
-        if (d.year > 0 && d.month > 0 && d.month <= 12 && d.day > 0 && d.day <= 31)
-            return 1;
-        else
-            return 0;
+    if (d.year > 0 && d.month > 0 && d.month <= 12 && d.day > 0 && d.day <= 31)
+        return 1;
+    else
+        return 0;
 }
 
 void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_timestamp *column)
@@ -262,7 +267,7 @@ void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetd
         {
             monetdbe_data_time time = timestamps[i].time;
             monetdbe_data_date date = timestamps[i].date;
-            jobject j_timestamp = (*env)->CallStaticObjectMethod(env, j_timestamp_class, timestamp_constructor, (int)date.year, (int)date.month, (int)date.day, (int)time.hours, (int)time.minutes, (int)time.seconds, ((int)time.ms)*1000000);
+            jobject j_timestamp = (*env)->CallStaticObjectMethod(env, j_timestamp_class, timestamp_constructor, (int)date.year, (int)date.month, (int)date.day, (int)time.hours, (int)time.minutes, (int)time.seconds, ((int)time.ms) * 1000000);
             (*env)->SetObjectArrayElement(env, j_data, i, j_timestamp);
         }
         else
@@ -271,8 +276,14 @@ void parseColumnTimestamp(JNIEnv *env, jobjectArray j_columns, int index, monetd
         }
     }
 
+    int type = column->type;
+//If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+#ifndef HAVE_HGE
+    type = type + 1;
+#endif
+
     //Inserting LocalDateTime[] in MonetColumn
-    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
+    addColumnVar(env, j_columns, index, type, column->name, j_data);
 }
 
 void parseColumnTime(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_time *column)
@@ -295,9 +306,14 @@ void parseColumnTime(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
             (*env)->SetObjectArrayElement(env, j_data, i, NULL);
         }
     }
+    int type = column->type;
+//If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+#ifndef HAVE_HGE
+    type = type + 1;
+#endif
 
     //Inserting LocalTime[] in MonetColumn
-    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
+    addColumnVar(env, j_columns, index, type, column->name, j_data);
 }
 
 void parseColumnDate(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_date *column)
@@ -321,8 +337,14 @@ void parseColumnDate(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
         }
     }
 
+    int type = column->type;
+//If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+#ifndef HAVE_HGE
+    type = type + 1;
+#endif
+
     //Inserting LocalDate[] in MonetColumn
-    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
+    addColumnVar(env, j_columns, index, type, column->name, j_data);
 }
 
 void parseColumnString(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_str *column)
@@ -343,8 +365,14 @@ void parseColumnString(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_
         }
     }
 
+    int type = column->type;
+    //If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+#ifndef HAVE_HGE
+    type = type + 1;
+#endif
+
     //Inserting String[] in MonetColumn
-    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
+    addColumnVar(env, j_columns, index, type, column->name, j_data);
 }
 
 void parseColumnBlob(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_column_blob *column)
@@ -358,27 +386,42 @@ void parseColumnBlob(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
         {
             (*env)->SetObjectArrayElement(env, j_data, i, NULL);
         }
-        else {
+        else
+        {
             jbyteArray j_byte_array = (*env)->NewByteArray(env, blob_data[i].size);
             (*env)->SetByteArrayRegion(env, j_byte_array, 0, blob_data[i].size, (jbyte *)blob_data[i].data);
             (*env)->SetObjectArrayElement(env, j_data, i, j_byte_array);
         }
     }
 
+    int type = column->type;
+    //If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+#ifndef HAVE_HGE
+    type = type + 1;
+#endif
+
     //Inserting byte[][] in MonetColumn
-    addColumnVar(env, j_columns, index, column->type, column->name, j_data);
+    addColumnVar(env, j_columns, index, type, column->name, j_data);
 }
 
-void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name, int type, int size, int index, double scale)
+void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name, int type, int row_count, int row_size, int column_number, int scale, unsigned char *decimalNulls)
 {
-    jobject j_data = (*env)->NewDirectByteBuffer(env, data, size);
+    jobject j_data = (*env)->NewDirectByteBuffer(env, data, row_count * row_size);
     jstring j_name = (*env)->NewStringUTF(env, (const char *)name);
+    jbooleanArray j_decimal_nulls = NULL;
+
+    if (decimalNulls != NULL)
+    {
+        j_decimal_nulls = (*env)->NewBooleanArray(env, row_size);
+        //unsigned char* translates to jboolean*
+        (*env)->SetBooleanArrayRegion(env, j_decimal_nulls, 0, row_size, (jboolean *)decimalNulls);
+    }
 
     jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;D)V");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;D[Z)V");
 
-    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, (jint)type, j_data, (jdouble)scale);
-    (*env)->SetObjectArrayElement(env, j_columns, index, j_column_object);
+    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, (jint)type, j_data, (jdouble)scale, j_decimal_nulls);
+    (*env)->SetObjectArrayElement(env, j_columns, column_number, j_column_object);
 }
 
 //TODO Change return value to string and set jobjectArray through setObjectField?
@@ -403,117 +446,188 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
             case monetdbe_bool:
             {
                 monetdbe_column_bool *c_bool = (monetdbe_column_bool *)(*column);
-                for (int i = 0; i < c_bool->count; i++)
+                for (int j = 0; j < c_bool->count; j++)
                 {
-                    if (c_bool->is_null(&c_bool->data[i]) == 1)
+                    if (c_bool->is_null(&c_bool->data[j]) == 1)
                     {
-                        c_bool->data[i] = 0;
+                        c_bool->data[j] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_bool->data, c_bool->name, monetdbe_bool, 8 * c_bool->count, i, 0);
+                addColumnConst(env, j_columns, c_bool->data, c_bool->name, c_bool->type, c_bool->count, 8, i, 0, NULL);
                 break;
             }
             case monetdbe_int8_t:
             {
                 monetdbe_column_int8_t *c_int8_t = (monetdbe_column_int8_t *)(*column);
-                for (int i = 0; i < c_int8_t->count; i++)
+                int row_count = c_int8_t->count;
+                
+                unsigned char *decimalNulls = NULL;
+                if (c_int8_t->scale != 0)
                 {
-                    if (c_int8_t->is_null(&c_int8_t->data[i]) == 1)
+                    decimalNulls = calloc(row_count, sizeof(unsigned char));
+                }
+
+                for (int j = 0; j < row_count; j++)
+                {
+                    if (c_int8_t->is_null(&c_int8_t->data[j]) == 1)
                     {
-                        c_int8_t->data[i] = 0;
+                        c_int8_t->data[j] = 0;
+
+                        //Checking for decimal type nulls
+                        if (c_int8_t->scale != 0)
+                        {
+                            decimalNulls[j] = 1;
+                        }
                     }
                 }
-                addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, monetdbe_int8_t, 8 * c_int8_t->count, i, c_int8_t->scale);
+                addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, c_int8_t->type, row_count, 8, i, c_int8_t->scale, decimalNulls);
                 break;
             }
             case monetdbe_int16_t:
             {
                 monetdbe_column_int16_t *c_int16_t = (monetdbe_column_int16_t *)(*column);
-                for (int i = 0; i < c_int16_t->count; i++)
+                int row_count = c_int16_t->count;
+
+                unsigned char *decimalNulls = NULL;
+                if (c_int16_t->scale != 0)
                 {
-                    if (c_int16_t->is_null(&c_int16_t->data[i]) == 1)
+                    decimalNulls = calloc(row_count, sizeof(unsigned char));
+                }
+
+                for (int j = 0; j < row_count; j++)
+                {
+                    if (c_int16_t->is_null(&c_int16_t->data[j]) == 1)
                     {
-                        c_int16_t->data[i] = 0;
+                        c_int16_t->data[j] = 0;
+
+                        //Checking for decimal type nulls
+                        if (c_int16_t->scale != 0)
+                        {
+                            decimalNulls[j] = 1;
+                        }
                     }
                 }
-                addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, monetdbe_int16_t, 16 * c_int16_t->count, i, c_int16_t->scale);
+                addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, c_int16_t->type, row_count, 16, i, c_int16_t->scale, decimalNulls);
                 break;
             }
             case monetdbe_int32_t:
             {
                 monetdbe_column_int32_t *c_int32_t = (monetdbe_column_int32_t *)(*column);
-                for (int i = 0; i < c_int32_t->count; i++)
+                int row_count = c_int32_t->count;
+                
+                unsigned char *decimalNulls = NULL;
+                if (c_int32_t->scale != 0)
                 {
-                    if (c_int32_t->is_null(&c_int32_t->data[i]) == 1)
+                    decimalNulls = calloc(row_count, sizeof(unsigned char));
+                }
+
+                for (int j = 0; j < row_count; j++)
+                {
+                    if (c_int32_t->is_null(&c_int32_t->data[j]) == 1)
                     {
-                        c_int32_t->data[i] = 0;
+                        c_int32_t->data[j] = 0;
+
+                        //Checking for decimal type nulls
+                        if (c_int32_t->scale != 0)
+                        {
+                            decimalNulls[j] = 1;
+                        }
                     }
                 }
-                addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, monetdbe_int32_t, 32 * c_int32_t->count, i, c_int32_t->scale);
+                addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, c_int32_t->type, row_count, 32, i, c_int32_t->scale, decimalNulls);
                 break;
             }
             case monetdbe_int64_t:
             {
                 monetdbe_column_int64_t *c_int64_t = (monetdbe_column_int64_t *)(*column);
-                for (int i = 0; i < c_int64_t->count; i++)
+                int row_count = c_int64_t->count;
+                
+                unsigned char *decimalNulls = NULL;
+                if (c_int64_t->scale != 0)
                 {
-                    if (c_int64_t->is_null(&c_int64_t->data[i]) == 1)
-                    {
-                        c_int64_t->data[i] = 0;
-                    }
+                    decimalNulls = calloc(row_count, sizeof(unsigned char));
                 }
-                addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, monetdbe_int64_t, 64 * c_int64_t->count, i, c_int64_t->scale);
-                break;
-            }
-            #ifdef HAVE_HGE
-                case monetdbe_int128_t:
+
+                for (int j = 0; j < row_count; j++)
                 {
-                    monetdbe_column_int128_t *c_int128_t = (monetdbe_column_int128_t *)(*column);
-                    for (int i = 0; i < c_int128_t->count; i++)
+                    if (c_int64_t->is_null(&c_int64_t->data[j]) == 1)
                     {
-                        if (c_int128_t->is_null(&c_int128_t->data[i]) == 1)
+                        c_int64_t->data[j] = 0;
+
+                        //Checking for decimal type nulls
+                        if (c_int64_t->scale != 0)
                         {
-                            c_int128_t->data[i] = 0;
+                            decimalNulls[j] = 1;
                         }
                     }
-                    addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, monetdbe_int128_t, 128 * c_int128_t->count, i, c_int128_t->scale);
-                    break;
                 }
-            #endif
+                addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, c_int64_t->type, row_count, 64, i, c_int64_t->scale, decimalNulls);
+                break;
+            }
+#ifdef HAVE_HGE
+            case monetdbe_int128_t:
+            {
+                monetdbe_column_int128_t *c_int128_t = (monetdbe_column_int128_t *)(*column);
+                int row_count = c_int128_t->count;
+                
+                unsigned char *decimalNulls = NULL;
+                if (c_int128_t->scale != 0)
+                {
+                    decimalNulls = calloc(row_count, sizeof(unsigned char));
+                }
+
+                for (int j = 0; j < row_count; j++)
+                {
+                    if (c_int128_t->is_null(&c_int128_t->data[j]) == 1)
+                    {
+                        c_int128_t->data[j] = 0;
+
+                        //Checking for decimal type nulls
+                        if (c_int128_t->scale != 0)
+                        {
+                            decimalNulls[j] = 1;
+                        }
+                    }
+                }
+                addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, c_int128_t->type, row_count, 128, i, c_int128_t->scale, decimalNulls);
+                break;
+            }
+#endif
             case monetdbe_float:
             {
                 monetdbe_column_float *c_float = (monetdbe_column_float *)(*column);
-                for (int i = 0; i < c_float->count; i++)
+                for (int j = 0; j < c_float->count; j++)
                 {
-                    if (c_float->is_null(&c_float->data[i]) == 1)
+                    if (c_float->is_null(&c_float->data[j]) == 1)
                     {
-                        c_float->data[i] = 0;
+                        c_float->data[j] = 0;
                     }
                 }
-                //If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
-                #ifdef HAVE_HGE
-                    addColumnConst(env, j_columns, c_float->data, c_float->name, monetdbe_float, 32 * c_float->count, i, 0);
-                #else
-                    addColumnConst(env, j_columns, c_float->data, c_float->name, monetdbe_float+1, 32 * c_float->count, i, 0);
-                #endif
+
+                int type = c_float->type;
+//If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+#ifndef HAVE_HGE
+                type = type + 1;
+#endif
+                addColumnConst(env, j_columns, c_float->data, c_float->name, type, c_float->count, 32, i, 0, NULL);
                 break;
             }
             case monetdbe_double:
             {
                 monetdbe_column_double *c_double = (monetdbe_column_double *)(*column);
-                for (int i = 0; i < c_double->count; i++)
+                for (int j = 0; j < c_double->count; j++)
                 {
-                    if (c_double->is_null(&c_double->data[i]) == 1)
+                    if (c_double->is_null(&c_double->data[j]) == 1)
                     {
-                        c_double->data[i] = 0;
+                        c_double->data[j] = 0;
                     }
                 }
-                //If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
-                #ifdef HAVE_HGE
-                    addColumnConst(env, j_columns, c_double->data, c_double->name, monetdbe_double, 64 * c_double->count, i, 0);
-                #else
-                    addColumnConst(env, j_columns, c_double->data, c_double->name, monetdbe_double+1, 64 * c_double->count, i, 0);
-                #endif
+                int type = c_double->type;
+//If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
+#ifndef HAVE_HGE
+                type = type + 1;
+#endif
+                addColumnConst(env, j_columns, c_double->data, c_double->name, type, c_double->count, 64, i, 0, NULL);
                 break;
             }
             case monetdbe_str:
@@ -652,11 +766,11 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1hugeint(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jobject data)
 {
-    #ifdef HAVE_HGE
-        //TODO Parse a BigInteger to int128
-        __int128 bind_data = (__int128)1;
-        return bind_parsed_data(env, j_stmt, &bind_data, parameter_nr);
-    #endif
+#ifdef HAVE_HGE
+    //TODO Parse a BigInteger to int128
+    __int128 bind_data = (__int128)1;
+    return bind_parsed_data(env, j_stmt, &bind_data, parameter_nr);
+#endif
 }
 
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1string(JNIEnv *env, jclass self, jobject j_stmt, jint parameter_nr, jstring data)
@@ -668,13 +782,14 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null(JNIEnv *env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
-    #ifndef HAVE_HGE
-        //If int128 is not defined, add 1 to type to "align" the types after size_t with versions with int128 defined
-        if (type > 5) {
-            type = type+1;
-        }
-    #endif
-    monetdbe_types null_type = (monetdbe_types) type;
+#ifndef HAVE_HGE
+    //If int128 is not defined, add 1 to type to "align" the types after size_t with versions with int128 defined
+    if (type > 5)
+    {
+        type = type + 1;
+    }
+#endif
+    monetdbe_types null_type = (monetdbe_types)type;
     const void *null_ptr = monetdbe_null(db, null_type);
 
     //printf("Bind NULL of type %d\n", null_type);
@@ -694,7 +809,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     {
         printf("%d %x\n", i, c_data[i]);
     }
-    printf("size: %ld\n", (long) size);
+    printf("size: %ld\n", (long)size);
     fflush(stdout);
 
     monetdbe_data_blob *bind_data = malloc(sizeof(monetdbe_data_blob));
@@ -777,7 +892,8 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1cleanu
     return (*env)->NewStringUTF(env, (const char *)error_msg);
 }
 
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1clear_1bindings (JNIEnv * env, jclass self, jobject j_db, jobject j_stmt) {
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1clear_1bindings(JNIEnv *env, jclass self, jobject j_db, jobject j_stmt)
+{
     /*monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
     monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
     char *error_msg = monetdbe_clear_bindings(db, stmt);

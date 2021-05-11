@@ -75,13 +75,14 @@ public class MonetTypes {
         typeMapSQLToMonet.put(Types.NULL,14);
         typeMapSQLToMonet.put(Types.OTHER,14);
 
-        //TODO What should the Numeric and Decimal types resolve to?
-        typeMapSQLToMonet.put(Types.NUMERIC,5);
-        typeMapSQLToMonet.put(Types.DECIMAL,5);
+        typeMapSQLToMonet.put(Types.DECIMAL,4);
+        typeMapSQLToMonet.put(Types.NUMERIC,4);
     }
 
     /**
-     * Conversion between SQL types (int) and MonetDBe types (int)
+     * Conversion between SQL types (int) and MonetDBe types (int).
+     * DECIMAL and NUMERIC types are returned as MonetDBe type 4, but the MonetDBe type for DECIMAL can vary.
+     *
      * @param sqltype SQL type (int) to convert
      * @return MonetDBe type (int)
      */

@@ -31,6 +31,8 @@ public class MonetColumn {
     private int monetdbeType;
     /** MonetDBe type name (String), used for ResultSetMetaData */
     private String typeName;
+    /** Array with indexes of null values for decimal/numerical values (null if it's not a decimal) */
+    private boolean[] decimalNulls;
 
     /** Constructor for constant length data types (called from monetdbe_result_fetch_all)
      *
@@ -38,13 +40,16 @@ public class MonetColumn {
      * @param monetdbeType MonetDBe type (int)
      * @param constData Column data
      * @param scale Scale for decimal values
+     * @param decimalNulls Array containing the indexes of nulls for decimal values (null if it's not a decimal)
+     *
      */
-    public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double scale) {
+    public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double scale, boolean[] decimalNulls) {
         this.name = name;
         this.monetdbeType = monetdbeType;
         this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
         this.constData = constData.order(ByteOrder.LITTLE_ENDIAN);
         this.scale = scale;
+        this.decimalNulls = decimalNulls;
     }
 
     /** Constructor for variable length data types (called from monetdbe_result_fetch_all)
@@ -318,6 +323,10 @@ public class MonetColumn {
      * @return If the column type is supported, value at specified row as a BigDecimal object. Otherwise, returns NULL
      */
     BigDecimal getBigDecimal(int row) {
+        //If the request row was marked as a NULL, return NULL
+        if (decimalNulls != null && decimalNulls[row]) {
+            return null;
+        }
         int scale = getScaleJDBC();
         switch (monetdbeType) {
             case 1:

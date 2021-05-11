@@ -51,6 +51,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
+        //nParams, monetdbeTypes and statementNative variables are set within this function
         String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(),sql, this);
 
         //Failed prepare, destroy statement
@@ -726,7 +727,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         checkNotClosed();
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
-        int monettype = MonetTypes.getMonetTypeFromSQL(sqlType);
+        int monettype = monetdbeTypes[parameterIndex-1];
 
         //If we don't support the sqlType, throw exception. 14 corresponds to monetdbe_type_unknown
         if (monettype == 14) {
