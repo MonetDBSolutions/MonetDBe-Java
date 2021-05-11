@@ -91,9 +91,7 @@ public class Test_06_ComplexInsertAndQueryStatements {
 
 					rs.next();
 					assertEquals(4, rs.getRow());
-					// TODO: ResultSet BigDecimal should be null instead of '0.000'
-					// assertNull(rs.getBigDecimal(1));
-					assertEquals(new BigDecimal("0.000"), rs.getBigDecimal(1));
+					assertNull(rs.getBigDecimal(1));
 					assertNull(rs.getString(2));
 					assertNull(rs.getBlob(3));
 					assertNull(rs.getDate(4));
