@@ -66,7 +66,7 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release -s /github/home/.m2/settings.xml
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
