@@ -6,10 +6,12 @@ jobs:
   linux_oct_slim_build:
     name: linux_oct_slim_build
     runs-on: ubuntu-latest
-    container: monetdb/dev-builds:Oct2020_manylinux
+    #container: monetdb/dev-builds:Oct2020_manylinux
+    container: monetdb/dev-builds:Oct2020
     env:
       MONETDB_INSTALL: /usr/local
-      MONETDB_LIBS: /usr/local/lib64
+      MONETDB_LIBS: /usr/local/lib
+      #MONETDB_LIBS: /usr/local/lib64
       M2_REPO_JAVA: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
     steps:
@@ -31,16 +33,14 @@ jobs:
       run: |
         echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
         gpg --list-secret-keys
-        echo -e "${{ secrets.MVN_GPG_PASSPHRASE_SIMPLIFY }}" > /github/home/.m2/sign-key.asc
-        cat /github/home/.m2/settings.xml
     - name: Set up test environment
       run: |
         mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
         wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-    #- name: Install chrpath
-    #  run: apt-get install -y chrpath
     - name: Install chrpath
-      run: yum install -y chrpath
+      run: apt-get install -y chrpath
+    #- name: Install chrpath
+    #  run: yum install -y chrpath
 
     #Install native library; collect libraries
     - name: Install native library (libmonetdbe-java.dylib)
