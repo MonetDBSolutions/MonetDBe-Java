@@ -63,11 +63,11 @@ jobs:
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
 
       #Package jar, test and deploy
+      #Tests are now disabled until crash and DROP TABLE bug are fixed
+      #mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-      #Tests are now disabled until crash and DROP TABLE bug are fixed
-      #    mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release
           mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release -DskipTests=true
           cd ..
         env:

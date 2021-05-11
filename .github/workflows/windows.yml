@@ -72,13 +72,13 @@ jobs:
           cmake --build . --target INSTALL  --config Release
 
       #Install native library, collect libraries, package jar, test and deploy
+      #Tests are now disabled until crash and DROP TABLE bug are fixed
+      #mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release
       - name: Install native library, collect libraries, package jar, test and deploy
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
           mvn clean install "-DMonetDB_dir=C:\monetdb"
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
-      #Tests are now disabled until crash and DROP TABLE bug are fixed
-      #    mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release
           mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release -DskipTests=true
         env:
           MVN_DEPLOY_USERNAME: monetdb
