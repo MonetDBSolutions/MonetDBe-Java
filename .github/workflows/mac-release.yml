@@ -31,7 +31,7 @@ jobs:
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
         with:
-          maven-version: 3.6.0
+          maven-version: 3.6.3
       - name: Import GPG private key for maven release
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v3
@@ -49,7 +49,7 @@ jobs:
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
           cd native
-          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
+          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release --no-transfer-progress
           cd ..
       - name: Change load path for libmonetdbe dependency (to be rpath dependent)
         run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
@@ -69,7 +69,7 @@ jobs:
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release,sign-gpg -DskipTests=true
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,release,sign-gpg -DskipTests=true --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb
@@ -119,7 +119,7 @@ jobs:
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
         with:
-          maven-version: 3.6.0
+          maven-version: 3.6.3
       - name: Import GPG private key for maven release
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v3
@@ -137,7 +137,7 @@ jobs:
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
           cd native
-          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
+          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release --no-transfer-progress
           cd ..
       - name: Change load path for libmonetdbe dependency (to be rpath dependent)
         run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
@@ -165,7 +165,7 @@ jobs:
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,mac-fat,release,sign-gpg -DskipTests=true
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,mac-fat,release,sign-gpg -DskipTests=true --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb

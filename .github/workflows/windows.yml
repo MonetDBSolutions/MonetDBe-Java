@@ -25,6 +25,8 @@ jobs:
           gpg-passphrase: MVN_GPG_PASSPHRASE
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
+        with:
+          maven-version: 3.6.3
       - name: Setup VC tools
         uses: ilammy/msvc-dev-cmd@v1
       - name: Import GPG private key for maven release
@@ -75,13 +77,12 @@ jobs:
 
       #Install native library, collect libraries, package jar, test and deploy
       #Tests are now disabled until crash and DROP TABLE bug are fixed
-      #mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release
       - name: Install native library, collect libraries, package jar, test and deploy
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
-          mvn clean install "-DMonetDB_dir=C:\monetdb"
+          mvn clean install "-DMonetDB_dir=C:\monetdb" --no-transfer-progress
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
-          mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release,sign-gpg -DskipTests=true
+          mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release,sign-gpg -DskipTests=true --no-transfer-progress
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}

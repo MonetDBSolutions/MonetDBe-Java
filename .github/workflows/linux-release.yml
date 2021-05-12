@@ -10,7 +10,6 @@ jobs:
     strategy:
       matrix:
         container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
-    #container: monetdb/dev-builds:Oct2020
     env:
       MONETDB_INSTALL: /usr/local
       #MONETDB_LIBS: /usr/local/lib
@@ -34,7 +33,7 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
       with:
-        maven-version: 3.6.0
+        maven-version: 3.6.3
     #- name: Import GPG private key for maven release (for maven-gpg-plugin)
     #  id: import_gpg
     #  uses: crazy-max/ghaction-import-gpg@v3
@@ -56,7 +55,7 @@ jobs:
     - name: Install native library (libmonetdbe-java.dylib)
       run: |
         cd native
-        mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release
+        mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
         cd ..
     - name: Move direct dependencies (MonetDB libs)
       run: |
@@ -68,11 +67,10 @@ jobs:
 
     #Package jar, test and deploy
     #Tests are now disabled until crash and DROP TABLE bug are fixed
-    #mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release -s /github/home/.m2/settings.xml
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb

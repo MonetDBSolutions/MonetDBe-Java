@@ -13,10 +13,14 @@ if [ $# -eq 2 ]; then
     fi
 fi
 
+echo "Building native library"
 cd native
-mvn clean install -DMonetDB_dir=$1
+mvn clean install -DMonetDB_dir=$1 --no-transfer-progress
+echo "Building dev jar"
 cd ../java
-mvn clean install $skipTests
+mvn clean install $skipTests --no-transfer-progress
+cd ..
+echo "Done!"
 
 #Clean up local test db
 if [ -n "$skipTests" ] && [ "$2" == "false" ]; then

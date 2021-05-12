@@ -17,6 +17,8 @@ jobs:
         java-version: 1.8
     - name: Setup Maven
       uses: stCarolas/setup-maven@v4
+      with:
+        maven-version: 3.6.3
     - name: Build with Maven
       run: $GITHUB_WORKSPACE/build_dev.sh /usr/local
     - name: Run example class (SimpleTypes)
