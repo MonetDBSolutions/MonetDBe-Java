@@ -90,11 +90,13 @@ jobs:
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
+      #    javac -cp C:\Users\runneradmin\.m2\repository\monetdb\monetdbe-java\1.0-SNAPSHOT\monetdbe-java-1.0-SNAPSHOT-windows.jar SimpleTypes.java
+      #    java -classpath ".\;C:\Users\runneradmin\.m2\repository\monetdb\monetdbe-java\1.0-SNAPSHOT\monetdbe-java-1.0-SNAPSHOT-windows.jar" SimpleTypes
       - name: Run example class (SimpleTypes)
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
-          javac -cp $M2_REPO\$ARTIFACT_JAVA SimpleTypes.java
-          java -classpath ".\;$M2_REPO\$ARTIFACT_JAVA" SimpleTypes
+          javac -cp %M2_REPO%\%ARTIFACT_JAVA% SimpleTypes.java
+          java -classpath ".\;%M2_REPO%\%ARTIFACT_JAVA%" SimpleTypes
       - name: Publish Windows jar
         uses: actions/upload-artifact@v2
         with:

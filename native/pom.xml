@@ -104,16 +104,16 @@
                             </sources>
                             <compilerStartOptions>
                                 <!-- MONETDB_PREFIX + include/monetdb/ -->
-                                <compilerStartOption>-I ${MonetDB_dir}/include/monetdb/</compilerStartOption>
-                                <compilerStartOption>-I ${include.java}</compilerStartOption>
-                                <compilerStartOption>-I ${JAVA_HOME}/include/</compilerStartOption>
+                                <compilerStartOption>-I${MonetDB_dir}/include/monetdb/</compilerStartOption>
+                                <compilerStartOption>-I${include.java}</compilerStartOption>
+                                <compilerStartOption>-I${JAVA_HOME}/include/</compilerStartOption>
                                 <compilerStartOption>-fPIC</compilerStartOption>
                             </compilerStartOptions>
 
                             <linkerStartOptions>
                                 <!-- MONETDB_PREFIX + lib OR lib64-->
-                                <linkerStartOption>-L ${MonetDB_dir}/lib/</linkerStartOption>
-                                <linkerStartOption>-L ${MonetDB_dir}/lib64/</linkerStartOption>
+                                <linkerStartOption>-L${MonetDB_dir}/lib/</linkerStartOption>
+                                <linkerStartOption>-L${MonetDB_dir}/lib64/</linkerStartOption>
                                 <linkerStartOption>-shared</linkerStartOption>
                                 <linkerStartOption>-fPIC</linkerStartOption>
 
