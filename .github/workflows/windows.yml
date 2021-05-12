@@ -98,7 +98,7 @@ jobs:
       - name: Publish Windows jar
         uses: actions/upload-artifact@v2
         with:
-          #name: monetdbe-java-1.0-SNAPSHOT-windows.jar
-          name: ${{ ARTIFACT_JAVA }}
-          #path: D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar
-          path: ${{ M2_REPO }}/${{ ARTIFACT_JAVA }}
+          name: monetdbe-java-1.0-SNAPSHOT-windows.jar
+          #name: ${{ ARTIFACT_JAVA }}
+          path: C:\Users\runneradmin\.m2\repository\monetdb\monetdbe-java\1.0-SNAPSHOT\monetdbe-java-1.0-SNAPSHOT-windows.jar
+          #path: ${{ M2_REPO }}/${{ ARTIFACT_JAVA }}

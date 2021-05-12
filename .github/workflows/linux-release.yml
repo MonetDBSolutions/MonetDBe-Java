@@ -85,7 +85,7 @@ jobs:
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
-        #name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-        name: ${{ ARTIFACT }}
-        #path: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-        path: ${{ M2_REPO }}/${{ ARTIFACT }}
+        name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        #name: ${{ ARTIFACT }}
+        path: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        #path: ${{ M2_REPO }}/${{ ARTIFACT }}

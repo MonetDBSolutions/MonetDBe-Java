@@ -87,10 +87,10 @@ jobs:
       - name: Publish Mac slim jar
         uses: actions/upload-artifact@v2
         with:
-          #name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
-          name: ${{ ARTIFACT }}
-          #path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
-          path: ${{ M2_REPO }}/${{ ARTIFACT }}
+          name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          #name: ${{ ARTIFACT }}
+          path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          #path: ${{ M2_REPO }}/${{ ARTIFACT }}
 
   mac_brew_fat:
       #TODO Add more transitive dependencies
@@ -183,7 +183,7 @@ jobs:
       - name: Publish Mac fat jar
         uses: actions/upload-artifact@v2
         with:
-          #name: monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
-          name: ${{ ARTIFACT }}
-          #path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
-          path: ${{ M2_REPO }}/${{ ARTIFACT }}
+          name: monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
+          #name: ${{ ARTIFACT }}
+          path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
+          #path: ${{ M2_REPO }}/${{ ARTIFACT }}
