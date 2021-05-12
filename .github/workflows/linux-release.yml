@@ -10,6 +10,8 @@ jobs:
     strategy:
       matrix:
         container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
+    container:
+      image: ${{ matrix.container }}
     env:
       MONETDB_INSTALL: /usr/local
       #MONETDB_LIBS: /usr/local/lib

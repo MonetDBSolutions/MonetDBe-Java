@@ -9,6 +9,8 @@ jobs:
     strategy:
       matrix:
         container: ["monetdb/dev-builds:default", "monetdb/dev-builds:Oct2020"]
+    container:
+      image: ${{ matrix.container }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 1.8
