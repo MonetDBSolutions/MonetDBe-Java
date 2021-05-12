@@ -1,4 +1,4 @@
-name: MonetDBe-Java Windows CI (Oct2020 branch from source)
+name: Windows CI - Release Jar (Oct2020 from source)
 on:
 #  [push,workflow_dispatch,pull_request]
   [workflow_dispatch]
@@ -8,7 +8,9 @@ jobs:
     name: windows_build
     runs-on: windows-2019
     env:
-      branch: Oct2020
+      BRANCH: Oct2020
+      ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-windows.jar
+      M2_REPO: C:\Users\runneradmin\.m2\repository\monetdb\monetdbe-java\1.0-SNAPSHOT
     steps:
       #Java, maven, gpg and dependencies setup; set up test env
       - name: Checkout
@@ -39,23 +41,23 @@ jobs:
           appendedCacheKey: ${{ hashFiles(env.vcpkgResponseFile) }}
       - name: Install Bison/Flex
         run: choco install -y winflexbison
-      - name: Set up test environment
-        run: |
-          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java
-          md testdata\taxi
-          md testdata\localdb
-          iwr -outf testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+      #- name: Set up test environment
+      #  run: |
+      #    Set-Location D:\a\MonetDBe-Java\MonetDBe-Java
+      #    md testdata\taxi
+      #    md testdata\localdb
+      #    iwr -outf testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
 
       #Download and install MonetDB
       - name: Get monetdb
         run: |
           Set-Location c:\
-          curl.exe https://dev.monetdb.org/hg/MonetDB/archive/${{ env.branch }}.zip -O
-          unzip.exe ${{ env.branch }}.zip
+          curl.exe https://dev.monetdb.org/hg/MonetDB/archive/${{ env.BRANCH }}.zip -O
+          unzip.exe ${{ env.BRANCH }}.zip
       - name: Compile and install MonetDB
         run: |
-          mkdir c:\MonetDB-${{ env.branch }}\build
-          Set-Location c:\MonetDB-${{ env.branch }}\build
+          mkdir c:\MonetDB-${{ env.BRANCH }}\build
+          Set-Location c:\MonetDB-${{ env.BRANCH }}\build
 
           cmake -G "Visual Studio 16 2019" `
             -A x64 `
@@ -90,10 +92,12 @@ jobs:
       - name: Run example class (SimpleTypes)
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
-          javac -cp D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar SimpleTypes.java
-          java -classpath ".\;D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar" SimpleTypes
+          javac -cp $M2_REPO\$ARTIFACT_JAVA SimpleTypes.java
+          java -classpath ".\;$M2_REPO\$ARTIFACT_JAVA" SimpleTypes
       - name: Publish Windows jar
         uses: actions/upload-artifact@v2
         with:
-          name: monetdbe-java-1.0-SNAPSHOT-windows.jar
-          path: D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar
+          #name: monetdbe-java-1.0-SNAPSHOT-windows.jar
+          name: ${{ ARTIFACT_JAVA }}
+          #path: D:\a\MonetDBe-Java\MonetDBe-Java\java\target\monetdbe-java-1.0-SNAPSHOT-windows.jar
+          path: ${{ M2_REPO }}/${{ ARTIFACT_JAVA }}

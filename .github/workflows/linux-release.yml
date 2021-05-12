@@ -1,22 +1,28 @@
-name: MonetDBe-Java Linux CI Slim and Fat Jar release (Oct2020 version from Docker)
+name: ManyLinux CI - Release Slim and Fat Jar (Oct2020/Jul2021)
 on:
-  [push,workflow_dispatch,pull_request]
+#  [push,workflow_dispatch,pull_request]
+  [workflow_dispatch]
 
 jobs:
-  linux_oct_slim_build:
-    name: linux_oct_slim_build
+  linux_slim_manylinux:
+    name: linux_slim_manylinux
     runs-on: ubuntu-latest
-    container: monetdb/dev-builds:Oct2020_manylinux
+    strategy:
+      matrix:
+        container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
     #container: monetdb/dev-builds:Oct2020
     env:
       MONETDB_INSTALL: /usr/local
       #MONETDB_LIBS: /usr/local/lib
       MONETDB_LIBS: /usr/local/lib64
-      M2_REPO_JAVA: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
-      ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+
+      #M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      M2_REPO: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      ARTIFACT: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
     steps:
     #Java, maven, gpg and chrpath setup; set up test env
     - uses: actions/checkout@v2
+    - run: echo
     - name: Set up JDK 1.8 and maven settings.xml
       uses: actions/setup-java@v1
       with:
@@ -29,21 +35,18 @@ jobs:
       uses: stCarolas/setup-maven@v4
       with:
         maven-version: 3.6.0
-    #- name: Import GPG private key for maven release
+    #- name: Import GPG private key for maven release (for maven-gpg-plugin)
     #  id: import_gpg
     #  uses: crazy-max/ghaction-import-gpg@v3
     #  with:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
-    - name: Import GPG private key for maven release
-      run: |
-        echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY }}" | gpg --batch --import
-        gpg --list-secret-keys
-        echo -e "${{ secrets.MVN_GPG_PASSPHRASE_SIMPLIFY }}" > /github/home/.m2/sign-key.asc
-    - name: Set up test environment
-      run: |
-        mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
-        wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+    - name: Import GPG private key for maven release (for sign-maven-plugin)
+      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /github/home/.m2/sign-key.asc
+    #- name: Set up test environment
+    #  run: |
+    #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+    #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
     #- name: Install chrpath
     #  run: apt-get install -y chrpath
     - name: Install chrpath
@@ -74,18 +77,17 @@ jobs:
       env:
         MVN_DEPLOY_USERNAME: monetdb
         MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
-        MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
         MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
-        gpg.passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
     #Run example and publish jar
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
-        java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
-    #TODO Change this to env variable, $var and $env.var didn't work
+        javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
+        java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
-        name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-        path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        #name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        name: ${{ ARTIFACT }}
+        #path: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        path: ${{ M2_REPO }}/${{ ARTIFACT }}

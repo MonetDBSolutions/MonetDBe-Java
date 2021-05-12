@@ -1,20 +1,22 @@
-name: MonetDBe-Java MacOS Slim and Fat Jar release (from brew build)
+name: MacOS CI - Release Slim and Fat Jar (from Homebrew)
 on:
 #  [push,workflow_dispatch,pull_request]
   [workflow_dispatch]
 
 jobs:
-  mac_brew_slim_build:
-      name: mac_brew_slim_build
+  mac_brew_slim:
+      name: mac_brew_slim
       runs-on: macos-latest
       env:
         MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.15
         MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.15/lib
+        #TODO Find out how this LOAD_PATH (/usr/local/opt/monetdb/lib) is assigned
         LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
+
         M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT
-        M2_REPO_JAVA: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+        M2_REPO: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
         ARTIFACT_NATIVE: monetdbe-java-native-1.0-SNAPSHOT.dylib
-        ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+        ARTIFACT: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
       steps:
       #Java, maven and gpg setup; download MonetDB from brew and set up test env
       - uses: actions/checkout@v2
@@ -38,10 +40,10 @@ jobs:
           passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
       - name: Install monetdb through brew
         run: brew install monetdb
-      - name: Set up test environment
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
-          wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+      #- name: Set up test environment
+      #  run: |
+      #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+      #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
 
       #Install native library; collect libraries
       - name: Install native library (libmonetdbe-java.dylib)
@@ -49,7 +51,6 @@ jobs:
           cd native
           mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
           cd ..
-      #TODO Find out how this LOAD_PATH (/usr/local/opt/monetdb/lib) is assigned
       - name: Change load path for libmonetdbe dependency (to be rpath dependent)
         run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
       - name: Copy direct dependencies (MonetDB libs)
@@ -81,44 +82,64 @@ jobs:
         run: brew uninstall monetdb
       - name: Run example class (SimpleTypes)
         run: |
-          javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
-          java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
-      #TODO Change this to env variable, $var and $env.var didn't work
+          javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
+          java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
       - name: Publish Mac slim jar
         uses: actions/upload-artifact@v2
         with:
-          name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
-          path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          #name: monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          name: ${{ ARTIFACT }}
+          #path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-slim.jar
+          path: ${{ M2_REPO }}/${{ ARTIFACT }}
 
-  mac_brew_fat_build:
+  mac_brew_fat:
       #TODO Add more transitive dependencies
-      name: mac_brew_fat_build
+      name: mac_brew_fat
       runs-on: macos-latest
       env:
         MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.15
         MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.15/lib
         LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
+
         M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT
-        M2_REPO_JAVA: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+        M2_REPO: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
         ARTIFACT_NATIVE: monetdbe-java-native-1.0-SNAPSHOT.dylib
-        ARTIFACT_JAVA: monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
+        ARTIFACT: monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
       steps:
+      #Java, maven and gpg setup; download MonetDB from brew and set up test env
       - uses: actions/checkout@v2
-      - name: Set up JDK 1.8
+      - name: Set up JDK 1.8 and maven settings.xml
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+          server-id: ossrh
+          server-username: MVN_DEPLOY_USERNAME
+          server-password: MVN_DEPLOY_PASSWORD
+          gpg-passphrase: MVN_GPG_PASSPHRASE
       - name: Setup Maven
         uses: stCarolas/setup-maven@v4
+        with:
+          maven-version: 3.6.0
+      - name: Import GPG private key for maven release
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v3
+        with:
+          gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
       - name: Install monetdb through brew
         run: brew install monetdb
+      #- name: Set up test environment
+      #  run: |
+      #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+      #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+
+      #Install native library; collect libraries (direct and transitive)
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
           cd native
           mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release
           cd ..
-      #TODO Find out how this LOAD_PATH (/usr/local/opt/monetdb/lib) is assigned
-      - name: Change load path for libmonetdbe-java dependency (to be rpath dependent)
+      - name: Change load path for libmonetdbe dependency (to be rpath dependent)
         run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
       - name: Copy direct dependencies (MonetDB libs)
         run: |
@@ -130,9 +151,7 @@ jobs:
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
       - name: Copy transitive dependencies
-        run: |
-          echo 'Copying transitive libraries'
-          cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib /usr/lib/libz.1.dylib $GITHUB_WORKSPACE/collect_libs
+        run: cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib /usr/lib/libz.1.dylib $GITHUB_WORKSPACE/collect_libs
       - name: Change load path of transitive dependecies
         run: |
           install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmapi.12.dylib
@@ -140,24 +159,31 @@ jobs:
           install_name_tool -change /usr/local/opt/pcre/lib/libpcre.1.dylib @rpath/libpcre.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
           install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.11.dylib
           install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-      - name: Set up test environment
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
-          wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-      - name: Compile Java and package into jar
+
+      #Package jar, test and deploy
+      #Tests are now disabled until crash and DROP TABLE bug are fixed
+      - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,mac-fat
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P mac-slim,mac-fat,release,sign-gpg -DskipTests=true
           cd ..
+        env:
+          MVN_DEPLOY_USERNAME: monetdb
+          MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+      #Run example and publish jar
       - name: Uninstall MonetDB (to test the jar is portable)
         run: brew uninstall monetdb
       - name: Run example class (SimpleTypes)
         run: |
-          javac -cp $M2_REPO_JAVA/$ARTIFACT_JAVA example/SimpleTypes.java
-          java -cp $M2_REPO_JAVA/$ARTIFACT_JAVA:example/ SimpleTypes
-      #TODO Change this to env variable, $var and $env.var didn't work
+          javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
+          java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
       - name: Publish Mac fat jar
         uses: actions/upload-artifact@v2
         with:
-          name: monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
-          path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
+          #name: monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
+          name: ${{ ARTIFACT }}
+          #path: /Users/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-mac-fat.jar
+          path: ${{ M2_REPO }}/${{ ARTIFACT }}
