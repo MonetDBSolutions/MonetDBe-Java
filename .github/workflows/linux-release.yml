@@ -18,7 +18,7 @@ jobs:
       MONETDB_LIBS: /usr/local/lib64
 
       #M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
-      M2_REPO: /home/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      M2_REPO: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       ARTIFACT: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
     steps:
     #Java, maven, gpg and chrpath setup; set up test env
@@ -72,7 +72,7 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s  /home/runner/.m2/settings.xml -DskipTests=true --no-transfer-progress
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s  /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
@@ -89,5 +89,5 @@ jobs:
       with:
         name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
         #name: ${{ ARTIFACT }}
-        path: /home/runner/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        path: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
         #path: ${{ M2_REPO }}/${{ ARTIFACT }}
