@@ -55,10 +55,10 @@ public class ComplexTypes {
                 System.out.println("BigDecimal " + rs.getBigDecimal(1));
                 System.out.println("String: " + rs.getString(2));
                 Blob b = rs.getBlob(3);
-                if (b.length() > 0)
-                    System.out.println("Blob: " + Arrays.toString(b.getBytes(1,(int)b.length())));
-                else
+                if (b == null)
                     System.out.println("Blob: null");
+                else
+                    System.out.println("Blob: " + Arrays.toString(b.getBytes(1,(int)b.length())));
                 System.out.println("Date: " + rs.getDate(4));
                 System.out.println("Time: " + rs.getTime(5));
                 System.out.println("Timestamp: " + rs.getTimestamp(6));
