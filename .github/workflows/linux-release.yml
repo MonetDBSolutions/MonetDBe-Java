@@ -8,9 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        artifacts: ["monetdbe-java-1.0-SNAPSHOT-linux-slim.jar","monetdbe-java-1.0-SNAPSHOT-linux-fat.jar"]
-        transitive_libs: [false,true]
-        mvn_flags: ["linux-slim,release,sign-simplify","linux-slim,linux-fat,release,sign-simplify"]
+        includes:
+          - artifacts: "monetdbe-java-1.0-SNAPSHOT-linux-slim.jar"
+            transitive_libs: false
+            mvn_flags: "linux-slim,release,sign-simplify"
+          - artifacts: "monetdbe-java-1.0-SNAPSHOT-linux-fat.jar"
+            transitive_libs: true
+            mvn_flags: "linux-slim,linux-fat,release,sign-simplify"
     container: monetdb/dev-builds:Oct2020_manylinux
     env:
       MONETDB_INSTALL: /usr/local
