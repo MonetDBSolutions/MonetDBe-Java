@@ -44,7 +44,7 @@ jobs:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
-    #TODO THIS IS BELOW BECAUSE OF A BUG OF THE REPO NOT BEING CREATED
+    #TODO Sort this double maven repo issue out + pass passphrase in way plugin can understand
     #- name: Import GPG private key for maven release (for sign-maven-plugin)
     #  run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
 
@@ -63,11 +63,6 @@ jobs:
         cd native
         mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
         cd ..
-    - name: Import GPG private key for maven release (for sign-maven-plugin)
-      run: |
-        touch /root/.m2/sign-key.asc
-        echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
-        export SIGN_KEY_PASS="${{ secrets.MVN_GPG_PASSPHRASE }}"
     - name: Move direct dependencies (MonetDB libs)
       run: |
         mkdir collect_libs
@@ -143,7 +138,7 @@ jobs:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
-    #TODO THIS IS BELOW BECAUSE OF A BUG OF THE REPO NOT BEING CREATED
+    #TODO Sort this double maven repo issue out + pass passphrase in way plugin can understand
     #- name: Import GPG private key for maven release (for sign-maven-plugin)
     #  run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
 
@@ -162,12 +157,6 @@ jobs:
         cd native
         mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
         cd ..
-    #TODO It can't find the passphrase now
-    - name: Import GPG private key for maven release (for sign-maven-plugin)
-      run: |
-        touch /root/.m2/sign-key.asc
-        echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
-        export SIGN_KEY_PASS="${{ secrets.MVN_GPG_PASSPHRASE }}"
     - name: Move direct dependencies
       run: |
         mkdir collect_libs
@@ -182,24 +171,7 @@ jobs:
     - name: Change load path of transitive dependencies
       run: |
         patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
-        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
-        patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
-
-        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.so.11
-
-        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
-        patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
-        patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
-
         patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
-        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
-
-        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmapi.so.12
-
-        patchelf --replace-needed libdl.so.2 @rpath/libdl.so.2 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
-        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
-        patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
-        patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
 
         patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libbat.so.21
         patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmapi.so.12
