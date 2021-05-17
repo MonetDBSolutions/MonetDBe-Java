@@ -81,7 +81,7 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress -DkeyPass=${{ secrets.MVN_GPG_PASSPHRASE }}
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
@@ -218,7 +218,7 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,linux-fat,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,linux-fat,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress -DkeyPass=${{ secrets.MVN_GPG_PASSPHRASE }}
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
