@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.monetdb.monetdbe.MonetResultSet;
 
-//TODO Test has placeholder values for BigDecimal NULL and is incomplete (Time and Timestamp values aren't evaluated)
 public class Test_06_ComplexInsertAndQueryStatements {
 
 	@Test
@@ -63,11 +62,10 @@ public class Test_06_ComplexInsertAndQueryStatements {
 							rs.getBlob(3).getBytes(1, (int) rs.getBlob(3).length()));
 					assertEquals(new Date(Calendar.getInstance().getTimeInMillis()).toString(),
 							rs.getDate(4).toString());
-					//TODO Millisecond values in Time and Timestamps don't work
-					// assertEquals(new Time(Calendar.getInstance().getTimeInMillis()),
-					// rs.getTime(5));
-					// assertEquals(new Timestamp(Calendar.getInstance().getTimeInMillis()),
-					// rs.getTimestamp(6));
+					/*assertEquals(new Time(Calendar.getInstance().getTimeInMillis()),
+					rs.getTime(5));
+					assertEquals(new Timestamp(Calendar.getInstance().getTimeInMillis()),
+					rs.getTimestamp(6));*/
 
 					rs.next();
 					assertEquals(2, rs.getRow());

@@ -7,11 +7,12 @@ jobs:
   linux_slim_manylinux:
     name: linux_slim_manylinux
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
-    container:
-      image: ${{ matrix.container }}
+    #strategy:
+    #  matrix:
+    #    container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
+    #container:
+    #  image: ${{ matrix.container }}
+    container: monetdb/dev-builds:Oct2020_manylinux
     env:
       MONETDB_INSTALL: /usr/local
       #MONETDB_LIBS: /usr/local/lib
@@ -67,7 +68,7 @@ jobs:
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
 
-    #Package jar, test and deploy
+    #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
     #Tests are now disabled until crash and DROP TABLE bug are fixed
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
@@ -90,4 +91,102 @@ jobs:
         name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
         #name: ${{ ARTIFACT }}
         path: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        #path: ${{ M2_REPO }}/${{ ARTIFACT }}
+
+  linux_fat_manylinux:
+    name: linux_fat_manylinux
+    runs-on: ubuntu-latest
+    #strategy:
+    #  matrix:
+    #    container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
+    #container:
+    #  image: ${{ matrix.container }}
+    container: monetdb/dev-builds:Oct2020_manylinux
+    env:
+      MONETDB_INSTALL: /usr/local
+      #MONETDB_LIBS: /usr/local/lib
+      MONETDB_LIBS: /usr/local/lib64
+
+      #M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      M2_REPO: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      ARTIFACT: monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
+    steps:
+    #Java, maven, gpg and chrpath setup; set up test env
+    - uses: actions/checkout@v2
+    - run: echo
+    - name: Set up JDK 1.8 and maven settings.xml
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+        server-id: ossrh
+        server-username: MVN_DEPLOY_USERNAME
+        server-password: MVN_DEPLOY_PASSWORD
+        gpg-passphrase: MVN_GPG_PASSPHRASE
+    - name: Setup Maven
+      uses: stCarolas/setup-maven@v4
+      with:
+        maven-version: 3.6.3
+    #- name: Import GPG private key for maven release (for maven-gpg-plugin)
+    #  id: import_gpg
+    #  uses: crazy-max/ghaction-import-gpg@v3
+    #  with:
+    #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+    #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
+    - name: Import GPG private key for maven release (for sign-maven-plugin)
+      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /github/home/.m2/sign-key.asc
+    #- name: Set up test environment
+    #  run: |
+    #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+    #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+    #- name: Install chrpath
+    #  run: apt-get install -y chrpath
+    - name: Install chrpath and patchelf
+      run: yum install -y chrpath patchelf
+
+    #Install native library; collect libraries
+    - name: Install native library (libmonetdbe-java.dylib)
+      run: |
+        cd native
+        mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
+        cd ..
+    - name: Move direct and transitive dependencies
+      run: |
+        mkdir collect_libs
+        cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
+        cp /lib64/libz.so.1 /lib64/libm.so.6 /lib64/libdl.so.2 /lib64/libpthread.so.0 /lib64/libpcre.so.1 /lib64/libc.so.6 collect_libs
+    - name: Change rpath of MonetDB libraries to package
+      run: |
+        for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
+    - name: Change load path of transitive dependencies
+      run: |
+        patchelf --replace-needed libz.so.1 @rpath/libz.so.1 lib*
+        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 lib*
+        patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 lib*
+        patchelf --replace-needed libm.so.6 @rpath/libm.so.6 lib*
+        patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 lib*
+        patchelf --replace-needed libdl.so.2 @rpath/libdl.so.2 lib*
+
+    #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
+    #Tests are now disabled until crash and DROP TABLE bug are fixed
+    - name: Compile Java, package into jar, do unit tests and deploy
+      run: |
+        cd java
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,linux-fat,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress -DlocalRepositoryPath=/github/home/.m2/
+        cd ..
+      env:
+        MVN_DEPLOY_USERNAME: monetdb
+        MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+        MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+    #Run example and publish jar
+    - name: Run example class (SimpleTypes)
+      run: |
+        javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
+        java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
+    - name: Publish Linux slim jar
+      uses: actions/upload-artifact@v2
+      with:
+        name: monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
+        #name: ${{ ARTIFACT }}
+        path: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
         #path: ${{ M2_REPO }}/${{ ARTIFACT }}
