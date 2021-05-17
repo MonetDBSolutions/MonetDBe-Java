@@ -78,13 +78,16 @@ jobs:
         MVN_DEPLOY_USERNAME: monetdb
         MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
         MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+        MVN_FLAGS: ${{env.MVN_FLAGS}}
 
     #Run example and publish jar
     - name: Run example class (SimpleTypes)
       run: |
         javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
         java -cp $M2_REPO_MAIN/$ARTIFACT:example/ SimpleTypes
-    - name: Publish Linux slim jar
+      env:
+        ARTIFACT: ${{env.ARTIFACT}}
+    - name: Publish Linux jar
       uses: actions/upload-artifact@v2
       with:
         #name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
