@@ -8,25 +8,27 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        includes:
-          - artifacts: "monetdbe-java-1.0-SNAPSHOT-linux-slim.jar"
-            transitive_libs: false
-            mvn_flags: "linux-slim,release,sign-simplify"
-          - artifacts: "monetdbe-java-1.0-SNAPSHOT-linux-fat.jar"
-            transitive_libs: true
-            mvn_flags: "linux-slim,linux-fat,release,sign-simplify"
+        artifact: ['slim','fat']
     container: monetdb/dev-builds:Oct2020_manylinux
     env:
       MONETDB_INSTALL: /usr/local
       MONETDB_LIBS: /usr/local/lib64
       M2_REPO: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       M2_REPO_MAIN: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
-
-      ARTIFACT: ${{ matrix.artifacts }}
-      MV_TRANSITIVE: ${{ matrix.transitive_libs }}
-      MVN_FLAGS: ${{ matrix.mvn_flags }}
     steps:
     - uses: actions/checkout@v2
+    - name: Env variables (slim jar)
+      if: ${{ matrix.artifact == 'slim' }}
+      run: |
+        echo "ARTIFACT=monetdbe-java-1.0-SNAPSHOT-linux-slim.jar" >> $GITHUB_ENV
+        echo "MVN_FLAGS=linux-slim,release,sign-simplify" >> $GITHUB_ENV
+        echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT" >> $GITHUB_ENV 
+    - name: Env variables (fat jar)
+      if: ${{ matrix.artifact == 'fat' }}
+      run: |
+        echo "ARTIFACT=monetdbe-java-1.0-SNAPSHOT-linux-fat.jar" >> $GITHUB_ENV
+        echo "MVN_FLAGS=linux-slim,linux-fat,release,sign-simplify" >> $GITHUB_ENV
+        echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT" >> $GITHUB_ENV
     #Java, maven, gpg and patchelf setup; set up test env
     - name: Set up JDK 1.8 and maven settings.xml
       uses: actions/setup-java@v1
@@ -64,7 +66,7 @@ jobs:
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
     - name: Collect transitive dependencies
-      if: ${{env.MV_TRANSITIVE}}
+      if: ${{ matrix.artifact == 'fat' }}
       run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
 
     #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
@@ -72,25 +74,22 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P $MVN_FLAGS -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
         MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
         MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
-        MVN_FLAGS: ${{env.MVN_FLAGS}}
 
     #Run example and publish jar
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
-        java -cp $M2_REPO_MAIN/$ARTIFACT:example/ SimpleTypes
-      env:
-        ARTIFACT: ${{env.ARTIFACT}}
+        javac -cp $M2_REPO_MAIN/${{env.ARTIFACT}} example/SimpleTypes.java
+        java -cp $M2_REPO_MAIN/${{env.ARTIFACT}}:example/ SimpleTypes
     - name: Publish Linux jar
       uses: actions/upload-artifact@v2
       with:
         #name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
         name: ${{env.ARTIFACT}}
         #path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-        path: ${{env.M2_REPO_MAIN}}/${{env.ARTIFACT}}
+        path: ${{env.M2_REPO}}/${{env.ARTIFACT}}
