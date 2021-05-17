@@ -418,12 +418,17 @@
                                     <outputDirectory>${project.build.outputDirectory}/lib/mac/transitive</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <!-- libz, libpcre, libcrypto, libuuid (?) -->
                                             <directory>${COLLECT_LIBS}</directory>
                                             <includes>
                                                 <include>libz.*.dylib</include>
                                                 <include>libpcre.*.dylib</include>
                                                 <include>libcrypto.*.dylib</include>
+                                                <include>libbz2.*.dylib</include>
+                                                <include>libcurl.*.dylib</include>
+                                                <include>liblzma.*.dylib</include>
+                                                <include>liblz4.*.dylib</include>
+                                                <include>libiconv.*.dylib</include>
+                                                <include>libxml2.*.dylib</include>
                                             </includes>
                                         </resource>
                                     </resources>

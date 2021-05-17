@@ -72,7 +72,7 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress -DlocalRepositoryPath=/github/home/.m2/
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
@@ -80,10 +80,12 @@ jobs:
         MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
     #Run example and publish jar
+    #    javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
+    #    java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
-        java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
+        javac -cp /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/$ARTIFACT example/SimpleTypes.java
+        java -cp /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/$ARTIFACT:example/ SimpleTypes
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
@@ -152,13 +154,35 @@ jobs:
         mkdir collect_libs
         cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
     - name: Change load path of transitive dependencies
-      run: |
-        patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/*
-        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/*
-        patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/*
-        patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/*
-        patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/*
-        patchelf --replace-needed libdl.so.2 @rpath/libdl.so.2 $GITHUB_WORKSPACE/collect_libs/*
+    #  run: |
+    #    patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/*
+    #    patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/*
+    #    patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/*
+    #    patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/*
+    #    patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/*
+    #    patchelf --replace-needed libdl.so.2 @rpath/libdl.so.2 $GITHUB_WORKSPACE/collect_libs/*
+    run: |
+        patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
+        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
+        patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
+
+        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.so.11
+
+        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
+        patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
+        patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
+
+        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbe-java.so
+
+        patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
+        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
+
+        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmapi.so.12
+
+        patchelf --replace-needed libdl.so.2 @rpath/libdl.so.2 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
+        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
+        patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
+        patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
     - name: Change rpath of MonetDB libraries to package
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
@@ -170,7 +194,7 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,linux-fat,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress -DlocalRepositoryPath=/github/home/.m2/
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,linux-fat,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
@@ -178,10 +202,12 @@ jobs:
         MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
     #Run example and publish jar
+    #    javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
+    #    java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
-        java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
+        javac -cp /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/$ARTIFACT example/SimpleTypes.java
+        java -cp /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/$ARTIFACT:example/ SimpleTypes
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
