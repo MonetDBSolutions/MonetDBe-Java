@@ -5,6 +5,11 @@
     #  with:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
+        #    container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
+        #container:
+        #  image: ${{ matrix.container }}
+
+#  [push,workflow_dispatch,pull_request]
 
 
 

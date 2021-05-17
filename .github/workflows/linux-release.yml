@@ -1,6 +1,5 @@
-name: ManyLinux CI - Release Slim and Fat Jar (Oct2020/Jul2021)
+name: ManyLinux CI - Release Slim and Fat Jar (Oct2020)
 on:
-#  [push,workflow_dispatch,pull_request]
   [workflow_dispatch]
 
 jobs:
@@ -12,9 +11,6 @@ jobs:
         artifacts: ["monetdbe-java-1.0-SNAPSHOT-linux-slim.jar","monetdbe-java-1.0-SNAPSHOT-linux-fat.jar"]
         transitive_libs: [false,true]
         mvn_flags: ["linux-slim,release,sign-simplify","linux-slim,linux-fat,release,sign-simplify"]
-    #    container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
-    #container:
-    #  image: ${{ matrix.container }}
     container: monetdb/dev-builds:Oct2020_manylinux
     env:
       MONETDB_INSTALL: /usr/local
@@ -31,6 +27,7 @@ jobs:
       run: |
         echo $M2_REPO_MAIN >> $GITHUB_ENV
         echo $ARTIFACT >> $GITHUB_ENV
+        echo $MV_TRANSITIVE >> $GITHUB_ENV
 
     #Java, maven, gpg and patchelf setup; set up test env
     - name: Set up JDK 1.8 and maven settings.xml
@@ -69,7 +66,7 @@ jobs:
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
     - name: Move transitive dependencies
-      if: ${{ MV_TRANSITIVE }}
+      if: ${{env.MV_TRANSITIVE}}
       run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
 
     #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
@@ -95,6 +92,6 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         #name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-        name: ${{ ARTIFACT }}
+        name: ${{env.ARTIFACT}}
         #path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
-        path: ${{ M2_REPO_MAIN }}/${{ ARTIFACT }}
+        path: ${{env.M2_REPO_MAIN}}/${{env.ARTIFACT}}
