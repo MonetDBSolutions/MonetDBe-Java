@@ -159,7 +159,6 @@ jobs:
           install_name_tool -change /usr/local/opt/pcre/lib/libpcre.1.dylib @rpath/libpcre.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
           install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.11.dylib
           install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-
           install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
           install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
