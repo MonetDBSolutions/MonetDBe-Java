@@ -149,11 +149,10 @@ jobs:
         cd native
         mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
         cd ..
-    - name: Move direct and transitive dependencies
+    - name: Move direct dependencies
       run: |
         mkdir collect_libs
         cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
-        cp /lib64/libz.so.1 /lib64/libm.so.6 /lib64/libdl.so.2 /lib64/libpthread.so.0 /lib64/libpcre.so.1 /lib64/libc.so.6 collect_libs
     - name: Change rpath of MonetDB libraries to package
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
@@ -165,6 +164,8 @@ jobs:
         patchelf --replace-needed libm.so.6 @rpath/libm.so.6 lib*
         patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 lib*
         patchelf --replace-needed libdl.so.2 @rpath/libdl.so.2 lib*
+    - name: Move transitive dependencies
+      run: cp /lib64/libz.so.1 /lib64/libm.so.6 /lib64/libdl.so.2 /lib64/libpthread.so.0 /lib64/libpcre.so.1 /lib64/libc.so.6 collect_libs
 
     #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
     #Tests are now disabled until crash and DROP TABLE bug are fixed
