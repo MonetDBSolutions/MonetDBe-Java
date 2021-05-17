@@ -56,7 +56,7 @@ jobs:
     #- name: Install chrpath
     #  run: apt-get install -y chrpath
     - name: Install chrpath
-      run: yum install -y chrpath
+      run: yum install -y chrpath patchelf
 
     #Install native library; collect libraries
     - name: Install native library (libmonetdbe-java.dylib)
@@ -71,6 +71,7 @@ jobs:
     - name: Change rpath of MonetDB libraries to package
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
+        for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
 
     #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
     #Tests are now disabled until crash and DROP TABLE bug are fixed
@@ -168,12 +169,7 @@ jobs:
     - name: Change rpath of MonetDB libraries to package
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libbat.so.21
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmapi.so.12
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.so.11
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libstream.so.14
+        for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
     - name: Move transitive dependencies
       run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
 
