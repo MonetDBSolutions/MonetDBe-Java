@@ -44,7 +44,7 @@ jobs:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
     - name: Import GPG private key for maven release (for sign-maven-plugin)
-      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/home/.m2/sign-key.asc
+      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
     #- name: Set up test environment
     #  run: |
     #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
@@ -135,7 +135,7 @@ jobs:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
     - name: Import GPG private key for maven release (for sign-maven-plugin)
-      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/home/.m2/sign-key.asc
+      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
     #- name: Set up test environment
     #  run: |
     #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
