@@ -20,6 +20,7 @@ jobs:
 
       #M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       M2_REPO: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      M2_REPO_MAIN: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       ARTIFACT: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
     steps:
     #Java, maven, gpg and chrpath setup; set up test env
@@ -43,7 +44,7 @@ jobs:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
     - name: Import GPG private key for maven release (for sign-maven-plugin)
-      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /github/home/.m2/sign-key.asc
+      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/home/.m2/sign-key.asc
     #- name: Set up test environment
     #  run: |
     #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
@@ -84,14 +85,14 @@ jobs:
     #    java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/$ARTIFACT example/SimpleTypes.java
-        java -cp /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/$ARTIFACT:example/ SimpleTypes
+        javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
+        java -cp $M2_REPO_MAIN/$ARTIFACT:example/ SimpleTypes
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
         name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
         #name: ${{ ARTIFACT }}
-        path: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
+        path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
         #path: ${{ M2_REPO }}/${{ ARTIFACT }}
 
   linux_fat_manylinux:
@@ -110,6 +111,7 @@ jobs:
 
       #M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       M2_REPO: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      M2_REPO_MAIN: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
       ARTIFACT: monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
     steps:
     #Java, maven, gpg and chrpath setup; set up test env
@@ -133,7 +135,7 @@ jobs:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
     - name: Import GPG private key for maven release (for sign-maven-plugin)
-      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /github/home/.m2/sign-key.asc
+      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/home/.m2/sign-key.asc
     #- name: Set up test environment
     #  run: |
     #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
@@ -181,9 +183,16 @@ jobs:
         patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
         patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
         patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/libbat.so.21
-    - name: Change rpath of MonetDB libraries to package
-      run: |
-        for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
+
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libbat.so.21
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmapi.so.12
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.so.11
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libstream.so.14
+    #- name: Change rpath of MonetDB libraries to package
+    #  run: |
+    #    for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
     - name: Move transitive dependencies
       run: cp /lib64/libz.so.1 /lib64/libm.so.6 /lib64/libdl.so.2 /lib64/libpthread.so.0 /lib64/libpcre.so.1 /lib64/libc.so.6 collect_libs
 
@@ -204,12 +213,12 @@ jobs:
     #    java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/$ARTIFACT example/SimpleTypes.java
-        java -cp /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/$ARTIFACT:example/ SimpleTypes
+        javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
+        java -cp $M2_REPO_MAIN/$ARTIFACT:example/ SimpleTypes
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
         name: monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
         #name: ${{ ARTIFACT }}
-        path: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
+        path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-fat.jar
         #path: ${{ M2_REPO }}/${{ ARTIFACT }}
