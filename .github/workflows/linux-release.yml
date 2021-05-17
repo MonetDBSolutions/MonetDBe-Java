@@ -7,6 +7,7 @@ jobs:
   linux_slim_manylinux:
     name: linux_slim_manylinux
     runs-on: ubuntu-latest
+    continue-on-error: true
     #strategy:
     #  matrix:
     #    container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
@@ -90,6 +91,8 @@ jobs:
       run: |
         javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
         java -cp $M2_REPO_MAIN/$ARTIFACT:example/ SimpleTypes
+    - name: Cat error
+      run: cat /__w/MonetDBe-Java/MonetDBe-Java/hs_err_pid*
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
@@ -172,16 +175,9 @@ jobs:
       run: |
         patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
         patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
-
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libbat.so.21
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmapi.so.12
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.so.11
-        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libstream.so.14
-    #- name: Change rpath of MonetDB libraries to package
-    #  run: |
-    #    for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
+    - name: Change rpath of MonetDB libraries to package
+      run: |
+        for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; ldd $file; done
     - name: Move transitive dependencies
       run: cp /lib64/libz.so.1 /lib64/libm.so.6 /lib64/libdl.so.2 /lib64/libpthread.so.0 /lib64/libpcre.so.1 /lib64/libc.so.6 collect_libs
 
