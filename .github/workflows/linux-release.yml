@@ -153,7 +153,6 @@ jobs:
       run: |
         mkdir collect_libs
         cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
-    - name: Change load path of transitive dependencies
     #  run: |
     #    patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/*
     #    patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/*
@@ -161,7 +160,8 @@ jobs:
     #    patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/*
     #    patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/*
     #    patchelf --replace-needed libdl.so.2 @rpath/libdl.so.2 $GITHUB_WORKSPACE/collect_libs/*
-    run: |
+    - name: Change load path of transitive dependencies
+      run: |
         patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
         patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
         patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
