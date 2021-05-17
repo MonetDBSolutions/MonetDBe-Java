@@ -13,8 +13,8 @@ jobs:
     env:
       MONETDB_INSTALL: /usr/local
       MONETDB_LIBS: /usr/local/lib64
-      M2_REPO: /github/home/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
-      M2_REPO_MAIN: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
+      M2_REPO_SETTINGS: /github/home/.m2/settings.xml
     steps:
     - uses: actions/checkout@v2
     - name: Env variables (slim jar)
@@ -74,7 +74,7 @@ jobs:
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -s $M2_REPO_SETTINGS -DskipTests=true --no-transfer-progress
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
@@ -84,12 +84,10 @@ jobs:
     #Run example and publish jar
     - name: Run example class (SimpleTypes)
       run: |
-        javac -cp $M2_REPO_MAIN/${{env.ARTIFACT}} example/SimpleTypes.java
-        java -cp $M2_REPO_MAIN/${{env.ARTIFACT}}:example/ SimpleTypes
+        javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
+        java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
     - name: Publish Linux jar
       uses: actions/upload-artifact@v2
       with:
-        #name: monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
         name: ${{env.ARTIFACT}}
-        #path: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT/monetdbe-java-1.0-SNAPSHOT-linux-slim.jar
         path: ${{env.M2_REPO}}/${{env.ARTIFACT}}
