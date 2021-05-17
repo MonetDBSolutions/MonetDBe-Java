@@ -1,3 +1,20 @@
+
+    #- name: Import GPG private key for maven release (for maven-gpg-plugin)
+    #  id: import_gpg
+    #  uses: crazy-max/ghaction-import-gpg@v3
+    #  with:
+    #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+    #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+
+
+
+
+
+
+
+
+
 linux_default_slim_build:
     name: linux_default_slim_build
     runs-on: ubuntu-latest

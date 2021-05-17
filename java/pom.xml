@@ -547,8 +547,7 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <!--<keyPass>${gpg.passphrase}</keyPass>-->
-                                    <keyPass>/root/.m2/gpg_pass</keyPass>
+                                    <keyPass>${gpg.passphrase}</keyPass>
                                 </configuration>
                             </execution>
                         </executions>
