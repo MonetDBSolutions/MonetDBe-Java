@@ -172,8 +172,6 @@ jobs:
         patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
         patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
 
-        patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdbe-java.so
-
         patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
         patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
 
