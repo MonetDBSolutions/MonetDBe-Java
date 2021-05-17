@@ -43,8 +43,11 @@ jobs:
     #  with:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
-    - name: Import GPG private key for maven release (for sign-maven-plugin)
-      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+
+    #TODO THIS IS BELOW BECAUSE OF A BUG OF THE REPO NOT BEING CREATED
+    #- name: Import GPG private key for maven release (for sign-maven-plugin)
+    #  run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+
     #- name: Set up test environment
     #  run: |
     #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
@@ -60,6 +63,10 @@ jobs:
         cd native
         mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
         cd ..
+    - name: Import GPG private key for maven release (for sign-maven-plugin)
+      run: |
+        touch /root/.m2/sign-key.asc
+        echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
     - name: Move direct dependencies (MonetDB libs)
       run: |
         mkdir collect_libs
@@ -134,8 +141,11 @@ jobs:
     #  with:
     #    gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
     #    passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
-    - name: Import GPG private key for maven release (for sign-maven-plugin)
-      run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+
+    #TODO THIS IS BELOW BECAUSE OF A BUG OF THE REPO NOT BEING CREATED
+    #- name: Import GPG private key for maven release (for sign-maven-plugin)
+    #  run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+
     #- name: Set up test environment
     #  run: |
     #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
@@ -151,6 +161,10 @@ jobs:
         cd native
         mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
         cd ..
+    - name: Import GPG private key for maven release (for sign-maven-plugin)
+      run: |
+        touch /root/.m2/sign-key.asc
+        echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
     - name: Move direct dependencies
       run: |
         mkdir collect_libs
