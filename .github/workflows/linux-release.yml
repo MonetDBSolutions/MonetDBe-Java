@@ -153,8 +153,8 @@ jobs:
     #- name: Install chrpath
     #  run: apt-get install -y chrpath
     - name: Install chrpath
-      run: yum install -y chrpath
-      
+      run: yum install -y chrpath patchelf
+
     #Install native library; collect libraries
     - name: Install native library (libmonetdbe-java.dylib)
       run: |
@@ -168,6 +168,12 @@ jobs:
     - name: Change rpath of MonetDB libraries to package
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libbat.so.21
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmapi.so.12
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdbe.so.1
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.so.11
+        patchelf --set-rpath $ORIGIN/. $GITHUB_WORKSPACE/collect_libs/libstream.so.14
     - name: Move transitive dependencies
       run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
 
