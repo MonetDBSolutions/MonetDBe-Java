@@ -8,8 +8,8 @@ jobs:
       name: mac_brew_slim
       runs-on: macos-latest
       env:
-        MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.15
-        MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.15/lib
+        MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
+        MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.17/lib
         #TODO Find out how this LOAD_PATH (/usr/local/opt/monetdb/lib) is assigned
         LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
 
@@ -45,8 +45,6 @@ jobs:
       #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
       #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
 
-      - name: Check monetdbe lib
-        run: ls /usr/local/Cellar/monetdb/11.39.15/include/monetdb/
       #Install native library; collect libraries
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
@@ -99,8 +97,8 @@ jobs:
       name: mac_brew_fat
       runs-on: macos-latest
       env:
-        MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.15
-        MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.15/lib
+        MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
+        MONETDB_LIBS: /usr/local/Cellar/monetdb/11.39.17/lib
         LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
 
         M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT
