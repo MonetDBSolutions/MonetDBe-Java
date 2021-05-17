@@ -82,8 +82,6 @@ jobs:
         MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
     #Run example and publish jar
-    #    javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
-    #    java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
     - name: Run example class (SimpleTypes)
       run: |
         javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
