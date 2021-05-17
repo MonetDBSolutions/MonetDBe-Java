@@ -67,6 +67,7 @@ jobs:
       run: |
         touch /root/.m2/sign-key.asc
         echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+        export SIGN_KEY_PASS="${{ secrets.MVN_GPG_PASSPHRASE }}"
     - name: Move direct dependencies (MonetDB libs)
       run: |
         mkdir collect_libs
@@ -161,10 +162,12 @@ jobs:
         cd native
         mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
         cd ..
+    #TODO It can't find the passphrase now
     - name: Import GPG private key for maven release (for sign-maven-plugin)
       run: |
         touch /root/.m2/sign-key.asc
         echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+        export SIGN_KEY_PASS="${{ secrets.MVN_GPG_PASSPHRASE }}"
     - name: Move direct dependencies
       run: |
         mkdir collect_libs
