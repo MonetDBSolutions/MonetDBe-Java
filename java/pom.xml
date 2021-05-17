@@ -377,10 +377,6 @@
                                             <includes>
                                                 <include>libz.so.*</include>
                                                 <include>libpcre.so.*</include>
-                                                <include>libm.so.*</include>
-                                                <include>libdl.so.*</include>
-                                                <include>libpthread.so.*</include>
-                                                <include>libc.so.*</include>
                                             </includes>
                                         </resource>
                                     </resources>

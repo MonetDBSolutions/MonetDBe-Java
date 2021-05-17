@@ -92,6 +92,7 @@ jobs:
         javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
         java -cp $M2_REPO_MAIN/$ARTIFACT:example/ SimpleTypes
     - name: Cat error
+      if: always()
       run: cat /__w/MonetDBe-Java/MonetDBe-Java/hs_err_pid*
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
@@ -151,9 +152,9 @@ jobs:
     #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
     #- name: Install chrpath
     #  run: apt-get install -y chrpath
-    - name: Install chrpath and patchelf
-      run: yum install -y chrpath patchelf
-
+    - name: Install chrpath
+      run: yum install -y chrpath
+      
     #Install native library; collect libraries
     - name: Install native library (libmonetdbe-java.dylib)
       run: |
@@ -164,22 +165,11 @@ jobs:
       run: |
         mkdir collect_libs
         cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
-    #  run: |
-    #    patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/*
-    #    patchelf --replace-needed libc.so.6 @rpath/libc.so.6 $GITHUB_WORKSPACE/collect_libs/*
-    #    patchelf --replace-needed libpthread.so.0 @rpath/libpthread.so.0 $GITHUB_WORKSPACE/collect_libs/*
-    #    patchelf --replace-needed libm.so.6 @rpath/libm.so.6 $GITHUB_WORKSPACE/collect_libs/*
-    #    patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/*
-    #    patchelf --replace-needed libdl.so.2 @rpath/libdl.so.2 $GITHUB_WORKSPACE/collect_libs/*
-    - name: Change load path of transitive dependencies
-      run: |
-        patchelf --replace-needed libz.so.1 @rpath/libz.so.1 $GITHUB_WORKSPACE/collect_libs/libstream.so.14
-        patchelf --replace-needed libpcre.so.1 @rpath/libpcre.so.1 $GITHUB_WORKSPACE/collect_libs/libmonetdb5.so.30
     - name: Change rpath of MonetDB libraries to package
       run: |
-        for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; ldd $file; done
+        for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
     - name: Move transitive dependencies
-      run: cp /lib64/libz.so.1 /lib64/libm.so.6 /lib64/libdl.so.2 /lib64/libpthread.so.0 /lib64/libpcre.so.1 /lib64/libc.so.6 collect_libs
+      run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
 
     #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
     #Tests are now disabled until crash and DROP TABLE bug are fixed
