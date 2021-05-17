@@ -7,7 +7,6 @@ jobs:
   linux_slim_manylinux:
     name: linux_slim_manylinux
     runs-on: ubuntu-latest
-    continue-on-error: true
     #strategy:
     #  matrix:
     #    container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
@@ -56,7 +55,7 @@ jobs:
     #- name: Install chrpath
     #  run: apt-get install -y chrpath
     - name: Install chrpath
-      run: yum install -y chrpath patchelf
+      run: yum install -y patchelf
 
     #Install native library; collect libraries
     - name: Install native library (libmonetdbe-java.dylib)
@@ -70,7 +69,6 @@ jobs:
         cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
     - name: Change rpath of MonetDB libraries to package
       run: |
-        for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
         for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
 
     #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
@@ -92,9 +90,6 @@ jobs:
       run: |
         javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
         java -cp $M2_REPO_MAIN/$ARTIFACT:example/ SimpleTypes
-    - name: Cat error
-      if: always()
-      run: cat /__w/MonetDBe-Java/MonetDBe-Java/hs_err_pid*
     - name: Publish Linux slim jar
       uses: actions/upload-artifact@v2
       with:
@@ -154,7 +149,7 @@ jobs:
     #- name: Install chrpath
     #  run: apt-get install -y chrpath
     - name: Install chrpath
-      run: yum install -y chrpath patchelf
+      run: yum install -y patchelf
 
     #Install native library; collect libraries
     - name: Install native library (libmonetdbe-java.dylib)
@@ -168,17 +163,22 @@ jobs:
         cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
     - name: Change rpath of MonetDB libraries to package
       run: |
-        for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r '$ORIGIN/.' $file; done
         for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
     - name: Move transitive dependencies
       run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
+
+    - name: Import GPG private key for maven release (for sign-maven-plugin)
+      run: |
+        touch /root/.m2/sign-key.asc /root/.m2/gpg_pass
+        echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+        echo -e "${{ secrets.MVN_GPG_PASSPHRASE }}" > /root/.m2/gpg_pass
 
     #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
     #Tests are now disabled until crash and DROP TABLE bug are fixed
     - name: Compile Java, package into jar, do unit tests and deploy
       run: |
         cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,linux-fat,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress -DkeyPass=${{ secrets.MVN_GPG_PASSPHRASE }}
+        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P linux-slim,linux-fat,release,sign-simplify -s /github/home/.m2/settings.xml -DskipTests=true --no-transfer-progress -DkeyPass=/root/.m2/gpg_pass
         cd ..
       env:
         MVN_DEPLOY_USERNAME: monetdb
