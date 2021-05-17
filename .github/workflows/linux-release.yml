@@ -1,6 +1,5 @@
-name: ManyLinux CI - Release Slim and Fat Jar (Oct2020/Jul2021)
+name: ManyLinux CI - Release Slim and Fat Jar (Oct2020)
 on:
-#  [push,workflow_dispatch,pull_request]
   [workflow_dispatch]
 
 jobs:
@@ -12,9 +11,6 @@ jobs:
         artifacts: ["monetdbe-java-1.0-SNAPSHOT-linux-slim.jar","monetdbe-java-1.0-SNAPSHOT-linux-fat.jar"]
         transitive_libs: [false,true]
         mvn_flags: ["linux-slim,release,sign-simplify","linux-slim,linux-fat,release,sign-simplify"]
-    #    container: ["monetdb/dev-builds:Oct2020_manylinux", "monetdb/dev-builds:Jul2021_manylinux"]
-    #container:
-    #  image: ${{ matrix.container }}
     container: monetdb/dev-builds:Oct2020_manylinux
     env:
       MONETDB_INSTALL: /usr/local
@@ -85,8 +81,6 @@ jobs:
         MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
     #Run example and publish jar
-    #    javac -cp $M2_REPO/$ARTIFACT example/SimpleTypes.java
-    #    java -cp $M2_REPO/$ARTIFACT:example/ SimpleTypes
     - name: Run example class (SimpleTypes)
       run: |
         javac -cp $M2_REPO_MAIN/$ARTIFACT example/SimpleTypes.java
