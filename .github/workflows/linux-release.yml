@@ -27,12 +27,6 @@ jobs:
       MVN_FLAGS: ${{ matrix.mvn_flags }}
     steps:
     - uses: actions/checkout@v2
-    - name: Set env variables for upload-artifact action
-      run: |
-        echo $M2_REPO_MAIN >> $GITHUB_ENV
-        echo $ARTIFACT >> $GITHUB_ENV
-        echo $MV_TRANSITIVE >> $GITHUB_ENV
-
     #Java, maven, gpg and patchelf setup; set up test env
     - name: Set up JDK 1.8 and maven settings.xml
       uses: actions/setup-java@v1
@@ -69,7 +63,7 @@ jobs:
     - name: Change rpath of MonetDB libraries to package
       run: |
         for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
-    - name: Move transitive dependencies
+    - name: Collect transitive dependencies
       if: ${{env.MV_TRANSITIVE}}
       run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
 
