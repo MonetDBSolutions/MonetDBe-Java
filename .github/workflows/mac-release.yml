@@ -65,21 +65,21 @@ jobs:
       - name: Change load path for libmonetdbe dependency (to be rpath dependent)
         run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
         env:
-          M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ MDBE_JAVA_VERSION }}
-          ARTIFACT_NATIVE: monetdbe-java-native-1.0-SNAPSHOT.dylib
+          M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ env.MDBE_JAVA_VERSION }}
+          ARTIFACT_NATIVE: monetdbe-java-native-${{ env.MDBE_JAVA_VERSION }}.dylib
       - name: Copy direct dependencies (MonetDB libs)
         run: |
           mkdir collect_libs
           cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib collect_libs
         env:
-          MONETDB_LIBS: ${{ MONETDB_INSTALL }}/lib
+          MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
       - name: Change rpath of libraries to package
         run: |
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
         env:
-          MONETDB_LIBS: ${{ MONETDB_INSTALL }}/lib
+          MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
       - name: Copy transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib /usr/lib/libz.1.dylib /usr/lib/libxml2.2.dylib /usr/lib/libiconv.2.dylib /usr/local/opt/lz4/lib/liblz4.1.dylib /usr/local/opt/xz/lib/liblzma.5.dylib /usr/lib/libcurl.4.dylib /usr/lib/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs
