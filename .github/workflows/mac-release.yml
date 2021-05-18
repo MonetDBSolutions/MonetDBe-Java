@@ -13,7 +13,6 @@ jobs:
         MDBE_JAVA_VERSION: 1.0-SNAPSHOT
         #Brew installation
         MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
-        MONETDB_LIBS: ${{ MONETDB_INSTALL }}/lib
         LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
         #Maven native library
         M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ MDBE_JAVA_VERSION }}
@@ -77,6 +76,8 @@ jobs:
         run: |
           mkdir collect_libs
           cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib collect_libs
+        env:
+          MONETDB_LIBS: ${{ MONETDB_INSTALL }}/lib
       - name: Change rpath of libraries to package
         run: |
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
