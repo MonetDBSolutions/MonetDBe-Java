@@ -14,9 +14,6 @@ jobs:
         #Brew installation
         MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
         LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
-        #Maven native library
-        M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ MDBE_JAVA_VERSION }}
-        ARTIFACT_NATIVE: monetdbe-java-native-1.0-SNAPSHOT.dylib
         #Dependencies
         DIRECT_DEPENDENCIES: [libbat.21.dylib,libmapi.12.dylib,libmonetdb5.30.dylib,libmonetdbe.1.dylib,libmonetdbsql.11.dylib,libstream.14.dylib]
         TRANSITIVE_DEPENDENCIES: [libpcre.1.dylib,libcrypto.1.1.dylib,libz.1.dylib,libxml2.2.dylib,libiconv.2.dylib,liblz4.1.dylib,liblzma.5.dylib,libcurl.4.dylib,libbz2.1.0.dylib]
@@ -72,6 +69,9 @@ jobs:
           cd ..
       - name: Change load path for libmonetdbe dependency (to be rpath dependent)
         run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
+        env:
+          M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ MDBE_JAVA_VERSION }}
+          ARTIFACT_NATIVE: monetdbe-java-native-1.0-SNAPSHOT.dylib
       - name: Copy direct dependencies (MonetDB libs)
         run: |
           mkdir collect_libs
