@@ -236,8 +236,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
         else if (this.resultSet!=null) {
             return true;
         }
-        //Data manipulation and data definition (Statement.SUCCESS_NO_INFO) queries
-        else if (this.updateCount >= 0 || this.updateCount == Statement.SUCCESS_NO_INFO){
+        //Data manipulation and data definition queries
+        else if (this.updateCount >= 0){
             return false;
         }
         else {
@@ -452,7 +452,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     public boolean getMoreResults(int current) throws SQLException {
         //TODO GETMORERESULTS
         //Is it possible to have more than one ResultSet returning from a batch query in MonetDBe?
-        checkNotClosed();
         throw new SQLFeatureNotSupportedException("getMoreResults()");
     }
 
@@ -464,7 +463,8 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public boolean getMoreResults() throws SQLException {
         //TODO GETMORERESULTS
-        return getMoreResults(Statement.CLOSE_CURRENT_RESULT);
+        throw new SQLFeatureNotSupportedException("getMoreResults()");
+        //return getMoreResults(Statement.CLOSE_CURRENT_RESULT);
     }
 
     /**
@@ -477,7 +477,13 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public int getUpdateCount() throws SQLException {
         checkNotClosed();
-        return this.updateCount;
+        int update=-1;
+        //We should only return the update count on the first call
+        if (this.updateCount != -1) {
+            update = this.updateCount;
+            this.updateCount = -1;
+        }
+        return update;
     }
 
     /**
@@ -730,7 +736,13 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public long getLargeUpdateCount() throws SQLException {
         checkNotClosed();
-        return largeUpdateCount;
+        long update=-1;
+        //We should only return the update count on the first call
+        if (this.largeUpdateCount != -1) {
+            update = this.largeUpdateCount;
+            this.largeUpdateCount = -1;
+        }
+        return update;
     }
 
     /**

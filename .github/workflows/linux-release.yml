@@ -19,13 +19,13 @@ jobs:
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,release,sign-simplify" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,release" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-slim.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,linux-fat,release,sign-simplify" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,linux-fat,release" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-fat.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
 
