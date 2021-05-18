@@ -10,11 +10,13 @@ jobs:
       BRANCH: Oct2020
     steps:
       - uses: actions/checkout@v2
+
       #Set global environment variables
       - name: Env variables
         run: |
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-windows.jar" |  Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           echo "M2_REPO=C:\Users\runneradmin\.m2\repository\monetdb\monetdbe-java\${{ env.MDBE_JAVA_VERSION }}" |  Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       #Java, maven, gpg and dependencies setup; set up test env
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1

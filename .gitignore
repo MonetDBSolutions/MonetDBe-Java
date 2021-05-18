@@ -3,6 +3,7 @@ other/apidocs/
 testdata
 scripts
 other
+run_release.sh
 
 # Compiled class file
 *.class

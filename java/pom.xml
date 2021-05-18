@@ -101,7 +101,6 @@
             </properties>
         </profile>
 
-        <!-- TODO Change VCPKG_ROOT -->
         <!-- Windows build: copy transitive and direct dependencies and pre-compiled native monetdbe-java library
             (default behaviour; must set the -DMonetDB_dir and -DVCPKG_ROOT properties, tests are turned on) -->
         <profile>
@@ -642,7 +641,6 @@
                         <include>Test_15_Transactions</include>
                         <include>Test_16_MixedOrderStatements</include>
                         <include>Test_17_QueryInThread</include>-->
-                        <!-- TODO Multiple RS not supported -->
                         <!--<include>Test_14_MultipleResultSet</include>-->
                     </includes>
                     <skipTests>${skipTests}</skipTests>

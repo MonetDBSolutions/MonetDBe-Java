@@ -11,10 +11,10 @@ jobs:
     container: monetdb/dev-builds:Oct2020_manylinux
     env:
       MDBE_JAVA_VERSION: 1.0-SNAPSHOT
-      #Local MonetDB installation
       MONETDB_INSTALL: /usr/local
     steps:
       - uses: actions/checkout@v2
+
       #Set global environment variables
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
@@ -45,9 +45,10 @@ jobs:
           maven-version: 3.6.3
       - name: Install patchelf
         run: yum install -y patchelf
-      #TODO Sort this double maven repo issue out + pass passphrase in way plugin can understand
-      #- name: Import GPG private key for maven release (for sign-maven-plugin)
-      #  run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+      - name: Import GPG private key for maven release (for sign-maven-plugin)
+        run: |
+          touch /root/.m2/sign-key.asc
+          echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
       #- name: Set up test environment
       #  run: |
       #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb

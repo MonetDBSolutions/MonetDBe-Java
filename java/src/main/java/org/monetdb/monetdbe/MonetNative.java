@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
  * which it depends (found in the lib/ directories of the jar).
  * Because Java can't read libraries from inside the JAR, they are copied to a temporary location before load.
  */
-//TODO Clean up libraries in temporary location?
-//TODO Improve dependencies are resolved, this method must be horrible
 //TODO Turn off debug prints
 public class MonetNative {
+    //Start-up library loading
     static {
         try {
             System.out.println("Native C libraries loading info:");
@@ -27,7 +26,6 @@ public class MonetNative {
             String loadLib = "libmonetdbe-java";
             String loadLibExtension = null;
             String directory = null;
-            List<String> dependencyDirs = new ArrayList<String>(){{ add("direct"); add("transitive"); }};
 
             if (os_name.startsWith("linux")) {
                 loadLibExtension = ".so";
@@ -41,12 +39,12 @@ public class MonetNative {
             }
 
             if (loadLibExtension != null) {
-                Map<String,List<String>> dependencyMap = listDependencies(directory,dependencyDirs);
+                Map<String,List<String>> dependencyMap = listDependencies(directory);
                 if (dependencyMap != null) {
                     if (!loadLibExtension.equals(".dll")) {
+                        //Copy direct and transitive dependencies (they are automatically loaded after the main lib on Mac and Linux)
                         for (String dependencyType : dependencyMap.keySet()) {
                             for (String dependencyLib : dependencyMap.get(dependencyType)) {
-                                //Copy direct and transitive dependencies
                                 copyLib(directory + "/" + dependencyType,dependencyLib);
                             }
                         }
@@ -63,24 +61,34 @@ public class MonetNative {
                             loadLib("windows/direct",td);
                         }
                     }
-                    if (dependencyMap.size() > 0)
-                        System.out.println("Copied dependencies to " + System.getProperty("java.io.tmpdir"));
                 }
                 else {
                     throw new IOException("Library dependencies could not be found");
                 }
                 loadLib(directory,loadLib+loadLibExtension);
+                System.out.println("Dependencies were copied to " + System.getProperty("java.io.tmpdir"));
                 System.out.println("End of loading C libraries\n");
+            }
+            else {
+                throw new IOException("OS " + os_name + " not supported.");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    //Returns map with direct and transitive dependencies for the OS, based on the current jar
-    static Map<String,List<String>> listDependencies(String subdirectory, List<String> dependencyDirs) throws IOException {
-        URI uri = null;
-        Path libRoot = null;
+    /**
+     * Resolves dependencies to be copied/loaded for running MonetDBe-Java.
+     * Walks through the lib/ directories, finding both direct and transitive dependencies.
+     * Works for both loading from jar (normal executions) and loading from file (running from IDEs or from maven unit tests).
+     *
+     * @param os Operating System directory to resolve dependencies from. Each OS has its own directory (linux, mac, windows)
+     * @return Map with direct and transitive dependencies to be copied/loaded
+     * @throws IOException If the lib/ subdirectories cannot be found
+     */
+    static Map<String,List<String>> listDependencies(String os) throws IOException {
+        URI uri;
+        Path libRoot;
         try {
             uri = MonetNative.class.getResource("/lib/").toURI();
         } catch (URISyntaxException | NullPointerException e) {
@@ -90,12 +98,12 @@ public class MonetNative {
 
         //Loading within jar
         if ("jar".equalsIgnoreCase(uri.getScheme())) {
-            libRoot = FileSystems.newFileSystem(uri, Collections.emptyMap()).getPath("/lib/" + subdirectory);
+            libRoot = FileSystems.newFileSystem(uri, Collections.emptyMap()).getPath("/lib/" + os);
             System.out.println("Loading dependencies from within jar: " + libRoot.toString());
         }
         //Loading from file (IDE execution and maven unit tests)
         else {
-            libRoot = Paths.get(uri.getPath() + subdirectory);
+            libRoot = Paths.get(uri.getPath() + os);
             System.out.println("Loading dependencies from filesystem: " + libRoot.toString());
         }
         Map<String,List<String>> dependencies = Files.walk(libRoot, 2)
@@ -103,7 +111,8 @@ public class MonetNative {
                         Collectors.mapping(
                                 (paths -> paths.getFileName().toString()),
                                 Collectors.toList())));
-        dependencies.keySet().retainAll(dependencyDirs);
+        //TODO This may be unnecessary
+        dependencies.keySet().retainAll(new ArrayList<String>(){{ add("direct"); add("transitive"); }});
         return dependencies;
     }
 
@@ -119,7 +128,10 @@ public class MonetNative {
         if (is == null) {
             throw new IOException("Library " + libName +  " in /lib/" + directory + "/ could not be found.");
         }
-        Files.copy(is, new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        File copyFile = new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName);
+        //Clean up file on JVM exit
+        copyFile.deleteOnExit();
+        Files.copy(is, copyFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     /**
@@ -134,11 +146,15 @@ public class MonetNative {
         if (is == null) {
             throw new IOException("Library " + libName +  " could not be found.");
         }
-        Path temp_lib = new java.io.File(System.getProperty("java.io.tmpdir") + "/" +  libName).toPath();
-        Files.copy(is, temp_lib, StandardCopyOption.REPLACE_EXISTING);
-        System.load(temp_lib.toString());
+        File loadFile = new java.io.File(System.getProperty("java.io.tmpdir") + "/" +  libName);
+        //Clean up file on JVM exit
+        loadFile.deleteOnExit();
+        Path tempLibFile = loadFile.toPath();
+        Files.copy(is, tempLibFile, StandardCopyOption.REPLACE_EXISTING);
+        System.load(tempLibFile.toString());
     }
 
+    //Native library API
     /**
      * Open connection to memory or local directory database with default options.
      *
