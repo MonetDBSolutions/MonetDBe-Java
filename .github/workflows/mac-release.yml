@@ -20,15 +20,15 @@ jobs:
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
-          echo "ARTIFACT=monetdbe-java-${{ MDBE_JAVA_VERSION }}-mac-slim.jar" >> $GITHUB_ENV
+          echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-slim.jar" >> $GITHUB_ENV
           echo "MVN_FLAGS=mac-slim,release,sign-gpg" >> $GITHUB_ENV
-          echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
+          echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          echo "ARTIFACT=monetdbe-java-${{ MDBE_JAVA_VERSION }}-mac-fat.jar" >> $GITHUB_ENV
+          echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-fat.jar" >> $GITHUB_ENV
           echo "MVN_FLAGS=mac-slim,mac-fat,release,sign-gpg" >> $GITHUB_ENV
-          echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
+          echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
 
       #Java, maven and gpg setup; download MonetDB from brew and set up test env
       - name: Set up JDK 1.8 and maven settings.xml
