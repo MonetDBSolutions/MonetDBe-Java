@@ -78,7 +78,8 @@ jobs:
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -DskipTests=true --no-transfer-progress
+          export SIGN_KEY_PASS=${{ env.MVN_GPG_PASSPHRASE }}
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -DskipTests=true --no-transfer-progress -Dsign.keyPass=${{ env.MVN_GPG_PASSPHRASE }}
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb
