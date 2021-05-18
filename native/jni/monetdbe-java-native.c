@@ -111,10 +111,16 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close(JNIEnv *env, jclass self, jobject j_db)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
+    printf("Before close\n");
+    fflush(stdout);
     int error_code = monetdbe_close(db);
+    printf("After close\n");
+    fflush(stdout);
     if (error_code != 0)
     {
         char *error_msg = monetdbe_error(db);
+        printf("Before string cast\n");
+        fflush(stdout);
         return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
@@ -201,7 +207,8 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
     monetdbe_cnt *affected_rows = malloc(sizeof(monetdbe_cnt));
     (*affected_rows) = 0;
-
+    printf("Before cast from string\n");
+    fflush(stdout);
     char *sql = (char *)(*env)->GetStringUTFChars(env, j_sql, NULL);
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
 
@@ -224,12 +231,7 @@ void addColumnVar(JNIEnv *env, jobjectArray j_columns, int index, int type, char
     jstring j_name = (*env)->NewStringUTF(env, (const char *)name);
     jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
     jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;I[Ljava/lang/Object;)V");
-//If int128 is not defined, add 1 to type to "align" the type with versions with int128 defined
-#ifdef HAVE_HGE
     jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type, j_data);
-#else
-    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, type + 1, j_data);
-#endif
     (*env)->SetObjectArrayElement(env, j_columns, index, j_column_object);
 }
 
