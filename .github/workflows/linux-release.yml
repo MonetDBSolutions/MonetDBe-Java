@@ -1,6 +1,5 @@
 name: ManyLinux CI - Release Slim and Fat Jar (Oct2020)
-on:
-  [workflow_dispatch]
+on: [workflow_dispatch]
 
 jobs:
   linux_jars:
@@ -8,86 +7,91 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        artifact: ['slim','fat']
+        artifact: ["slim", "fat"]
     container: monetdb/dev-builds:Oct2020_manylinux
     env:
+      MDBE_JAVA_VERSION: 1.0-SNAPSHOT
+      #Local MonetDB installation
       MONETDB_INSTALL: /usr/local
-      MONETDB_LIBS: /usr/local/lib64
-      M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT
-      M2_REPO_SETTINGS: /github/home/.m2/settings.xml
+      M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}
     steps:
-    - uses: actions/checkout@v2
-    - name: Env variables (slim jar)
-      if: ${{ matrix.artifact == 'slim' }}
-      run: |
-        echo "ARTIFACT=monetdbe-java-1.0-SNAPSHOT-linux-slim.jar" >> $GITHUB_ENV
-        echo "MVN_FLAGS=linux-slim,release,sign-simplify" >> $GITHUB_ENV
-        echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT" >> $GITHUB_ENV 
-    - name: Env variables (fat jar)
-      if: ${{ matrix.artifact == 'fat' }}
-      run: |
-        echo "ARTIFACT=monetdbe-java-1.0-SNAPSHOT-linux-fat.jar" >> $GITHUB_ENV
-        echo "MVN_FLAGS=linux-slim,linux-fat,release,sign-simplify" >> $GITHUB_ENV
-        echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/1.0-SNAPSHOT" >> $GITHUB_ENV
-    #Java, maven, gpg and patchelf setup; set up test env
-    - name: Set up JDK 1.8 and maven settings.xml
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
-        server-id: ossrh
-        server-username: MVN_DEPLOY_USERNAME
-        server-password: MVN_DEPLOY_PASSWORD
-        gpg-passphrase: MVN_GPG_PASSPHRASE
-    - name: Setup Maven
-      uses: stCarolas/setup-maven@v4
-      with:
-        maven-version: 3.6.3
-    #TODO Sort this double maven repo issue out + pass passphrase in way plugin can understand
-    #- name: Import GPG private key for maven release (for sign-maven-plugin)
-    #  run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
-    #- name: Set up test environment
-    #  run: |
-    #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
-    #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-    - name: Install patchelf
-      run: yum install -y patchelf
+      - uses: actions/checkout@v2
 
-    #Install native library; collect libraries
-    - name: Install native library (libmonetdbe-java.dylib)
-      run: |
-        cd native
-        mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
-        cd ..
-    - name: Collect direct dependencies
-      run: |
-        mkdir collect_libs
-        cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
-    - name: Change rpath of MonetDB libraries to package
-      run: |
-        for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
-    - name: Collect transitive dependencies
-      if: ${{ matrix.artifact == 'fat' }}
-      run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
+      #Set global environment variables
+      - name: Env variables (slim jar)
+        if: ${{ matrix.artifact == 'slim' }}
+        run: |
+          echo "MVN_FLAGS=linux-slim,release,sign-simplify" >> $GITHUB_ENV
+          echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-slim.jar" >> $GITHUB_ENV
+      - name: Env variables (fat jar)
+        if: ${{ matrix.artifact == 'fat' }}
+        run: |
+          echo "MVN_FLAGS=linux-slim,linux-fat,release,sign-simplify" >> $GITHUB_ENV
+          echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-fat.jar" >> $GITHUB_ENV
+          echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
 
-    #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
-    #Tests are now disabled until crash and DROP TABLE bug are fixed
-    - name: Compile Java, package into jar, do unit tests and deploy
-      run: |
-        cd java
-        mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -s $M2_REPO_SETTINGS -DskipTests=true --no-transfer-progress
-        cd ..
-      env:
-        MVN_DEPLOY_USERNAME: monetdb
-        MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
-        MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+      #Java, maven, gpg and patchelf setup; set up test env
+      - name: Set up JDK 1.8 and maven settings.xml
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+          server-id: ossrh
+          server-username: MVN_DEPLOY_USERNAME
+          server-password: MVN_DEPLOY_PASSWORD
+          gpg-passphrase: MVN_GPG_PASSPHRASE
+          settings-path: /root/.m2/
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v4
+        with:
+          maven-version: 3.6.3
+      - name: Install patchelf
+        run: yum install -y patchelf
+      #TODO Sort this double maven repo issue out + pass passphrase in way plugin can understand
+      #- name: Import GPG private key for maven release (for sign-maven-plugin)
+      #  run: echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+      #- name: Set up test environment
+      #  run: |
+      #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+      #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
 
-    #Run example and publish jar
-    - name: Run example class (SimpleTypes)
-      run: |
-        javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
-        java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
-    - name: Publish Linux jar
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{env.ARTIFACT}}
-        path: ${{env.M2_REPO}}/${{env.ARTIFACT}}
+      #Install native library; collect library dependencies
+      - name: Install native library (libmonetdbe-java.dylib)
+        run: |
+          cd native
+          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P linux-release --no-transfer-progress
+          cd ..
+      - name: Collect direct dependencies
+        run: |
+          mkdir collect_libs
+          cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
+        env:
+          MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib64
+      - name: Change rpath of MonetDB libraries to package
+        run: |
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
+      - name: Collect transitive dependencies (only for fat jar)
+        if: ${{ matrix.artifact == 'fat' }}
+        run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
+
+      #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
+      #Tests are now disabled until crash and DROP TABLE bug are fixed
+      - name: Compile Java, package into jar, do unit tests and deploy
+        run: |
+          cd java
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -DskipTests=true --no-transfer-progress
+          cd ..
+        env:
+          MVN_DEPLOY_USERNAME: monetdb
+          MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+      #Run example and publish jar
+      - name: Run example class (SimpleTypes)
+        run: |
+          javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
+          java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
+      - name: Publish Linux jar
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{env.ARTIFACT}}
+          path: ${{env.M2_REPO}}/${{env.ARTIFACT}}
