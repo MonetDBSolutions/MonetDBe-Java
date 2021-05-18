@@ -1,12 +1,11 @@
 name: MacOS CI - Dev build (from Homebrew)
-on:
-  [push,workflow_dispatch,pull_request]
+on: [push, workflow_dispatch, pull_request]
 
 jobs:
   mac_brew_dev_build:
-      name: mac_brew_dev_build
-      runs-on: macos-latest
-      steps:
+    name: mac_brew_dev_build
+    runs-on: macos-latest
+    steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1

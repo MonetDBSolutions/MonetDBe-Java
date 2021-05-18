@@ -1,25 +1,22 @@
 name: MacOS CI - Release Slim and Fat Jar (from Homebrew)
-on:
-  [workflow_dispatch]
+on: [workflow_dispatch]
 
 jobs:
   mac_brew_jars:
-      name: mac_brew_jars
-      runs-on: macos-latest
-      strategy:
-        matrix:
-          artifact: ['slim','fat']
-      env:
-        MDBE_JAVA_VERSION: 1.0-SNAPSHOT
-        #Brew installation
-        MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
-        LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
-        #Dependencies
-        DIRECT_DEPENDENCIES: [libbat.21.dylib,libmapi.12.dylib,libmonetdb5.30.dylib,libmonetdbe.1.dylib,libmonetdbsql.11.dylib,libstream.14.dylib]
-        TRANSITIVE_DEPENDENCIES: [libpcre.1.dylib,libcrypto.1.1.dylib,libz.1.dylib,libxml2.2.dylib,libiconv.2.dylib,liblz4.1.dylib,liblzma.5.dylib,libcurl.4.dylib,libbz2.1.0.dylib]
-        TRANSITIVE_DEPENDENCIES_PATH: [/usr/local/opt/pcre/lib/libpcre.1.dylib,/usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib,/usr/lib/libz.1.dylib,/usr/lib/libxml2.2.dylib,/usr/lib/libiconv.2.dylib,/usr/local/opt/lz4/lib/liblz4.1.dylib,/usr/local/opt/xz/lib/liblzma.5.dylib,/usr/lib/libcurl.4.dylib,/usr/lib/libbz2.1.0.dylib]
-      steps:
+    name: mac_brew_jars
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        artifact: ["slim", "fat"]
+    env:
+      MDBE_JAVA_VERSION: 1.0-SNAPSHOT
+      #Brew installation
+      MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
+      LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
+    steps:
       - uses: actions/checkout@v2
+
+      #Set global environment variables
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
@@ -32,8 +29,6 @@ jobs:
           echo "ARTIFACT=monetdbe-java-${{ MDBE_JAVA_VERSION }}-mac-fat.jar" >> $GITHUB_ENV
           echo "MVN_FLAGS=mac-slim,mac-fat,release,sign-gpg" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
-          echo ${{ DIRECT_DEPENDENCIES }}
-          echo ${{ DIRECT_DEPENDENCIES[0] }}
 
       #Java, maven and gpg setup; download MonetDB from brew and set up test env
       - name: Set up JDK 1.8 and maven settings.xml
@@ -83,7 +78,8 @@ jobs:
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
-
+        env:
+          MONETDB_LIBS: ${{ MONETDB_INSTALL }}/lib
       - name: Copy transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib /usr/lib/libz.1.dylib /usr/lib/libxml2.2.dylib /usr/lib/libiconv.2.dylib /usr/local/opt/lz4/lib/liblz4.1.dylib /usr/local/opt/xz/lib/liblzma.5.dylib /usr/lib/libcurl.4.dylib /usr/lib/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs

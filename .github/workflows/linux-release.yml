@@ -13,16 +13,15 @@ jobs:
       MDBE_JAVA_VERSION: 1.0-SNAPSHOT
       #Local MonetDB installation
       MONETDB_INSTALL: /usr/local
-      M2_REPO: /root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}
     steps:
       - uses: actions/checkout@v2
-
       #Set global environment variables
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
           echo "MVN_FLAGS=linux-slim,release,sign-simplify" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-slim.jar" >> $GITHUB_ENV
+          echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
