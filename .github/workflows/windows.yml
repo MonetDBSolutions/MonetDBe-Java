@@ -93,11 +93,11 @@ jobs:
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
-      - name: Run example class (SimpleTypes)
+      - name: Run example class (ComplexTypes)
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\example
-          javac -cp ${{ env.M2_REPO }}\${{ env.ARTIFACT }} SimpleTypes.java
-          java -classpath ".\;${{ env.M2_REPO }}\${{ env.ARTIFACT }}" SimpleTypes
+          javac -cp ${{ env.M2_REPO }}\${{ env.ARTIFACT }} ComplexTypes.java
+          java -classpath ".\;${{ env.M2_REPO }}\${{ env.ARTIFACT }}" ComplexTypes
       - name: Publish Windows jar
         uses: actions/upload-artifact@v2
         with:
