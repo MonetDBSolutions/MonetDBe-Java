@@ -67,8 +67,14 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(), sql, this);
 
         //Failed prepare, destroy statement
-        if (this.statementNative == null || error_msg != null) {
-            System.out.println("Prepare statement error: " + error_msg);
+        if (error_msg != null || this.statementNative == null || this.monetdbeTypes == null || this.monetdbeTypes.length != nParams) {
+            if (error_msg != null)
+                System.err.println("Prepare statement error: " + error_msg);
+            else if (this.statementNative == null)
+                System.err.println("Prepare statement error: statement native object is null");
+            else
+                System.err.println("Prepare statement error: type information was not correctly set");
+
             try {
                 this.close();
             } catch (SQLException e) {
@@ -222,8 +228,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             //Get batch of parameters
             cur_batch = parametersBatch.get(i);
 
+            System.out.println("Number of params in types: " + monetdbeTypes.length + "\nNumber of params in cur_batch: " + cur_batch.length);
             for (int j = 0; j < nParams; j++) {
                 //Set each parameter in current batch
+                System.out.println("Java param num: " + (j+1) + "\nObject to set: " + cur_batch[j].getClass());
                 setObject(j + 1, cur_batch[j]);
             }
 
@@ -714,6 +722,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     @Override
     public void setObject(int parameterIndex, Object x) throws SQLException {
+        checkNotClosed();
         int targetSqlType = MonetTypes.getSQLTypeFromMonet(monetdbeTypes[parameterIndex - 1]);
         setObject(parameterIndex, x, targetSqlType, 0);
     }
