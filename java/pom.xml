@@ -549,8 +549,8 @@
                         <configuration>
                             <keystore>/root/.m2/private.key</keystore>
                             <alias>bernardo</alias>
-                            <storepass>${gpg.passphrase}</storepass>
-                            <keypass>${gpg.passphrase}</keypass>
+                            <storepass>${MVN_GPG_PASSPHRASE}</storepass>
+                            <keypass>${MVN_GPG_PASSPHRASE}</keypass>
                         </configuration>
                     </plugin>
                 </plugins>
