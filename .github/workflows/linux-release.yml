@@ -19,13 +19,13 @@ jobs:
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,release" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,release,sign-jarsigner" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-slim.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,linux-fat,release" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,linux-fat,release,sign-jarsigner" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-fat.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
 
@@ -78,8 +78,8 @@ jobs:
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          export SIGN_KEY_PASS=${{ env.MVN_GPG_PASSPHRASE }}
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -DskipTests=true --no-transfer-progress -Dsign.keyPass=${{ env.MVN_GPG_PASSPHRASE }} -e
+          echo ${{ secrets.MVN_GPG_PRIVATE_KEY_USERNAME }} > /root/.m2/private.key
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -DskipTests=true --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb
