@@ -111,8 +111,14 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close(JNIEnv *env, jclass self, jobject j_db)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
-    printf("Before close\n");
+    if (db == NULL) {
+        printf("DB is NULL");
+    }
+    else {
+        printf("DB is not NULL");
+    }
     fflush(stdout);
+
     int error_code = monetdbe_close(db);
     printf("After close\n");
     fflush(stdout);
@@ -207,8 +213,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1query(
     monetdbe_result **result = malloc(sizeof(monetdbe_result *));
     monetdbe_cnt *affected_rows = malloc(sizeof(monetdbe_cnt));
     (*affected_rows) = 0;
-    printf("Before cast from string\n");
-    fflush(stdout);
     char *sql = (char *)(*env)->GetStringUTFChars(env, j_sql, NULL);
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
 
