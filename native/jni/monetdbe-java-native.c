@@ -111,22 +111,10 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close(JNIEnv *env, jclass self, jobject j_db)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
-    if (db == NULL) {
-        printf("DB is NULL");
-    }
-    else {
-        printf("DB is not NULL");
-    }
-    fflush(stdout);
-
     int error_code = monetdbe_close(db);
-    printf("After close\n");
-    fflush(stdout);
     if (error_code != 0)
     {
         char *error_msg = monetdbe_error(db);
-        printf("Before string cast\n");
-        fflush(stdout);
         return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
@@ -709,7 +697,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
             jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
             //If int128 is not defined, add 1 to types after monetdbe_int64_t to "align" the type with versions with int128 defined
             #ifndef HAVE_HGE
-            jint aligned[nParams];
+            jint* aligned = malloc(sizeof(jint)*nParams);
             for (int i = 0; i < nParams; i++) {
                 //Types after monetdbe_int64_t
                 if ((*stmt)->type[i] > 4) {
@@ -720,6 +708,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
                 }
             }
             (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, aligned);
+            free(aligned);
             #else
             //If int128 is define, we can just copy the whole type array
             (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, (jint *)(*stmt)->type);
