@@ -707,7 +707,25 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         if (nParams > 0)
         {
             jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
+            //If int128 is not defined, add 1 to types after monetdbe_int64_t to "align" the type with versions with int128 defined
+            #ifndef HAVE_HGE
+            jint aligned[nParams];
+            for (int i = 0; i < nParams; i++) {
+                //Types after monetdbe_int64_t
+                if ((*stmt)->type[i] > 4) {
+                    aligned[i] = (*stmt)->type[i] + 1;
+                }
+                else {
+                    aligned[i] = (*stmt)->type[i];
+                }
+            }
+            (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, aligned);
+            #else
+            //If int128 is define, we can just copy the whole type array
             (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, (jint *)(*stmt)->type);
+            #endif
+
+
             jfieldID paramTypesField = (*env)->GetFieldID(env, statementClass, "monetdbeTypes", "[I");
             (*env)->SetObjectField(env, j_statement, paramTypesField, j_parameterTypes);
         }
