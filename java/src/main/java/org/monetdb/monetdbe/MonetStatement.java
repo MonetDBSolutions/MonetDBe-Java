@@ -350,13 +350,40 @@ public class MonetStatement extends MonetWrapper implements Statement {
         if (batch == null || batch.isEmpty()) {
             return new int[0];
         }
-        int[] counts = new int[batch.size()];
-        int count = -1;
+        long[] largeCounts = executeLargeBatch();
+
+        //Copy from long[] to int[]
+        int[] counts = new int[largeCounts.length];
+        for (int i = 0; i < largeCounts.length; i++)
+            counts[i] = (largeCounts[i] >= Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int)largeCounts[i];
+        return counts;
+    }
+
+    /**
+     * Submits a batch of commands to the database for execution and if all commands execute successfully,
+     * returns an array of update counts. The long elements of the array that is returned are ordered to correspond
+     * to the commands in the batch, which are ordered according to the order in which they were added to the batch.
+     *
+     * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
+     *
+     * @return an array of update counts containing one element for each command in the batch.
+     * The elements of the array are ordered according to the order in which commands were added to the batch.
+     * @throws SQLException if a database access error occurs or this method is called on a closed Statement
+     * @throws BatchUpdateException if one of the commands sent to the database fails to execute properly or attempts to return a result set
+     */
+    @Override
+    public long[] executeLargeBatch() throws SQLException {
+        checkNotClosed();
+        if (batch == null || batch.isEmpty()) {
+            return new long[0];
+        }
+        long[] counts = new long[batch.size()];
+        long count = -1;
 
         for (int i = 0; i < batch.size(); i++) {
             String query = batch.get(i);
             try {
-                count = executeUpdate(query);
+                count = executeLargeUpdate(query);
             } catch (SQLException e) {
                 //Query returned a resultSet or query failed, throw BatchUpdateException
                 throw new BatchUpdateException();
@@ -401,46 +428,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
         if (batch != null) {
             batch.clear();
         }
-    }
-
-    /**
-     * Submits a batch of commands to the database for execution and if all commands execute successfully,
-     * returns an array of update counts. The long elements of the array that is returned are ordered to correspond
-     * to the commands in the batch, which are ordered according to the order in which they were added to the batch.
-     *
-     * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
-     *
-     * @return an array of update counts containing one element for each command in the batch.
-     * The elements of the array are ordered according to the order in which commands were added to the batch.
-     * @throws SQLException if a database access error occurs or this method is called on a closed Statement
-     * @throws BatchUpdateException if one of the commands sent to the database fails to execute properly or attempts to return a result set
-     */
-    @Override
-    public long[] executeLargeBatch() throws SQLException {
-        checkNotClosed();
-        if (batch == null || batch.isEmpty()) {
-            return new long[0];
-        }
-        long[] counts = new long[batch.size()];
-        long count = -1;
-
-        for (int i = 0; i < batch.size(); i++) {
-            String query = batch.get(i);
-            try {
-                count = executeLargeUpdate(query);
-            } catch (SQLException e) {
-                //Query returned a resultSet or query failed, throw BatchUpdateException
-                throw new BatchUpdateException();
-            }
-            if (count >= 0) {
-                counts[i] = count;
-            }
-            else {
-                counts[i] = Statement.SUCCESS_NO_INFO;
-            }
-        }
-        clearBatch();
-        return counts;
     }
 
     /**

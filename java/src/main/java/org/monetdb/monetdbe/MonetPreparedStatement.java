@@ -67,12 +67,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(), sql, this);
 
         //Failed prepare, destroy statement
-        if (error_msg != null || this.statementNative == null || this.monetdbeTypes == null || this.monetdbeTypes.length != nParams) {
+        if (error_msg != null || this.statementNative == null || (this.monetdbeTypes == null && nParams > 0) || (this.monetdbeTypes != null && this.monetdbeTypes.length != nParams)) {
             if (error_msg != null)
                 System.err.println("Prepare statement error: " + error_msg);
             else if (this.statementNative == null)
                 System.err.println("Prepare statement error: statement native object is null");
-            else
+            else if (this.monetdbeTypes == null && nParams > 0)
                 System.err.println("Prepare statement error: type information was not correctly set");
 
             try {
@@ -85,6 +85,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         if (nParams >= 0) {
             this.parameterMetaData = new MonetParameterMetaData(nParams, monetdbeTypes);
             this.parameters = new Object[nParams];
+        }
+        else {
+            //If there are no parameters, set the variable to null for later checks
+            this.parameters = null;
         }
     }
 
@@ -117,10 +121,46 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             throw new SQLException(error_msg);
         } else if (this.resultSet != null) {
             return true;
-        } else if (this.updateCount >= 0 || this.updateCount == Statement.SUCCESS_NO_INFO) {
+        } else if (this.updateCount >= 0) {
             return false;
         } else {
             throw new SQLException("No update count or result set returned");
+        }
+    }
+
+    /**
+     * Executes the SQL statement in this PreparedStatement object, which may be any kind of SQL statement.
+     * The execute method returns a boolean to indicate the form of the first result.
+     * You must then use the methods getResultSet or getUpdateCount to retrieve the result
+     * (either a ResultSet object or an int representing the update count).
+     * <p>
+     * Multiple results may result from the SQL statement, but only the first one may be retrieved in the current version.
+     * <p>
+     * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
+     *
+     * @return true if the first result is a ResultSet object; false if it is an
+     * update count or there are no results
+     * @throws SQLException if a database access error occurs or an argument is supplied to this method
+     */
+    @Override
+    public long executeLargeUpdate() throws SQLException {
+        checkNotClosed();
+
+        long lastUpdateCount = this.largeUpdateCount;
+        MonetResultSet lastResultSet = this.resultSet;
+        this.resultSet = null;
+        this.largeUpdateCount = -1;
+
+        //ResultSet and UpdateCount is set within monetdbe_execute
+        String error_msg = MonetNative.monetdbe_execute(statementNative, this, true, getMaxRows());
+        if (error_msg != null) {
+            this.largeUpdateCount = lastUpdateCount;
+            this.resultSet = lastResultSet;
+            throw new SQLException(error_msg);
+        } else if (this.resultSet != null) {
+            throw new SQLException("Query produced a result set", "M1M17");
+        } else {
+            return getLargeUpdateCount();
         }
     }
 
@@ -220,35 +260,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         if (parametersBatch == null || parametersBatch.isEmpty()) {
             return new int[0];
         }
-        int[] counts = new int[parametersBatch.size()];
-        int count = -1;
-        Object[] cur_batch;
+        long[] largeCounts = this.executeLargeBatch();
 
-        for (int i = 0; i < parametersBatch.size(); i++) {
-            //Get batch of parameters
-            cur_batch = parametersBatch.get(i);
-
-            //TODO Remove the println's
-            System.out.println("Number of params in types: " + monetdbeTypes.length + "\nNumber of params in cur_batch: " + cur_batch.length);
-            for (int j = 0; j < nParams; j++) {
-                //Set each parameter in current batch
-                System.out.println("Java param num: " + (j+1) + "\nObject to set: " + cur_batch[j].getClass());
-                setObject(j + 1, cur_batch[j]);
-            }
-
-            try {
-                count = executeUpdate();
-            } catch (SQLException e) {
-                //Query returned a resultSet or query failed, throw BatchUpdateException
-                throw new BatchUpdateException();
-            }
-            if (count >= 0) {
-                counts[i] = count;
-            } else {
-                counts[i] = Statement.SUCCESS_NO_INFO;
-            }
-        }
-        clearBatch();
+        //Copy from long[] to int[]
+        int[] counts = new int[largeCounts.length];
+        for (int i = 0; i < largeCounts.length; i++)
+            counts[i] = (largeCounts[i] >= Integer.MAX_VALUE) ? Integer.MAX_VALUE : (int)largeCounts[i];
         return counts;
     }
 
@@ -280,6 +297,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         for (int i = 0; i < parametersBatch.size(); i++) {
             //Get batch of parameters
             cur_batch = parametersBatch.get(i);
+
+            if (cur_batch == null) {
+                throw new BatchUpdateException();
+            }
 
             for (int j = 0; j < nParams; j++) {
                 //Set each parameter in current batch
@@ -314,42 +335,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     public void clearBatch() throws SQLException {
         checkNotClosed();
         parametersBatch = null;
-    }
-
-    /**
-     * Executes the SQL statement in this PreparedStatement object, which may be any kind of SQL statement.
-     * The execute method returns a boolean to indicate the form of the first result.
-     * You must then use the methods getResultSet or getUpdateCount to retrieve the result
-     * (either a ResultSet object or an int representing the update count).
-     * <p>
-     * Multiple results may result from the SQL statement, but only the first one may be retrieved in the current version.
-     * <p>
-     * This method should be used when the returned row count may exceed Integer.MAX_VALUE.
-     *
-     * @return true if the first result is a ResultSet object; false if it is an
-     * update count or there are no results
-     * @throws SQLException if a database access error occurs or an argument is supplied to this method
-     */
-    @Override
-    public long executeLargeUpdate() throws SQLException {
-        checkNotClosed();
-
-        long lastUpdateCount = this.largeUpdateCount;
-        MonetResultSet lastResultSet = this.resultSet;
-        this.resultSet = null;
-        this.largeUpdateCount = -1;
-
-        //ResultSet and UpdateCount is set within monetdbe_execute
-        String error_msg = MonetNative.monetdbe_execute(statementNative, this, true, getMaxRows());
-        if (error_msg != null) {
-            this.largeUpdateCount = lastUpdateCount;
-            this.resultSet = lastResultSet;
-            throw new SQLException(error_msg);
-        } else if (this.resultSet != null) {
-            throw new SQLException("Query produced a result set", "M1M17");
-        } else {
-            return getLargeUpdateCount();
-        }
     }
 
     /**
@@ -395,8 +380,9 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     @Override
     public void clearParameters() throws SQLException {
-        //TODO: Use cleanup function which doesn't clean up the Prepared Statement
+        //TODO: Use cleanup function which doesn't clean up the Prepared Statement, only the params
         checkNotClosed();
+        parameters = new Object[nParams];
         //MonetNative.monetdbe_clear_bindings(conn.dbNative,statementNative);
         MonetNative.monetdbe_cleanup_statement(conn.getDbNative(), statementNative);
         close();
