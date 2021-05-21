@@ -383,6 +383,28 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Enforce that linux-slim profile was set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireActiveProfile>
+                                            <profiles>linux-slim</profiles>
+                                        </requireActiveProfile>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -431,10 +453,93 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!-- Enforce that mac-slim profile was set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireActiveProfile>
+                                            <profiles>mac-slim</profiles>
+                                        </requireActiveProfile>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
 
+        <!-- Cross fatjar build: copy all pre-compiled libraries/dependencies for Linux, Mac and Windows
+             (has to be enabled with -P cross; must set the -DCOLLECT_LIBS property
+             and the directory should contain directories for all three OS,
+             with the correct structure -> lib/$OS/libmonetdbe-java.dylib, lib/$OS/direct/, lib/$OS/transitive)-->
+        <profile>
+            <id>cross</id>
+            <properties>
+                <jar.classifier>cross</jar.classifier>
+            </properties>
+            <build>
+                <plugins>
+                    <!-- Copy all dependencies to lib folder  -->
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>copy-everything</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${COLLECT_LIBS}</directory>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Enforce that COLLECT_LIBS is set -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>1.4.1</version>
+                        <executions>
+                            <execution>
+                                <id>enforce-property</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireProperty>
+                                            <property>COLLECT_LIBS</property>
+                                            <message>You must set the COLLECT_LIBS property, pointing to the directory where the all pre-compiled libraries for Linux, Mac and Windows are.</message>
+                                        </requireProperty>
+                                    </rules>
+                                    <fail>true</fail>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- RELEASE PROFILES -->
         <!-- Release profile
             (has to be enabled with -P release / -P release,mac-slim / -P release,mac-slim,mac-fat)-->
         <profile>
