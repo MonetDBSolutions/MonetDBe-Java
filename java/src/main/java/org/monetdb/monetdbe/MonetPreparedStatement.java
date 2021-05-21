@@ -228,6 +228,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             //Get batch of parameters
             cur_batch = parametersBatch.get(i);
 
+            //TODO Remove the println's
             System.out.println("Number of params in types: " + monetdbeTypes.length + "\nNumber of params in cur_batch: " + cur_batch.length);
             for (int j = 0; j < nParams; j++) {
                 //Set each parameter in current batch

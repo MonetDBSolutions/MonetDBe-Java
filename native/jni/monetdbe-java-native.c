@@ -795,13 +795,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1null(JNIEnv *env, jclass self, jobject j_db, jint type, jobject j_stmt, jint parameter_nr)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
-#ifndef HAVE_HGE
-    //If int128 is not defined, add 1 to type to "align" the types after size_t with versions with int128 defined
-    if (type > 5)
-    {
-        type = type + 1;
-    }
-#endif
     monetdbe_types null_type = (monetdbe_types)type;
     const void *null_ptr = monetdbe_null(db, null_type);
 
