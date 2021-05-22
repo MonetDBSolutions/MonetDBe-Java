@@ -20,7 +20,7 @@ public class Test_05_BasicInsertAndQueryStatements {
 
 	@Test
 	public void basicInsertAndQueryStatements() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> basicInsertAndQueryStatements(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::basicInsertAndQueryStatements);
 	}
 
 	private void basicInsertAndQueryStatements(String connectionUrl) {
@@ -93,9 +93,10 @@ public class Test_05_BasicInsertAndQueryStatements {
 				}
 
 				// Clean up
-				statement.executeUpdate("DROP TABLE test05;");
+				int result = statement.executeUpdate("DROP TABLE test05;");
+				assertEquals(5, result); // 5: because we've dropped a table with 5 records
 
-				assertEquals(5, statement.getUpdateCount()); // 5: because we've dropped a table with 5 records
+				assertEquals(-1, statement.getUpdateCount());
 			}
 
 		} catch (SQLException e) {

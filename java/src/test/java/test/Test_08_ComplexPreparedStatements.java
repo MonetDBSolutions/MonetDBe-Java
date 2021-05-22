@@ -1,7 +1,13 @@
 package test;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -13,19 +19,16 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.stream.Stream;
-
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.monetdb.monetdbe.MonetBlob;
 import org.monetdb.monetdbe.MonetResultSet;
 
-import static org.junit.Assert.*;
-
-//TODO This test isn't complete and has a placeholder value in the last DROP TABLE command
 public class Test_08_ComplexPreparedStatements {
 
 	@Test
 	public void complexPreparedStatements() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> complexPreparedStatements(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::complexPreparedStatements);
 	}
 
 	private void complexPreparedStatements(String connectionUrl) {
@@ -40,23 +43,24 @@ public class Test_08_ComplexPreparedStatements {
 				statement.executeUpdate(
 						"CREATE TABLE test08a (bd NUMERIC, s STRING, b BLOB, d DATE, t TIME, ts TIMESTAMP);");
 
-				/*try (PreparedStatement p = conn.prepareStatement("INSERT INTO test08a VALUES (?, ?, ?, ?, ?, ?);")) {
+				try (PreparedStatement p = conn.prepareStatement("INSERT INTO test08a VALUES (?, ?, ?, ?, ?, ?);")) {
 					// TODO: Implement setBigDecimal
-					p.setBigDecimal(1, BigDecimal.TEN);
+					// p.setBigDecimal(1, BigDecimal.TEN);
+					p.setInt(1, 10);
 					p.setString(2, "Hello world");
 					p.setBlob(3, new ByteArrayInputStream("Hello world".getBytes()));
 					p.setDate(4, Date.valueOf("1975-10-25"));
 					p.setTime(5, Time.valueOf("12:24:36"));
-					p.setTimestamp(6, Timestamp.valueOf("1975-10-25 12:24:36"));*/
+					p.setTimestamp(6, Timestamp.valueOf("1975-10-25 12:24:36"));
+					assertEquals(1, p.executeUpdate());
+				}
 
-				//TODO Remove these temporary values
 				try (PreparedStatement p = conn.prepareStatement("INSERT INTO test08a VALUES (NULL, ?, ?, ?, ?, ?);")) {
-					p.setString(1, "Hello world");
-					p.setBlob(2, new ByteArrayInputStream("Hello world".getBytes()));
-					p.setDate(3, Date.valueOf("1975-10-25"));
-					p.setTime(4, Time.valueOf("12:24:36"));
-					p.setTimestamp(5, Timestamp.valueOf("1975-10-25 12:24:36"));
-
+					p.setString(1, "Hello world 2");
+					p.setBlob(2, new ByteArrayInputStream("Hello world 2".getBytes()));
+					p.setDate(3, Date.valueOf("1975-10-26"));
+					p.setTime(4, Time.valueOf("12:24:37"));
+					p.setTimestamp(5, Timestamp.valueOf("1975-10-25 12:24:37"));
 					assertEquals(1, p.executeUpdate());
 				}
 
@@ -72,27 +76,35 @@ public class Test_08_ComplexPreparedStatements {
 
 				// Query table
 				try (ResultSet rs = statement.executeQuery("SELECT * FROM test08a;")) {
-					assertEquals(2, ((MonetResultSet) rs).getRowsNumber());
+					assertEquals(3, ((MonetResultSet) rs).getRowsNumber());
 					assertEquals(6, ((MonetResultSet) rs).getColumnsNumber());
 
 					rs.next();
+					// assertEquals(BigDecimal.TEN, rs.getBigDecimal(1));
 					assertEquals(1, rs.getRow());
-
-					//TODO Change this from NULL to the value set before
-					//assertEquals(BigDecimal.TEN, rs.getBigDecimal(1));
-					assertNull(rs.getBigDecimal(1));
-
+					assertEquals(10, rs.getInt(1));
 					assertEquals("Hello world", rs.getString(2));
 					MonetBlob b = (MonetBlob) rs.getBlob(3);
 					assertArrayEquals("Hello world".getBytes(),b.getBytes(1,(int) b.length()));
 					assertEquals(Date.valueOf("1975-10-25"), rs.getDate(4));
 					assertEquals(Time.valueOf("12:24:36"), rs.getTime(5));
 					assertEquals(Timestamp.valueOf("1975-10-25 12:24:36"), rs.getTimestamp(6));
-
+					
 					rs.next();
 					assertEquals(2, rs.getRow());
 					assertNull(rs.getBigDecimal(1));
-					assertNull(rs.getString(2));
+					assertEquals("Hello world 2", rs.getString(2));
+					MonetBlob blob = (MonetBlob) rs.getBlob(3);
+					assertArrayEquals("Hello world 2".getBytes(), blob.getBytes(1L, (int)blob.length()));
+					assertEquals(Date.valueOf("1975-10-26"), rs.getDate(4));
+					assertEquals(Time.valueOf("12:24:37"), rs.getTime(5));
+					assertEquals(Timestamp.valueOf("1975-10-25 12:24:37"), rs.getTimestamp(6));
+
+					rs.next();
+					assertEquals(3, rs.getRow());
+					assertNull(rs.getBigDecimal(1));
+					assertEquals(StringUtils.EMPTY, rs.getString(2));
+					// assertNull(rs.getString(2));
 					assertNull(rs.getBlob(3));
 					assertNull(rs.getDate(4));
 					assertNull(rs.getTime(5));
@@ -102,11 +114,10 @@ public class Test_08_ComplexPreparedStatements {
 				}
 
 				// Clean up
-				statement.executeUpdate("DROP TABLE test08a;");
-
-				//TODO Wrong affected rows number for drop table (1 instead of 2)
-				//assertEquals(2, statement.getUpdateCount()); // 2: because we've dropped a table with 2 records
-				assertEquals(1, statement.getUpdateCount()); //Should be 2, but error in C layer
+				int result = statement.executeUpdate("DROP TABLE test08a;");
+				assertEquals(1, result);
+				
+				assertEquals(-1, statement.getUpdateCount());
 			}
 			
 			// Create second table and insert values
@@ -154,7 +165,8 @@ public class Test_08_ComplexPreparedStatements {
 					assertEquals(0, rs.getInt(2));
 					assertEquals(0.0f, rs.getFloat(3), .01f);
 					assertEquals(0.0d, rs.getDouble(4), 0.1d);
-					assertNull(rs.getString(5));
+					assertEquals(StringUtils.EMPTY, rs.getString(5));
+					// assertNull(rs.getString(5));
 					assertNull(rs.getDate(6));
 					assertNull(rs.getTime(7));
 					assertNull(rs.getTimestamp(8));
@@ -163,11 +175,10 @@ public class Test_08_ComplexPreparedStatements {
 				}
 
 				// Clean up
-				statement.executeUpdate("DROP TABLE test08b;");
+				int result = statement.executeUpdate("DROP TABLE test08b;");
+				assertEquals(1, result);
 
-				//TODO Wrong affected rows number for drop table (1 instead of 2)
-				//assertEquals(2, statement.getUpdateCount()); // 2: because we've dropped a table with 2 records
-				assertEquals(1, statement.getUpdateCount()); //Should be 2, but error in C layer
+				assertEquals(-1, statement.getUpdateCount());
 			}
 
 		} catch (SQLException e) {

@@ -15,13 +15,13 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
-//TODO Multiple ResultSets are not supported with the current monetdbe API, future feature
-//TODO Test is disabled in AllTests.java, enable when this feature is implemented
+// TODO: Multiple ResultSets are not supported with the current monetdbe API, future feature
+// TODO: Test is disabled in AllTests.java, enable when this feature is implemented
 public class Test_14_MultipleResultSet {
 
 	@Test
 	public void multipleResultSet() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> multipleResultSet(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::multipleResultSet);
 	}
 
 	private void multipleResultSet(String connectionUrl) {

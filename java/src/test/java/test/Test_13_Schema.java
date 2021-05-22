@@ -19,7 +19,7 @@ public class Test_13_Schema {
 
 	@Test
 	public void schema() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> schema(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::schema);
 	}
 
 	private void schema(String connectionUrl) {

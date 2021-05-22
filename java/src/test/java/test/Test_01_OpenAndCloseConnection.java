@@ -16,7 +16,7 @@ public class Test_01_OpenAndCloseConnection {
 
 	@Test
 	public void openAndCloseConnection() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> openAndCloseConnection(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::openAndCloseConnection);
 	}
 
 	private void openAndCloseConnection(String connectionUrl) {

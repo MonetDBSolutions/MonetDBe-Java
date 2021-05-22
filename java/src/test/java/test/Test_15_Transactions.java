@@ -19,7 +19,7 @@ public class Test_15_Transactions {
 
 	@Test
 	public void transactions() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> transactions(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::transactions);
 	}
 
 	private void transactions(String connectionUrl) {
@@ -56,9 +56,10 @@ public class Test_15_Transactions {
 	            assertTrue(conn.getAutoCommit());
 	            
 	            // Clean up
-				statement.executeUpdate("DROP TABLE test15;");
+				int result = statement.executeUpdate("DROP TABLE test15;");
+				assertEquals(1, result); // 1: because we've dropped a table with 1 record
 
-				assertEquals(1, statement.getUpdateCount()); // 1: because we've dropped a table with 1 record
+				assertEquals(-1, statement.getUpdateCount());
 			}
 
 		} catch (SQLException e) {

@@ -14,8 +14,8 @@ import java.sql.Statement;
 
 import org.junit.Test;
 
-//TODO Remove comments from concurrent connections when more than one active database are supported (future feature)
-//TODO Currently this only tests concurrent connections to one database
+// TODO: Remove comments from concurrent connections when more than one active database are supported (future feature)
+// TODO: Currently this only tests concurrent connections to one database
 public class Test_11_ConcurrentConnections {
 
 	@Test
@@ -91,8 +91,6 @@ public class Test_11_ConcurrentConnections {
 				assertTrue(rs.next());
 				assertEquals(3, rs.getInt(1));
 			}
-
-			
 
 		} catch (SQLException e) {
 

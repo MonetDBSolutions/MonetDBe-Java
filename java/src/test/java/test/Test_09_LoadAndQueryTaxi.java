@@ -23,7 +23,7 @@ public class Test_09_LoadAndQueryTaxi {
 
 	@Test
 	public void loadAndQueryTaxi() {
-		// Stream.of(Configuration.CONNECTIONS).forEach(x -> loadAndQueryTaxi(x));
+		// Stream.of(Configuration.CONNECTIONS).forEach(this::loadAndQueryTaxi);
 		loadAndQueryTaxi(AllTests.MEMORY_CONNECTION);
 	}
 
@@ -63,7 +63,7 @@ public class Test_09_LoadAndQueryTaxi {
 					File raw = new File(AllTests.TAXI_CSV);
 					File canonicalFile = raw.isAbsolute()
 							? raw.getCanonicalFile()
-							: new File(new File(""), AllTests.TAXI_CSV).getCanonicalFile();
+							: new File(AllTests.TAXI_CSV).getCanonicalFile();
 					assertTrue(canonicalFile.exists());
 					assertTrue(canonicalFile.isFile());
 					assertTrue(canonicalFile.canRead());
@@ -142,10 +142,10 @@ public class Test_09_LoadAndQueryTaxi {
 				assertEquals(1, ((MonetResultSet) max).getRowsNumber());
 				
 				max.next();
-	            double max_fare = max.getDouble(1);
-	            double max_distance = max.getDouble(2);
-	            assertEquals(119.178d, max_fare, .01d);
-				assertEquals(8947.934d, max_distance, .01d);
+	            double maxFare = max.getDouble(1);
+	            double maxDistance = max.getDouble(2);
+	            assertEquals(119.178d, maxFare, .01d);
+				assertEquals(8947.934d, maxDistance, .01d);
 
 	            try (ResultSet average = statement.executeQuery("SELECT " +
                     "(SUM(trip_distance * fare_amount) - SUM(trip_distance) * SUM(fare_amount) / COUNT(*)) / " +
@@ -155,27 +155,29 @@ public class Test_09_LoadAndQueryTaxi {
                     "FROM test09 " +
                     "WHERE " +
                     "fare_amount > 0 AND " +
-                    "fare_amount < " + max_fare + " AND " +
+                    "fare_amount < " + maxFare + " AND " +
                     "trip_distance > 0 AND " +
-                    "trip_distance < " + max_distance)) {
+                    "trip_distance < " + maxDistance)) {
 
 	            	assertEquals(1, ((MonetResultSet) average).getRowsNumber());
 					
 	            	average.next();
 	                double beta = average.getDouble(1);
-	                double avg_fare_amount = average.getDouble(2);
-	                double avg_trip_distance = average.getDouble(3);
+	                double avgFareAmount = average.getDouble(2);
+	                double avgTripDistance = average.getDouble(3);
 	                assertEquals(2.661d, beta, .01d);
-	                assertEquals(12.389d, avg_fare_amount, .01d);
-	                assertEquals(2.907d, avg_trip_distance, .01d);
+	                assertEquals(12.389d, avgFareAmount, .01d);
+	                assertEquals(2.907d, avgTripDistance, .01d);
 	            }
 			}
 			
 			// Clean up
 			try (Statement statement = conn.createStatement()) {
-				statement.executeUpdate("DROP TABLE test09;");
+				int result = statement.executeUpdate("DROP TABLE test09;");
+				assertEquals(ROW_COUNT, result);
 
-				assertEquals(ROW_COUNT, statement.getUpdateCount());
+				// assertEquals(ROW_COUNT, statement.getUpdateCount());
+				assertEquals(-1, statement.getUpdateCount());
 			}
 			
 		} catch(SQLException e) {

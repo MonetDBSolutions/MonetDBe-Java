@@ -19,7 +19,7 @@ public class Test_16_MixedOrderStatements {
 
 	@Test
 	public void mixedOrderStatements() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> mixedOrderStatements(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::mixedOrderStatements);
 	}
 
 	private void mixedOrderStatements(String connectionUrl) {
@@ -52,9 +52,10 @@ public class Test_16_MixedOrderStatements {
 	            }
 	            
 	            // Clean up
-				statement2.executeUpdate("DROP TABLE test16;");
+				int result = statement2.executeUpdate("DROP TABLE test16;");
+				assertEquals(1, result); // 1: because we've dropped a table with 1 record
 
-				assertEquals(1, statement2.getUpdateCount()); // 1: because we've dropped a table with 1 record
+				assertEquals(-1, statement2.getUpdateCount());
 			}
 
 		} catch (SQLException e) {

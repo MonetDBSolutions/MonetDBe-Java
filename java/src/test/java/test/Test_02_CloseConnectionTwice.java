@@ -15,11 +15,11 @@ import org.junit.Test;
 public class Test_02_CloseConnectionTwice {
 
 	@Test
-	public void CloseConnectionTwice() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> CloseConnectionTwice(x));
+	public void closeConnectionTwice() {
+		Stream.of(AllTests.CONNECTIONS).forEach(this::closeConnectionTwice);
 	}
 
-	private void CloseConnectionTwice(String connectionUrl) {
+	private void closeConnectionTwice(String connectionUrl) {
 		try {
 
 			@SuppressWarnings("resource")

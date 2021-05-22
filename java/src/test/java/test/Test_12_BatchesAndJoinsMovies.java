@@ -30,7 +30,7 @@ public class Test_12_BatchesAndJoinsMovies {
     
 	@Test
 	public void batchesAndJoinsMovies() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> batchesAndJoinsMovies(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::batchesAndJoinsMovies);
 	}
 
 	private void batchesAndJoinsMovies(String connectionUrl) {
@@ -97,8 +97,7 @@ public class Test_12_BatchesAndJoinsMovies {
 		        
 		        // Clean up
 		        try (Statement statement = conn.createStatement()) {
-					//TODO Figure out why this returns -> SQLException:sql.drop_table:42000!DROP TABLE: unable to drop table movieactors (there are database objects which depend on it)
-					//statement.executeUpdate("DROP TABLE MovieActors;");
+					statement.executeUpdate("DROP TABLE MovieActors;");
 		        	statement.executeUpdate("DROP TABLE Actors;");
 		        	statement.executeUpdate("DROP TABLE Movies;");
 		        }

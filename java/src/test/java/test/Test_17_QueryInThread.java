@@ -49,7 +49,7 @@ public class Test_17_QueryInThread {
 
 	@Test
 	public void queryInThread() {
-		Stream.of(AllTests.CONNECTIONS).forEach(x -> queryInThread(x));
+		Stream.of(AllTests.CONNECTIONS).forEach(this::queryInThread);
 	}
 
 	private void queryInThread(String connectionUrl) {
@@ -87,14 +87,16 @@ public class Test_17_QueryInThread {
 					throw exception_;
 
 				// Clean up
-				statement.executeUpdate("DROP TABLE test17;");
+				int result = statement.executeUpdate("DROP TABLE test17;");
+				assertEquals(1, result); // 1: because we've dropped a table with 1 record
 
-				assertEquals(1, statement.getUpdateCount()); // 1: because we've dropped a table with 1 record
+				assertEquals(-1, statement.getUpdateCount());
 			}
 
 		} catch (SQLException | InterruptedException e) {
 
 			fail(e.toString());
+			Thread.currentThread().interrupt();
 
 		}
 	}
