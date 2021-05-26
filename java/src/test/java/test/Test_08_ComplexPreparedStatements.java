@@ -103,8 +103,7 @@ public class Test_08_ComplexPreparedStatements {
 					rs.next();
 					assertEquals(3, rs.getRow());
 					assertNull(rs.getBigDecimal(1));
-					assertEquals(StringUtils.EMPTY, rs.getString(2));
-					// assertNull(rs.getString(2));
+					assertNull(rs.getString(2));
 					assertNull(rs.getBlob(3));
 					assertNull(rs.getDate(4));
 					assertNull(rs.getTime(5));
