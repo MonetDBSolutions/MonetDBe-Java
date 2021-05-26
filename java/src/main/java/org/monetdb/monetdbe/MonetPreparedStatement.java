@@ -892,6 +892,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
      *                      if a database access error occurs or this method is called on a closed PreparedStatement
+     * @throws SQLFeatureNotSupportedException - This feature is not supported
      */
     @Override
     public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
@@ -938,6 +939,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * @param x              the parameter value
      * @throws SQLException if parameterIndex does not correspond to a parameter marker in the SQL statement;
      *                      if a database access error occurs or this method is called on a closed PreparedStatement
+     * @throws SQLFeatureNotSupportedException - This feature is not supported
      */
     public void setBigInteger(int parameterIndex, BigInteger x) throws SQLException {
         //TODO Implement the C function to bind
