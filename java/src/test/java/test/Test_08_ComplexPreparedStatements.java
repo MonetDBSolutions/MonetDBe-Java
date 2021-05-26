@@ -103,8 +103,7 @@ public class Test_08_ComplexPreparedStatements {
 					rs.next();
 					assertEquals(3, rs.getRow());
 					assertNull(rs.getBigDecimal(1));
-					assertEquals(StringUtils.EMPTY, rs.getString(2));
-					// assertNull(rs.getString(2));
+					assertNull(rs.getString(2));
 					assertNull(rs.getBlob(3));
 					assertNull(rs.getDate(4));
 					assertNull(rs.getTime(5));
@@ -165,8 +164,7 @@ public class Test_08_ComplexPreparedStatements {
 					assertEquals(0, rs.getInt(2));
 					assertEquals(0.0f, rs.getFloat(3), .01f);
 					assertEquals(0.0d, rs.getDouble(4), 0.1d);
-					assertEquals(StringUtils.EMPTY, rs.getString(5));
-					// assertNull(rs.getString(5));
+					assertNull(rs.getString(5));
 					assertNull(rs.getDate(6));
 					assertNull(rs.getTime(7));
 					assertNull(rs.getTimestamp(8));

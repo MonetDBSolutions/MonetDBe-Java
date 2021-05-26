@@ -3,9 +3,11 @@
 
 After the release of MonetDB/e Python, which brought the power of MonetDB data analytics to the world of Python embedded databases, we set out to expand its reach to the Java environment. Our goal is to provide a lightweight, full-featured embedded database that harnesses the performance of MonetDB’s columnar analytics while keeping the familiar JDBC interface. The power of a full-fledged database server at your fingertips as an embeddable library. The driver has been developed and tested for Linux, Mac and Windows.
 
-MonetDB/e Java uses the core functionalities of our [embedded solution](https://www.monetdb.org/index.php/blog/MonetDBe-a-mature-embedded-SQL-DBMS) to implement the [JDBC 4.3 API](https://docs.oracle.com/javase/9/docs/api/java/sql/package-summary.html), resulting in a powerful and easy-to-use library. Using the JDBC interface makes migration from the older, legacy systems easier and allows developers to get hands-on experience with the capabilities of MonetDB/e quickly. While the API is not implemented in its entirety yet, all the main features from the Python and C versions are available. The full documentation can be found **here (link)**.
+MonetDB/e Java uses the core functionalities of our [embedded solution](https://www.monetdb.org/index.php/blog/MonetDBe-a-mature-embedded-SQL-DBMS) to implement the [JDBC 4.3 API](https://docs.oracle.com/javase/9/docs/api/java/sql/package-summary.html), resulting in a powerful and easy-to-use library. Using the JDBC interface makes migration from the older, legacy systems easier and allows developers to get hands-on experience with the capabilities of MonetDB/e quickly. While the API is not implemented in its entirety yet, all the main features from the Python and C versions are available.
 
 If you desire a driver with all the JDBC features and all the functionalities of the full MonetDB, you can check out [our JDBC driver](https://www.monetdb.org/Documentation/SQLreference/Programming/JDBC). But if you're looking for a lighter and faster version with only the core functionalities, you're in the right place! You can find the limitations of the embedded version below.
+
+Documentation: [MonetDB/e Documentation](https://www.monetdb.org/downloads/MonetDBe-Java/javadocs/)
 
 # Installation
 There are several ways for you to get MonetDBe-Java on your system: 
