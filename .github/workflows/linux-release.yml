@@ -73,7 +73,7 @@ jobs:
         if: ${{ matrix.artifact == 'fat' }}
         run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
 
-      #Package jar, test and deploy (using the simplify4u sign-maven-plugin)
+      #Package jar, test and deploy
       #Tests are now disabled until crash and DROP TABLE bug are fixed
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |

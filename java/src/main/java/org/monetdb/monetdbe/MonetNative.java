@@ -471,8 +471,6 @@ public class MonetNative {
     /**
      * Binds a null value of any type to prepared statement.
      *
-     * Not working for all types currently (datetime + decimal types).
-     *
      * @param db C pointer to database
      * @param type Type of input parameter to set a null
      * @param stmt C pointer to prepared statement

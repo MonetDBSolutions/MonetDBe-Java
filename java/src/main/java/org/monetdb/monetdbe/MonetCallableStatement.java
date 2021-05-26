@@ -395,7 +395,7 @@ public class MonetCallableStatement extends MonetPreparedStatement implements Ca
 
     /**
      * The parameterName String argument is converted to int by {@link #nameToIndex(String)}.
-     * @see MonetPreparedStatement#setClob(int, InputStream,long)
+     * @see MonetPreparedStatement#setClob(int, Reader,long)
      */
     @Override
     public void setClob(String parameterName, Reader reader, long length) throws SQLException {

@@ -1,5 +1,6 @@
 package test;
 
+import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -64,9 +65,7 @@ public class Test_07_SimplePreparedStatements {
 					assertEquals(2, rs.getRow());
 					assertEquals(false, rs.getBoolean(1));
 					assertEquals(0, rs.getInt(2));
-					// TODO: ResultSet String should be null instead of empty string (issue on Windows only?)
-					assertEquals(StringUtils.EMPTY, rs.getString(3));
-					// assertNull(rs.getString(3));
+					assertNull(rs.getString(3));
 
 					assertFalse(rs.next());
 				}
