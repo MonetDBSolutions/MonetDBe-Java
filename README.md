@@ -1,4 +1,4 @@
-# MonetDBe-Java
+# MonetDB/e Java
 **A serverless and embedded MonetDB, now in Java!**
 
 After the release of MonetDB/e Python, which brought the power of MonetDB data analytics to the world of Python embedded databases, we set out to expand its reach to the Java environment. Our goal is to provide a lightweight, full-featured embedded database that harnesses the performance of MonetDB’s columnar analytics while keeping the familiar JDBC interface. The power of a full-fledged database server at your fingertips as an embeddable library. The driver has been developed and tested for Linux, Mac and Windows.
@@ -9,25 +9,27 @@ If you desire a driver with all the JDBC features and all the functionalities of
 
 Documentation: [MonetDB/e Documentation](https://www.monetdb.org/downloads/MonetDBe-Java/javadocs/)
 
+Jar downloads page: [Download MonetDBe-Java jars](https://www.monetdb.org/downloads/MonetDBe-Java/)
+
 # Installation
 There are several ways for you to get MonetDBe-Java on your system: 
 - install it through maven
-- download the jar from **our downloads page (link)** 
+- download the jar from [our downloads page](https://www.monetdb.org/downloads/MonetDBe-Java/)
 - or you can build the driver yourself (instructions and dependencies below)
 
-## C Libraries (JNI)
-MonetDBe-Java uses the MonetDBe C library through JNI, which means that it uses libraries which are OS-specific. Our goal is to provide a lightweight driver, so you can find different version for Linux, Mac and Windows. **TODO Cross platform jar?**
+## Driver versions
+MonetDBe-Java uses the MonetDBe C library through JNI, which means that it uses libraries which are OS-specific. Our goal is to provide a lightweight driver, so you will find different version for Linux, Mac and Windows. 
 
-You can also find different versions of the Linux and Mac versions: 
-- if you want a lighter driver, the **slim jar** is your choice, as it only features the MonetDB libraries. This means that you'll have to have the MonetDB dependencies installed in your system (you can find them below)
+**TODO Cross platform jar?**
+
+You can also find different versions of the Linux and Mac driver: 
+- if you want a lighter driver, the **slim jar** is your choice, as it only contains MonetDB libraries. This means that you'll have to have the MonetDB dependencies installed in your system (you can find them below)
 - if you want a portable version with every dependency, the **fat jar** is your best bet.
 
-The Windows version features all the dependencies.
+The Windows version includes all the dependencies.
 
 ## Installing from Maven
-**Not available on Maven central until release (TODO delete this)** You can find MonetDBe-Java in the Maven central repository, where you can choose the version that best suits you.
-
-Just change the *\<classifier\>* tag on the maven dependency to get the different versions (OS and slim/fat jars).
+You can find MonetDBe-Java in the Maven central repository, where you can choose the version that best suits you. Just change the *\<classifier\>* tag on the maven dependency to get the different versions (OS and slim/fat jars).
 
 **TODO remove the snapshot part when we release (this is still necessary to do until then)**
 To try out the maven snapshot releases, please use the Sonatype snapshot repository:
@@ -71,7 +73,7 @@ libpcre, libz
   <classifier>linux-fat</classifier>
 </dependency>
 ```
-### Mac Slim Jar (only MonetDB libs included)
+### Mac slim jar (only MonetDB libs included)
 You need to have MonetDB's dependencies installed to use the Slim Jar.
 ```
 <dependency>
@@ -81,11 +83,11 @@ You need to have MonetDB's dependencies installed to use the Slim Jar.
   <classifier>mac-slim</classifier>
 </dependency>
 ```
-#### Dependencies for the Slim Jar (Mac)
+#### Dependencies for the slim jar (Mac)
 libcrypto (OpenSSL), libpcre, libz, libxml2, libiconv, liblz4, liblzma, libcurl, libbz2
 **TODO Is there a way to get these through brew?**
 
-### Mac Fat Jar (all dependencies included)
+### Mac fat jar (all dependencies included)
 ```
 <dependency>
   <groupId>monetdb</groupId>
@@ -111,7 +113,7 @@ $ cd ../java
 $ mvn clean install
 ```
 This will install MonetDBe-Java in the local maven repository.
-You can find the jar file in your **local maven repo** or in the **java/target/** directory (*monetdbe-java-1.0-SNAPSHOT-linux.jar* / *monetdbe-java-1.0-SNAPSHOT-mac.jar*)
+You can find the jar file in your **local maven repo** or in the **java/target/** directory (*monetdbe-java-1.0-SNAPSHOT.jar*)
 
 ### Script install
 You can also use scripts for quickly building MonetDBe-Java on Mac and Linux.
@@ -135,22 +137,61 @@ $ run_dev.sh HelloWorld
 ```
 
 # Usage
+To use the MonetDB/e Java driver, you just need to include the dependency in your maven pom.xml file or include the jar in your classpath.
 
-**TODO Maybe add some example code?**
+There are three types of connections in MonetDB/e Java, with different syntax:
+- **In-memory databases**: `jdbc:monetdb:memory:`
+- **Persistent file databases**: `jdbc:monetdb:file:<db-path>` where \<db-path\> is your persistent database directory
+- **Connection to remote database**: `mapi:monetdb:<host>[:<port>]/<database>`, where \<host\>, \<port\> and \<database\> is the info about the remote database you're connecting to
+
+You can change the connection/database configurations both through the connection URL (as an URL query) or through the `Properties` object passed to the `DriverManager.getConnection()` method (more info can be found in the documentation for [MonetDriver](https://www.monetdb.org/downloads/MonetDBe-Java/javadocs/org/monetdb/monetdbe/MonetDriver.html)).
+    
+The following example shows how to connect to an in-memory database, insert some data and then query it:
+```
+import java.sql.*
+
+try {
+    //Connect to in-memory database
+    Connection conn = DriverManager.getConnection("jdbc:monetdb:memory:",null);
+    
+    //Create table and insert values
+    Statement s = conn.createStatement();
+    s.executeUpdate("CREATE TABLE example (i INTEGER, s STRING);");
+    s.executeUpdate("INSERT INTO example VALUES (19,'hello'), (17,'world');");
+
+    //Query table
+    ResultSet rs = s.executeQuery("SELECT * FROM example;");
+
+    //Fetch results
+    while (rs.next()) {
+        //Get columns
+        rs.getInt(1);
+        rs.getString(2);
+    }
+   
+    //Close connection
+    conn.close();
+} catch (SQLException e) {
+    e.printStackTrace();
+}
+```
+
+You can find more examples of how to use MonetDB/e Java in the [examples directory](https://github.com/MonetDBSolutions/MonetDBe-Java/tree/master/example). To find out more about how to use the driver, please visit [our documentation pages](https://www.monetdb.org/downloads/MonetDBe-Java/javadocs/).
 
 ## Extra features
-MonetDBe-Java extends the JDBC specification, by allowing the use of BigInteger objects for integer values up to 128 bits to be retrieved from Result Sets (not available in the Windows version).
+MonetDB/e Java supports in-memory databases (with configurable memory footprint), persistent file databases and connection to other MonetDB instances through a remote connection.
+MonetDB/e Java extends the JDBC specification, by allowing the use of BigInteger objects for integer values up to 128 bits to be retrieved from Result Sets (not available in the Windows version).
 
 ## Limitations
 The following JDBC functionalities are not currently supported:
-- setBigDecimal() and setBigInteger() in Prepared Statements
 - Multithreaded access to connections and connection pooling
+- setBigDecimal() and setBigInteger() in Prepared Statements
+- The current clearParameters() implementation in Prepared Statements cleans up the whole Prepared Statement, not only the parameters
 - Returning multiple Result Sets from a query
 - Updating Result Sets
 - Retrieving auto-generated keys
 - Savepoints
 - Array, SQLXML, Struct, NClob, RowId and Ref types
 - OUT and INOUT parameters in Callable Statements
-- The current clearParameters() implementation in Prepared Statements cleans up the whole Prepared Statement, not only the parameters
 
 Some of these features are being worked on and are planned for further releases.
