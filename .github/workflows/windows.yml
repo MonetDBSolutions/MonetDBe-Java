@@ -69,7 +69,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=D:\a\MonetDBe-Java\MonetDBe-Java\vcpkg\scripts\buildsystems\vcpkg.cmake `
             -DCMAKE_INSTALL_PREFIX=C:\monetdb `
             -DTESTING=OFF `
-            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_BUILD_TYPE=Debug `
             -DASSERT=OFF `
             -DODBC=false `
             -DPY3INTEGRATION=OFF `

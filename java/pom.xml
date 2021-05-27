@@ -168,6 +168,12 @@
                                                 <include>lzma.dll</include>
                                                 <include>bz2.dll</include>
                                                 <include>libcurl.dll</include>
+                                                <!-- Debug libraries -->
+                                                <include>pcred.dll</include>
+                                                <include>zlibd1.dll</include>
+                                                <include>lzmad.dll</include>
+                                                <include>bz2d.dll</include>
+                                                <include>libcurl-d.dll</include>
                                             </includes>
                                         </resource>
                                     </resources>
