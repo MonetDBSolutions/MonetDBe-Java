@@ -73,7 +73,7 @@ jobs:
             -DASSERT=OFF `
             -DODBC=false `
             -DPY3INTEGRATION=OFF `
-            -DINT128=OFF `
+            -DINT128=ON `
             ..
           cmake --build . --target ALL_BUILD --parallel 4  --config Release
           cmake --build . --target INSTALL  --config Release
