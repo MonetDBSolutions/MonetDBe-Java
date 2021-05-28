@@ -1,12 +1,22 @@
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.Properties;
 import org.monetdb.monetdbe.MonetBlob;
 
-import static javax.xml.bind.DatatypeConverter.printHexBinary;
-
 public class PreparedQueries {
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
     private static void create (Statement s) throws SQLException {
         s.executeUpdate("CREATE TABLE p (i INTEGER, l BIGINT, f REAL, df FLOAT, s STRING, b BLOB, d DATE, t TIME, ts TIMESTAMP, bd NUMERIC)");
     }
@@ -71,7 +81,7 @@ public class PreparedQueries {
 
             MonetBlob b = (MonetBlob) rs.getBlob(6);
             System.out.print("Blob: ");
-            System.out.println(b == null ? b : printHexBinary(b.getBytes(1,(int) b.length())));
+            System.out.println(b == null ? b : bytesToHex(b.getBytes(1,(int) b.length())));
 
             System.out.println("Date: " + rs.getDate(7));
             System.out.println("Time: " + rs.getTime(8));
