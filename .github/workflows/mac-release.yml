@@ -51,10 +51,10 @@ jobs:
           passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
       - name: Install monetdb through brew
         run: brew install monetdb
-      #- name: Set up test environment
-      #  run: |
-      #    mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
-      #    wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+      - name: Set up test environment
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+          wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
 
       #Install native library; collect libraries
       - name: Install native library (libmonetdbe-java.dylib)
@@ -99,11 +99,10 @@ jobs:
           install_name_tool -change /usr/lib/libbz2.1.0.dylib @rpath/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
 
       #Package jar, test and deploy
-      #Tests are now disabled until crash and DROP TABLE bug are fixed
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} -DskipTests=true --no-transfer-progress
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb

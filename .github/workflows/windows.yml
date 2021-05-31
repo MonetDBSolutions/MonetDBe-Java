@@ -1,4 +1,4 @@
-name: Windows CI - Release Jar (Oct2020 from source)
+name: Windows CI - Release Jar
 on: [workflow_dispatch]
 
 jobs:
@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-2019
     env:
       MDBE_JAVA_VERSION: 1.0-SNAPSHOT
-      BRANCH: Oct2020
+      BRANCH: Jul2021
     steps:
       - uses: actions/checkout@v2
 
@@ -46,12 +46,12 @@ jobs:
           appendedCacheKey: ${{ hashFiles(env.vcpkgResponseFile) }}
       - name: Install Bison/Flex
         run: choco install -y winflexbison
-      #- name: Set up test environment
-      #  run: |
-      #    Set-Location D:\a\MonetDBe-Java\MonetDBe-Java
-      #    md testdata\taxi
-      #    md testdata\localdb
-      #    iwr -outf testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+      - name: Set up test environment
+        run: |
+          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java
+          md testdata\taxi
+          md testdata\localdb
+          iwr -outf testdata\taxi\yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
 
       #Download and install MonetDB
       - name: Get monetdb
@@ -79,13 +79,12 @@ jobs:
           cmake --build . --target INSTALL  --config Release
 
       #Install native library, collect libraries, package jar, test and deploy
-      #Tests are now disabled until crash and DROP TABLE bug are fixed
       - name: Install native library, collect libraries, package jar, test and deploy
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
           mvn clean install "-DMonetDB_dir=C:\monetdb" --no-transfer-progress
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
-          mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release,sign-gpg -DskipTests=true --no-transfer-progress
+          mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release,sign-gpg --no-transfer-progress
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
