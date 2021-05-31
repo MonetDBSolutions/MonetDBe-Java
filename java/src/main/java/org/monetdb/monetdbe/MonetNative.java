@@ -109,7 +109,14 @@ public class MonetNative {
         }
         //Loading from file (IDE execution and maven unit tests)
         else {
-            libRoot = Paths.get(uri.getPath() + os);
+            if (os.equals("windows")) {
+                //Windows hack to get rid of non-valid /C:/ or /D:/ paths
+                libRoot = Paths.get(uri.getPath().substring(1) + os);
+            }
+            else {
+                libRoot = Paths.get(uri.getPath() + os);
+            }
+
             //System.out.println("Loading dependencies from filesystem: " + libRoot.toString());
         }
         Map<String, List<String>> dependencies = Files.walk(libRoot, 2)
@@ -117,6 +124,10 @@ public class MonetNative {
                         Collectors.mapping(
                                 (paths -> paths.getFileName().toString()),
                                 Collectors.toList())));
+        dependencies.keySet().retainAll(new ArrayList<String>() {{
+            add("direct");
+            add("transitive");
+        }});
         return dependencies;
     }
 

@@ -168,12 +168,17 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     }
 
     /**
-     * Feature currently not supported.
-     * @throws SQLFeatureNotSupportedException this feature is not currently supported.
+     * Indicates the designated column's normal maximum width in
+     * characters.
+     * Currently returns 0.
+     *
+     * @param column Column number (starts at 1)
+     * @return the normal maximum number of characters allowed as the
+     *         width of the designated column
      */
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        throw new SQLFeatureNotSupportedException("getColumnDisplaySize()");
+        return 0;
     }
 
     /**
