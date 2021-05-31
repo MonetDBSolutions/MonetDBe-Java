@@ -2,6 +2,7 @@ package org.monetdb.monetdbe;
 
 import java.sql.ParameterMetaData;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 
 /**
  * A {@link ParameterMetaData} suitable for the MonetDB embedded database.
@@ -58,7 +59,6 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
      * @return the nullability status of the given parameter; one of ParameterMetaData.parameterNoNulls,
      * ParameterMetaData.parameterNullable, or ParameterMetaData.parameterNullableUnknown
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int isNullable(int param) throws SQLException {
         return ParameterMetaData.parameterNullableUnknown;
@@ -81,23 +81,18 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
      * @param param Parameter number (starts at 1)
      * @return precision
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int getPrecision(int param) throws SQLException {
         return MonetTypes.getPrecision(sqlTypes[param]);
     }
 
     /**
-     * Retrieves the designated parameter's number of digits to right of the decimal point.
-     * Currently not supported.
-     *
-     * @param param Parameter number (starts at 1)
-     * @return scale
+     * Feature not currently not supported.
+     * @throws java.sql.SQLFeatureNotSupportedException this feature is not currently supported.
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_statement)
     @Override
     public int getScale(int param) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getScale()");
     }
 
     /**
@@ -109,7 +104,6 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
      */
     @Override
     public int getParameterType(int param) throws SQLException {
-        //SQL type
         try {
             return sqlTypes[param-1];
         } catch (IndexOutOfBoundsException e) {

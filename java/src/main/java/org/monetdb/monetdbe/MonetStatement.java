@@ -148,7 +148,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
      */
     @Override
     public void cancel() throws SQLException {
-        throw new SQLFeatureNotSupportedException("Query cancelling is currently not supported by the driver.", "0A000");
+        throw new SQLFeatureNotSupportedException("cancel()");
     }
 
     /**
@@ -438,7 +438,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     @Override
     public boolean getMoreResults(int current) throws SQLException {
         //TODO GETMORERESULTS
-        //Is it possible to have more than one ResultSet returning from a batch query in MonetDBe?
         throw new SQLFeatureNotSupportedException("getMoreResults()");
     }
 
@@ -451,7 +450,6 @@ public class MonetStatement extends MonetWrapper implements Statement {
     public boolean getMoreResults() throws SQLException {
         //TODO GETMORERESULTS
         throw new SQLFeatureNotSupportedException("getMoreResults()");
-        //return getMoreResults(Statement.CLOSE_CURRENT_RESULT);
     }
 
     /**

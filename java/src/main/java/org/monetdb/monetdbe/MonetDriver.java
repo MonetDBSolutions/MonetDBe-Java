@@ -59,6 +59,8 @@ final public class MonetDriver implements java.sql.Driver {
     static final String MAPIURL = "mapi:monetdb:";
     /** The in-memory database URL */
     static final String MEMORYURL = "jdbc:monetdb:memory:";
+    /** The prefix to a file database URL */
+    static final String FILEURL = "jdbc:monetdb:file:";
 
     static {
         try {
@@ -87,17 +89,19 @@ final public class MonetDriver implements java.sql.Driver {
             //For in-memory databases, leave the path property NULL
             info.put("connectionType","memory");
         }
-        else {
+        else if (url.startsWith(FILEURL)){
             //Local database
-            //TODO Verify it is a correct path?
             //Remove leading 'jdbc:monetdb:file:' from directory path
-            String path = url.substring(18);
+            String path = url.substring(FILEURL.length());
             if (path.indexOf('?') != -1)
                 //Remove URL query from end of string if it exists
                 info.put("path",path.substring(0,path.indexOf('?')));
             else
                 info.put("path",path);
             info.put("connectionType","file");
+        }
+        else {
+            return null;
         }
 
         //Parse additional options in URL query string
@@ -107,7 +111,6 @@ final public class MonetDriver implements java.sql.Driver {
         return new MonetConnection(info);
     }
 
-    //TODO Should we use defaults for configurations which were not set, or throw an exception? (e.g. database not set -> use "test" database)
     private Connection connectMapi(String url, Properties info) throws SQLException {
         final URI uri;
         try {

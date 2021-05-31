@@ -2,6 +2,7 @@ package org.monetdb.monetdbe;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 
 /**
@@ -88,16 +89,12 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     }
 
     /**
-     * Indicates whether the designated column is automatically numbered.
-     * Currently not supported.
-     *
-     * @param column Column number (starts at 1)
-     * @return true if so; false otherwise
+     * Feature not currently not supported.
+     * @throws java.sql.SQLFeatureNotSupportedException this feature not currently not supported
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public boolean isAutoIncrement(int column) throws SQLException {
-        return false;
+        throw new SQLFeatureNotSupportedException("isAutoIncrement()");
     }
 
     /**
@@ -148,12 +145,10 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
 
     /**
      * Indicates the nullability of values in the designated column.
-     * Currently not supported.
      *
      * @param column Column number (starts at 1)
-     * @return true if so; false otherwise
+     * @return ResultSetMetaData.columnNullableUnknown
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public int isNullable(int column) throws SQLException {
         return ResultSetMetaData.columnNullableUnknown;
@@ -173,19 +168,12 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     }
 
     /**
-     * Indicates the designated column's normal maximum width in
-     * characters.
-     * Currently not supported.
-     *
-     * @param column Column number (starts at 1)
-     * @return the normal maximum number of characters allowed as the
-     *         width of the designated column
+     * Feature currently not supported.
+     * @throws SQLFeatureNotSupportedException this feature is not currently supported.
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
-    //Similar to getPrecision
     @Override
     public int getColumnDisplaySize(int column) throws SQLException {
-        return 0;
+        throw new SQLFeatureNotSupportedException("getColumnDisplaySize()");
     }
 
     /**
@@ -217,27 +205,21 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     }
 
     /**
-     * Get the designated column's table's schema.
-     *
-     * @param column Column number (starts at 1)
-     * @return schema name or "" if not applicable
+     * Feature currently not supported.
+     * @throws SQLFeatureNotSupportedException this feature is not currently supported.
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public String getSchemaName(int column) throws SQLException {
-        return "";
+        throw new SQLFeatureNotSupportedException("getSchemaName()");
     }
 
     /**
-     * Gets the designated column's table name.
-     *
-     * @param column Column number (starts at 1)
-     * @return table name or "" if not applicable
+     * Feature currently not supported.
+     * @throws SQLFeatureNotSupportedException this feature is not currently supported.
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public String getTableName(int column) throws SQLException {
-        return "";
+        throw new SQLFeatureNotSupportedException("getTableName()");
     }
 
     /**
@@ -246,7 +228,6 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
      * @param column Column number (starts at 1)
      * @return precision
      */
-    //TODO Not possible to check right now, not available in C API (Not in monetdbe_column)
     @Override
     public int getPrecision(int column) throws SQLException {
         return MonetTypes.getPrecision(getColumnType(column));
@@ -301,7 +282,6 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
      */
     @Override
     public String getColumnTypeName(int column) throws SQLException {
-        //MonetDB type
         try {
             return monetTypes[column-1];
         } catch (IndexOutOfBoundsException e) {
@@ -317,7 +297,6 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
      * @throws SQLException if the column parameter is out of bounds
      */
     public int getColumnTypeInt(int column) throws SQLException {
-        //MonetDB type
         try {
             return monetTypesInt[column-1];
         } catch (IndexOutOfBoundsException e) {
@@ -336,7 +315,6 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
      */
     @Override
     public String getColumnClassName(int column) throws SQLException {
-        //Java class
         try {
             return javaTypes[column-1];
         } catch (IndexOutOfBoundsException e) {

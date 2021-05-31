@@ -338,25 +338,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     /**
-     * Retrieves a ResultSetMetaData object that contains information about the columns of the ResultSet object that
-     * will be returned when this PreparedStatement object is executed.
-     * <p>
-     * Because a PreparedStatement object is precompiled, it is possible to know about the ResultSet object that it will
-     * return without having to execute it. Consequently, it is possible to invoke the method getMetaData on a
-     * PreparedStatement object rather than waiting to execute it and then invoking the ResultSet.getMetaData method on
-     * the ResultSet object that is returned.
-     * <p>
-     * Not currently supported
+     * This feature is not currently supported
      *
-     * @return the description of a ResultSet object's columns or null if the driver cannot return a ResultSetMetaData object
-     * @throws SQLException if this method is called on a closed PreparedStatement
+     * @throws SQLFeatureNotSupportedException this feature is not currently supported.
      */
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        checkNotClosed();
-        //TODO METADATA
-        //How do I get the result column names and types to construct the ResultSetMetaData object?
-        return null;
+        throw new SQLFeatureNotSupportedException("getMetaData()");
     }
 
     /**
@@ -374,13 +362,12 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Clears the current parameter values immediately.
-     * Current version also cleans up the prepared statement, closing this object.
      *
      * @throws SQLException if this method is called on a closed PreparedStatement
      */
+    //TODO Implement this only on the Java layer?
     @Override
     public void clearParameters() throws SQLException {
-        //TODO: Use cleanup function which doesn't clean up the Prepared Statement, only the params
         throw new SQLFeatureNotSupportedException("clearParameters()");
         /*checkNotClosed();
         parameters = new Object[nParams];
@@ -730,11 +717,6 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         if (parameterIndex <= 0 || parameterIndex > nParams)
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
         int monettype = monetdbeTypes[parameterIndex - 1];
-
-        //If we don't support the sqlType, throw exception. 14 corresponds to monetdbe_type_unknown
-        if (monettype == 14) {
-            throw new SQLFeatureNotSupportedException("sqlType not supported");
-        }
 
         String error_msg = MonetNative.monetdbe_bind_null(conn.getDbNative(), monettype, statementNative, parameterIndex - 1);
         if (error_msg != null) {

@@ -447,14 +447,9 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     /**
-     * Retrieves the Map object associated with this Connection object.
-     * Unless the application has added an entry, the type map returned
-     * will be empty.
+     * This feature is not currently supported.
      *
-     * Not supported currently.
-     *
-     * @return the java.util.Map object associated with this Connection
-     *         object
+     * @throws SQLFeatureNotSupportedException this feature is not currently supported
      */
     //TODO UDTs
     @Override
@@ -464,14 +459,9 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     /**
-     * Installs the given TypeMap object as the type map for this
-     * Connection object. The type map will be used for the custom
-     * mapping of SQL structured types and distinct types.
+     * This feature is not currently supported.
      *
-     * Not supported currently.
-     *
-     * @param map the java.util.Map object to install as the replacement for
-     *        this Connection  object's default type map
+     * @throws SQLFeatureNotSupportedException this feature is not currently supported
      */
     //TODO UDTs
     @Override
@@ -1007,7 +997,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Auto-generated keys are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     //TODO Auto-generated keys
     @Override
@@ -1017,7 +1007,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Auto-generated keys are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
@@ -1026,7 +1016,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Auto-generated keys are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
@@ -1036,7 +1026,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     //Savepoints
     /**
      * Savepoints are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     //TODO Savepoints
     @Override
@@ -1046,7 +1036,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Savepoints are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public Savepoint setSavepoint(String name) throws SQLException {
@@ -1055,7 +1045,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Savepoints are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public void rollback(Savepoint savepoint) throws SQLException {
@@ -1064,7 +1054,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Savepoints are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
@@ -1102,7 +1092,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Arrays are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
@@ -1111,7 +1101,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * Structs are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
@@ -1120,7 +1110,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * NClobs are not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public NClob createNClob() throws SQLException {
@@ -1129,7 +1119,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
 
     /**
      * SQL XML is not yet currently supported.
-     * Throws SQLFeatureNotSupportedException.
+     * @throws SQLFeatureNotSupportedException this feature is currently not supported.
      */
     @Override
     public SQLXML createSQLXML() throws SQLException {

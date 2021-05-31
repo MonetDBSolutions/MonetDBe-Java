@@ -39,9 +39,6 @@ void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jin
         remote->database = database;
         remote->lang = NULL;
         opts->remote = remote;
-
-        //printf("\nRemote options:\nHost: %s\nPort: %d\nDatabase: %s\nUsername: %s\nPassword: %s\n", host, j_port, database, user, password);
-        //fflush(stdout);
     }
 #endif
 }
@@ -162,9 +159,6 @@ JNIEXPORT jboolean JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1get_1
 
 void returnResult(JNIEnv *env, jobject j_statement, jboolean largeUpdate, monetdbe_result **result, monetdbe_cnt *affected_rows, jint maxrows)
 {
-    //printf("Affected rows after: %d\n\n",(*affected_rows));
-    //fflush(stdout);
-
     jclass statementClass = (*env)->GetObjectClass(env, j_statement);
     //Query with table result
     if ((*result) && (*result)->ncols > 0)
@@ -737,10 +731,6 @@ jstring bind_parsed_data(JNIEnv *env, jobject j_stmt, void *parsed_data, int par
     }
     monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
     char *error_msg = monetdbe_bind(stmt, parsed_data, (int)parameter_nr);
-    if (error_msg)
-    {
-        printf("Error in monetdbe_bind: %s\n", error_msg);
-    }
     return (*env)->NewStringUTF(env, (const char *)error_msg);
 }
 
@@ -813,14 +803,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     jboolean isCopy;
     unsigned char *c_data = (unsigned char *)(*env)->GetByteArrayElements(env, j_data, &isCopy);
 
-    /*printf("Blob data:\n");
-    for (int i = 0; c_data[i] != '\0'; i++)
-    {
-        printf("%d %x\n", i, c_data[i]);
-    }
-    printf("size: %ld\n", (long)size);
-    fflush(stdout);*/
-
     monetdbe_data_blob *bind_data = malloc(sizeof(monetdbe_data_blob));
     bind_data->size = size;
     bind_data->data = (char *)c_data;
@@ -839,7 +821,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     date_bind->year = (short)year;
     date_bind->month = (unsigned char)month;
     date_bind->day = (unsigned char)day;
-    //printf("Parsed Date: %hd-%d-%d\n", date_bind->year, date_bind->month, date_bind->day);
     return bind_parsed_data(env, j_stmt, date_bind, (int)parameter_nr);
 }
 
@@ -850,7 +831,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     time_bind->minutes = (unsigned char)minutes;
     time_bind->seconds = (unsigned char)seconds;
     time_bind->ms = (unsigned int)ms;
-    //printf("Parsed Time: %d:%d:%d.%d\n", time_bind->hours, time_bind->minutes, time_bind->seconds, time_bind->ms);
     return bind_parsed_data(env, j_stmt, time_bind, (int)parameter_nr);
 }
 
@@ -864,7 +844,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
     (timestamp_bind->time).minutes = (unsigned char)minutes;
     (timestamp_bind->time).seconds = (unsigned char)seconds;
     (timestamp_bind->time).ms = (unsigned int)ms;
-    //printf("Parsed Timestamp: %hd-%d-%d %d:%d:%d.%d\n", (timestamp_bind->date).year, (timestamp_bind->date).month, (timestamp_bind->date).day, (timestamp_bind->time).hours, (timestamp_bind->time).minutes, (timestamp_bind->time).seconds, (timestamp_bind->time).ms);
     return bind_parsed_data(env, j_stmt, timestamp_bind, (int)parameter_nr);
 }
 
@@ -899,13 +878,4 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1cleanu
     monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
     char *error_msg = monetdbe_cleanup_statement(db, stmt);
     return (*env)->NewStringUTF(env, (const char *)error_msg);
-}
-
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1clear_1bindings(JNIEnv *env, jclass self, jobject j_db, jobject j_stmt)
-{
-    /*monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
-    monetdbe_statement *stmt = (*env)->GetDirectBufferAddress(env, j_stmt);
-    char *error_msg = monetdbe_clear_bindings(db, stmt);
-    return (*env)->NewStringUTF(env, (const char *)error_msg);*/
-    return NULL;
 }

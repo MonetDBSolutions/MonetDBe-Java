@@ -117,11 +117,6 @@ public class MonetNative {
                         Collectors.mapping(
                                 (paths -> paths.getFileName().toString()),
                                 Collectors.toList())));
-        //TODO This may be unnecessary
-        dependencies.keySet().retainAll(new ArrayList<String>() {{
-            add("direct");
-            add("transitive");
-        }});
         return dependencies;
     }
 
@@ -310,9 +305,6 @@ public class MonetNative {
      * @return Error message
      */
     protected static native String monetdbe_cleanup_statement(ByteBuffer db, ByteBuffer stmt);
-
-    //TODO
-    protected static native String monetdbe_clear_bindings(ByteBuffer db, ByteBuffer stmt);
 
     /**
      * Binds boolean parameter to prepared statement.
