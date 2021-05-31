@@ -828,7 +828,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1bind_1
 
     if (isCopy)
     {
-        (*env)->ReleaseByteArrayElements(env, j_data, (jbyte *)bind_data, JNI_ABORT);
+        (*env)->ReleaseByteArrayElements(env, j_data, (jbyte *)c_data, JNI_ABORT);
     }
     return ret_str;
 }
