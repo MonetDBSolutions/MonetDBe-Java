@@ -400,9 +400,10 @@ void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name,
 
     if (decimalNulls != NULL)
     {
-        j_decimal_nulls = (*env)->NewBooleanArray(env, row_size);
+        j_decimal_nulls = (*env)->NewBooleanArray(env, row_count);
         //unsigned char* translates to jboolean*
-        (*env)->SetBooleanArrayRegion(env, j_decimal_nulls, 0, row_size, (jboolean *)decimalNulls);
+        (*env)->SetBooleanArrayRegion(env, j_decimal_nulls, 0, row_count, (jboolean *)decimalNulls);
+        free(decimalNulls);
     }
 
     jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
@@ -448,12 +449,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
             {
                 monetdbe_column_int8_t *c_int8_t = (monetdbe_column_int8_t *)(*column);
                 int row_count = c_int8_t->count;
-
                 unsigned char *decimalNulls = NULL;
-                if (c_int8_t->scale != 0)
-                {
-                    decimalNulls = calloc(row_count, sizeof(unsigned char));
-                }
 
                 for (int j = 0; j < row_count; j++)
                 {
@@ -464,6 +460,9 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         //Checking for decimal type nulls
                         if (c_int8_t->scale != 0)
                         {
+                            if (decimalNulls == NULL) {
+                                decimalNulls = calloc(row_count, sizeof(unsigned char));
+                            }
                             decimalNulls[j] = 1;
                         }
                     }
@@ -475,12 +474,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
             {
                 monetdbe_column_int16_t *c_int16_t = (monetdbe_column_int16_t *)(*column);
                 int row_count = c_int16_t->count;
-
                 unsigned char *decimalNulls = NULL;
-                if (c_int16_t->scale != 0)
-                {
-                    decimalNulls = calloc(row_count, sizeof(unsigned char));
-                }
 
                 for (int j = 0; j < row_count; j++)
                 {
@@ -491,6 +485,9 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         //Checking for decimal type nulls
                         if (c_int16_t->scale != 0)
                         {
+                            if (decimalNulls == NULL) {
+                                decimalNulls = calloc(row_count, sizeof(unsigned char));
+                            }
                             decimalNulls[j] = 1;
                         }
                     }
@@ -502,12 +499,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
             {
                 monetdbe_column_int32_t *c_int32_t = (monetdbe_column_int32_t *)(*column);
                 int row_count = c_int32_t->count;
-
                 unsigned char *decimalNulls = NULL;
-                if (c_int32_t->scale != 0)
-                {
-                    decimalNulls = calloc(row_count, sizeof(unsigned char));
-                }
 
                 for (int j = 0; j < row_count; j++)
                 {
@@ -518,6 +510,9 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         //Checking for decimal type nulls
                         if (c_int32_t->scale != 0)
                         {
+                            if (decimalNulls == NULL) {
+                                decimalNulls = calloc(row_count, sizeof(unsigned char));
+                            }
                             decimalNulls[j] = 1;
                         }
                     }
@@ -529,12 +524,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
             {
                 monetdbe_column_int64_t *c_int64_t = (monetdbe_column_int64_t *)(*column);
                 int row_count = c_int64_t->count;
-
                 unsigned char *decimalNulls = NULL;
-                if (c_int64_t->scale != 0)
-                {
-                    decimalNulls = calloc(row_count, sizeof(unsigned char));
-                }
 
                 for (int j = 0; j < row_count; j++)
                 {
@@ -545,6 +535,9 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         //Checking for decimal type nulls
                         if (c_int64_t->scale != 0)
                         {
+                            if (decimalNulls == NULL) {
+                                decimalNulls = calloc(row_count, sizeof(unsigned char));
+                            }
                             decimalNulls[j] = 1;
                         }
                     }
@@ -557,12 +550,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
             {
                 monetdbe_column_int128_t *c_int128_t = (monetdbe_column_int128_t *)(*column);
                 int row_count = c_int128_t->count;
-
                 unsigned char *decimalNulls = NULL;
-                if (c_int128_t->scale != 0)
-                {
-                    decimalNulls = calloc(row_count, sizeof(unsigned char));
-                }
 
                 for (int j = 0; j < row_count; j++)
                 {
@@ -573,6 +561,9 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         //Checking for decimal type nulls
                         if (c_int128_t->scale != 0)
                         {
+                            if (decimalNulls == NULL) {
+                                decimalNulls = calloc(row_count, sizeof(unsigned char));
+                            }
                             decimalNulls[j] = 1;
                         }
                     }
