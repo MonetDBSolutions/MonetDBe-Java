@@ -11,8 +11,10 @@ jobs:
     env:
       MDBE_JAVA_VERSION: 1.0-SNAPSHOT
       #Brew installation
-      MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
+      #MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
+      #Source installation
+      MONETDB_INSTALL: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jul2021/
     steps:
       - uses: actions/checkout@v2
 
@@ -49,8 +51,26 @@ jobs:
         with:
           gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
-      - name: Install monetdb through brew
-        run: brew install monetdb
+      #- name: Install monetdb through brew
+      #  run: brew install monetdb
+      - name: Get brew bison
+        run: |
+          brew install bison
+          brew link bison --force
+          export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
+          export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"
+      - name: Get monetdb
+        run: |
+          wget https://www.monetdb.org/hg/MonetDB/archive/Jul2021.zip -O MonetDB.zip
+          unzip MonetDB.zip
+      - name: Compile and install MonetDB
+        run: |
+          cd MonetDB
+          mkdir build MonetDB-Jul2021
+          cd build
+          cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jul2021/ -DWITH_CRYPTO=OFF -DINT128=ON -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DSTRICT=OFF -DRINTEGRATION=OFF
+          make install
+          cd ../../
       - name: Set up test environment
         run: |
           mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
@@ -62,11 +82,11 @@ jobs:
           cd native
           mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release --no-transfer-progress
           cd ..
-      - name: Change load path for libmonetdbe dependency (to be rpath dependent)
-        run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
-        env:
-          M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ env.MDBE_JAVA_VERSION }}
-          ARTIFACT_NATIVE: monetdbe-java-native-${{ env.MDBE_JAVA_VERSION }}.dylib
+      #- name: Change load path for libmonetdbe dependency (to be rpath dependent)
+      #  run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
+      #  env:
+      #    M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ env.MDBE_JAVA_VERSION }}
+      #    ARTIFACT_NATIVE: monetdbe-java-native-${{ env.MDBE_JAVA_VERSION }}.dylib
       - name: Copy direct dependencies (MonetDB libs)
         run: |
           mkdir collect_libs
