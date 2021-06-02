@@ -59,6 +59,7 @@ jobs:
           brew link bison --force
           export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
           export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"
+          export LDFLAGS="-L/usr/local/opt/bison/lib"
       - name: Get monetdb
         run: |
           wget https://www.monetdb.org/hg/MonetDB/archive/Jul2021.zip -O MonetDB.zip
@@ -69,7 +70,7 @@ jobs:
           mkdir build MonetDB-Jul2021
           cd build
           cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB-Jul2021/MonetDB-Jul2021/ -DWITH_CRYPTO=OFF -DINT128=ON -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DSTRICT=OFF -DRINTEGRATION=OFF
-          make install
+          cmake --build .
           cd ../../
       - name: Set up test environment
         run: |
