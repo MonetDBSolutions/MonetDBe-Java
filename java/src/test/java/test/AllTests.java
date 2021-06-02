@@ -21,7 +21,6 @@ public class AllTests {
 	protected static final String PROXY_CONNECTION = "mapi:monetdb://localhost:50000/test";
 	
 	protected static final String[] CONNECTIONS = { MEMORY_CONNECTION, LOCAL_CONNECTION };
-	//protected static final String[] CONNECTIONS = { MEMORY_CONNECTION};
 
 	protected static final String AUTOCOMMIT_FALSE_PARM = "?autocommit=false";
 

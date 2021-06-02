@@ -702,14 +702,11 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Sets the designated parameter to SQL NULL.
-     * <p>
-     * Note: You must specify the parameter's SQL type.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param sqlType        the SQL type code defined in java.sql.Types
+     * @param sqlType        the SQL type code defined in java.sql.Types (not used)
      * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL statement;
      *                                         if a database access error occurs or this method is called on a closed PreparedStatement
-     * @throws SQLFeatureNotSupportedException - if sqlType is not supported
      */
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
