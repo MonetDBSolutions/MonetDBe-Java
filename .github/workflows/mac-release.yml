@@ -93,26 +93,22 @@ jobs:
           cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib collect_libs
         env:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
-      #for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
-      #for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
       - name: Change rpath of libraries to package
         run: |
           for file in $GITHUB_WORKSPACE/collect_libs/*.dylib; do otool -L $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
         env:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
+      #/usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib
       - name: Copy transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
-        run: cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib /usr/lib/libz.1.dylib /usr/lib/libxml2.2.dylib /usr/lib/libiconv.2.dylib /usr/local/opt/lz4/lib/liblz4.1.dylib /usr/local/opt/xz/lib/liblzma.5.dylib /usr/lib/libcurl.4.dylib /usr/lib/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs
+        run: cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/lib/libz.1.dylib /usr/lib/libxml2.2.dylib /usr/lib/libiconv.2.dylib /usr/local/opt/lz4/lib/liblz4.1.dylib /usr/local/opt/xz/lib/liblzma.5.dylib /usr/lib/libcurl.4.dylib /usr/lib/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs
       - name: Change load path of transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmapi.12.dylib
-          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
           install_name_tool -change /usr/local/opt/pcre/lib/libpcre.1.dylib @rpath/libpcre.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
-          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.11.dylib
-          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
+          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/local/opt/xz/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
@@ -132,8 +128,6 @@ jobs:
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
-      - name: Uninstall MonetDB (to test the jar is portable)
-        run: brew uninstall monetdb
       - name: Run example class (SimpleTypes)
         run: |
           javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
