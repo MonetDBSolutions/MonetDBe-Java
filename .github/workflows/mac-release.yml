@@ -93,6 +93,7 @@ jobs:
           cp $MONETDB_LIBS/libbat.??.dylib $MONETDB_LIBS/libmapi.??.dylib $MONETDB_LIBS/libmonetdb5.??.dylib $MONETDB_LIBS/libmonetdbe.?.dylib $MONETDB_LIBS/libmonetdbsql.??.dylib $MONETDB_LIBS/libstream.??.dylib collect_libs
         env:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
+      #install_name_tool -change /Users/runner/work/MonetDBe-Java/MonetDBe-Java/native/target/monetdbe-java-native.dylib @rpath/libmonetdbe-java.dylib /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT/monetdbe-java-native-1.0-SNAPSHOT.dylib
       - name: Change rpath of libraries to package
         run: |
           for file in $GITHUB_WORKSPACE/collect_libs/*.dylib; do otool -L $file; done

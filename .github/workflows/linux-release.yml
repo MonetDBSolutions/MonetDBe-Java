@@ -44,7 +44,7 @@ jobs:
         with:
           maven-version: 3.6.3
       - name: Install patchelf
-        run: yum install -y patchelf
+        run: yum install -y patchelf chrpath
       #- name: Import GPG private key for maven release (for sign-maven-plugin)
       #  run: |
       #    touch /root/.m2/sign-key.asc
