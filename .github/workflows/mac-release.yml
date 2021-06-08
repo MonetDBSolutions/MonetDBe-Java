@@ -55,6 +55,7 @@ jobs:
       #  run: brew install monetdb
       - name: Get brew bison
         run: |
+          which bison
           brew install bison
           brew link bison --force
           export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
@@ -66,6 +67,13 @@ jobs:
           unzip MonetDB.zip
       - name: Compile and install MonetDB
         run: |
+          export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
+          export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"
+          export LDFLAGS="-L/usr/local/opt/bison/lib"
+          echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> /Users/runner/.bash_profile
+          source /Users/runner/.bash_profile
+          bison -V
+          which bison
           cd MonetDB-Jul2021
           mkdir build MonetDB-Jul2021
           cd build
