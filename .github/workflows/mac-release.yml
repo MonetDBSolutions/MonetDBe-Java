@@ -1,9 +1,9 @@
-name: MacOS CI - Release Slim and Fat Jar (from Homebrew)
+name: MacOS CI - Release Slim and Fat Jar
 on: [workflow_dispatch]
 
 jobs:
-  mac_brew_jars:
-    name: mac_brew_jars
+  mac_jars:
+    name: mac_jars
     runs-on: macos-latest
     strategy:
       matrix:
@@ -97,21 +97,22 @@ jobs:
         run: |
           for file in $GITHUB_WORKSPACE/collect_libs/*.dylib; do otool -L $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
+          install_name_tool -change $GITHUB_WORKSPACE/native/target/monetdbe-java-native.dylib @rpath/libmonetdbe-java.dylib $GITHUB_WORKSPACE/native/target/monetdbe-java-native.dylib
         env:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
       #/usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib
       - name: Copy transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
-        run: cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/lib/libz.1.dylib /usr/lib/libxml2.2.dylib /usr/lib/libiconv.2.dylib /usr/local/opt/lz4/lib/liblz4.1.dylib /usr/local/opt/xz/lib/liblzma.5.dylib /usr/lib/libcurl.4.dylib /usr/lib/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs
+        run: cp /usr/lib/libpcre.0.dylib /usr/lib/libz.1.dylib /usr/lib/libxml2.2.dylib /usr/lib/libiconv.2.dylib /usr/local/opt/lz4/lib/liblz4.1.dylib /usr/lib/liblzma.5.dylib /usr/lib/libcurl.4.dylib /usr/lib/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs
       - name: Change load path of transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          install_name_tool -change /usr/local/opt/pcre/lib/libpcre.1.dylib @rpath/libpcre.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
+          install_name_tool -change /usr/lib/libpcre.0.dylib @rpath/libpcre.0.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
           install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
           install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/local/opt/xz/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
+          install_name_tool -change /usr/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/lib/libcurl.4.dylib @rpath/libcurl.4.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
           install_name_tool -change /usr/lib/libbz2.1.0.dylib @rpath/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
 
