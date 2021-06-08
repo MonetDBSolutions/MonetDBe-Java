@@ -97,7 +97,6 @@ jobs:
         run: |
           for file in $GITHUB_WORKSPACE/collect_libs/*.dylib; do otool -L $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
-          install_name_tool -change /Users/runner/work/MonetDBe-Java/MonetDBe-Java/native/target/monetdbe-java-native.dylib @rpath/libmonetdbe-java.dylib /Users/runner/.m2/repository/monetdb/monetdbe-java-native/1.0-SNAPSHOT/monetdbe-java-native-1.0-SNAPSHOT.dylib
         env:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
       #/usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib
