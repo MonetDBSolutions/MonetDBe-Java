@@ -10,11 +10,11 @@ jobs:
         artifact: ["slim", "fat"]
     env:
       MDBE_JAVA_VERSION: 1.0-SNAPSHOT
-      #Brew installation
-      #MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
       #Source installation
       MONETDB_INSTALL: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB-Jul2021/MonetDB-Jul2021/
+      #Brew installation
+      #MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
     steps:
       - uses: actions/checkout@v2
 
@@ -53,14 +53,9 @@ jobs:
           passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
       #- name: Install monetdb through brew
       #  run: brew install monetdb
+      # Source installation (for Jul2021)
       - name: Get brew bison
-        run: |
-          which bison
-          brew install bison
-          brew link bison --force
-          export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
-          export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"
-          export LDFLAGS="-L/usr/local/opt/bison/lib"
+        run: brew install bison
       - name: Get monetdb
         run: |
           wget https://www.monetdb.org/hg/MonetDB/archive/Jul2021.zip -O MonetDB.zip
@@ -70,15 +65,11 @@ jobs:
           export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
           export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"
           export LDFLAGS="-L/usr/local/opt/bison/lib"
-          echo 'export PATH="/usr/local/opt/bison/bin:$PATH"' >> /Users/runner/.bash_profile
-          source /Users/runner/.bash_profile
-          bison -V
-          which bison
           cd MonetDB-Jul2021
           mkdir build MonetDB-Jul2021
           cd build
           cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB-Jul2021/MonetDB-Jul2021/ -DWITH_CRYPTO=OFF -DINT128=ON -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DSTRICT=OFF -DRINTEGRATION=OFF
-          cmake --build .
+          cmake --build . --target install
           cd ../../
       - name: Set up test environment
         run: |
