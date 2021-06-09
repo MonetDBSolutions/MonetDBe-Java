@@ -93,7 +93,7 @@ jobs:
           javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
           java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
       - name: Publish error log
-        if: failed()
+        if: ${{ failure() }}
         uses: actions/upload-artifact@v2
         with:
           name: hs_err.log
