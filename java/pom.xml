@@ -558,6 +558,7 @@
         <profile>
             <id>linux-manual</id>
             <properties>
+                <jar.classifier>linux-slim</jar.classifier>
                 <!-- Do not skip tests, as this is a release profile -->
                 <skipTests>false</skipTests>
             </properties>
@@ -575,10 +576,10 @@
                                     <goal>copy-resources</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/lib/linux/</outputDirectory>
+                                    <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>${COLLECT_LIBS}/linux/</directory>
+                                            <directory>${COLLECT_LIBS}</directory>
                                         </resource>
                                     </resources>
                                 </configuration>
@@ -654,6 +655,9 @@
                                 <goals>
                                     <goal>jar-no-fork</goal>
                                 </goals>
+                                <configuration>
+                                    <classifier>sources</classifier>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -669,6 +673,9 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
+                                <configuration>
+                                    <classifier>javadoc</classifier>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
