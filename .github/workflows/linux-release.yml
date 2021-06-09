@@ -67,8 +67,8 @@ jobs:
         env:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib64
       - name: Change rpath of MonetDB libraries to package
+        if: ${{ matrix.artifact == 'fat' }}
         run: |
-          ls $GITHUB_WORKSPACE/collect_libs/*
           for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r \$\ORIGIN/. $file; done
       - name: Collect transitive dependencies (only for fat jar)
         if: ${{ matrix.artifact == 'fat' }}
