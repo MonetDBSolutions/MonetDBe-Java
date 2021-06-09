@@ -72,7 +72,7 @@ jobs:
           ldd $GITHUB_WORKSPACE/collect_libs/*
           for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r \$\ORIGIN/. $file; done
           ldd $GITHUB_WORKSPACE/collect_libs/*
-      - name: TODO REMOVE: Remove the library which is loaded by error
+      - name: TODO REMOVE  Remove the library which is loaded by error
         run: rm -rf /usr/local/lib64/libmonetdb5.so.30.0.7
       - name: Collect transitive dependencies (only for fat jar)
         if: ${{ matrix.artifact == 'fat' }}
