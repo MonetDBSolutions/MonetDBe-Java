@@ -9,18 +9,16 @@ If you desire a driver with all the JDBC features and all the functionalities of
 
 Documentation: [MonetDB/e Documentation](https://www.monetdb.org/downloads/MonetDBe-Java/javadocs/)
 
-Jar downloads page: [Download MonetDBe-Java jars](https://www.monetdb.org/downloads/MonetDBe-Java/)
+Jar downloads page: [Download MonetDB/e Java jars](https://www.monetdb.org/downloads/MonetDBe-Java/)
 
 # Installation
-There are several ways for you to get MonetDBe-Java on your system: 
+There are several ways for you to get MonetDB/e Java on your system: 
 - install it through maven
 - download the jar from [our downloads page](https://www.monetdb.org/downloads/MonetDBe-Java/)
 - or you can build the driver yourself (instructions and dependencies below)
 
 ## Driver versions
-MonetDBe-Java uses the MonetDBe C library through JNI, which means that it uses libraries which are OS-specific. Our goal is to provide a lightweight driver, so you will find different version for Linux, Mac and Windows. 
-
-**TODO Cross platform jar?**
+MonetDB/e Java uses the MonetDB/e C library through JNI, which means that it uses libraries which are OS-specific. Our goal is to provide a lightweight driver, so you will find different version for Linux, Mac and Windows. For convenience, we also provide a **cross-platform jar** which works for the three operating systems.
 
 You can also find different versions of the Linux and Mac driver: 
 - if you want a lighter driver, the **slim jar** is your choice, as it only contains MonetDB libraries. This means that you'll have to have the MonetDB dependencies installed in your system (you can find them below)
@@ -29,25 +27,24 @@ You can also find different versions of the Linux and Mac driver:
 The Windows version includes all the dependencies.
 
 ## Installing from Maven
-You can find MonetDBe-Java in the Maven central repository, where you can choose the version that best suits you. Just change the *\<classifier\>* tag on the maven dependency to get the different versions (OS and slim/fat jars).
+You can find MonetDB/e Java in the Maven central repository, where you can choose the version that best suits you. Just change the *\<classifier\>* tag on the maven dependency to get the different versions (OS and slim/fat jars).
 
-**TODO remove the snapshot part when we release (this is still necessary to do until then)**
-To try out the maven snapshot releases, please use the Sonatype snapshot repository:
+### Cross-platform jar
+This jar works for all three supported OS, and contains every dependency. This is a much larger file because it contains every library for the three OS. If you want a smaller jar, please use the OS-specific ones.
 ```
-<repositories>
-    <repository>
-        <id>Sonatype Snapshot</id>
-        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </repository>
-</repositories>
+<dependency>
+  <groupId>monetdb</groupId>
+  <artifactId>monetdbe-java</artifactId>
+  <version>1.10</version>
+</dependency>
 ```
-**TODO Change the version of the maven dependencies when we release**
+
 ### Windows jar
 ```
 <dependency>
   <groupId>monetdb</groupId>
   <artifactId>monetdbe-java</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.10</version>
   <classifier>windows</classifier>
 </dependency>
 ```
@@ -57,7 +54,7 @@ You need to have MonetDB's dependencies installed to use the Slim Jar.
 <dependency>
   <groupId>monetdb</groupId>
   <artifactId>monetdbe-java</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.10</version>
   <classifier>linux-slim</classifier>
 </dependency>
 ```
@@ -69,7 +66,7 @@ libpcre, libz
 <dependency>
   <groupId>monetdb</groupId>
   <artifactId>monetdbe-java</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.10</version>
   <classifier>linux-fat</classifier>
 </dependency>
 ```
@@ -79,25 +76,24 @@ You need to have MonetDB's dependencies installed to use the Slim Jar.
 <dependency>
   <groupId>monetdb</groupId>
   <artifactId>monetdbe-java</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.10</version>
   <classifier>mac-slim</classifier>
 </dependency>
 ```
 #### Dependencies for the slim jar (Mac)
-libcrypto (OpenSSL), libpcre, libz, libxml2, libiconv, liblz4, liblzma, libcurl, libbz2
-**TODO Is there a way to get these through brew?**
+libpcre, libz, libxml2, libiconv, liblz4, liblzma, libcurl, libbz2
 
 ### Mac fat jar (all dependencies included)
 ```
 <dependency>
   <groupId>monetdb</groupId>
   <artifactId>monetdbe-java</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.10</version>
   <classifier>mac-fat</classifier>
 </dependency>
 ```
 
-## Installing MonetDBe-Java from source (Linux/Mac only)
+## Installing MonetDB/e Java from source (Linux/Mac only)
 ### Dependencies
 - The *JAVA_HOME* environmental variable must be set to your Java installation (JDK 8+ required)
 - You must have a MonetDB installation
@@ -112,11 +108,11 @@ $ mvn clean install -DMonetDB_dir=/path/to/monetdb/installation
 $ cd ../java
 $ mvn clean install
 ```
-This will install MonetDBe-Java in the local maven repository.
-You can find the jar file in your **local maven repo** or in the **java/target/** directory (*monetdbe-java-1.0-SNAPSHOT.jar*)
+This will install MonetDB/e Java in the local maven repository.
+You can find the jar file in your **local maven repo** or in the **java/target/** directory (*monetdbe-java-1.10.jar*)
 
 ### Script install
-You can also use scripts for quickly building MonetDBe-Java on Mac and Linux.
+You can also use scripts for quickly building MonetDB/e Java on Mac and Linux.
 It should be executed from the root of the repository.
 ```
 $ build_dev.sh /path/to/monetdb/installation
@@ -126,8 +122,8 @@ $ build_dev.sh /path/to/monetdb/installation
 After installing, you can run one of the examples in the example/ directory.
 Example for the code below: SimpleTypes.java
 ```
-$ javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/SimpleTypes.java
-$ java -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar:example/ SimpleTypes
+$ javac -cp java/target/monetdbe-java-1.10.jar example/SimpleTypes.java
+$ java -cp java/target/monetdbe-java-1.10.jar:example/ SimpleTypes
 ```
 
 You can also execute the *run_dev.sh* script to run an example, just by passing it the example class name.
