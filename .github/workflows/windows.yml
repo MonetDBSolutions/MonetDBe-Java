@@ -6,7 +6,7 @@ jobs:
     name: windows_build
     runs-on: windows-2019
     env:
-      MDBE_JAVA_VERSION: 1.10
+      MDBE_JAVA_VERSION: "1.10"
       BRANCH: Jul2021
     steps:
       - uses: actions/checkout@v2

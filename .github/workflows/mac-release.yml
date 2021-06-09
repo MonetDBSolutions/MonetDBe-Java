@@ -9,7 +9,7 @@ jobs:
       matrix:
         artifact: ["slim", "fat"]
     env:
-      MDBE_JAVA_VERSION: 1.10
+      MDBE_JAVA_VERSION: "1.10"
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
       #Source installation
       MONETDB_INSTALL: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB-Jul2021/MonetDB-Jul2021/
