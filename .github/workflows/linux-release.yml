@@ -67,11 +67,11 @@ jobs:
           cp $MONETDB_LIBS/libbat.so.?? $MONETDB_LIBS/libmapi.so.?? $MONETDB_LIBS/libmonetdb5.so.?? $MONETDB_LIBS/libmonetdbe.so.? $MONETDB_LIBS/libmonetdbsql.so.?? $MONETDB_LIBS/libstream.so.?? collect_libs
         env:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib64
-      #for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r \$\ORIGIN/. $file; done
       - name: Change rpath of MonetDB libraries to package
         if: ${{ matrix.artifact == 'fat' }}
         run: |
           ldd $GITHUB_WORKSPACE/collect_libs/*
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r \$\ORIGIN/. $file; done
           ldd $GITHUB_WORKSPACE/collect_libs/*
       - name: Collect transitive dependencies (only for fat jar)
         if: ${{ matrix.artifact == 'fat' }}

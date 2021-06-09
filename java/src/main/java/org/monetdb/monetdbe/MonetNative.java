@@ -119,6 +119,7 @@ public class MonetNative {
 
             //System.out.println("Loading dependencies from filesystem: " + libRoot.toString());
         }
+        //TODO Add exception if the wrong OS jar is used? (i.e. a mac system using the linux jar)
         Map<String, List<String>> dependencies = Files.walk(libRoot, 2)
                 .collect(Collectors.groupingBy((path -> path.getParent().getFileName().toString()),
                         Collectors.mapping(
