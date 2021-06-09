@@ -11,7 +11,7 @@ jobs:
         artifact: ["slim", "fat"]
     container: monetdb/dev-builds:Jul2021_manylinux
     env:
-      MDBE_JAVA_VERSION: 1.0-SNAPSHOT
+      MDBE_JAVA_VERSION: 1.10
       MONETDB_INSTALL: /usr/local
     steps:
       - uses: actions/checkout@v2
