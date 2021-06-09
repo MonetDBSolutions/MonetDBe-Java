@@ -492,7 +492,9 @@
         <profile>
             <id>cross</id>
             <properties>
-                <jar.classifier>cross</jar.classifier>
+                <!--<jar.classifier>cross</jar.classifier>-->
+                <!-- Do not skip tests, as this is a release profile -->
+                <skipTests>false</skipTests>
             </properties>
             <build>
                 <plugins>

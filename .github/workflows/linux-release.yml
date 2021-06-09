@@ -69,7 +69,9 @@ jobs:
       - name: Change rpath of MonetDB libraries to package
         if: ${{ matrix.artifact == 'fat' }}
         run: |
+          ldd $GITHUB_WORKSPACE/collect_libs/*
           for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r \$\ORIGIN/. $file; done
+          ldd $GITHUB_WORKSPACE/collect_libs/*
       - name: Collect transitive dependencies (only for fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
@@ -90,8 +92,15 @@ jobs:
         run: |
           javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
           java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
+      - name: Publish error log
+        if: failed()
+        uses: actions/upload-artifact@v2
+        with:
+          name: hs_err.log
+          path: /__w/MonetDBe-Java/MonetDBe-Java/hs_err_pid*.log
       - name: Publish Linux jar
         uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: ${{env.ARTIFACT}}
           path: ${{env.M2_REPO}}/${{env.ARTIFACT}}
