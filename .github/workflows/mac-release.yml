@@ -134,6 +134,7 @@ jobs:
           java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
       - name: Publish Mac jar
         uses: actions/upload-artifact@v2
+        if: always()
         with:
           name: ${{env.ARTIFACT}}
           path: ${{env.M2_REPO}}/${{env.ARTIFACT}}
