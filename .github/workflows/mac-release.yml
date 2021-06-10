@@ -6,6 +6,7 @@ jobs:
     name: mac_jars
     runs-on: macos-latest
     strategy:
+      fail-fast: false
       matrix:
         artifact: ["slim", "fat"]
     env:
