@@ -194,7 +194,7 @@ public class MonetNative {
      * @param nr_threads     Option for monetdbe_open() library function
      * @return Error message
      */
-    protected static native String monetdbe_open(String dbdir, MonetConnection conn, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads);
+    protected static native String monetdbe_open(String dbdir, MonetConnection conn, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads, String logfile);
 
     /**
      * Open connection to remote connection database.
@@ -212,7 +212,7 @@ public class MonetNative {
      * @param password       Password in the remote database
      * @return Error message
      */
-    protected static native String monetdbe_open(String dbdir, MonetConnection conn, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads, String host, int port, String database, String user, String password);
+    protected static native String monetdbe_open(String dbdir, MonetConnection conn, int sessiontimeout, int querytimeout, int memorylimit, int nr_threads, String host, int port, String database, String user, String password, String logfile);
 
     /**
      * Close the database connection.

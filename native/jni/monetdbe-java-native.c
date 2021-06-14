@@ -4,6 +4,16 @@
 #include <string.h>
 #include <stdio.h>
 
+void set_options_log (JNIEnv *env, monetdbe_options *opts, jstring j_logfile) {
+#ifdef MONETDBE_VERSION
+    if (j_logfile != NULL)
+    {
+        const char *logfile = (*env)->GetStringUTFChars(env, j_logfile, NULL);
+        opts->trace_file = logfile;
+    }
+#endif
+}
+
 void set_options_mapi(JNIEnv *env, monetdbe_options *opts, jstring j_port, jstring j_sock)
 {
 #ifdef MONETDBE_VERSION
@@ -43,7 +53,7 @@ void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jin
 #endif
 }
 
-monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
+monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_logfile)
 {
     monetdbe_options *opts = malloc(sizeof(monetdbe_options));
     opts->memorylimit = (int)j_memorylimit;
@@ -54,6 +64,9 @@ monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_queryti
     opts->remote = NULL;
     opts->mapi_server = NULL;
 #endif
+    if (j_logfile != NULL) {
+        set_options_log(env,opts,j_logfile);
+    }
     return opts;
 }
 
@@ -92,15 +105,15 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__
     return open_db(env, j_url, NULL, j_connection);
 }
 
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIII(JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2(JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_logfile)
 {
-    monetdbe_options *opts = set_options(env, j_sessiontimeout, j_querytimeout, j_memorylimit, j_nr_threads);
+    monetdbe_options *opts = set_options(env, j_sessiontimeout, j_querytimeout, j_memorylimit, j_nr_threads,j_logfile);
     return open_db(env, j_url, opts, j_connection);
 }
 
-JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2(JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password)
+JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1open__Ljava_lang_String_2Lorg_monetdb_monetdbe_MonetConnection_2IIIILjava_lang_String_2ILjava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2(JNIEnv *env, jclass self, jstring j_url, jobject j_connection, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads, jstring j_host, jint j_port, jstring j_database, jstring j_user, jstring j_password, jstring j_logfile)
 {
-    monetdbe_options *opts = set_options(env, j_sessiontimeout, j_querytimeout, j_memorylimit, j_nr_threads);
+    monetdbe_options *opts = set_options(env, j_sessiontimeout, j_querytimeout, j_memorylimit, j_nr_threads,j_logfile);
     set_options_remote(env, opts, j_host, j_port, j_database, j_user, j_password);
     return open_db(env, j_url, opts, j_connection);
 }

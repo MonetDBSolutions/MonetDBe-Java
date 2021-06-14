@@ -45,6 +45,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
     /** The full MonetDB JDBC Connection URL used for this Connection */
     private String jdbcURL;
 
+    private String logfile;
+
     /**
      * Constructor of a Connection for MonetDB.
      *
@@ -60,6 +62,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.memorylimit = Integer.parseInt(props.getProperty("memorylimit", "0"));
         this.nr_threads = Integer.parseInt(props.getProperty("nr_threads", "0"));
 
+        this.logfile = props.getProperty("logfile",null);
+
         //Necessary for DatabaseMetadata method
         this.jdbcURL = props.getProperty("jdbc-url");
         String error_msg;
@@ -73,13 +77,13 @@ public class MonetConnection extends MonetWrapper implements Connection {
             String password = props.getProperty("password", "monetdb");
 
             //Remote connections pass a null argument for URL
-            error_msg = MonetNative.monetdbe_open(null, this, sessiontimeout, querytimeout, memorylimit, nr_threads, host, port, database, user, password);
+            error_msg = MonetNative.monetdbe_open(null, this, sessiontimeout, querytimeout, memorylimit, nr_threads, host, port, database, user, password, logfile);
         }
         //Local directory and in-memory databases
         else {
             //Directory for local, null for in-memory
             String path = props.getProperty("path", null);
-            error_msg = MonetNative.monetdbe_open(path, this, sessiontimeout, querytimeout, memorylimit, nr_threads);
+            error_msg = MonetNative.monetdbe_open(path, this, sessiontimeout, querytimeout, memorylimit, nr_threads, logfile);
         }
 
         //Error when opening db
