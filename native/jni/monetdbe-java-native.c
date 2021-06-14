@@ -11,6 +11,9 @@ void set_options_log (JNIEnv *env, monetdbe_options *opts, jstring j_logfile) {
         const char *logfile = (*env)->GetStringUTFChars(env, j_logfile, NULL);
         opts->trace_file = logfile;
     }
+    else {
+        opts->trace_file = NULL;
+    }
 #endif
 }
 
@@ -63,10 +66,8 @@ monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_queryti
 #ifdef MONETDBE_VERSION
     opts->remote = NULL;
     opts->mapi_server = NULL;
+    set_options_log(env,opts,j_logfile);
 #endif
-    if (j_logfile != NULL) {
-        set_options_log(env,opts,j_logfile);
-    }
     return opts;
 }
 
