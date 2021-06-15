@@ -79,12 +79,13 @@ jobs:
           cmake --build . --target INSTALL  --config Release
 
       #Install native library, collect libraries, package jar, test and deploy
+      #mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release --no-transfer-progress
       - name: Install native library, collect libraries, package jar, test and deploy
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
           mvn clean install "-DMonetDB_dir=C:\monetdb" --no-transfer-progress
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
-          mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release,sign-gpg --no-transfer-progress
+          mvn clean install "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT"--no-transfer-progress
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}

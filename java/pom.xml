@@ -499,66 +499,6 @@
         <profile>
             <id>cross</id>
             <properties>
-                <!--<jar.classifier>cross</jar.classifier>-->
-                <!-- Do not skip tests, as this is a release profile -->
-                <skipTests>false</skipTests>
-            </properties>
-            <build>
-                <plugins>
-                    <!-- Copy all dependencies to lib folder  -->
-                    <plugin>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.0.2</version>
-                        <executions>
-                            <execution>
-                                <id>copy-everything</id>
-                                <phase>compile</phase>
-                                <goals>
-                                    <goal>copy-resources</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.outputDirectory}/lib/</outputDirectory>
-                                    <resources>
-                                        <resource>
-                                            <directory>${COLLECT_LIBS}</directory>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <!-- Enforce that COLLECT_LIBS is set -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>1.4.1</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-property</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <requireProperty>
-                                            <property>COLLECT_LIBS</property>
-                                            <message>You must set the COLLECT_LIBS property, pointing to the directory where the all pre-compiled libraries for Linux, Mac and Windows are.</message>
-                                        </requireProperty>
-                                    </rules>
-                                    <fail>true</fail>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Manual linux release-->
-        <profile>
-            <id>linux-manual</id>
-            <properties>
-                <jar.classifier>linux-slim</jar.classifier>
                 <!-- Do not skip tests, as this is a release profile -->
                 <skipTests>false</skipTests>
             </properties>
@@ -679,14 +619,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>sign-gpg</id>
-            <build>
-                <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -711,33 +643,6 @@
                 </plugins>
             </build>
         </profile>
-
-        <!--<profile>
-            <id>sign-jarsigner</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jarsigner-plugin</artifactId>
-                        <version>3.0.0</version>
-                        <executions>
-                            <execution>
-                                <id>sign</id>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <keystore>/root/.m2/private.key</keystore>
-                            <alias>bernardo</alias>
-                            <storepass>${MVN_GPG_PASSPHRASE}</storepass>
-                            <keypass>${MVN_GPG_PASSPHRASE}</keypass>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>-->
     </profiles>
 
     <build>

@@ -17,16 +17,18 @@ jobs:
       - uses: actions/checkout@v2
 
       #Set global environment variables
+      #echo "MVN_FLAGS=linux-slim,release" >> $GITHUB_ENV
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,release" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-slim.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
+      #echo "MVN_FLAGS=linux-slim,linux-fat,release" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,linux-fat,release" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,linux-fat" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-fat.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
 
@@ -82,7 +84,7 @@ jobs:
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb
