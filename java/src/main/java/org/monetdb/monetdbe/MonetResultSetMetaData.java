@@ -13,12 +13,8 @@ import java.sql.Types;
 public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMetaData {
     /** The names of the columns in this ResultSet */
     private final String[] names;
-    /** The MonetDB types of the columns in this ResultSet as integers */
-    private final int[] types;
     /** The MonetDB types of the columns in this ResultSet as strings */
     private final String[] monetTypes;
-    /** The MonetDB types of the columns in this ResultSet as ints */
-    private final int[] monetTypesInt;
     /** The JDBC SQL types of the columns in this ResultSet */
     private final int[] sqlTypes;
     /** The name of the Java classes corresponding to the columns in this ResultSet */
@@ -27,21 +23,17 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     private final int[] scales;
 
     //Constructor for PreparedStatement without query execution
-    MonetResultSetMetaData(String[] resultNames, int[] resultMonetTypes, int ncols) {
+    MonetResultSetMetaData(int ncols, String[] resultMonetGDKTypes, String[] resultNames) {
         this.names = resultNames;
-        this.types = resultMonetTypes;
-
         this.monetTypes = new String[ncols];
-        this.monetTypesInt = new int[ncols];
         this.sqlTypes = new int[ncols];
         this.javaTypes = new String[ncols];
         this.scales = new int[ncols];
 
         for(int i = 0; i<ncols; i++ ) {
-            monetTypes[i] = MonetTypes.getMonetTypeString(resultMonetTypes[i]);
-            monetTypesInt[i] = resultMonetTypes[i];
-            sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(resultMonetTypes[i]);
-            javaTypes[i] = MonetTypes.getClassForMonetType(resultMonetTypes[i]).getName();
+            monetTypes[i] = MonetTypes.getMonetTypeStringFromGDKType(resultMonetGDKTypes[i]);
+            sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(MonetTypes.getMonetTypeFromGDKType(resultMonetGDKTypes[i]));
+            javaTypes[i] = MonetTypes.getClassForMonetType(MonetTypes.getMonetTypeFromGDKType(resultMonetGDKTypes[i])).getName();
         }
     }
 
@@ -51,18 +43,14 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
      **/
     MonetResultSetMetaData(MonetColumn[] columns, int ncols) {
         this.names = new String[ncols];
-        this.types = new int[ncols];
         this.monetTypes = new String[ncols];
-        this.monetTypesInt = new int[ncols];
         this.sqlTypes = new int[ncols];
         this.javaTypes = new String[ncols];
         this.scales = new int[ncols];
 
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
-            types[i] = columns[i].getMonetdbeType();
             monetTypes[i] = columns[i].getTypeName();
-            monetTypesInt[i] = columns[i].getMonetdbeType();
             sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(columns[i].getMonetdbeType());
             javaTypes[i] = MonetTypes.getClassForMonetType(columns[i].getMonetdbeType()).getName();
             scales[i] = columns[i].getScaleJDBC();
@@ -289,21 +277,6 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     public String getColumnTypeName(int column) throws SQLException {
         try {
             return monetTypes[column-1];
-        } catch (IndexOutOfBoundsException e) {
-            throw new SQLException("columnIndex out of bounds");
-        }
-    }
-
-    /**
-     * Retrieves the designated column's MonetDBe type name as an integer.
-     *
-     * @param column Column number (starts at 1)
-     * @return MonetDBe type as an integer
-     * @throws SQLException if the column parameter is out of bounds
-     */
-    public int getColumnTypeInt(int column) throws SQLException {
-        try {
-            return monetTypesInt[column-1];
         } catch (IndexOutOfBoundsException e) {
             throw new SQLException("columnIndex out of bounds");
         }

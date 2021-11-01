@@ -33,9 +33,13 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     protected ByteBuffer statementNative;
     /**
-     * Metadata object containing info about this prepared statement
+     * Metadata object containing info about the input parameters of the prepared statement
      */
     private MonetParameterMetaData parameterMetaData;
+    /**
+     * Metadata object containing info about the output columns of the prepared statement
+     */
+    private MonetResultSetMetaData resultSetMetaData;
     /**
      * Number of bind-able parameters
      */
@@ -45,6 +49,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     protected int[] monetdbeTypes;
     /**
+     * Array of MonetDB GDK internal types of bind-able parameters
+     */
+    protected String[] paramMonetGDKTypes;
+    /**
      * Currently bound parameters
      */
     private Object[] parameters;
@@ -52,6 +60,18 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      * Array of bound parameters, for use in executeBatch()
      */
     private List<Object[]> parametersBatch = null;
+    /**
+     * Number of columns in the pre-compiled result set of the PreparedStatement
+     */
+    protected int nCols;
+    /**
+     * MonetDB GDK types for the columns in the pre-compiled result set
+     */
+    protected String[] resultMonetGDKTypes;
+    /**
+     * Column names for the pre-compiled result set
+     */
+    protected String[] resultNames;
 
     /**
      * Prepared statement constructor, calls monetdbe_prepare() and super-class Statement constructor.
@@ -63,17 +83,14 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
-        //nParams, monetdbeTypes and statementNative variables are set within this function
+        //nParams, paramMonetGDKTypes, nCols, resultMonetGDKTypes, resultNames and statementNative variables are set within this function
         String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(), sql, this);
-
         //Failed prepare, destroy statement
-        if (error_msg != null || this.statementNative == null || (this.monetdbeTypes == null && nParams > 0) || (this.monetdbeTypes != null && this.monetdbeTypes.length != nParams)) {
+        if (error_msg != null || this.statementNative == null) {
             if (error_msg != null)
                 System.err.println("Prepare statement error: " + error_msg);
-            else if (this.statementNative == null)
+            else
                 System.err.println("Prepare statement error: statement native object is null");
-            else if (this.monetdbeTypes == null && nParams > 0)
-                System.err.println("Prepare statement error: type information was not correctly set");
 
             try {
                 this.close();
@@ -82,13 +99,25 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             }
         }
 
-        if (nParams >= 0) {
+        if (nParams > 0) {
+            this.monetdbeTypes = new int[nParams];
+            for (int i = 0; i < nParams; i++)
+                monetdbeTypes[i] = MonetTypes.getMonetTypeFromGDKType(paramMonetGDKTypes[i]);
             this.parameterMetaData = new MonetParameterMetaData(nParams, monetdbeTypes);
             this.parameters = new Object[nParams];
         }
         else {
             //If there are no parameters, set the variable to null for later checks
             this.parameters = null;
+            this.monetdbeTypes = null;
+            this.parameterMetaData = null;
+        }
+
+        if (nCols > 0) {
+            this.resultSetMetaData = new MonetResultSetMetaData(nCols,resultMonetGDKTypes,resultNames);
+        }
+        else {
+            this.resultSetMetaData = null;
         }
     }
 
@@ -338,13 +367,21 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     /**
-     * This feature is not currently supported
+     * Retrieves a ResultSetMetaData object that contains information about the columns of the ResultSet object that
+     * will be returned when this PreparedStatement object is executed.
      *
-     * @throws SQLFeatureNotSupportedException this feature is not currently supported.
+     * Because a PreparedStatement object is precompiled, it is possible to know about the ResultSet object that it
+     * will return without having to execute it. Consequently, it is possible to invoke the method getMetaData on a
+     * PreparedStatement object rather than waiting to execute it and then invoking the ResultSet.getMetaData method on
+     * the ResultSet object that is returned.
+     *
+     * @return the description of a ResultSet object's columns or null if there are no output columns
+     * @throws SQLException if a database access error occurs
      */
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        throw new SQLFeatureNotSupportedException("getMetaData()");
+        checkNotClosed();
+        return this.resultSetMetaData;
     }
 
     /**
@@ -357,7 +394,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public ParameterMetaData getParameterMetaData() throws SQLException {
         checkNotClosed();
-        return parameterMetaData;
+        return this.parameterMetaData;
     }
 
     /**

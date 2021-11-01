@@ -247,7 +247,45 @@ public class MonetTypes {
     protected static Class<?> getClassForMonetType(final int monetdbeType) { return getClassForSQLType(getSQLTypeFromMonet(monetdbeType));}
 
     //Other utilities
+    //TODO The HUGEINT/BigInt type is incorrect (big)
+    //TODO The unknown type is incorrect (unknown)
+    //TODO The size_t type is incorrect (size)
+    //MonetDB GDK types
+    static final String[] monetdbGDKTypes = {"bit","bte","sht","int","lng","big","size","flt","dbl","str","blob","date","daytime","timestamp","unknown"};
+    //MonetDBe types
     static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+
+
+    /**
+     * Returns the MonetDBe string type for a MonetDB GDK type
+     * @param monetdbgdktype MonetDB GDK type
+     * @return Name of the MonetDBe type
+     */
+    protected static String getMonetTypeStringFromGDKType(final String monetdbgdktype) {
+        for (int i = 0; i < monetdbGDKTypes.length; i++) {
+            String gdktype = monetdbGDKTypes[i];
+            if (gdktype.equals(monetdbgdktype)) {
+                return monetdbeTypes[i];
+            }
+        }
+        return "monetdbe_type_unknown";
+    }
+
+    /**
+     * Returns the MonetDBe int type for a MonetDB GDK type
+     * @param monetdbgdktype MonetDB GDK type
+     * @return Int value of the MonetDBe type
+     */
+    protected static int getMonetTypeFromGDKType(final String monetdbgdktype) {
+        for (int i = 0; i < monetdbGDKTypes.length; i++) {
+            String gdktype = monetdbGDKTypes[i];
+            if (gdktype.equals(monetdbgdktype)) {
+                return i;
+            }
+        }
+        //Unknown type
+        return 13;
+    }
 
     /**
      * Returns the String name for the MonetDBe type (int)

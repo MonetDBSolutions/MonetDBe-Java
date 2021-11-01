@@ -81,6 +81,8 @@ jstring open_db(JNIEnv *env, jstring j_url, monetdbe_options *opts, jobject j_co
 
     monetdbe_database *db = malloc(sizeof(monetdbe_database));
 
+    printf("Log: %s\n",opts->trace_file);
+    fflush(stdout);
     int error_code = monetdbe_open(db, (char *)url, opts);
     if (url != NULL)
     {
@@ -671,57 +673,89 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result
     }
 }
 
+//TODO Do frees
+//TODO Get scale and digits from results to Java objects
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
     monetdbe_statement **stmt = malloc(sizeof(monetdbe_statement *));
     char *sql = (char *)(*env)->GetStringUTFChars(env, j_sql, NULL);
+    monetdbe_result** result = malloc(sizeof(monetdbe_result *));
 
-    char *error_msg = monetdbe_prepare(db, sql, stmt);
+    char *error_msg = monetdbe_prepare(db, sql, stmt, result);
     if (error_msg)
     {
         return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else
     {
-        //Set parameter number
-        int nParams = (*stmt)->nparam;
         jclass statementClass = (*env)->GetObjectClass(env, j_statement);
-        jfieldID paramsField = (*env)->GetFieldID(env, statementClass, "nParams", "I");
-        (*env)->SetIntField(env, j_statement, paramsField, (jint)nParams);
+        monetdbe_column **column = malloc(sizeof(monetdbe_column *));
+        int nOutput = 0;
+        int nInput = 0;
+        int j;
 
-        //Set parameter types
-        if (nParams > 0)
+        //Getting column names column (6th column)
+        char *error_msg = monetdbe_result_fetch(*result, column, 5);
+        char **nameData = (char **)(*column)->data;
+        //Counting number of output columns
+        for (int i = 0; i < (*column)->count; i++)
         {
-            jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
-//If int128 is not defined, add 1 to types after monetdbe_int64_t to "align" the type with versions with int128 defined
-#ifndef HAVE_HGE
-            jint *aligned = malloc(sizeof(jint) * nParams);
-            for (int i = 0; i < nParams; i++)
+            if (nameData[i] != NULL)
+                nOutput += 1;
+            else
+                nInput += 1;
+        }
+        jfieldID nColsField = (*env)->GetFieldID(env, statementClass, "nCols", "I");
+        (*env)->SetIntField(env, j_statement, nColsField, (jint)nOutput);
+        jfieldID paramsField = (*env)->GetFieldID(env, statementClass, "nParams", "I");
+        (*env)->SetIntField(env, j_statement, paramsField, (jint)nInput);
+
+        //Setting input variables
+        if (nInput > 0)
+        {
+            jobjectArray inputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nInput,(*env)->FindClass(env,"java/lang/String"),NULL);
+            //Getting MonetDB GDK types column (7th column)
+            char *error_msg = monetdbe_result_fetch(*result, column, 6);
+            char **typeData = (char **)(*column)->data;
+            //Looping through output column types
+            j = 0;
+            for (int i = 0; i < (*column)->count; i++)
             {
-                //Types after monetdbe_int64_t
-                if ((*stmt)->type[i] > 4)
-                {
-                    aligned[i] = (*stmt)->type[i] + 1;
-                }
-                else
-                {
-                    aligned[i] = (*stmt)->type[i];
+                if (nameData[i] == NULL) {
+                    (*env)->SetObjectArrayElement(env,inputMonetdbTypes,(jsize)j,(*env)->NewStringUTF(env, (const char *)typeData[i]));
+                    j += 1;
                 }
             }
-            (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, aligned);
-            free(aligned);
-#else
-            //If int128 is define, we can just copy the whole type array
-            (*env)->SetIntArrayRegion(env, j_parameterTypes, 0, nParams, (jint *)(*stmt)->type);
-#endif
-
-            jfieldID paramTypesField = (*env)->GetFieldID(env, statementClass, "monetdbeTypes", "[I");
-            (*env)->SetObjectField(env, j_statement, paramTypesField, j_parameterTypes);
+            jfieldID paramTypesField = (*env)->GetFieldID(env, statementClass, "paramMonetGDKTypes", "[Ljava/lang/String;");
+            (*env)->SetObjectField(env, j_statement, paramTypesField, inputMonetdbTypes);
         }
-
+        //Setting output variables
+        if (nOutput > 0) {
+            jobjectArray columnNames = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
+            jobjectArray outputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
+            //Getting column names column (6th column)
+            char *error_msg = monetdbe_result_fetch(*result, column, 5);
+            nameData = (char **)(*column)->data;
+            //Getting MonetDB GDK types column (7th column)
+            error_msg = monetdbe_result_fetch(*result, column, 6);
+            char **typeData = (char **)(*column)->data;
+            //Looping through output column names again to save column names and types
+            j = 0;
+            for (int i = 0; i < (*column)->count; i++)
+            {
+                if (nameData[i] != NULL) {
+                    (*env)->SetObjectArrayElement(env,columnNames,(jsize)j,(*env)->NewStringUTF(env, (const char *)nameData[i]));
+                    (*env)->SetObjectArrayElement(env,outputMonetdbTypes,(jsize)j,(*env)->NewStringUTF(env, (const char *)typeData[i]));
+                    j += 1;
+                }
+            }
+            jfieldID resultTypesField = (*env)->GetFieldID(env, statementClass, "resultMonetGDKTypes", "[Ljava/lang/String;");
+            (*env)->SetObjectField(env,j_statement,resultTypesField,(jobjectArray)outputMonetdbTypes);
+            jfieldID resultNamesField = (*env)->GetFieldID(env, statementClass, "resultNames", "[Ljava/lang/String;");
+            (*env)->SetObjectField(env,j_statement,resultNamesField,(jobjectArray)columnNames);
+        }
         (*env)->ReleaseStringUTFChars(env, j_sql, sql);
-
         jfieldID statementNativeField = (*env)->GetFieldID(env, statementClass, "statementNative", "Ljava/nio/ByteBuffer;");
         (*env)->SetObjectField(env, j_statement, statementNativeField, (*env)->NewDirectByteBuffer(env, (*stmt), sizeof(monetdbe_statement)));
         return NULL;
