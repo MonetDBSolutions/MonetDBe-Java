@@ -36,6 +36,8 @@ public class PreparedQueries {
                     System.out.println("Param " + i);
                     System.out.println("Monet type: " + pMeta.getParameterTypeName(i));
                     System.out.println("SQL type: " + pMeta.getParameterType(i));
+                    System.out.println("Precision: " + pMeta.getPrecision(i));
+                    System.out.println("Scale: " + pMeta.getScale(i));
                     System.out.println();
                 }
                 System.out.println();
@@ -168,7 +170,7 @@ public class PreparedQueries {
             create(s);
             PreparedStatement ps = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);");
             preparedInsert(ps);
-            preparedNullInsert(ps);
+            //preparedNullInsert(ps);
             queryPrepared(c);
             query(s);
 

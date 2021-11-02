@@ -23,7 +23,9 @@ public class MonetColumn {
     private ByteBuffer constData;
     /** Stores variable length types */
     private Object[] varData;
-    /** Scale for decimal/numerical values */
+    /** Precision for numerical values */
+    private double precision;
+    /** Scale for numerical values */
     private double scale;
     /** Column name */
     private String name;
@@ -43,11 +45,12 @@ public class MonetColumn {
      * @param decimalNulls Array containing the indexes of nulls for decimal values (null if it's not a decimal)
      *
      */
-    public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double scale, boolean[] decimalNulls) {
+    public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double precision, double scale, boolean[] decimalNulls) {
         this.name = name;
         this.monetdbeType = monetdbeType;
         this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
         this.constData = constData.order(ByteOrder.LITTLE_ENDIAN);
+        this.precision = precision;
         this.scale = scale;
         this.decimalNulls = decimalNulls;
     }

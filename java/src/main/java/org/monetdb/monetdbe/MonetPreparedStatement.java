@@ -28,63 +28,53 @@ import java.util.List;
  * If arbitrary parameter type conversions are required, the method setObject should be used with a target SQL type.
  */
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
-    /**
-     * The pointer to the C statement object
-     */
+    /* PreparedStatement state variables */
+    /** The pointer to the C statement object */
     protected ByteBuffer statementNative;
-    /**
-     * Metadata object containing info about the input parameters of the prepared statement
-     */
-    private MonetParameterMetaData parameterMetaData;
-    /**
-     * Metadata object containing info about the output columns of the prepared statement
-     */
-    private MonetResultSetMetaData resultSetMetaData;
-    /**
-     * Number of bind-able parameters
-     */
-    protected int nParams;
-    /**
-     * Array of types of bind-able parameters
-     */
-    protected int[] monetdbeTypes;
-    /**
-     * Array of MonetDB GDK internal types of bind-able parameters
-     */
-    protected String[] paramMonetGDKTypes;
-    /**
-     * Currently bound parameters
-     */
+    /** Currently bound parameters */
     private Object[] parameters;
-    /**
-     * Array of bound parameters, for use in executeBatch()
-     */
+    /** Array of bound parameters, for use in executeBatch() */
     private List<Object[]> parametersBatch = null;
-    /**
-     * Number of columns in the pre-compiled result set of the PreparedStatement
-     */
+
+    /* Input parameters variables */
+    /** Metadata object containing info about the input parameters of the prepared statement */
+    private MonetParameterMetaData parameterMetaData;
+    /** Number of bind-able parameters */
+    protected int nParams;
+    /** Array of types of bind-able parameters */
+    protected int[] monetdbeTypes;
+    /** Array of MonetDB GDK internal types of bind-able parameters */
+    protected String[] paramMonetGDKTypes;
+    /** Digits for bind-able parameters */
+    protected int[] digitsInput;
+    /** Scales for bind-able parameters */
+    protected int[] scaleInput;
+
+    /* Output result variables */
+    /** Metadata object containing info about the output columns of the prepared statement */
+    private MonetResultSetMetaData resultSetMetaData;
+    /** Number of columns in the pre-compiled result set of the PreparedStatement */
     protected int nCols;
-    /**
-     * MonetDB GDK types for the columns in the pre-compiled result set
-     */
+    /** MonetDB GDK types for the columns in the pre-compiled result set */
     protected String[] resultMonetGDKTypes;
-    /**
-     * Column names for the pre-compiled result set
-     */
+    /** Column names for the pre-compiled result set */
     protected String[] resultNames;
 
     /**
      * Prepared statement constructor, calls monetdbe_prepare() and super-class Statement constructor.
      * The prepared statement is destroyed if the monetdbe_prepare() call returned an error.
-     * The nParams, monetdbeTypes and statementNative variables are set within monetdbe_prepare();
+     *
+     * The statementNative variable is set within monetdbe_prepare()
+     * If there are input parameters: nParams and paramMonetGDKTypes are set within monetdbe_prepare()
+     * If there are output parameters: nCols, resultMonetGDKTypes and resultNames are set within monetdbe_prepare()
      *
      * @param conn parent connection
      * @param sql  query to prepare
      */
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
-        //nParams, paramMonetGDKTypes, nCols, resultMonetGDKTypes, resultNames and statementNative variables are set within this function
         String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(), sql, this);
+
         //Failed prepare, destroy statement
         if (error_msg != null || this.statementNative == null) {
             if (error_msg != null)
@@ -103,7 +93,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             this.monetdbeTypes = new int[nParams];
             for (int i = 0; i < nParams; i++)
                 monetdbeTypes[i] = MonetTypes.getMonetTypeFromGDKType(paramMonetGDKTypes[i]);
-            this.parameterMetaData = new MonetParameterMetaData(nParams, monetdbeTypes);
+            this.parameterMetaData = new MonetParameterMetaData(nParams, monetdbeTypes,digitsInput,scaleInput);
             this.parameters = new Object[nParams];
         }
         else {

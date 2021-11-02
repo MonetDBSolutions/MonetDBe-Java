@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdio.h>
 
+//TODO Look into frees
+
 void set_options_log (JNIEnv *env, monetdbe_options *opts, jstring j_logfile) {
 #ifdef MONETDBE_VERSION
     if (j_logfile != NULL)
@@ -408,7 +410,7 @@ void parseColumnBlob(JNIEnv *env, jobjectArray j_columns, int index, monetdbe_co
     addColumnVar(env, j_columns, index, type, column->name, j_data);
 }
 
-void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name, int type, int row_count, int row_size, int column_number, int scale, unsigned char *decimalNulls)
+void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name, int type, int row_count, int row_size, int column_number, int precision, int scale, unsigned char *decimalNulls)
 {
     jobject j_data = (*env)->NewDirectByteBuffer(env, data, row_count * row_size);
     jstring j_name = (*env)->NewStringUTF(env, (const char *)name);
@@ -423,9 +425,9 @@ void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name,
     }
 
     jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;D[Z)V");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;DD[Z)V");
 
-    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, (jint)type, j_data, (jdouble)scale, j_decimal_nulls);
+    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, (jint)type, j_data, (jdouble)precision, (jdouble)scale, j_decimal_nulls);
     (*env)->SetObjectArrayElement(env, j_columns, column_number, j_column_object);
 }
 
@@ -458,7 +460,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_bool->data[j] = 0;
                     }
                 }
-                addColumnConst(env, j_columns, c_bool->data, c_bool->name, c_bool->type, c_bool->count, 8, i, 0, NULL);
+                addColumnConst(env, j_columns, c_bool->data, c_bool->name, c_bool->type, c_bool->count, 8, i, c_bool->sql_type.digits, c_bool->sql_type.scale, NULL);
                 break;
             }
             case monetdbe_int8_t:
@@ -483,7 +485,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, c_int8_t->type, row_count, 8, i, c_int8_t->scale, decimalNulls);
+                addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, c_int8_t->type, row_count, 8, i, c_int8_t->sql_type.digits, c_int8_t->sql_type.scale, decimalNulls);
                 break;
             }
             case monetdbe_int16_t:
@@ -508,7 +510,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, c_int16_t->type, row_count, 16, i, c_int16_t->scale, decimalNulls);
+                addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, c_int16_t->type, row_count, 16, i, c_int16_t->sql_type.digits, c_int16_t->sql_type.scale, decimalNulls);
                 break;
             }
             case monetdbe_int32_t:
@@ -533,7 +535,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, c_int32_t->type, row_count, 32, i, c_int32_t->scale, decimalNulls);
+                addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, c_int32_t->type, row_count, 32, i, c_int32_t->sql_type.digits, c_int32_t->sql_type.scale, decimalNulls);
                 break;
             }
             case monetdbe_int64_t:
@@ -558,7 +560,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, c_int64_t->type, row_count, 64, i, c_int64_t->scale, decimalNulls);
+                addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, c_int64_t->type, row_count, 64, i, c_int64_t->sql_type.digits, c_int64_t->sql_type.scale, decimalNulls);
                 break;
             }
 #ifdef HAVE_HGE
@@ -584,7 +586,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, c_int128_t->type, row_count, 128, i, c_int128_t->scale, decimalNulls);
+                addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, c_int128_t->type, row_count, 128, i, c_int128_t->sql_type.digits, c_int128_t->sql_type.scale, decimalNulls);
                 break;
             }
 #endif
@@ -604,7 +606,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
 #ifndef HAVE_HGE
                 type = type + 1;
 #endif
-                addColumnConst(env, j_columns, c_float->data, c_float->name, type, c_float->count, 32, i, 0, NULL);
+                addColumnConst(env, j_columns, c_float->data, c_float->name, type, c_float->count, 32, i, c_float->sql_type.digits, c_float->sql_type.scale, NULL);
                 break;
             }
             case monetdbe_double:
@@ -622,7 +624,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
 #ifndef HAVE_HGE
                 type = type + 1;
 #endif
-                addColumnConst(env, j_columns, c_double->data, c_double->name, type, c_double->count, 64, i, 0, NULL);
+                addColumnConst(env, j_columns, c_double->data, c_double->name, type, c_double->count, 64, i, c_double->sql_type.digits, c_double->sql_type.scale, NULL);
                 break;
             }
             case monetdbe_str:
@@ -673,8 +675,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result
     }
 }
 
-//TODO Do frees
-//TODO Get scale and digits from results to Java objects
+//TODO Do I need to free every column object after it is retrieved through monetdbe_result_fetch()?
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement)
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
@@ -693,12 +694,18 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         monetdbe_column **column = malloc(sizeof(monetdbe_column *));
         int nOutput = 0;
         int nInput = 0;
-        int j;
+        int j = 0;
+        char *error_msg;
+
+        //Freeing sql query and setting native statement
+        (*env)->ReleaseStringUTFChars(env, j_sql, sql);
+        jfieldID statementNativeField = (*env)->GetFieldID(env, statementClass, "statementNative", "Ljava/nio/ByteBuffer;");
+        (*env)->SetObjectField(env, j_statement, statementNativeField, (*env)->NewDirectByteBuffer(env, (*stmt), sizeof(monetdbe_statement)));
 
         //Getting column names column (6th column)
-        char *error_msg = monetdbe_result_fetch(*result, column, 5);
+        error_msg = monetdbe_result_fetch(*result, column, 5);
         char **nameData = (char **)(*column)->data;
-        //Counting number of output columns
+        //Counting number of input and output columns
         for (int i = 0; i < (*column)->count; i++)
         {
             if (nameData[i] != NULL)
@@ -706,6 +713,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
             else
                 nInput += 1;
         }
+        //Setting number of in/out variables in Java object
         jfieldID nColsField = (*env)->GetFieldID(env, statementClass, "nCols", "I");
         (*env)->SetIntField(env, j_statement, nColsField, (jint)nOutput);
         jfieldID paramsField = (*env)->GetFieldID(env, statementClass, "nParams", "I");
@@ -715,18 +723,42 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         if (nInput > 0)
         {
             jobjectArray inputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nInput,(*env)->FindClass(env,"java/lang/String"),NULL);
+            jintArray inputDigits = (jintArray) (*env)->NewIntArray(env,nInput);
+            jint* inputDigitsArray = malloc(sizeof(jint)*nInput);
+            jintArray inputScale = (jintArray) (*env)->NewIntArray(env,nInput);
+            jint* inputScaleArray = malloc(sizeof(jint)*nInput);
+
             //Getting MonetDB GDK types column (7th column)
-            char *error_msg = monetdbe_result_fetch(*result, column, 6);
+            error_msg = monetdbe_result_fetch(*result, column, 6);
             char **typeData = (char **)(*column)->data;
-            //Looping through output column types
+            //Getting MonetDB digits column (2nd column)
+            error_msg = monetdbe_result_fetch(*result, column, 1);
+            int *digitsData = (int *)(*column)->data;
+            //Getting MonetDB digits column (3rd column)
+            error_msg = monetdbe_result_fetch(*result, column, 2);
+            int *scaleData = (int *)(*column)->data;
+
+            //Looping through input columns
             j = 0;
             for (int i = 0; i < (*column)->count; i++)
             {
                 if (nameData[i] == NULL) {
                     (*env)->SetObjectArrayElement(env,inputMonetdbTypes,(jsize)j,(*env)->NewStringUTF(env, (const char *)typeData[i]));
+                    inputDigitsArray[j] = digitsData[i];
+                    inputScaleArray[j] = scaleData[i];
                     j += 1;
                 }
             }
+            (*env)->SetIntArrayRegion(env,inputDigits,0,nInput,(const jint*)inputDigitsArray);
+            (*env)->SetIntArrayRegion(env,inputScale,0,nInput,(const jint*)inputScaleArray);
+
+            jfieldID digitsField = (*env)->GetFieldID(env, statementClass, "digitsInput", "[I");
+            jfieldID scaleField = (*env)->GetFieldID(env, statementClass, "scaleInput", "[I");
+            (*env)->SetObjectField(env, j_statement, digitsField, inputDigits);
+            (*env)->SetObjectField(env, j_statement, scaleField, inputScale);
+            free(inputDigitsArray);
+            free(inputScaleArray);
+
             jfieldID paramTypesField = (*env)->GetFieldID(env, statementClass, "paramMonetGDKTypes", "[Ljava/lang/String;");
             (*env)->SetObjectField(env, j_statement, paramTypesField, inputMonetdbTypes);
         }
@@ -735,7 +767,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
             jobjectArray columnNames = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
             jobjectArray outputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
             //Getting column names column (6th column)
-            char *error_msg = monetdbe_result_fetch(*result, column, 5);
+            error_msg = monetdbe_result_fetch(*result, column, 5);
             nameData = (char **)(*column)->data;
             //Getting MonetDB GDK types column (7th column)
             error_msg = monetdbe_result_fetch(*result, column, 6);
@@ -755,9 +787,8 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
             jfieldID resultNamesField = (*env)->GetFieldID(env, statementClass, "resultNames", "[Ljava/lang/String;");
             (*env)->SetObjectField(env,j_statement,resultNamesField,(jobjectArray)columnNames);
         }
-        (*env)->ReleaseStringUTFChars(env, j_sql, sql);
-        jfieldID statementNativeField = (*env)->GetFieldID(env, statementClass, "statementNative", "Ljava/nio/ByteBuffer;");
-        (*env)->SetObjectField(env, j_statement, statementNativeField, (*env)->NewDirectByteBuffer(env, (*stmt), sizeof(monetdbe_statement)));
+        free(column);
+        free(result);
         return NULL;
     }
 }

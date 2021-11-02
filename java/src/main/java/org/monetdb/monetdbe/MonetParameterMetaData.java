@@ -20,24 +20,34 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
     protected final int[] sqlTypes;
     /** The name of the Java classes corresponding to the parameters */
     private final String[] javaTypes;
+    /** Digits for parameters */
+    protected int[] digits;
+    /** Scales for parameters */
+    protected int[] scale;
 
     /** Constructor from types returned from the PREPARE step of a reusable query
      *
      * @param parameterCount Number of parameters in PreparedQuery
      * @param monetdbeTypes Array of types of parameters in PreparedQuery (monetdbe.h types)
      **/
-    MonetParameterMetaData(int parameterCount, int[] monetdbeTypes) {
+    MonetParameterMetaData(int parameterCount, int[] monetdbeTypes, int[] digits, int[] scale) {
         this.parameterCount = parameterCount;
         this.types = monetdbeTypes;
 
         this.monetTypes = new String[parameterCount];
         this.sqlTypes = new int[parameterCount];
         this.javaTypes = new String[parameterCount];
+        if (digits != null && scale != null) {
+            this.digits = digits;
+            this.scale = scale;
+        }
 
-        for(int i = 0; i<parameterCount; i++ ) {
-            monetTypes[i] = MonetTypes.getMonetTypeString(monetdbeTypes[i]);
-            sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(monetdbeTypes[i]);
-            javaTypes[i] = MonetTypes.getClassForMonetType(monetdbeTypes[i]).getName();
+        for(int i = 0; i < parameterCount; i++ ) {
+            this.monetTypes[i] = MonetTypes.getMonetTypeString(monetdbeTypes[i]);
+            this.sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(monetdbeTypes[i]);
+            this.javaTypes[i] = MonetTypes.getClassForMonetType(monetdbeTypes[i]).getName();
+
+
         }
     }
 
@@ -83,16 +93,26 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
      */
     @Override
     public int getPrecision(int param) throws SQLException {
-        return MonetTypes.getPrecision(sqlTypes[param]);
+        try {
+            return digits[param-1];
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     /**
-     * Feature not currently not supported.
-     * @throws java.sql.SQLFeatureNotSupportedException this feature is not currently supported.
+     * Retrieves the designated parameter's number of digits to right of the decimal point. 0 is returned for data types where the scale is not applicable.
+     *
+     * @param param Parameter number (starts at 1)
+     * @return scale
      */
     @Override
     public int getScale(int param) throws SQLException {
-        throw new SQLFeatureNotSupportedException("getScale()");
+        try {
+            return scale[param-1];
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     /**

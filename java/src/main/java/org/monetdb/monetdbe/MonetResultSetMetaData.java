@@ -10,6 +10,7 @@ import java.sql.Types;
  *
  * An object that can be used to get information about the types and properties of the columns in a ResultSet object.
  */
+//TODO Scales and digits
 public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMetaData {
     /** The names of the columns in this ResultSet */
     private final String[] names;
@@ -223,7 +224,8 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
      */
     @Override
     public int getPrecision(int column) throws SQLException {
-        return MonetTypes.getPrecision(getColumnType(column));
+        //return MonetTypes.getPrecision(getColumnType(column));
+        return 0;
     }
 
     /**
