@@ -675,6 +675,75 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result
     }
 }
 
+void setPreparedStatementInput (JNIEnv *env, jobject j_statement, jclass statementClass, int nInput, monetdbe_result** result, monetdbe_column **column, char **nameData, char **typeData, int *digitsData, int *scaleData) {
+    jobjectArray inputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nInput,(*env)->FindClass(env,"java/lang/String"),NULL);
+    jintArray inputDigits = (jintArray) (*env)->NewIntArray(env,nInput);
+    jint* inputDigitsArray = malloc(sizeof(jint)*nInput);
+    jintArray inputScale = (jintArray) (*env)->NewIntArray(env,nInput);
+    jint* inputScaleArray = malloc(sizeof(jint)*nInput);
+
+    //Looping through input columns
+    int j = 0;
+    for (int i = 0; i < (*column)->count; i++)
+    {
+        if (nameData[i] == NULL) {
+            (*env)->SetObjectArrayElement(env,inputMonetdbTypes,(jsize)j,(*env)->NewStringUTF(env, (const char *)typeData[i]));
+            inputDigitsArray[j] = digitsData[i];
+            inputScaleArray[j] = scaleData[i];
+            j += 1;
+        }
+    }
+    (*env)->SetIntArrayRegion(env,inputDigits,0,nInput,(const jint*)inputDigitsArray);
+    (*env)->SetIntArrayRegion(env,inputScale,0,nInput,(const jint*)inputScaleArray);
+
+    jfieldID digitsField = (*env)->GetFieldID(env, statementClass, "digitsInput", "[I");
+    jfieldID scaleField = (*env)->GetFieldID(env, statementClass, "scaleInput", "[I");
+    (*env)->SetObjectField(env, j_statement, digitsField, inputDigits);
+    (*env)->SetObjectField(env, j_statement, scaleField, inputScale);
+    free(inputDigitsArray);
+    free(inputScaleArray);
+
+    jfieldID paramTypesField = (*env)->GetFieldID(env, statementClass, "paramMonetGDKTypes", "[Ljava/lang/String;");
+    (*env)->SetObjectField(env, j_statement, paramTypesField, inputMonetdbTypes);
+}
+
+void setPreparedStatementOutput (JNIEnv *env, jobject j_statement, jclass statementClass, int nOutput, monetdbe_result** result, monetdbe_column **column, char **nameData, char **typeData, int *digitsData, int *scaleData) {
+    jobjectArray columnNames = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
+    jobjectArray outputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
+
+    jintArray outputDigits = (jintArray) (*env)->NewIntArray(env,nOutput);
+    jint* outputDigitsArray = malloc(sizeof(jint)*nOutput);
+    jintArray outputScale = (jintArray) (*env)->NewIntArray(env,nOutput);
+    jint* outputScaleArray = malloc(sizeof(jint)*nOutput);
+
+    //Looping through output columns
+    int j = 0;
+    for (int i = 0; i < (*column)->count; i++)
+    {
+        if (nameData[i] != NULL) {
+            (*env)->SetObjectArrayElement(env,columnNames,(jsize)j,(*env)->NewStringUTF(env, (const char *)nameData[i]));
+            (*env)->SetObjectArrayElement(env,outputMonetdbTypes,(jsize)j,(*env)->NewStringUTF(env, (const char *)typeData[i]));
+            outputDigitsArray[j] = digitsData[i];
+            outputScaleArray[j] = scaleData[i];
+            j += 1;
+        }
+    }
+    jfieldID resultTypesField = (*env)->GetFieldID(env, statementClass, "resultMonetGDKTypes", "[Ljava/lang/String;");
+    (*env)->SetObjectField(env,j_statement,resultTypesField,(jobjectArray)outputMonetdbTypes);
+    jfieldID resultNamesField = (*env)->GetFieldID(env, statementClass, "resultNames", "[Ljava/lang/String;");
+    (*env)->SetObjectField(env,j_statement,resultNamesField,(jobjectArray)columnNames);
+
+    (*env)->SetIntArrayRegion(env,outputDigits,0,nOutput,(const jint*)outputDigitsArray);
+    (*env)->SetIntArrayRegion(env,outputScale,0,nOutput,(const jint*)outputScaleArray);
+
+    jfieldID digitsField = (*env)->GetFieldID(env, statementClass, "digitsOutput", "[I");
+    jfieldID scaleField = (*env)->GetFieldID(env, statementClass, "scaleOutput", "[I");
+    (*env)->SetObjectField(env, j_statement, digitsField, outputDigits);
+    (*env)->SetObjectField(env, j_statement, scaleField, outputScale);
+    free(outputDigitsArray);
+    free(outputScaleArray);
+}
+
 //TODO Do I need to free every column object after it is retrieved through monetdbe_result_fetch()?
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement)
 {
@@ -694,8 +763,6 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         monetdbe_column **column = malloc(sizeof(monetdbe_column *));
         int nOutput = 0;
         int nInput = 0;
-        int j = 0;
-        char *error_msg;
 
         //Freeing sql query and setting native statement
         (*env)->ReleaseStringUTFChars(env, j_sql, sql);
@@ -719,98 +786,22 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         jfieldID paramsField = (*env)->GetFieldID(env, statementClass, "nParams", "I");
         (*env)->SetIntField(env, j_statement, paramsField, (jint)nInput);
 
+        //Getting MonetDB GDK types column (7th column)
+        error_msg = monetdbe_result_fetch(*result, column, 6);
+        char **typeData = (char **)(*column)->data;
+        //Getting MonetDB digits column (2nd column)
+        error_msg = monetdbe_result_fetch(*result, column, 1);
+        int *digitsData = (int *)(*column)->data;
+        //Getting MonetDB digits column (3rd column)
+        error_msg = monetdbe_result_fetch(*result, column, 2);
+        int *scaleData = (int *)(*column)->data;
+
         //Setting input variables
         if (nInput > 0)
-        {
-            jobjectArray inputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nInput,(*env)->FindClass(env,"java/lang/String"),NULL);
-            jintArray inputDigits = (jintArray) (*env)->NewIntArray(env,nInput);
-            jint* inputDigitsArray = malloc(sizeof(jint)*nInput);
-            jintArray inputScale = (jintArray) (*env)->NewIntArray(env,nInput);
-            jint* inputScaleArray = malloc(sizeof(jint)*nInput);
-
-            //Getting MonetDB GDK types column (7th column)
-            error_msg = monetdbe_result_fetch(*result, column, 6);
-            char **typeData = (char **)(*column)->data;
-            //Getting MonetDB digits column (2nd column)
-            error_msg = monetdbe_result_fetch(*result, column, 1);
-            int *digitsData = (int *)(*column)->data;
-            //Getting MonetDB digits column (3rd column)
-            error_msg = monetdbe_result_fetch(*result, column, 2);
-            int *scaleData = (int *)(*column)->data;
-
-            //Looping through input columns
-            j = 0;
-            for (int i = 0; i < (*column)->count; i++)
-            {
-                if (nameData[i] == NULL) {
-                    (*env)->SetObjectArrayElement(env,inputMonetdbTypes,(jsize)j,(*env)->NewStringUTF(env, (const char *)typeData[i]));
-                    inputDigitsArray[j] = digitsData[i];
-                    inputScaleArray[j] = scaleData[i];
-                    j += 1;
-                }
-            }
-            (*env)->SetIntArrayRegion(env,inputDigits,0,nInput,(const jint*)inputDigitsArray);
-            (*env)->SetIntArrayRegion(env,inputScale,0,nInput,(const jint*)inputScaleArray);
-
-            jfieldID digitsField = (*env)->GetFieldID(env, statementClass, "digitsInput", "[I");
-            jfieldID scaleField = (*env)->GetFieldID(env, statementClass, "scaleInput", "[I");
-            (*env)->SetObjectField(env, j_statement, digitsField, inputDigits);
-            (*env)->SetObjectField(env, j_statement, scaleField, inputScale);
-            free(inputDigitsArray);
-            free(inputScaleArray);
-
-            jfieldID paramTypesField = (*env)->GetFieldID(env, statementClass, "paramMonetGDKTypes", "[Ljava/lang/String;");
-            (*env)->SetObjectField(env, j_statement, paramTypesField, inputMonetdbTypes);
-        }
+            setPreparedStatementInput(env,j_statement,statementClass,nInput,result,column,nameData,typeData,digitsData,scaleData);
         //Setting output variables
-        if (nOutput > 0) {
-            jobjectArray columnNames = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
-            jobjectArray outputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
-
-            jintArray outputDigits = (jintArray) (*env)->NewIntArray(env,nOutput);
-            jint* outputDigitsArray = malloc(sizeof(jint)*nOutput);
-            jintArray outputScale = (jintArray) (*env)->NewIntArray(env,nOutput);
-            jint* outputScaleArray = malloc(sizeof(jint)*nOutput);
-
-            //Getting column names column (6th column)
-            error_msg = monetdbe_result_fetch(*result, column, 5);
-            nameData = (char **)(*column)->data;
-            //Getting MonetDB GDK types column (7th column)
-            error_msg = monetdbe_result_fetch(*result, column, 6);
-            char **typeData = (char **)(*column)->data;
-            //Getting MonetDB digits column (2nd column)
-            error_msg = monetdbe_result_fetch(*result, column, 1);
-            int *digitsData = (int *)(*column)->data;
-            //Getting MonetDB digits column (3rd column)
-            error_msg = monetdbe_result_fetch(*result, column, 2);
-            int *scaleData = (int *)(*column)->data;
-            //Looping through output columns
-            j = 0;
-            for (int i = 0; i < (*column)->count; i++)
-            {
-                if (nameData[i] != NULL) {
-                    (*env)->SetObjectArrayElement(env,columnNames,(jsize)j,(*env)->NewStringUTF(env, (const char *)nameData[i]));
-                    (*env)->SetObjectArrayElement(env,outputMonetdbTypes,(jsize)j,(*env)->NewStringUTF(env, (const char *)typeData[i]));
-                    outputDigitsArray[j] = digitsData[i];
-                    outputScaleArray[j] = scaleData[i];
-                    j += 1;
-                }
-            }
-            jfieldID resultTypesField = (*env)->GetFieldID(env, statementClass, "resultMonetGDKTypes", "[Ljava/lang/String;");
-            (*env)->SetObjectField(env,j_statement,resultTypesField,(jobjectArray)outputMonetdbTypes);
-            jfieldID resultNamesField = (*env)->GetFieldID(env, statementClass, "resultNames", "[Ljava/lang/String;");
-            (*env)->SetObjectField(env,j_statement,resultNamesField,(jobjectArray)columnNames);
-
-            (*env)->SetIntArrayRegion(env,outputDigits,0,nOutput,(const jint*)outputDigitsArray);
-            (*env)->SetIntArrayRegion(env,outputScale,0,nOutput,(const jint*)outputScaleArray);
-
-            jfieldID digitsField = (*env)->GetFieldID(env, statementClass, "digitsOutput", "[I");
-            jfieldID scaleField = (*env)->GetFieldID(env, statementClass, "scaleOutput", "[I");
-            (*env)->SetObjectField(env, j_statement, digitsField, outputDigits);
-            (*env)->SetObjectField(env, j_statement, scaleField, outputScale);
-            free(outputDigitsArray);
-            free(outputScaleArray);
-        }
+        if (nOutput > 0)
+            setPreparedStatementOutput(env,j_statement,statementClass,nOutput,result,column,nameData,typeData,digitsData,scaleData);
         free(column);
         free(result);
         return NULL;
