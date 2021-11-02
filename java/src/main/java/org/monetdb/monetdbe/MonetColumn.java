@@ -24,9 +24,9 @@ public class MonetColumn {
     /** Stores variable length types */
     private Object[] varData;
     /** Precision for numerical values */
-    private double precision;
+    private int precision;
     /** Scale for numerical values */
-    private double scale;
+    private int scale;
     /** Column name */
     private String name;
     /** MonetDBe type (int) */
@@ -45,7 +45,7 @@ public class MonetColumn {
      * @param decimalNulls Array containing the indexes of nulls for decimal values (null if it's not a decimal)
      *
      */
-    public MonetColumn(String name, int monetdbeType, ByteBuffer constData, double precision, double scale, boolean[] decimalNulls) {
+    public MonetColumn(String name, int monetdbeType, ByteBuffer constData, int precision, int scale, boolean[] decimalNulls) {
         this.name = name;
         this.monetdbeType = monetdbeType;
         this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
@@ -65,6 +65,9 @@ public class MonetColumn {
         this.name = name;
         this.monetdbeType = monetdbeType;
         this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
+        //TODO Should we add precision for variable-lenght data types (str precision is the max lenght)?
+        this.precision = 0;
+        this.scale = 0;
         this.varData = varData;
     }
 
@@ -80,12 +83,12 @@ public class MonetColumn {
         return typeName;
     }
 
-    /** Translates MonetDBe's internal scale format into Java's MathContext scale format.
-     *  Example: MonetDBe scale = 1000.0, then Java scale =  3
-     *  @return Scale of current column in Java's MathContext scale format
-     */
-    public int getScaleJDBC() {
-        return ((BigDecimal.valueOf(this.scale).precision()) - 2);
+    public int getPrecision() {
+        return precision;
+    }
+
+    public int getScale() {
+        return scale;
     }
 
     /**
@@ -330,7 +333,7 @@ public class MonetColumn {
         if (decimalNulls != null && decimalNulls[row]) {
             return null;
         }
-        int scale = getScaleJDBC();
+        int scale = getScale();
         switch (monetdbeType) {
             case 1:
                 Byte unscaledByte = constData.get(row);

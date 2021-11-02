@@ -59,14 +59,18 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     protected String[] resultMonetGDKTypes;
     /** Column names for the pre-compiled result set */
     protected String[] resultNames;
+    /** Digits for output columns */
+    protected int[] digitsOutput;
+    /** Scales for output columns */
+    protected int[] scaleOutput;
 
     /**
      * Prepared statement constructor, calls monetdbe_prepare() and super-class Statement constructor.
      * The prepared statement is destroyed if the monetdbe_prepare() call returned an error.
      *
      * The statementNative variable is set within monetdbe_prepare()
-     * If there are input parameters: nParams and paramMonetGDKTypes are set within monetdbe_prepare()
-     * If there are output parameters: nCols, resultMonetGDKTypes and resultNames are set within monetdbe_prepare()
+     * If there are input parameters: nParams, paramMonetGDKTypes, digitsInput and scaleInput are set within monetdbe_prepare()
+     * If there are output parameters: nCols, resultMonetGDKTypes, resultNames, digitsOutput and scaleOutput are set within monetdbe_prepare()
      *
      * @param conn parent connection
      * @param sql  query to prepare
@@ -104,7 +108,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
         }
 
         if (nCols > 0) {
-            this.resultSetMetaData = new MonetResultSetMetaData(nCols,resultMonetGDKTypes,resultNames);
+            this.resultSetMetaData = new MonetResultSetMetaData(nCols,resultMonetGDKTypes,resultNames,digitsOutput,scaleOutput);
         }
         else {
             this.resultSetMetaData = null;

@@ -75,6 +75,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
         this.nColumns = nColumns;
         this.curRow = 0;
         this.columns = MonetNative.monetdbe_result_fetch_all(nativeResult,nRows,nColumns);
+        this.metaData = new MonetResultSetMetaData(columns, nColumns);
 
         //Failed fetch, destroy resultset
         if (this.columns == null) {
@@ -243,7 +244,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public int findColumn(String columnLabel) throws SQLException {
         checkNotClosed();
-        String[] names = ((MonetResultSetMetaData)this.getMetaData()).getNames();
+        String[] names = metaData.getNames();
         if (columnLabel != null) {
             final int array_size = names.length;
             for (int i = 0; i < array_size; i++) {
@@ -900,9 +901,6 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
         checkNotClosed();
-        if (metaData == null) {
-            metaData = new MonetResultSetMetaData(columns, nColumns);
-        }
         return metaData;
     }
 

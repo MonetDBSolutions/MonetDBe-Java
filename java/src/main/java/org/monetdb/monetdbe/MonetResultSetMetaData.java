@@ -20,16 +20,19 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     private final int[] sqlTypes;
     /** The name of the Java classes corresponding to the columns in this ResultSet */
     private final String[] javaTypes;
-
+    /** Precision for numerical values */
+    private final int[] precisions;
+    /** Scale for numerical values */
     private final int[] scales;
 
     //Constructor for PreparedStatement without query execution
-    MonetResultSetMetaData(int ncols, String[] resultMonetGDKTypes, String[] resultNames) {
+    MonetResultSetMetaData(int ncols, String[] resultMonetGDKTypes, String[] resultNames, int[] precisions, int[] scales) {
         this.names = resultNames;
         this.monetTypes = new String[ncols];
         this.sqlTypes = new int[ncols];
         this.javaTypes = new String[ncols];
-        this.scales = new int[ncols];
+        this.scales = scales;
+        this.precisions = precisions;
 
         for(int i = 0; i<ncols; i++ ) {
             monetTypes[i] = MonetTypes.getMonetTypeStringFromGDKType(resultMonetGDKTypes[i]);
@@ -48,13 +51,15 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
         this.sqlTypes = new int[ncols];
         this.javaTypes = new String[ncols];
         this.scales = new int[ncols];
+        this.precisions = new int[ncols];
 
         for(int i = 0; i<ncols; i++ ) {
             names[i] = columns[i].getName();
             monetTypes[i] = columns[i].getTypeName();
             sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(columns[i].getMonetdbeType());
             javaTypes[i] = MonetTypes.getClassForMonetType(columns[i].getMonetdbeType()).getName();
-            scales[i] = columns[i].getScaleJDBC();
+            precisions[i] = columns[i].getPrecision();
+            scales[i] = columns[i].getScale();
         }
     }
 
@@ -224,8 +229,11 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
      */
     @Override
     public int getPrecision(int column) throws SQLException {
-        //return MonetTypes.getPrecision(getColumnType(column));
-        return 0;
+        try {
+            return precisions[column-1];
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     /**
@@ -236,7 +244,11 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
      */
     @Override
     public int getScale(int column) throws SQLException {
-        return scales[column-1];
+        try {
+            return scales[column-1];
+        } catch (IndexOutOfBoundsException e) {
+            throw new SQLException("columnIndex out of bounds");
+        }
     }
 
     /**

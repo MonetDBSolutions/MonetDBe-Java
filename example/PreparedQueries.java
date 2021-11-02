@@ -21,7 +21,11 @@ public class PreparedQueries {
     }
 
     private static void create (Statement s) throws SQLException {
-        s.executeUpdate("CREATE TABLE p (bo BOOL, ti TINYINT, sh SMALLINT, i INTEGER, l BIGINT, f REAL, df FLOAT, s STRING, b BLOB, d DATE, t TIME, ts TIMESTAMP, bd NUMERIC)");
+        s.executeUpdate("CREATE TABLE p (bo BOOL, ti TINYINT, sh SMALLINT, i INTEGER, l BIGINT, f REAL, df FLOAT, s STRING, b BLOB, d DATE, t TIME, ts TIMESTAMP, bd NUMERIC(32,16))");
+    }
+
+    private static void insertRow (Statement s) throws SQLException {
+        s.executeUpdate("INSERT INTO p VALUES (true, 1, 2, 3, 4, 5.0, 6.0, '7', 'ffff', '2020-07-29', '11:30:50', '2020-07-29 11:30:50', 317826.182376)");
     }
 
     private static void preparedMetadata (PreparedStatement ps) {
@@ -52,6 +56,8 @@ public class PreparedQueries {
                     System.out.println("Column Name: " + rsMeta.getColumnName(i));
                     System.out.println("Monet type: " + rsMeta.getColumnTypeName(i));
                     System.out.println("SQL type: " + rsMeta.getColumnType(i));
+                    System.out.println("Precision: " + rsMeta.getPrecision(i));
+                    System.out.println("Scale: " + rsMeta.getScale(i));
                     System.out.println();
                 }
                 System.out.println();
@@ -152,6 +158,7 @@ public class PreparedQueries {
         ps.setShort(1,(short)390);
         ps.execute();
         ResultSet rs = ps.getResultSet();
+        System.out.println("\nRS:");
         while(rs.next()) {
             System.out.println("Row " + rs.getRow());
             System.out.println("Bool: " + rs.getByte(1));
@@ -168,6 +175,7 @@ public class PreparedQueries {
             Statement s = c.createStatement();
 
             create(s);
+            insertRow(s);
             PreparedStatement ps = c.prepareStatement("INSERT INTO p VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);");
             preparedInsert(ps);
             //preparedNullInsert(ps);

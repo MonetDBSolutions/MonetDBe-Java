@@ -425,9 +425,9 @@ void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name,
     }
 
     jclass j_column = (*env)->FindClass(env, "Lorg/monetdb/monetdbe/MonetColumn;");
-    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;DD[Z)V");
+    jmethodID constructor = (*env)->GetMethodID(env, j_column, "<init>", "(Ljava/lang/String;ILjava/nio/ByteBuffer;II[Z)V");
 
-    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, (jint)type, j_data, (jdouble)precision, (jdouble)scale, j_decimal_nulls);
+    jobject j_column_object = (*env)->NewObject(env, j_column, constructor, j_name, (jint)type, j_data, precision, scale, j_decimal_nulls);
     (*env)->SetObjectArrayElement(env, j_columns, column_number, j_column_object);
 }
 
@@ -766,19 +766,33 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         if (nOutput > 0) {
             jobjectArray columnNames = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
             jobjectArray outputMonetdbTypes = (jobjectArray) (*env)->NewObjectArray(env,nOutput,(*env)->FindClass(env,"java/lang/String"),NULL);
+
+            jintArray outputDigits = (jintArray) (*env)->NewIntArray(env,nOutput);
+            jint* outputDigitsArray = malloc(sizeof(jint)*nOutput);
+            jintArray outputScale = (jintArray) (*env)->NewIntArray(env,nOutput);
+            jint* outputScaleArray = malloc(sizeof(jint)*nOutput);
+
             //Getting column names column (6th column)
             error_msg = monetdbe_result_fetch(*result, column, 5);
             nameData = (char **)(*column)->data;
             //Getting MonetDB GDK types column (7th column)
             error_msg = monetdbe_result_fetch(*result, column, 6);
             char **typeData = (char **)(*column)->data;
-            //Looping through output column names again to save column names and types
+            //Getting MonetDB digits column (2nd column)
+            error_msg = monetdbe_result_fetch(*result, column, 1);
+            int *digitsData = (int *)(*column)->data;
+            //Getting MonetDB digits column (3rd column)
+            error_msg = monetdbe_result_fetch(*result, column, 2);
+            int *scaleData = (int *)(*column)->data;
+            //Looping through output columns
             j = 0;
             for (int i = 0; i < (*column)->count; i++)
             {
                 if (nameData[i] != NULL) {
                     (*env)->SetObjectArrayElement(env,columnNames,(jsize)j,(*env)->NewStringUTF(env, (const char *)nameData[i]));
                     (*env)->SetObjectArrayElement(env,outputMonetdbTypes,(jsize)j,(*env)->NewStringUTF(env, (const char *)typeData[i]));
+                    outputDigitsArray[j] = digitsData[i];
+                    outputScaleArray[j] = scaleData[i];
                     j += 1;
                 }
             }
@@ -786,6 +800,16 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
             (*env)->SetObjectField(env,j_statement,resultTypesField,(jobjectArray)outputMonetdbTypes);
             jfieldID resultNamesField = (*env)->GetFieldID(env, statementClass, "resultNames", "[Ljava/lang/String;");
             (*env)->SetObjectField(env,j_statement,resultNamesField,(jobjectArray)columnNames);
+
+            (*env)->SetIntArrayRegion(env,outputDigits,0,nOutput,(const jint*)outputDigitsArray);
+            (*env)->SetIntArrayRegion(env,outputScale,0,nOutput,(const jint*)outputScaleArray);
+
+            jfieldID digitsField = (*env)->GetFieldID(env, statementClass, "digitsOutput", "[I");
+            jfieldID scaleField = (*env)->GetFieldID(env, statementClass, "scaleOutput", "[I");
+            (*env)->SetObjectField(env, j_statement, digitsField, outputDigits);
+            (*env)->SetObjectField(env, j_statement, scaleField, outputScale);
+            free(outputDigitsArray);
+            free(outputScaleArray);
         }
         free(column);
         free(result);
