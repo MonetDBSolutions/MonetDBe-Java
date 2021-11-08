@@ -8,7 +8,11 @@ jobs:
     strategy:
       matrix:
         container: ["monetdb/dev-builds:default", "monetdb/dev-builds:Jul2021"]
-        ref: ["master","v1.10"]
+        include:
+          - container: "monetdb/dev-builds:default"
+            ref: "master"
+          - container: "monetdb/dev-builds:Jul2021"
+            ref: "v1.10"
     container:
       image: ${{ matrix.container }}
     steps:
