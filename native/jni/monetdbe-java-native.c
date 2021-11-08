@@ -82,9 +82,6 @@ jstring open_db(JNIEnv *env, jstring j_url, monetdbe_options *opts, jobject j_co
     }
 
     monetdbe_database *db = malloc(sizeof(monetdbe_database));
-
-    printf("Log: %s\n",opts->trace_file);
-    fflush(stdout);
     int error_code = monetdbe_open(db, (char *)url, opts);
     if (url != NULL)
     {
