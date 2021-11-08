@@ -53,6 +53,6 @@ jobs:
           make install
           cd ../../
       - name: Build with Maven
-        run: scripts/build_dev.sh /Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
+        run: $GITHUB_WORKSPACE/scripts/build_dev.sh /Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/
       - name: Run example class (SimpleTypes)
-        run: scripts/run_dev.sh SimpleTypes
+        run: $GITHUB_WORKSPACE/scripts/run_dev.sh SimpleTypes
