@@ -44,7 +44,7 @@ jobs:
           brew link bison --force
           echo 'export PATH="/usr/local/opt/bison/bin/:$PATH"' >> /Users/runner/.bash_profile
           source /Users/runner/.bash_profile
-          mv /usr/local/opt/bison/bin/bison /usr/bin/bison
+          mv -f /usr/local/opt/bison/bin/bison /usr/bin/bison
       - name: Get monetdb
         run: git clone https://github.com/MonetDB/MonetDB
       - name: Compile and install MonetDB
