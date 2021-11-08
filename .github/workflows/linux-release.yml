@@ -11,9 +11,9 @@ jobs:
         container: ["monetdb/dev-builds:default_manylinux","monetdb/dev-builds:Jul2021_manylinux"]
         artifact: ["slim", "fat"]
         include:
-          - container: "default"
+          - container: "monetdb/dev-builds:default_manylinux"
             ref: "master"
-          - container: "Jul2021"
+          - container: "monetdb/dev-builds:Jul2021_manylinux"
             ref: "v1.10"
     container:
       image: ${{ matrix.container }}
