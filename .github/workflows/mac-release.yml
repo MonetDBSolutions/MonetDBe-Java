@@ -8,17 +8,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        mdb_version: ["default","Jul2021"]
         artifact: ["slim", "fat"]
+        include:
+          - mdb_version: "default"
+            ref: "master"
+            mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/"
+          - mdb_version: "Jul2021"
+            ref: "v1.10"
+            mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jul2021/"
     env:
       MDBE_JAVA_VERSION: "1.10"
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
       #Source installation
-      MONETDB_INSTALL: /Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB-Jul2021/MonetDB-Jul2021/
+      MONETDB_INSTALL: {{ matrix.mdb_install }}
       #Brew installation
       #MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
     steps:
       - uses: actions/checkout@v2
-
+        with:
+          ref: ${{ matrix.ref }}
       #Set global environment variables
       #echo "MVN_FLAGS=mac-slim,release,sign-gpg" >> $GITHUB_ENV
       - name: Env variables (slim jar)
@@ -58,20 +67,20 @@ jobs:
       #  run: brew install monetdb
       # Source installation (for Jul2021)
       - name: Get brew bison
-        run: brew install bison
+        run: brew install bison hg
       - name: Get monetdb
         run: |
-          wget https://www.monetdb.org/hg/MonetDB/archive/Jul2021.zip -O MonetDB.zip
-          unzip MonetDB.zip
+          hg clone https://www.monetdb.org/hg/MonetDB/
+          cd MonetDB
+          hg update {{ matrix.mdb_version }}
+          mkdir build MonetDB-{{ matrix.mdb_version }}
+          cd build
       - name: Compile and install MonetDB
         run: |
           export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
           export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"
           export LDFLAGS="-L/usr/local/opt/bison/lib"
-          cd MonetDB-Jul2021
-          mkdir build MonetDB-Jul2021
-          cd build
-          cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB-Jul2021/MonetDB-Jul2021/ -DWITH_CRYPTO=OFF -DINT128=ON -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DSTRICT=OFF -DRINTEGRATION=OFF
+          cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-{{ matrix.mdb_version }}/ -DWITH_CRYPTO=OFF -DINT128=ON -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DSTRICT=OFF -DRINTEGRATION=OFF
           cmake --build . --target install
           cd ../../
       - name: Set up test environment
