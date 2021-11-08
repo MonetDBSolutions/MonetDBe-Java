@@ -22,6 +22,8 @@ jobs:
       MONETDB_INSTALL: /usr/local
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ matrix.ref }}
 
       #Set global environment variables
       #echo "MVN_FLAGS=linux-slim,release" >> $GITHUB_ENV

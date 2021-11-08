@@ -67,15 +67,14 @@ jobs:
       - name: Get monetdb
         run: |
           hg clone https://www.monetdb.org/hg/MonetDB/
-          cd MonetDB
           hg update ${{ matrix.mdb_version }}
           mkdir build MonetDB-${{ matrix.mdb_version }}
-          cd build
       - name: Compile and install MonetDB
         run: |
           export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
           export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"
           export LDFLAGS="-L/usr/local/opt/bison/lib"
+          cd MonetDB/build/
           cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-${{ matrix.mdb_version }}/ -DWITH_CRYPTO=OFF -DINT128=ON -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DSTRICT=OFF -DRINTEGRATION=OFF
           cmake --build . --target install
           cd ../../
