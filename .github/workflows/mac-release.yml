@@ -20,29 +20,24 @@ jobs:
     env:
       MDBE_JAVA_VERSION: "1.10"
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
-      #Source installation
-      MONETDB_INSTALL: {{ matrix.mdb_install }}
-      #Brew installation
-      #MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
     steps:
       - uses: actions/checkout@v2
         with:
           ref: ${{ matrix.ref }}
-      #Set global environment variables
-      #echo "MVN_FLAGS=mac-slim,release,sign-gpg" >> $GITHUB_ENV
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-slim.jar" >> $GITHUB_ENV
           echo "MVN_FLAGS=mac-slim" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
-      #echo "MVN_FLAGS=mac-slim,mac-fat,release,sign-gpg" >> $GITHUB_ENV
+          echo "MONETDB_INSTALL={{ matrix.mdb_install }}" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-fat.jar" >> $GITHUB_ENV
           echo "MVN_FLAGS=mac-slim,mac-fat" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
+          echo "MONETDB_INSTALL={{ matrix.mdb_install }}" >> $GITHUB_ENV
 
       #Java, maven and gpg setup; download MonetDB from brew and set up test env
       - name: Set up JDK 1.8 and maven settings.xml
@@ -92,7 +87,7 @@ jobs:
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
           cd native
-          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release --no-transfer-progress
+          mvn clean install -DMonetDB_dir=${{env.MONETDB_INSTALL}} -P mac-release --no-transfer-progress
           cd ..
       #- name: Change load path for libmonetdbe dependency (to be rpath dependent)
       #  run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
