@@ -8,8 +8,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        container: ["monetdb/dev-builds:default_manylinux","monetdb/dev-builds:Jul2021_manylinux"]
         artifact: ["slim", "fat"]
-    container: monetdb/dev-builds:Jul2021_manylinux
+        include:
+          - container: "default"
+            ref: "master"
+          - container: "Jul2021"
+            ref: "v1.10"
+    container:
+      image: ${{ matrix.container }}
     env:
       MDBE_JAVA_VERSION: "1.10"
       MONETDB_INSTALL: /usr/local
