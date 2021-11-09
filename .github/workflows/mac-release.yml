@@ -114,14 +114,14 @@ jobs:
       - name: Change load path of transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          install_name_tool -change /usr/lib/libpcre.0.dylib @rpath/libpcre.0.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
-          install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
-          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/lib/libcurl.4.dylib @rpath/libcurl.4.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/lib/libbz2.1.0.dylib @rpath/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
+          install_name_tool -change /usr/lib/libpcre.0.dylib @rpath/libpcre.0.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.31.dylib
+          install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.31.dylib
+          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
+          install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
+          install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
+          install_name_tool -change /usr/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
+          install_name_tool -change /usr/lib/libcurl.4.dylib @rpath/libcurl.4.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
+          install_name_tool -change /usr/lib/libbz2.1.0.dylib @rpath/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
 
       #Package jar, test and deploy
       - name: Compile Java, package into jar, do unit tests and deploy

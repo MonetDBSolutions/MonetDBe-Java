@@ -9,6 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         container: ["monetdb/dev-builds:default_manylinux","monetdb/dev-builds:Jul2021_manylinux"]
+        artifact: ["slim","fat"]
         include:
           - container: "monetdb/dev-builds:default_manylinux"
             artifact: "slim"
@@ -90,8 +91,6 @@ jobs:
           ldd $GITHUB_WORKSPACE/collect_libs/*
           for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r \$\ORIGIN/. $file; done
           ldd $GITHUB_WORKSPACE/collect_libs/*
-      - name: TODO REMOVE  Remove the library which is loaded by error
-        run: rm -rf /usr/local/lib64/libmonetdb5.so.30.0.7
       - name: Collect transitive dependencies (only for fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
