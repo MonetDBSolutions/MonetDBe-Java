@@ -9,11 +9,19 @@ jobs:
       fail-fast: false
       matrix:
         container: ["monetdb/dev-builds:default_manylinux","monetdb/dev-builds:Jul2021_manylinux"]
-        artifact: ["slim", "fat"]
+        artifact: [, "fat"]
         include:
           - container: "monetdb/dev-builds:default_manylinux"
+            artifact: "slim"
+            ref: "master"
+          - container: "monetdb/dev-builds:default_manylinux"
+            artifact: "fat"
             ref: "master"
           - container: "monetdb/dev-builds:Jul2021_manylinux"
+            artifact: "slim"
+            ref: "v1.10"
+          - container: "monetdb/dev-builds:Jul2021_manylinux"
+            artifact: "fat"
             ref: "v1.10"
     container:
       image: ${{ matrix.container }}

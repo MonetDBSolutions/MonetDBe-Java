@@ -67,6 +67,7 @@ jobs:
       - name: Get monetdb
         run: |
           hg clone https://www.monetdb.org/hg/MonetDB/
+          cd MonetDB
           hg update ${{ matrix.mdb_version }}
           mkdir build MonetDB-${{ matrix.mdb_version }}
       - name: Compile and install MonetDB
