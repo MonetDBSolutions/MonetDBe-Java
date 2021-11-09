@@ -9,7 +9,6 @@ jobs:
       fail-fast: false
       matrix:
         container: ["monetdb/dev-builds:default_manylinux","monetdb/dev-builds:Jul2021_manylinux"]
-        artifact: [, "fat"]
         include:
           - container: "monetdb/dev-builds:default_manylinux"
             artifact: "slim"
