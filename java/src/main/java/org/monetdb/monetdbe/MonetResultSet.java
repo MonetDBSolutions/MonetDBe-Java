@@ -885,7 +885,7 @@ public class MonetResultSet extends MonetWrapper implements ResultSet {
     public void close() throws SQLException {
         if (isClosed())
             return;
-        String error_msg = MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDbNative(),nativeResult);
+        String error_msg = MonetNative.monetdbe_result_cleanup(((MonetConnection)this.statement.getConnection()).getDatabasePointer(),nativeResult);
         if (error_msg != null)
             throw new SQLException(error_msg);
         this.closed = true;

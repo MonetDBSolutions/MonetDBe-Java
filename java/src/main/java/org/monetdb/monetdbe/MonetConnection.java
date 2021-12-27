@@ -24,12 +24,10 @@ import java.util.concurrent.Executor;
  * database changes will not be saved.
  */
 public class MonetConnection extends MonetWrapper implements Connection {
-    /** The pointer to the C database object */
-    protected ByteBuffer dbNative;
     /** The property options for this Connection object */
     private Properties properties;
     /** The statements created with this Connection object */
-    private List<MonetStatement> statements;
+    private Map<Long,MonetStatement> statements;
     /** The stack of warnings for this Connection object */
     private SQLWarning warnings;
     /** The timeout to gracefully terminate the session */
@@ -44,8 +42,15 @@ public class MonetConnection extends MonetWrapper implements Connection {
     private boolean autoCommit;
     /** The full MonetDB JDBC Connection URL used for this Connection */
     private String jdbcURL;
-
+    /** File to log to */
     private String logfile;
+
+    /** The pointer to the C database object */
+    protected ByteBuffer dbNative;
+    /** Connection pool, has one low-level connection for each thread */
+    private Map<Long,ByteBuffer> connectionPool;
+    /** If the connection is closed */
+    private boolean isClosed;
 
     /**
      * Constructor of a Connection for MonetDB.
@@ -63,11 +68,31 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.nr_threads = Integer.parseInt(props.getProperty("nr_threads", "0"));
 
         this.logfile = props.getProperty("logfile",null);
+        this.connectionPool = new HashMap<>();
 
         //Necessary for DatabaseMetadata method
         this.jdbcURL = props.getProperty("jdbc-url");
-        String error_msg;
 
+        //Connect to native C database -> dbNative variable is set within this method
+        String error_msg = connectNative(props);
+
+        //Error when opening db
+        if (this.dbNative == null || error_msg != null)
+            throw new SQLException(error_msg);
+        else
+            this.connectionPool.put(Thread.currentThread().getId(),this.dbNative);
+
+        this.properties = props;
+        this.statements = new HashMap<>();
+        this.isClosed = false;
+
+        //Auto-commit defaults to true. If the passed property is different, change it
+        this.autoCommit = true;
+        if (props.containsKey("autocommit") && props.getProperty("autocommit").equals("false"))
+            setAutoCommit(false);
+    }
+
+    private String connectNative (Properties props) {
         //Remote proxy databases
         if (props.getProperty("connectionType").equals("remote")) {
             String host = props.getProperty("host", "localhost");
@@ -77,26 +102,14 @@ public class MonetConnection extends MonetWrapper implements Connection {
             String password = props.getProperty("password", "monetdb");
 
             //Remote connections pass a null argument for URL
-            error_msg = MonetNative.monetdbe_open(null, this, sessiontimeout, querytimeout, memorylimit, nr_threads, host, port, database, user, password, logfile);
+            return MonetNative.monetdbe_open(null, this, sessiontimeout, querytimeout, memorylimit, nr_threads, host, port, database, user, password, logfile);
         }
         //Local directory and in-memory databases
         else {
             //Directory for local, null for in-memory
             String path = props.getProperty("path", null);
-            error_msg = MonetNative.monetdbe_open(path, this, sessiontimeout, querytimeout, memorylimit, nr_threads, logfile);
+            return MonetNative.monetdbe_open(path, this, sessiontimeout, querytimeout, memorylimit, nr_threads, logfile);
         }
-
-        //Error when opening db
-        if (dbNative == null || error_msg != null) {
-            throw new SQLException(error_msg);
-        }
-        this.properties = props;
-        this.statements = new ArrayList<>();
-
-        //Auto-commit defaults to true. If the passed property is different, change it
-        this.autoCommit = true;
-        if (props.containsKey("autocommit") && props.getProperty("autocommit").equals("false"))
-            setAutoCommit(false);
     }
 
     /**
@@ -107,6 +120,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
      */
     private void executeCommand(String sql) throws SQLException {
         checkNotClosed();
+        checkThreadConnection();
         MonetStatement st = null;
         try {
             st = (MonetStatement) createStatement();
@@ -153,6 +167,18 @@ public class MonetConnection extends MonetWrapper implements Connection {
         executeCommand("ROLLBACK");
     }
 
+    private void checkThreadConnection() throws SQLException{
+        if (!connectionPool.containsKey(Thread.currentThread().getId())) {
+            //Sets the dbNative variable
+            String error_msg = connectNative(this.properties);
+            //Error when opening db
+            if (dbNative == null || error_msg != null)
+                throw new SQLException(error_msg);
+            else
+                this.connectionPool.put(Thread.currentThread().getId(),dbNative);
+        }
+    }
+
     /**
      * Helper method to test whether the Connection object is closed
      * When closed, it throws an SQLException
@@ -173,19 +199,32 @@ public class MonetConnection extends MonetWrapper implements Connection {
      *
      * @throws SQLException if a database access error occurs
      */
+    //TODO This method now only closes the connection object if all threads call close()
+    //TODO Should we close all threads with one close() call? How do we close the thread-specific objects?
     @Override
     public void close() throws SQLException {
-        if (isClosed())
+        if (isClosed()) {
             return;
-        for (MonetStatement s : statements) {
-            s.close();
         }
-        this.statements = null;
-        String error_msg = MonetNative.monetdbe_close(dbNative);
+        //Close this threads' statements
+        for (Map.Entry<Long,MonetStatement> s : this.statements.entrySet()) {
+            if (s.getKey() == Thread.currentThread().getId())
+                s.getValue().close();
+        }
+
+        //Close this threads' connection
+        String error_msg = MonetNative.monetdbe_close(connectionPool.get(Thread.currentThread().getId()));
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
-        this.dbNative = null;
+        connectionPool.remove(Thread.currentThread().getId());
+        //If all threads closed, mark the connection as closed
+        if (connectionPool.isEmpty()) {
+            this.statements = null;
+            this.connectionPool = null;
+            this.dbNative = null;
+            this.isClosed = true;
+        }
     }
 
     /**
@@ -200,7 +239,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
      */
     @Override
     public boolean isClosed() throws SQLException {
-        return dbNative == null;
+        return isClosed;
     }
 
     /**
@@ -304,11 +343,12 @@ public class MonetConnection extends MonetWrapper implements Connection {
     /**
      * Retrieve the C pointer to the database.
      * Used in ResultSet, Statement and PreparedStatement
+     * Returns the current thread's pointer.
      *
      * @return C pointer to the database
      */
-    protected ByteBuffer getDbNative() {
-        return dbNative;
+    protected ByteBuffer getDatabasePointer() {
+        return connectionPool.get(Thread.currentThread().getId());
     }
 
     /**
@@ -326,9 +366,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         checkNotClosed();
+        checkThreadConnection();
         if (autoCommit != this.autoCommit) {
             this.autoCommit = autoCommit;
-            String error_msg = MonetNative.monetdbe_set_autocommit(dbNative, autoCommit ? 1 : 0);
+            String error_msg = MonetNative.monetdbe_set_autocommit(getDatabasePointer(), autoCommit ? 1 : 0);
             if (error_msg != null) {
                 throw new SQLException(error_msg);
             }
@@ -344,8 +385,9 @@ public class MonetConnection extends MonetWrapper implements Connection {
     @Override
     public boolean getAutoCommit() throws SQLException {
         checkNotClosed();
+        checkThreadConnection();
         //Calling the server instead of returning the Java variable because the value may have changed
-        return MonetNative.monetdbe_get_autocommit(dbNative);
+        return MonetNative.monetdbe_get_autocommit(getDatabasePointer());
     }
 
     /**
@@ -361,6 +403,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
         checkNotClosed();
+        checkThreadConnection();
         return new MonetDatabaseMetaData(this);
     }
 
@@ -835,9 +878,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkNotClosed();
+        checkThreadConnection();
         try {
             MonetStatement s = new MonetStatement(this);
-            statements.add(s);
+            statements.put(Thread.currentThread().getId(),s);
             return s;
         } catch (IllegalArgumentException e) {
             throw new SQLException(e.toString(), "M0M03");
@@ -900,9 +944,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
     @Override
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkNotClosed();
+        checkThreadConnection();
         try {
             MonetCallableStatement s = new MonetCallableStatement(this, sql);
-            statements.add(s);
+            statements.put(Thread.currentThread().getId(),s);
             return s;
         } catch (IllegalArgumentException e) {
             throw new SQLException(e.toString(), "M0M03");
@@ -990,9 +1035,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
     @Override
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
         checkNotClosed();
+        checkThreadConnection();
         try {
             MonetPreparedStatement s = new MonetPreparedStatement(this, sql);
-            statements.add(s);
+            statements.put(Thread.currentThread().getId(),s);
             return s;
         } catch (IllegalArgumentException e) {
             throw new SQLException(e.toString(), "M0M03");

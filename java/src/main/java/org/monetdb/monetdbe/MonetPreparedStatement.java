@@ -77,7 +77,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
-        String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(), sql, this);
+        String error_msg = MonetNative.monetdbe_prepare(conn.getDatabasePointer(), sql, this);
 
         //Failed prepare, destroy statement
         if (error_msg != null || this.statementNative == null) {
@@ -746,7 +746,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
         int monettype = monetdbeTypes[parameterIndex - 1];
 
-        String error_msg = MonetNative.monetdbe_bind_null(conn.getDbNative(), monettype, statementNative, parameterIndex - 1);
+        String error_msg = MonetNative.monetdbe_bind_null(conn.getDatabasePointer(), monettype, statementNative, parameterIndex - 1);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }

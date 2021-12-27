@@ -135,7 +135,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
         if (this instanceof MonetPreparedStatement) {
             //This check is here in case the Prepared Statement was not successful in the prepare stage
             if (((MonetPreparedStatement) this).statementNative != null) {
-                MonetNative.monetdbe_cleanup_statement(conn.getDbNative(),((MonetPreparedStatement) this).statementNative);
+                MonetNative.monetdbe_cleanup_statement(conn.getDatabasePointer(),((MonetPreparedStatement) this).statementNative);
             }
         }
         this.closed = true;
@@ -227,7 +227,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
         this.updateCount = -1;
 
         //ResultSet and UpdateCount is set within monetdbe_query
-        String error_msg = MonetNative.monetdbe_query(conn.getDbNative(),sql,this,false, getMaxRows());
+        String error_msg = MonetNative.monetdbe_query(conn.getDatabasePointer(),sql,this,false, getMaxRows());
         if (error_msg != null) {
             this.updateCount = lastUpdateCount;
             this.resultSet = lastResultSet;
@@ -312,7 +312,7 @@ public class MonetStatement extends MonetWrapper implements Statement {
         this.largeUpdateCount = -1;
 
         //ResultSet and UpdateCount is set within monetdbe_query
-        String error_msg = MonetNative.monetdbe_query(conn.getDbNative(),sql,this, true, getMaxRows());
+        String error_msg = MonetNative.monetdbe_query(conn.getDatabasePointer(),sql,this, true, getMaxRows());
         if (error_msg != null) {
             this.largeUpdateCount = lastUpdateCount;
             this.resultSet = lastResultSet;
