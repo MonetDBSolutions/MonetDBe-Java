@@ -31,19 +31,23 @@ import java.util.logging.Logger;
  * Or they can be set through the Properties object passed as an argument to DriverManager.getConnection():
  * <pre>{@code
  * Properties props = new Properties();
- * props.setProperty("autocommit","false");
+ * props.setProperty("auto_commit","false");
  * Connection c = DriverManager.getConnection("jdbc:monetdb:memory:", props);
  * }</pre>
  *
  * Available properties:
  * <ul>
- *     <li><b>user</b> - Username for remote connections</li>
- *     <li><b>password</b> - Password for remote connections</li>
- *     <li><b>autocommit</b> - Autocommit mode</li>
- *     <li><b>session_timeout</b> - Session timeout, time in seconds to terminate session</li>
- *     <li><b>query_timeout</b> - Query timeout, time in seconds to terminate single query</li>
+ *     <li><b>session_timeout</b> - Session timeout, time in milliseconds to terminate session</li>
+ *     <li><b>query_timeout</b> - Query timeout, time in milliseconds to terminate single query</li>
  *     <li><b>memory_limit</b> - Memory limit in MBs</li>
  *     <li><b>nr_threads</b> - Maximum number of worker treads</li>
+ *     <li><b>auto_commit</b> - Autocommit mode</li>
+ *     <li><b>log_file</b> - Path to file to log to</li>
+ * </ul>
+ * Remote connection properties:
+ * <ul>
+ *     <li><b>user</b> - Username for remote connections</li>
+ *     <li><b>password</b> - Password for remote connections</li>
  * </ul>
  */
 final public class MonetDriver implements java.sql.Driver {
@@ -87,7 +91,7 @@ final public class MonetDriver implements java.sql.Driver {
     private Connection connectJDBC(String url, Properties info) throws SQLException {
         if (url.startsWith(MEMORYURL)) {
             //For in-memory databases, leave the path property NULL
-            info.put("connectionType","memory");
+            info.put("connection_type","memory");
         }
         else if (url.startsWith(FILEURL)){
             //Local database
@@ -98,7 +102,7 @@ final public class MonetDriver implements java.sql.Driver {
                 info.put("path",path.substring(0,path.indexOf('?')));
             else
                 info.put("path",path);
-            info.put("connectionType","file");
+            info.put("connection_type","file");
         }
         else {
             return null;
@@ -141,7 +145,7 @@ final public class MonetDriver implements java.sql.Driver {
         final String uri_query = uri.getQuery();
         parseOptions(uri_query,info);
 
-        info.put("connectionType","remote");
+        info.put("connection_type","remote");
         return new MonetConnection(info);
     }
 
@@ -175,7 +179,7 @@ final public class MonetDriver implements java.sql.Driver {
         if (info == null)
             info = new Properties();
 
-        info.setProperty("jdbc-url",url);
+        info.setProperty("jdbc_url",url);
         if (url.startsWith(MONETURL)) {
             return connectJDBC(url,info);
         }
@@ -220,44 +224,48 @@ final public class MonetDriver implements java.sql.Driver {
         if (!acceptsURL(url))
             return null;
 
-        final DriverPropertyInfo[] dpi = new DriverPropertyInfo[7];
+        final DriverPropertyInfo[] dpi = new DriverPropertyInfo[11];
 
-        DriverPropertyInfo prop = new DriverPropertyInfo("user", info != null ? info.getProperty("user") : null);
+        DriverPropertyInfo prop;
+        prop = new DriverPropertyInfo("session_timeout", info != null ? info.getProperty("session_timeout") : "0");
         prop.required = false;
-        prop.description = "The user loginname to use when authenticating on the database server";
+        prop.description = "Graceful terminate the session after a few seconds";
         dpi[0] = prop;
+
+        prop = new DriverPropertyInfo("query_timeout",  info != null ? info.getProperty("query_timeout") : "0");
+        prop.required = false;
+        prop.description = "Graceful terminate query after a few seconds";
+        dpi[1] = prop;
+
+        prop = new DriverPropertyInfo("memory_limit",  info != null ? info.getProperty("memory_limit") : "0");
+        prop.required = false;
+        prop.description = "Top off the amount of RAM to be used, in MB";
+        dpi[2] = prop;
+
+        prop = new DriverPropertyInfo("nr_threads",  info != null ? info.getProperty("nr_threads") : "0");
+        prop.required = false;
+        prop.description = "Maximum number of worker treads, limits level of parallelism";
+        dpi[3] = prop;
+
+        prop = new DriverPropertyInfo("auto_commit", info != null ? info.getProperty("auto_commit") : "true");
+        prop.required = false;
+        prop.description = "If the autocommit mode is on or off.";
+        dpi[4] = prop;
+
+        prop = new DriverPropertyInfo("log_file", info != null ? info.getProperty("log_file") : "/tmp/mdbe.log");
+        prop.required = false;
+        prop.description = "Path to file to log to.";
+        dpi[5] = prop;
+
+        prop = new DriverPropertyInfo("user", info != null ? info.getProperty("user") : null);
+        prop.required = false;
+        prop.description = "Remote Connection: The user login name to use when authenticating on the database server";
+        dpi[6] = prop;
 
         prop = new DriverPropertyInfo("password", info != null ? info.getProperty("password") : null);
         prop.required = false;
-        prop.description = "The password to use when authenticating on the database server";
-        dpi[1] = prop;
-
-        //TODO Add host and port and database?
-
-        prop = new DriverPropertyInfo("session_timeout", "0");
-        prop.required = false;
-        prop.description = "Graceful terminate the session after a few seconds";
-        dpi[2] = prop;
-
-        prop = new DriverPropertyInfo("query_timeout", "0");
-        prop.required = false;
-        prop.description = "Graceful terminate query after a few seconds";
-        dpi[3] = prop;
-
-        prop = new DriverPropertyInfo("memory_limit", "0");
-        prop.required = false;
-        prop.description = "Top off the amount of RAM to be used, in MB";
-        dpi[4] = prop;
-
-        prop = new DriverPropertyInfo("nr_threads", "0");
-        prop.required = false;
-        prop.description = "Maximum number of worker treads, limits level of parallelism";
-        dpi[5] = prop;
-
-        prop = new DriverPropertyInfo("autocommit", "true");
-        prop.required = false;
-        prop.description = "If the autocommit mode is on or off.";
-        dpi[6] = prop;
+        prop.description = "Remote Connection: The password to use when authenticating on the database server";
+        dpi[7] = prop;
 
         return dpi;
     }
@@ -279,7 +287,7 @@ final public class MonetDriver implements java.sql.Driver {
      */
     @Override
     public int getMinorVersion() {
-        return 0;
+        return 11;
     }
 
     static final int getDriverMajorVersion() {
@@ -287,7 +295,7 @@ final public class MonetDriver implements java.sql.Driver {
     }
 
     static final int getDriverMinorVersion() {
-        return 1;
+        return 11;
     }
 
     /**

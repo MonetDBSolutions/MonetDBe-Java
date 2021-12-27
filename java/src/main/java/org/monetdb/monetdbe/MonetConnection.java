@@ -31,19 +31,19 @@ public class MonetConnection extends MonetWrapper implements Connection {
     /** The stack of warnings for this Connection object */
     private SQLWarning warnings;
     /** The timeout to gracefully terminate the session */
-    private int sessiontimeout;
+    private int sessionTimeout;
     /** The timeout to gracefully terminate the query */
-    private int querytimeout;
+    private int queryTimeout;
     /** The amount of RAM to be used, in MB */
-    private int memorylimit;
+    private int memoryLimit;
     /** Maximum number of worker treads, limits level of parallelism */
-    private int nr_threads;
+    private int nrThreads;
     /** Whether this Connection is in autocommit mode */
     private boolean autoCommit;
     /** The full MonetDB JDBC Connection URL used for this Connection */
     private String jdbcURL;
     /** File to log to */
-    private String logfile;
+    private String logFile;
 
     /** The pointer to the C database object */
     protected ByteBuffer dbNative;
@@ -55,46 +55,60 @@ public class MonetConnection extends MonetWrapper implements Connection {
     /**
      * Constructor of a Connection for MonetDB.
      *
-     * @param props a Property hashtable holding the properties needed for connecting
+     * @param properties a Property hashtable holding the properties needed for connecting
      * @throws SQLException if a database error occurs
      * @throws IllegalArgumentException if one of the required arguments is null or empty
      */
-    //TODO Verify input argument format and throw IllegalArgumentException when needed
-    MonetConnection(Properties props) throws SQLException, IllegalArgumentException {
+    MonetConnection(Properties properties) throws SQLException, IllegalArgumentException {
         //Set database options
-        this.sessiontimeout = Integer.parseInt(props.getProperty("sessiontimeout", "0"));
-        this.querytimeout = Integer.parseInt(props.getProperty("querytimeout", "0"));
-        this.memorylimit = Integer.parseInt(props.getProperty("memorylimit", "0"));
-        this.nr_threads = Integer.parseInt(props.getProperty("nr_threads", "0"));
-
-        this.logfile = props.getProperty("logfile",null);
+        this.sessionTimeout = parseOptionInt(properties,"session_timeout", 0);
+        this.queryTimeout = parseOptionInt(properties,"query_timeout", 0);
+        this.memoryLimit = parseOptionInt(properties,"memory_limit", 0);
+        this.nrThreads = parseOptionInt(properties,"nr_threads", 0);
+        this.logFile = properties.getProperty("log_file",null);
         this.connectionPool = new HashMap<>();
-
-        //Necessary for DatabaseMetadata method
-        this.jdbcURL = props.getProperty("jdbc-url");
-
-        //Connect to native C database -> dbNative variable is set within this method
-        String error_msg = connectNative(props);
-
-        //Error when opening db
-        if (this.dbNative == null || error_msg != null)
-            throw new SQLException(error_msg);
-        else
-            this.connectionPool.put(Thread.currentThread().getId(),this.dbNative);
-
-        this.properties = props;
         this.statements = new HashMap<>();
         this.isClosed = false;
+        //Necessary for DatabaseMetadata method
+        this.jdbcURL = properties.getProperty("jdbc_url");
 
+        //Connect to native C database -> dbNative variable is set within this method
+        connectNative(properties);
+
+        //Store current properties
+        this.properties = properties;
         //Auto-commit defaults to true. If the passed property is different, change it
         this.autoCommit = true;
-        if (props.containsKey("autocommit") && props.getProperty("autocommit").equals("false"))
+        if (properties.containsKey("auto_commit") && properties.getProperty("auto_commit").equals("false"))
             setAutoCommit(false);
     }
 
-    private String connectNative (Properties props) {
+    private Integer parseOptionInt(Properties properties, String key, Integer default_value) {
+        String prop = properties.getProperty(key);
+        if (prop != null) {
+            try {
+                return Integer.parseInt(prop);
+            } catch (NumberFormatException e) {
+                return default_value;
+            }
+        }
+        else {
+            return default_value;
+        }
+    }
+
+    /**
+     * Creates a new physical connection to the database (thread-specific) with the Properties passed as argument.
+     * Is used both when starting a new connection and when a new thread uses this Connection object (each thread
+     * needs their own physical connection to the DB).
+     *
+     * @param props Properties to use when creating the physical connection
+     * @throws SQLException if a database connection error occurs
+     */
+    private void connectNative (Properties props) throws SQLException {
+        String error_msg;
         //Remote proxy databases
-        if (props.getProperty("connectionType").equals("remote")) {
+        if (props.getProperty("connection_type").equals("remote")) {
             String host = props.getProperty("host", "localhost");
             int port = Integer.parseInt(props.getProperty("port", "50000"));
             String database = props.getProperty("database","test");
@@ -102,14 +116,18 @@ public class MonetConnection extends MonetWrapper implements Connection {
             String password = props.getProperty("password", "monetdb");
 
             //Remote connections pass a null argument for URL
-            return MonetNative.monetdbe_open(null, this, sessiontimeout, querytimeout, memorylimit, nr_threads, host, port, database, user, password, logfile);
+            error_msg = MonetNative.monetdbe_open(null, this, sessionTimeout, queryTimeout, memoryLimit, nrThreads, host, port, database, user, password, logFile);
         }
         //Local directory and in-memory databases
         else {
             //Directory for local, null for in-memory
             String path = props.getProperty("path", null);
-            return MonetNative.monetdbe_open(path, this, sessiontimeout, querytimeout, memorylimit, nr_threads, logfile);
+            error_msg = MonetNative.monetdbe_open(path, this, sessionTimeout, queryTimeout, memoryLimit, nrThreads, logFile);
         }
+        if (dbNative == null || error_msg != null)
+            throw new SQLException(error_msg);
+        else
+            this.connectionPool.put(Thread.currentThread().getId(),dbNative);
     }
 
     /**
@@ -167,15 +185,17 @@ public class MonetConnection extends MonetWrapper implements Connection {
         executeCommand("ROLLBACK");
     }
 
+    /**
+     * Checks if the thread using this Connection object has a physical connection to the database.
+     * If it does, this is a no-op. If it doesn't have a thread-specific connection, one is created
+     * and stored in the connection pool.
+     *
+     * @throws SQLException if a database connection error occurs
+     */
     private void checkThreadConnection() throws SQLException{
         if (!connectionPool.containsKey(Thread.currentThread().getId())) {
-            //Sets the dbNative variable
-            String error_msg = connectNative(this.properties);
-            //Error when opening db
-            if (dbNative == null || error_msg != null)
-                throw new SQLException(error_msg);
-            else
-                this.connectionPool.put(Thread.currentThread().getId(),dbNative);
+            //Creates a new low-level connection and stores it
+            connectNative(this.properties);
         }
     }
 
@@ -703,7 +723,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         if (executor == null || milliseconds < 0)
             throw new SQLException();
         //Using session timeout for now
-        this.sessiontimeout = milliseconds;
+        this.sessionTimeout = milliseconds;
     }
 
     /**
@@ -722,7 +742,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
     public int getNetworkTimeout() throws SQLException {
         checkNotClosed();
         //Returning session timeout for now
-        return this.sessiontimeout;
+        return this.sessionTimeout;
     }
 
     /**
