@@ -248,11 +248,10 @@ public class MonetTypes {
     protected static Class<?> getClassForMonetType(final int monetdbeType) { return getClassForSQLType(getSQLTypeFromMonet(monetdbeType));}
 
     //Other utilities
-    //TODO The HUGEINT/BigInt type is incorrect (decimal)
     //TODO The unknown type is incorrect (unknown)
     //TODO The size_t type is incorrect (size)
     //MonetDB GDK types
-    static final String[] monetdbGDKTypes = {"bit","bte","sht","int","lng","decimal","size","flt","dbl","str","blob","date","daytime","timestamp","unknown"};
+    static final String[] monetdbGDKTypes = {"bit","bte","sht","int","lng","hge","size","flt","dbl","str","blob","date","daytime","timestamp","unknown"};
     //MonetDBe types
     static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
 

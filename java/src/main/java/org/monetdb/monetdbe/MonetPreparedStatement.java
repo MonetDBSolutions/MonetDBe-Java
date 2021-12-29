@@ -27,6 +27,7 @@ import java.util.List;
  * the defined SQL type of the input parameter. For instance, if the IN parameter has SQL type INTEGER, then the method setInt should be used.
  * If arbitrary parameter type conversions are required, the method setObject should be used with a target SQL type.
  */
+//TODO Allow backwards-compatibility with Jul2021 (look into the changes of PreparedStatement)
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     /* PreparedStatement state variables */
     /** The pointer to the C statement object */
@@ -92,6 +93,10 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                 e.printStackTrace();
             }
         }
+
+        //Jul2021 sets nParams and monetdbeTypes (instead of paramMonetGDKTypes)
+        //Input missing: digitsInput, scaleInput
+        //Output missing: nCols,resultMonetGDKtypes, resultNames, digitsOutput, scaleOutput
 
         if (nParams > 0) {
             this.monetdbeTypes = new int[nParams];

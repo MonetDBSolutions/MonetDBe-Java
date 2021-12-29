@@ -79,7 +79,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.properties = properties;
         //Auto-commit defaults to true. If the passed property is different, change it
         this.autoCommit = true;
-        if (properties.containsKey("auto_commit") && properties.getProperty("auto_commit").equals("false"))
+        if (properties.containsKey("autocommit") && properties.getProperty("autocommit").equals("false"))
             setAutoCommit(false);
     }
 

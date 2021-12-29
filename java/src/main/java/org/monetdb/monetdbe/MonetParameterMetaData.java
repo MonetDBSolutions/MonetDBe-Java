@@ -29,11 +29,12 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
      *
      * @param parameterCount Number of parameters in PreparedQuery
      * @param monetdbeTypes Array of types of parameters in PreparedQuery (monetdbe.h types)
+     * @param digits Precision of parameters
+     * @param scale Scale of parameters
      **/
     MonetParameterMetaData(int parameterCount, int[] monetdbeTypes, int[] digits, int[] scale) {
         this.parameterCount = parameterCount;
         this.types = monetdbeTypes;
-
         this.monetTypes = new String[parameterCount];
         this.sqlTypes = new int[parameterCount];
         this.javaTypes = new String[parameterCount];
@@ -46,8 +47,6 @@ public class MonetParameterMetaData extends MonetWrapper implements ParameterMet
             this.monetTypes[i] = MonetTypes.getMonetTypeString(monetdbeTypes[i]);
             this.sqlTypes[i] = MonetTypes.getSQLTypeFromMonet(monetdbeTypes[i]);
             this.javaTypes[i] = MonetTypes.getClassForMonetType(monetdbeTypes[i]).getName();
-
-
         }
     }
 

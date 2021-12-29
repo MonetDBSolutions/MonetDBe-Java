@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  * Or they can be set through the Properties object passed as an argument to DriverManager.getConnection():
  * <pre>{@code
  * Properties props = new Properties();
- * props.setProperty("auto_commit","false");
+ * props.setProperty("autocommit","false");
  * Connection c = DriverManager.getConnection("jdbc:monetdb:memory:", props);
  * }</pre>
  *
@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  *     <li><b>query_timeout</b> - Query timeout, time in milliseconds to terminate single query</li>
  *     <li><b>memory_limit</b> - Memory limit in MBs</li>
  *     <li><b>nr_threads</b> - Maximum number of worker treads</li>
- *     <li><b>auto_commit</b> - Autocommit mode</li>
+ *     <li><b>autocommit</b> - Autocommit mode</li>
  *     <li><b>log_file</b> - Path to file to log to</li>
  * </ul>
  * Remote connection properties:
@@ -247,7 +247,7 @@ final public class MonetDriver implements java.sql.Driver {
         prop.description = "Maximum number of worker treads, limits level of parallelism";
         dpi[3] = prop;
 
-        prop = new DriverPropertyInfo("auto_commit", info != null ? info.getProperty("auto_commit") : "true");
+        prop = new DriverPropertyInfo("autocommit", info != null ? info.getProperty("autocommit") : "true");
         prop.required = false;
         prop.description = "If the autocommit mode is on or off.";
         dpi[4] = prop;
