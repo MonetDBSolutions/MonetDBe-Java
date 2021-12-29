@@ -91,7 +91,7 @@ public class Test_10_MetaData {
 				assertEquals(7, ((MonetResultSet) rs).getColumnsNumber());
 			}
 			try (ResultSet rs = dbMeta.getPrimaryKeys(null, null, null)) {
-				assertEquals(9, ((MonetResultSet) rs).getRowsNumber());
+				assertTrue(((MonetResultSet) rs).getRowsNumber() >= 9);
 				assertEquals(6, ((MonetResultSet) rs).getColumnsNumber());
 			}
 			try (ResultSet rs = dbMeta.getImportedKeys(null, null, null)) {
