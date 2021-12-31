@@ -12,7 +12,7 @@ import org.junit.runners.Suite.SuiteClasses;
 		Test_11_ConcurrentConnections.class, Test_12_BatchesAndJoinsMovies.class, Test_13_Schema.class,
 		//Test_14_MultipleResultSet.class,
 		Test_15_Transactions.class, Test_16_MixedOrderStatements.class, Test_17_QueryInThread.class,
-		Test_18_Multithreaded_Connection.class, Test_19_ParameterMetadata.class})
+		Test_18_Multithreaded_Connection.class, Test_19_ParameterMetadata.class, Test_20_PreparedResultMetadata.class})
 public class AllTests {
 
 	protected static final String MEMORY_CONNECTION = "jdbc:monetdb:memory:";

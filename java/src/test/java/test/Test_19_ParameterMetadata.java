@@ -26,31 +26,41 @@ public class Test_19_ParameterMetadata {
             Statement s = conn.createStatement();
             s.execute("CREATE TABLE test19 (i int, l bigint, f real, d double, bd NUMERIC(36,18), s STRING, b BLOB, da DATE);");
 
-            // Create table and insert values
             try (PreparedStatement ps = conn.prepareStatement("INSERT INTO test19 VALUES (?,?,?,?,?,?,?,?)")) {
                 ParameterMetaData meta = ps.getParameterMetaData();
                 assertEquals(8,meta.getParameterCount());
-                
-                //Check Precision and Scale
-                assertEquals(32,meta.getPrecision(1));
-                assertEquals(0,meta.getScale(1));
-                assertEquals(64,meta.getPrecision(2));
-                assertEquals(0,meta.getScale(2));
 
-                //TODO Why 24 and 53 instead of 32 and 64?
-                assertEquals(24,meta.getPrecision(3));
-                assertEquals(0,meta.getScale(3));
-                assertEquals(53,meta.getPrecision(4));
-                assertEquals(0,meta.getScale(4));
+                if (meta.getPrecision(1) != -1) {
+                    //Check Precision and Scale
+                    assertEquals(32,meta.getPrecision(1));
+                    assertEquals(0,meta.getScale(1));
+                    assertEquals(64,meta.getPrecision(2));
+                    assertEquals(0,meta.getScale(2));
 
-                assertEquals(36,meta.getPrecision(5));
-                assertEquals(18,meta.getScale(5));
-                assertEquals(0,meta.getPrecision(6));
-                assertEquals(0,meta.getScale(6));
-                assertEquals(0,meta.getPrecision(7));
-                assertEquals(0,meta.getScale(7));
-                assertEquals(0,meta.getPrecision(8));
-                assertEquals(0,meta.getScale(8));
+                    //TODO Why 24 and 53 instead of 32 and 64?
+                    assertEquals(24,meta.getPrecision(3));
+                    assertEquals(0,meta.getScale(3));
+                    assertEquals(53,meta.getPrecision(4));
+                    assertEquals(0,meta.getScale(4));
+
+                    assertEquals(36,meta.getPrecision(5));
+                    assertEquals(18,meta.getScale(5));
+                    assertEquals(0,meta.getPrecision(6));
+                    assertEquals(0,meta.getScale(6));
+                    assertEquals(0,meta.getPrecision(7));
+                    assertEquals(0,meta.getScale(7));
+                    assertEquals(0,meta.getPrecision(8));
+                    assertEquals(0,meta.getScale(8));
+                }
+                //TODO Find better strategy to do different tests for older versions
+                //In Jul2021, there is no precision info on Parameter Metadata
+                else {
+                    for (int i = 0; i < meta.getParameterCount(); i++) {
+                        assertEquals(-1,meta.getPrecision(i+1));
+                        assertEquals(-1,meta.getScale(i+1));
+                    }
+
+                }
 
                 //Check types (sql, monetdbe, java)
                 assertEquals(Types.INTEGER,meta.getParameterType(1));
@@ -66,6 +76,7 @@ public class Test_19_ParameterMetadata {
                 assertEquals("monetdbe_double",meta.getParameterTypeName(4));
                 assertEquals(Double.class.getName(),meta.getParameterClassName(4));
                 assertEquals(Types.NUMERIC,meta.getParameterType(5));
+                //TODO MonetDBe type should return monetdbe_int64 (NUMERIC is not necessarily a int128)
                 assertEquals("monetdbe_int128_t",meta.getParameterTypeName(5));
                 assertEquals(BigDecimal.class.getName(),meta.getParameterClassName(5));
                 assertEquals(Types.VARCHAR,meta.getParameterType(6));
