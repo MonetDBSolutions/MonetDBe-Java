@@ -430,6 +430,19 @@ void addColumnConst(JNIEnv *env, jobjectArray j_columns, void *data, char *name,
     (*env)->SetObjectArrayElement(env, j_columns, column_number, j_column_object);
 }
 
+//In Jul2021 and before, scale is represented with 10^scale
+//In Jan2022, it is passed as just the scale
+//We use this workaround to transform the older scale value into the Jan2022 representation
+int convertScale(int originalScale) {
+    int newScale = 0;
+    while (originalScale) {
+        if (originalScale % 10 == 0)
+            newScale++;
+        originalScale /= 10;
+    }
+    return newScale;
+}
+
 //TODO Change return value to string and set jobjectArray through setObjectField?
 //TODO Change the check for version from checking against the MonetDB Minor version to checking MONETDBE_VERSION (when it gets upgraded from 2.0.2 in Jan2022)
 //TODO Oct2020 support?
@@ -493,7 +506,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, c_int8_t->type, row_count, 8, i, c_int8_t->sql_type.digits, c_int8_t->sql_type.scale, decimalNulls);
                 #else
-                    addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, c_int8_t->type, row_count, 8, i, 0, 0, decimalNulls);
+                    addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, c_int8_t->type, row_count, 8, i, 0, convertScale(c_int8_t->scale), decimalNulls);
                 #endif
                 break;
             }
@@ -522,7 +535,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, c_int16_t->type, row_count, 16, i, c_int16_t->sql_type.digits, c_int16_t->sql_type.scale, decimalNulls);
                 #else
-                    addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, c_int16_t->type, row_count, 16, i, 0, 0, decimalNulls);
+                    addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, c_int16_t->type, row_count, 16, i, 0, convertScale(c_int16_t->scale), decimalNulls);
                 #endif
                 break;
             }
@@ -551,7 +564,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, c_int32_t->type, row_count, 32, i, c_int32_t->sql_type.digits, c_int32_t->sql_type.scale, decimalNulls);
                 #else
-                    addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, c_int32_t->type, row_count, 32, i, 0, 0, decimalNulls);
+                    addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, c_int32_t->type, row_count, 32, i, 0, convertScale(c_int32_t->scale), decimalNulls);
                 #endif
                 break;
             }
@@ -580,7 +593,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, c_int64_t->type, row_count, 64, i, c_int64_t->sql_type.digits, c_int64_t->sql_type.scale, decimalNulls);
                 #else
-                    addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, c_int64_t->type, row_count, 64, i, 0, 0, decimalNulls);
+                    addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, c_int64_t->type, row_count, 64, i, 0, convertScale(c_int64_t->scale), decimalNulls);
                 #endif
                 break;
             }
@@ -610,7 +623,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                 #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, c_int128_t->type, row_count, 128, i, c_int128_t->sql_type.digits, c_int128_t->sql_type.scale, decimalNulls);
                 #else
-                    addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, c_int128_t->type, row_count, 128, i, 0, 0, decimalNulls);
+                    addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, c_int128_t->type, row_count, 128, i, 0, convertScale(c_int128_t->scale), decimalNulls);
                 #endif
                 break;
             }
@@ -778,6 +791,7 @@ void setPreparedStatementOutput (JNIEnv *env, jobject j_statement, jclass statem
     free(outputScaleArray);
 }
 
+//Jan2022: Set input and output metadata variables
 void setPreparedStatementVariables (JNIEnv *env, jobject j_statement, jclass statementClass, monetdbe_result** result) {
     monetdbe_column **column = malloc(sizeof(monetdbe_column *));
     char *error_msg;
@@ -801,6 +815,7 @@ void setPreparedStatementVariables (JNIEnv *env, jobject j_statement, jclass sta
     jfieldID paramsField = (*env)->GetFieldID(env, statementClass, "nParams", "I");
     (*env)->SetIntField(env, j_statement, paramsField, (jint)nInput);
 
+    //TODO Do I need to free the column object before retrieving another one?
     //Getting MonetDB GDK types column (7th column)
     error_msg = monetdbe_result_fetch(*result, column, 6);
     char **typeData = (char **)(*column)->data;
@@ -821,6 +836,7 @@ void setPreparedStatementVariables (JNIEnv *env, jobject j_statement, jclass sta
     free(result);
 }
 
+//Jul2021: Set input metadata
 void setPreparedStatementVariablesJul (JNIEnv *env, jobject j_statement, jclass statementClass, monetdbe_statement **stmt) {
     int nParams = (*stmt)->nparam;
     jfieldID paramsField = (*env)->GetFieldID(env, statementClass, "nParams", "I");
@@ -854,7 +870,6 @@ void setPreparedStatementVariablesJul (JNIEnv *env, jobject j_statement, jclass 
     }
 }
 
-//TODO Do I need to free every column object after it is retrieved through monetdbe_result_fetch()?
 //TODO Change the check for version from checking against the MonetDB Minor version to checking MONETDBE_VERSION (when it gets upgraded from 2.0.2 in Jan2022)
 JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepare(JNIEnv *env, jclass self, jobject j_db, jstring j_sql, jobject j_statement)
 {
