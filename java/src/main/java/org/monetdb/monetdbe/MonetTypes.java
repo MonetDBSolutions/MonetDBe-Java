@@ -251,9 +251,9 @@ public class MonetTypes {
     //TODO The unknown type is incorrect (unknown)
     //TODO The size_t type is incorrect (size)
     //MonetDB GDK types
-    static final String[] monetdbGDKTypes = {"bit","bte","sht","int","lng","hge","size","flt","dbl","str","blob","date","daytime","timestamp","unknown"};
+    private static final String[] monetdbGDKTypes = {"bit","bte","sht","int","lng","hge","size","flt","dbl","str","blob","date","daytime","timestamp","unknown"};
     //MonetDBe types
-    static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+    private static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
 
 
     /**
@@ -279,6 +279,15 @@ public class MonetTypes {
                 return i;
         //Unknown type
         return 13;
+    }
+
+    /**
+     * Returns the MonetDB GDK type for a MonetDBe int type
+     * @param monetdbetype MonetDBe type
+     * @return MonetDB GDK type
+     */
+    protected static String getGDKTypeFromMonetType(final int monetdbetype) {
+        return monetdbGDKTypes[monetdbetype];
     }
 
     /**

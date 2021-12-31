@@ -27,7 +27,7 @@ import java.util.List;
  * the defined SQL type of the input parameter. For instance, if the IN parameter has SQL type INTEGER, then the method setInt should be used.
  * If arbitrary parameter type conversions are required, the method setObject should be used with a target SQL type.
  */
-//TODO Allow backwards-compatibility with Jul2021 (look into the changes of PreparedStatement)
+//TODO setBigDecimal support
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
     /* PreparedStatement state variables */
     /** The pointer to the C statement object */
@@ -78,6 +78,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
      */
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
+        this.nCols = 0;
         String error_msg = MonetNative.monetdbe_prepare(conn.getDatabasePointer(), sql, this);
 
         //Failed prepare, destroy statement
@@ -94,16 +95,29 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             }
         }
 
-        //Jul2021 sets nParams and monetdbeTypes (instead of paramMonetGDKTypes)
-        //Input missing: digitsInput, scaleInput
-        //Output missing: nCols,resultMonetGDKtypes, resultNames, digitsOutput, scaleOutput
-
+        //Input parameters
+        //Jul2021: sets nParams and monetdbeTypes
+        //Jan2022: sets nParams, paramMonetGDKTypes, digitsInput and scaleInput
         if (nParams > 0) {
-            this.monetdbeTypes = new int[nParams];
-            for (int i = 0; i < nParams; i++)
-                monetdbeTypes[i] = MonetTypes.getMonetTypeFromGDKType(paramMonetGDKTypes[i]);
+            //Jan2022
+            if (monetdbeTypes == null) {
+                this.monetdbeTypes = new int[nParams];
+                for (int i = 0; i < nParams; i++)
+                    monetdbeTypes[i] = MonetTypes.getMonetTypeFromGDKType(paramMonetGDKTypes[i]);
+                this.parameters = new Object[nParams];
+            }
+            //Jul2021 and before
+            else {
+                this.digitsInput = new int[nParams];
+                this.scaleInput = new int[nParams];
+                for (int i = 0; i < nParams; i++) {
+                    digitsInput[i] = -1;
+                    scaleInput[i] = -1;
+                }
+            }
             this.parameterMetaData = new MonetParameterMetaData(nParams, monetdbeTypes,digitsInput,scaleInput);
             this.parameters = new Object[nParams];
+
         }
         else {
             //If there are no parameters, set the variable to null for later checks
@@ -112,10 +126,15 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             this.parameterMetaData = null;
         }
 
+        //Output parameters
+        //Jul2021: doesn't support output parameters
+        //Jan2022: sets nCols,resultMonetGDKtypes, resultNames, digitsOutput and scaleOutput
         if (nCols > 0) {
+            //Jan2022
             this.resultSetMetaData = new MonetResultSetMetaData(nCols,resultMonetGDKTypes,resultNames,digitsOutput,scaleOutput);
         }
         else {
+            //Jul2021
             this.resultSetMetaData = null;
         }
     }

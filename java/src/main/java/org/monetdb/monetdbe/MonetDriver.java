@@ -290,11 +290,11 @@ final public class MonetDriver implements java.sql.Driver {
         return 11;
     }
 
-    static final int getDriverMajorVersion() {
+    public static int getDriverMajorVersion() {
         return 1;
     }
 
-    static final int getDriverMinorVersion() {
+    public static int getDriverMinorVersion() {
         return 11;
     }
 
@@ -303,15 +303,15 @@ final public class MonetDriver implements java.sql.Driver {
      *
      * @return this driver's full version number
      */
-    public static final String getDriverVersion() {
+    public static String getDriverVersion() {
         return getDriverMajorVersion() + "." + getDriverMinorVersion();
     }
 
-    static final int getDatabaseMajorVersion() {
+    public static int getDatabaseMajorVersion() {
         return 11;
     }
 
-    static final int getDatabaseMinorVersion() {
+    public static int getDatabaseMinorVersion() {
         return 40;
     }
 
@@ -320,7 +320,9 @@ final public class MonetDriver implements java.sql.Driver {
      *
      * @return this database's full version number
      */
-    public static final String getDatabaseVersion() {
+    //TODO Get database version from querying the database, instead of a static method
+    //TODO Where can I get the version? sys.env() doesn't have it
+    public static String getDatabaseVersion() {
         return getDatabaseMajorVersion() + "." + getDatabaseMinorVersion();
     }
 
