@@ -29,6 +29,7 @@ public class Test_20_PreparedResultMetadata {
                 //Jul2021 doesn't support PreparedStatement output ResultMetadata
                 //TODO Find better strategy to do different tests for older versions
                 if (ps.getMetaData() == null) {
+                    s.execute("DROP TABLE test20");
                     return;
                 }
                 ResultSetMetaData meta = ps.getMetaData();

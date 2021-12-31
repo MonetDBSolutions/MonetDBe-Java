@@ -22,6 +22,9 @@ public class RunTestsApp {
 		new Test_15_Transactions().transactions();
 		new Test_16_MixedOrderStatements().mixedOrderStatements();
 		new Test_17_QueryInThread().queryInThread();
+		new Test_18_Multithreaded_Connection().multithreadedConnection();
+		new Test_19_ParameterMetadata().parameterMetadata();
+		new Test_20_PreparedResultMetadata().preparedResultMetadata();
 	}
 
 }
