@@ -96,7 +96,6 @@ public class Test_20_PreparedResultMetadata {
             s.execute("DROP TABLE test20");
 
         } catch (SQLException e) {
-            e.printStackTrace();
             fail(e.toString());
         }
     }

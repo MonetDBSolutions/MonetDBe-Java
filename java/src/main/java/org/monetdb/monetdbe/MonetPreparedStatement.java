@@ -1093,7 +1093,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                     .withZoneSameInstant(ZoneOffset.UTC)
                     .toLocalDateTime();
         }
-        String error_msg = MonetNative.monetdbe_bind_timestamp(statementNative, parameterIndex - 1, localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(), localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond(), localDateTime.getNano() * 1000);
+        String error_msg = MonetNative.monetdbe_bind_timestamp(statementNative, parameterIndex - 1, localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(), localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond(), (int) (x.toInstant().toEpochMilli() % 1000));
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }

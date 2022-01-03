@@ -1,11 +1,5 @@
 package test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,6 +10,8 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.monetdb.monetdbe.MonetResultSet;
+
+import static org.junit.Assert.*;
 
 public class Test_12_BatchesAndJoinsMovies {
 
@@ -43,9 +39,13 @@ public class Test_12_BatchesAndJoinsMovies {
 
 				// Here we create a primary key, and use "NOT NULL" to prevent inserting invalid data
 				try (Statement statement = conn.createStatement()) {
-					statement.executeUpdate("CREATE TABLE Movies (id SERIAL, title STRING NOT NULL, \"year\" INTEGER NOT NULL);");
-					statement.executeUpdate("CREATE TABLE Actors (id SERIAL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, \"character\" TEXT NOT NULL, age REAL NOT NULL);");
-					statement.executeUpdate("CREATE TABLE MovieActors (id SERIAL, movie_id INTEGER NOT NULL, actor_id INTEGER NOT NULL);");
+					statement.addBatch("CREATE TABLE Movies (id SERIAL, title STRING NOT NULL, \"year\" INTEGER NOT NULL);");
+					statement.addBatch("CREATE TABLE Actors (id SERIAL, first_name TEXT NOT NULL, last_name TEXT NOT NULL, \"character\" TEXT NOT NULL, age REAL NOT NULL);");
+					statement.addBatch("CREATE TABLE MovieActors (id SERIAL, movie_id INTEGER NOT NULL, actor_id INTEGER NOT NULL);");
+					long[] updateCounts = statement.executeLargeBatch();
+					long[] expectedCounts = {0,0,0};
+					assertEquals(3,updateCounts.length);
+					assertArrayEquals(expectedCounts,updateCounts);
 				}
 				
 		        // Using a Prepared Statement, we can reuse a query for multiple parameters
