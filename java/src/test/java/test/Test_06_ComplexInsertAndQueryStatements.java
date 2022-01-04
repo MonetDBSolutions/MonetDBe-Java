@@ -62,12 +62,12 @@ public class Test_06_ComplexInsertAndQueryStatements {
 							rs.getBlob(3).getBytes(1, (int) rs.getBlob(3).length()));
 					assertEquals(new Date(time).toString(),
 							rs.getDate(4).toString());
-					/*assertEquals(new Time(time).toString(), rs.getTime(5).toString());
-					Timestamp ts = new Timestamp(time);
-					ts.setNanos(0);
-					Timestamp ts_db = rs.getTimestamp(6);
-					ts_db.setNanos(0);
-					assertEquals(ts, ts_db);*/
+					//assertEquals(new Time(time).toString(), rs.getTime(5).toString());
+					//Timestamp ts = new Timestamp(time);
+					//ts.setNanos(0);
+					//Timestamp ts_db = rs.getTimestamp(6);
+					//ts_db.setNanos(0);
+					//assertEquals(ts, ts_db);
 
 					rs.next();
 					assertEquals(2, rs.getRow());

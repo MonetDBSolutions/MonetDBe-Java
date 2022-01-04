@@ -128,7 +128,9 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1close(
     int error_code = monetdbe_close(db);
     if (error_code != 0)
     {
-        char *error_msg = monetdbe_error(db);
+        //char *error_msg = monetdbe_error(db);
+        char error_msg[32];
+        sprintf(error_msg, "Error in monetdbe_close: %d", error_code);
         return (*env)->NewStringUTF(env, (const char *)error_msg);
     }
     else

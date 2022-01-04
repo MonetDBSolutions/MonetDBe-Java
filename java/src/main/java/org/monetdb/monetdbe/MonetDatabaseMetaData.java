@@ -343,11 +343,14 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @param query: SQL SELECT query. Only the output of the first column is concatenated.
      * @return a String of query result values concatenated into one string, and values separated by comma's
      */
-    private String getConcatenatedStringFromQuery(final String query) {
+    private String getConcatenatedStringFromQuery(String query) {
         final StringBuilder sb = new StringBuilder(1024);
         Statement st = null;
         ResultSet rs = null;
         try {
+            //TODO Remove when remote connection can handle queries without semicolon
+            if (!query.endsWith(";"))
+                query = query.concat(";");
             st = con.createStatement();
             rs = st.executeQuery(query);
             // Fetch the first column output and concatenate the values into a StringBuilder separated by comma's
@@ -3886,11 +3889,13 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @return the resulting ResultSet object
      * @throws SQLException error in createStatement(), executeQuery() or close()
      */
-    private final ResultSet executeMetaDataQuery(final String query) throws SQLException {
+    private final ResultSet executeMetaDataQuery(String query) throws SQLException {
         final Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
         ResultSet rs = null;
         if (stmt != null) {
-// for debug: System.out.println("SQL (len " + query.length() + "): " + query);
+            //TODO Remove when remote connection can handle queries without semicolon
+            if (!query.endsWith(";"))
+                query = query.concat(";");
             rs = stmt.executeQuery(query);
             if (rs != null) {
                 /* we want the statement object to be closed also when the resultset is closed by the caller */

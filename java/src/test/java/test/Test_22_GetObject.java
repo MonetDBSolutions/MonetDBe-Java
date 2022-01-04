@@ -19,8 +19,8 @@ public class Test_22_GetObject {
     public void getObject(String connectionUrl) {
         try (Connection conn = DriverManager.getConnection(connectionUrl, null)) {
             Statement s = conn.createStatement();
-            s.executeUpdate("CREATE TABLE test22 (b BOOLEAN, ti TINYINT, si SMALLINT, i INTEGER, l BIGINT, r REAL, f FLOAT,de DECIMAL(32,20), h HUGEINT, s STRING, bl BLOB, d DATE, t TIME, ts TIMESTAMP)");
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO test22 VALUES (?,?,?,?,?,?,?,1237831.123879879,9223372036854776800,?,?,?,?,?)");
+            s.executeUpdate("CREATE TABLE test22 (b BOOLEAN, ti TINYINT, si SMALLINT, i INTEGER, l BIGINT, r REAL, f FLOAT,de DECIMAL(32,20), h HUGEINT, s STRING, bl BLOB, d DATE, t TIME, ts TIMESTAMP);");
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO test22 VALUES (?,?,?,?,?,?,?,1237831.123879879,9223372036854776800,?,?,?,?,?);");
             long instant = System.currentTimeMillis();
             Date d = new Date(instant);
             Time t = new Time(instant);
@@ -50,7 +50,7 @@ public class Test_22_GetObject {
 
             assertEquals(1,ps.executeUpdate());
 
-            ResultSet rs = s.executeQuery("SELECT * FROM test22");
+            ResultSet rs = s.executeQuery("SELECT * FROM test22;");
             assertTrue(rs.next());
 
             assertEquals(false,rs.getObject(1));
@@ -70,7 +70,7 @@ public class Test_22_GetObject {
             assertEquals(ts,rs.getObject(14));
             assertFalse(rs.next());
 
-            s.execute("DROP TABLE test22");
+            s.execute("DROP TABLE test22;");
         } catch (SQLException e) {
             fail(e.getLocalizedMessage());
         }

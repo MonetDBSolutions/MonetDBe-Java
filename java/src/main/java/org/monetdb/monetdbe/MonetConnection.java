@@ -166,7 +166,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         checkNotClosed();
         if (getAutoCommit())
             throw new SQLException("COMMIT: not allowed in auto commit mode");
-        executeCommand("COMMIT");
+        executeCommand("COMMIT;");
     }
 
     /**
@@ -182,7 +182,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         checkNotClosed();
         if (getAutoCommit())
             throw new SQLException("Operation not permitted in autocommit");
-        executeCommand("ROLLBACK");
+        executeCommand("ROLLBACK;");
     }
 
     /**
@@ -302,7 +302,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         try {
             st = createStatement();
             if (st != null) {
-                rs = st.executeQuery("SELECT 1");
+                rs = st.executeQuery("SELECT 1;");
                 if (rs != null && rs.next()) {
                     isValid = true;
                 }
@@ -667,7 +667,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         checkNotClosed();
         if (schema == null || schema.isEmpty())
             throw new SQLException("Missing schema name", "M1M05");
-        executeCommand("SET SCHEMA \"" + schema + "\"");
+        executeCommand("SET SCHEMA \"" + schema + "\";");
     }
 
     /**
@@ -686,7 +686,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         try {
             st = createStatement();
             if (st != null) {
-                rs = st.executeQuery("SELECT CURRENT_SCHEMA");
+                rs = st.executeQuery("SELECT CURRENT_SCHEMA;");
                 if (rs != null) {
                     if (rs.next())
                         cur_schema = rs.getString(1);
@@ -694,8 +694,10 @@ public class MonetConnection extends MonetWrapper implements Connection {
             }
             // do not catch any Exception, just let it propagate
         } finally {
-            rs.close();
-            st.close();
+            if (rs != null)
+                rs.close();
+            if (st != null)
+                st.close();
         }
         if (cur_schema == null)
             throw new SQLException("Failed to fetch schema name", "02000");
@@ -783,7 +785,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         try {
             st = createStatement();
             if (st != null) {
-                rs = st.executeQuery("SELECT CURRENT_USER");
+                rs = st.executeQuery("SELECT CURRENT_USER;");
                 if (rs != null) {
                     if (rs.next())
                         cur_user = rs.getString(1);
@@ -814,7 +816,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         try {
             st = createStatement();
             if (st != null) {
-                rs = st.executeQuery("SELECT value FROM sys.env() WHERE name = 'max_clients'");
+                rs = st.executeQuery("SELECT value FROM sys.env() WHERE name = 'max_clients';");
                 if (rs != null) {
                     if (rs.next())
                         maxConnections = rs.getInt(1);

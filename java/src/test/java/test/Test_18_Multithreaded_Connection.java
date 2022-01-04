@@ -75,7 +75,7 @@ public class Test_18_Multithreaded_Connection {
             Statement dropStat = conn.createStatement();
             for (int i = 0; i < n; i++) {
                 //Cleanup
-                int result = dropStat.executeUpdate("DROP TABLE a_" + i);
+                int result = dropStat.executeUpdate("DROP TABLE a_" + i + ";");
                 assertEquals(result,0);
             }
             try {

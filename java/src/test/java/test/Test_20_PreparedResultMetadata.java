@@ -23,7 +23,7 @@ public class Test_20_PreparedResultMetadata {
 
             Statement s = conn.createStatement();
             s.execute("CREATE TABLE test20 (i int, l bigint, f real, d double, bd NUMERIC(36,18), s STRING, b BLOB, da DATE);");
-            s.execute("INSERT INTO test20 VALUES (20,60000,20.4321,20934.43029,4398574389.5983798,'string','12ff803F',current_date)");
+            s.execute("INSERT INTO test20 VALUES (20,60000,20.4321,20934.43029,4398574389.5983798,'string','12ff803F',current_date);");
 
             try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM test20 WHERE i = ?")) {
                 //Jul2021 doesn't support PreparedStatement output ResultMetadata
@@ -93,7 +93,7 @@ public class Test_20_PreparedResultMetadata {
                 assertEquals("b",meta.getColumnName(7));
                 assertEquals("da",meta.getColumnName(8));
             }
-            s.execute("DROP TABLE test20");
+            s.execute("DROP TABLE test20;");
 
         } catch (SQLException e) {
             fail(e.toString());
