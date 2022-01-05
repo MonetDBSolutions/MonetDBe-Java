@@ -144,5 +144,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: ${{env.ARTIFACT}}
+          name: ${{ matrix.mdb_version }}-${{env.ARTIFACT}}
           path: ${{env.M2_REPO}}/${{env.ARTIFACT}}

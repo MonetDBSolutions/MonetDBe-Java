@@ -8,7 +8,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        container: ["monetdb/dev-builds:default_manylinux","monetdb/dev-builds:Jul2021_manylinux"]
+        container: ["monetdb/dev-builds:default_manylinux","monetdb/dev-builds:Jan2022_manylinux","monetdb/dev-builds:Jul2021_manylinux"]
         artifact: ["slim","fat"]
         include:
           - container: "monetdb/dev-builds:default_manylinux"
@@ -17,12 +17,18 @@ jobs:
           - container: "monetdb/dev-builds:default_manylinux"
             artifact: "fat"
             ref: "master"
+          - container: "monetdb/dev-builds:Jan2022_manylinux"
+            artifact: "slim"
+            ref: "master"
+          - container: "monetdb/dev-builds:Jan2022_manylinux"
+            artifact: "fat"
+            ref: "master"
           - container: "monetdb/dev-builds:Jul2021_manylinux"
             artifact: "slim"
-            ref: "v1.10"
+            ref: "master"
           - container: "monetdb/dev-builds:Jul2021_manylinux"
             artifact: "fat"
-            ref: "v1.10"
+            ref: "master"
     container:
       image: ${{ matrix.container }}
     env:
@@ -121,5 +127,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: ${{env.ARTIFACT}}
+          name: ${{ matrix.mdb_version }}-${{env.ARTIFACT}}
           path: ${{env.M2_REPO}}/${{env.ARTIFACT}}

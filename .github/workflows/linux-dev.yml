@@ -7,12 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        container: ["monetdb/dev-builds:default", "monetdb/dev-builds:Jul2021"]
+        container: ["monetdb/dev-builds:default", "monetdb/dev-builds:Jan2022", "monetdb/dev-builds:Jul2021", "monetdb/dev-builds:Oct2020"]
         include:
           - container: "monetdb/dev-builds:default"
             ref: "master"
+          - container: "monetdb/dev-builds:Jan2022"
+            ref: "master"
           - container: "monetdb/dev-builds:Jul2021"
-            ref: "v1.10"
+            ref: "master"
+          - container: "monetdb/dev-builds:Oct2020"
+            ref: "master"
     container:
       image: ${{ matrix.container }}
     steps:
@@ -27,8 +31,8 @@ jobs:
         uses: stCarolas/setup-maven@v4
         with:
           maven-version: 3.6.3
-      - name: Build with Maven
-        run: $GITHUB_WORKSPACE/build_dev.sh /usr/local
+      - name: Build with Maven and test
+        run: $GITHUB_WORKSPACE/build_dev.sh /usr/local false
       - name: Run example class (SimpleTypes)
         run: $GITHUB_WORKSPACE/run_dev.sh SimpleTypes
   #linux_manual_dev_build:
