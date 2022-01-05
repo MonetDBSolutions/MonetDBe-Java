@@ -5,9 +5,13 @@ jobs:
   windows_build:
     name: windows_build
     runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        mdb_version: ["Jan2022","Jul2021"]
     env:
       MDBE_JAVA_VERSION: "1.10"
-      BRANCH: Jul2021
+      MDB_VERSION: ${{ matrix.mdb_version }}
     steps:
       - uses: actions/checkout@v2
 
@@ -57,12 +61,12 @@ jobs:
       - name: Get monetdb
         run: |
           Set-Location c:\
-          curl.exe https://dev.monetdb.org/hg/MonetDB/archive/${{ env.BRANCH }}.zip -O
-          unzip.exe ${{ env.BRANCH }}.zip
+          curl.exe https://dev.monetdb.org/hg/MonetDB/archive/${{ env.MDB_VERSION }}.zip -O
+          unzip.exe ${{ env.MDB_VERSION }}.zip
       - name: Compile and install MonetDB
         run: |
-          mkdir c:\MonetDB-${{ env.BRANCH }}\build
-          Set-Location c:\MonetDB-${{ env.BRANCH }}\build
+          mkdir c:\MonetDB-${{ env.MDB_VERSION }}\build
+          Set-Location c:\MonetDB-${{ env.MDB_VERSION }}\build
 
           cmake -G "Visual Studio 16 2019" `
             -A x64 `

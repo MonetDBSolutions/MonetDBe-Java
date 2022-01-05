@@ -31,7 +31,6 @@ jobs:
         uses: stCarolas/setup-maven@v4
         with:
           maven-version: 3.6.3
-          maven-version: 3.6.3
       - name: Install packages
         run: yum install -y wget
       - name: Set up test environment
