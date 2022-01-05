@@ -15,10 +15,10 @@ fi
 
 echo "Building native library"
 cd native
-mvn clean install -DMonetDB_dir=$1 --no-transfer-progress
+mvn clean install -DMonetDB_dir=$1 
 echo "Building dev jar"
 cd ../java
-mvn clean install $skipTests --no-transfer-progress
+mvn clean install $skipTests 
 cd ..
 echo "Done!"
 

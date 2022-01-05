@@ -14,12 +14,18 @@ jobs:
           - mdb_version: "default"
             ref: "master"
             mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/"
+            libmonetdb5_version: 32
+            libstream_version: 16
           - mdb_version: "Jan2022"
             ref: "master"
             mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jan2022/"
+            libmonetdb5_version: 32
+            libstream_version: 16
           - mdb_version: "Jul2021"
             ref: "master"
             mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jul2021/"
+            libmonetdb5_version: 31
+            libstream_version: 15
     env:
       MDBE_JAVA_VERSION: "1.10"
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
@@ -42,6 +48,8 @@ jobs:
           echo "MVN_FLAGS=mac-slim,mac-fat" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
           echo "MONETDB_INSTALL=${{ matrix.mdb_install }}" >> $GITHUB_ENV
+          echo "LIBMONETDB5_VERSION=${{ matrix.libmonetdb5_version }}" >> $GITHUB_ENV
+          echo "LIBSTREAM_VERSION=${{ matrix.libstream_version }}" >> $GITHUB_ENV
 
       #Java, maven and gpg setup; download MonetDB from brew and set up test env
       - name: Set up JDK 1.8 and maven settings.xml
@@ -116,14 +124,14 @@ jobs:
       - name: Change load path of transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          install_name_tool -change /usr/lib/libpcre.0.dylib @rpath/libpcre.0.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.31.dylib
-          install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.31.dylib
-          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
-          install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
-          install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
-          install_name_tool -change /usr/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
-          install_name_tool -change /usr/lib/libcurl.4.dylib @rpath/libcurl.4.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
-          install_name_tool -change /usr/lib/libbz2.1.0.dylib @rpath/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs/libstream.15.dylib
+          install_name_tool -change /usr/lib/libpcre.0.dylib @rpath/libpcre.0.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.${{ env.LIBMONETDB5_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.${{ env.LIBMONETDB5_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libcurl.4.dylib @rpath/libcurl.4.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libbz2.1.0.dylib @rpath/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
 
       #Package jar, test and deploy
       - name: Compile Java, package into jar, do unit tests and deploy
