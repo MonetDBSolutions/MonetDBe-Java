@@ -69,8 +69,8 @@ jobs:
         uses: stCarolas/setup-maven@v4
         with:
           maven-version: 3.6.3
-      - name: Install patchelf
-        run: yum install -y patchelf chrpath
+      - name: Install packages
+        run: yum install -y patchelf chrpath wget
       #- name: Import GPG private key for maven release (for sign-maven-plugin)
       #  run: |
       #    touch /root/.m2/sign-key.asc
@@ -79,7 +79,6 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
           wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-
       #Install native library; collect library dependencies
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
