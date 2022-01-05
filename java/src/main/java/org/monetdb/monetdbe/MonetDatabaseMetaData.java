@@ -185,9 +185,8 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @return false because that's what MonetDB is for
      */
     @Override
-    //TODO Depends on if this is a memory or local database or a remote proxy
     public boolean usesLocalFiles() {
-        return false;
+        return "file".equals(con.getConnectionType());
     }
 
     /**
@@ -771,7 +770,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *
      * @return true if so
      */
-    //TODO We don't support this right now, but we want to in the future
     @Override
     public boolean supportsMultipleResultSets() {
         return false;
@@ -1874,7 +1872,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database-access error occurs.
      */
     @Override
-    //TODO Test with types
     public ResultSet getTables(
             final String catalog,
             final String schemaPattern,
@@ -3101,7 +3098,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException - if a database access error occurs
      */
     @Override
-    //TODO UDTs: We don't support this right now, but we want to in the future
     public ResultSet getUDTs(
             final String catalog,
             final String schemaPattern,
@@ -3131,7 +3127,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *		   <code>false</code> otherwise
      */
     @Override
-    //TODO We don't support this right now, but we want to in the future
     public boolean supportsSavepoints() {
         return true;
     }
@@ -3158,7 +3153,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *		   simultaneously; <code>false</code> otherwise
      */
     @Override
-    //TODO We don't support this right now, but we want to in the future
     public boolean supportsMultipleOpenResults() {
         return false;
     }
@@ -3171,7 +3165,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      *		   after a statement has executed; <code>false</code> otherwise
      */
     @Override
-    //TODO We don't support this right now, but we want to in the future
     public boolean supportsGetGeneratedKeys() {
         return true;
     }
@@ -3551,7 +3544,7 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @return A ResultSet object; each row is a supported client info property
      * @throws SQLException if a database access error occurs
      */
-    //TODO Change to suite MonetDBe options
+    //TODO Change to suit MonetDBe options
     @Override
     public ResultSet getClientInfoProperties() throws SQLException {
         // for a list of connection properties see also MonetConnection.java constructor MonetConnection(Properties props)
@@ -3611,7 +3604,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException if a database access error occurs
      */
     @Override
-    //TODO Check
     public ResultSet getFunctions(
             final String catalog,
             final String schemaPattern,
@@ -3849,7 +3841,6 @@ public class MonetDatabaseMetaData extends MonetWrapper implements DatabaseMetaD
      * @throws SQLException - if a database access error occurs
      */
     @Override
-    //TODO We don't support this right now, but we want to in the future
     public boolean generatedKeyAlwaysReturned() throws SQLException {
         return true;
     }

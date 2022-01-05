@@ -534,11 +534,11 @@ public class RemoteConnectionTests {
         try (Connection c = DriverManager.getConnection(url)) {
             getObject(c);
             //Passed
-            //metadata(c);
-            //schema(c);
-            //multithreadedConnection(c);
-            //parameterMetadata(c);
-            //resultPreparedMetadata(c);
+            metadata(c);
+            schema(c);
+            multithreadedConnection(c);
+            parameterMetadata(c);
+            resultPreparedMetadata(c);
 
             //Not passed
             //Test06 -> PreparedStatement error (monetdbe thinks there is an extra timestamp parameter to bind)

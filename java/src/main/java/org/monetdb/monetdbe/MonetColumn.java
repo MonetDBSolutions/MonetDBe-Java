@@ -65,7 +65,6 @@ public class MonetColumn {
         this.name = name;
         this.monetdbeType = monetdbeType;
         this.typeName = MonetTypes.getMonetTypeString(monetdbeType);
-        //TODO Should we add precision for variable-lenght data types (str precision is the max lenght)?
         this.precision = 0;
         this.scale = 0;
         this.varData = varData;

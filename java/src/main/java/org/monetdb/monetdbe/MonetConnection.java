@@ -44,6 +44,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
     private String jdbcURL;
     /** File to log to */
     private String logFile;
+    /** Type of connection (memory, file or remote) */
+    private String connectionType;
 
     /** The pointer to the C database object */
     protected ByteBuffer dbNative;
@@ -71,6 +73,7 @@ public class MonetConnection extends MonetWrapper implements Connection {
         this.isClosed = false;
         //Necessary for DatabaseMetadata method
         this.jdbcURL = properties.getProperty("jdbc_url");
+        this.connectionType = properties.getProperty("connection_type");
 
         //Connect to native C database -> dbNative variable is set within this method
         connectNative(properties);
@@ -454,6 +457,15 @@ public class MonetConnection extends MonetWrapper implements Connection {
     public boolean isReadOnly() throws SQLException {
         checkNotClosed();
         return false;
+    }
+
+    /**
+     * Retrieves the connection type (memory, file or remote)
+     *
+     * @return Connection type as string
+     */
+    public String getConnectionType() {
+        return this.connectionType;
     }
 
     /**

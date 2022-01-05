@@ -443,9 +443,7 @@ int convertScale(int originalScale) {
     return newScale;
 }
 
-//TODO Change return value to string and set jobjectArray through setObjectField?
 //TODO Change the check for version from checking against the MonetDB Minor version to checking MONETDBE_VERSION (when it gets upgraded from 2.0.2 in Jan2022)
-//TODO Oct2020 support?
 JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1result_1fetch_1all(JNIEnv *env, jclass self, jobject j_rs, jint nrows, jint ncols)
 {
     monetdbe_result *rs = (*env)->GetDirectBufferAddress(env, j_rs);
