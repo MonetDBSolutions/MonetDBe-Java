@@ -19,6 +19,10 @@ jobs:
           maven-version: 3.6.3
       - name: Install monetdb through brew
         run: brew install monetdb
+      - name: Set up test environment
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+          wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
       - name: Build with Maven and test
         run: $GITHUB_WORKSPACE/build_dev.sh /usr/local false
       - name: Run example class (SimpleTypes)
@@ -49,6 +53,10 @@ jobs:
           cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/ -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DRINTEGRATION=OFF
           make install
           cd ../../
+      - name: Set up test environment
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
+          wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
       - name: Build with Maven and test
         run: $GITHUB_WORKSPACE/build_dev.sh $GITHUB_WORKSPACE/MonetDB/MonetDB-default/ false
       - name: Run example class (SimpleTypes)

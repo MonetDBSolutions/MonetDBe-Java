@@ -472,7 +472,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         c_bool->data[j] = 0;
                     }
                 }
-                #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+                #if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
                     addColumnConst(env, j_columns, c_bool->data, c_bool->name, c_bool->type, c_bool->count, 8, i, c_bool->sql_type.digits, c_bool->sql_type.scale, NULL);
                 #else
                     addColumnConst(env, j_columns, c_bool->data, c_bool->name, c_bool->type, c_bool->count, 8, i, 0, 0, NULL);
@@ -501,7 +501,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+                #if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, c_int8_t->type, row_count, 8, i, c_int8_t->sql_type.digits, c_int8_t->sql_type.scale, decimalNulls);
                 #else
                     addColumnConst(env, j_columns, c_int8_t->data, c_int8_t->name, c_int8_t->type, row_count, 8, i, 0, convertScale(c_int8_t->scale), decimalNulls);
@@ -530,7 +530,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+                #if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, c_int16_t->type, row_count, 16, i, c_int16_t->sql_type.digits, c_int16_t->sql_type.scale, decimalNulls);
                 #else
                     addColumnConst(env, j_columns, c_int16_t->data, c_int16_t->name, c_int16_t->type, row_count, 16, i, 0, convertScale(c_int16_t->scale), decimalNulls);
@@ -559,7 +559,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+                #if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, c_int32_t->type, row_count, 32, i, c_int32_t->sql_type.digits, c_int32_t->sql_type.scale, decimalNulls);
                 #else
                     addColumnConst(env, j_columns, c_int32_t->data, c_int32_t->name, c_int32_t->type, row_count, 32, i, 0, convertScale(c_int32_t->scale), decimalNulls);
@@ -588,7 +588,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+                #if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, c_int64_t->type, row_count, 64, i, c_int64_t->sql_type.digits, c_int64_t->sql_type.scale, decimalNulls);
                 #else
                     addColumnConst(env, j_columns, c_int64_t->data, c_int64_t->name, c_int64_t->type, row_count, 64, i, 0, convertScale(c_int64_t->scale), decimalNulls);
@@ -618,7 +618,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
                         }
                     }
                 }
-                #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+                #if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
                     addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, c_int128_t->type, row_count, 128, i, c_int128_t->sql_type.digits, c_int128_t->sql_type.scale, decimalNulls);
                 #else
                     addColumnConst(env, j_columns, c_int128_t->data, c_int128_t->name, c_int128_t->type, row_count, 128, i, 0, convertScale(c_int128_t->scale), decimalNulls);
@@ -642,7 +642,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
 #ifndef HAVE_HGE
                 type = type + 1;
 #endif
-                #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+                #if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
                     addColumnConst(env, j_columns, c_float->data, c_float->name, type, c_float->count, 32, i, c_float->sql_type.digits, c_float->sql_type.scale, NULL);
                 #else
                     addColumnConst(env, j_columns, c_float->data, c_float->name, type, c_float->count, 32, i, 0, 0, NULL);
@@ -664,7 +664,7 @@ JNIEXPORT jobjectArray JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1r
 #ifndef HAVE_HGE
                 type = type + 1;
 #endif
-                #if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+                #if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
                     addColumnConst(env, j_columns, c_double->data, c_double->name, type, c_double->count, 64, i, c_double->sql_type.digits, c_double->sql_type.scale, NULL);
                 #else
                     addColumnConst(env, j_columns, c_double->data, c_double->name, type, c_double->count, 64, i, 0, 0, NULL);
@@ -875,7 +875,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
     monetdbe_statement **stmt = malloc(sizeof(monetdbe_statement *));
     char *sql = (char *)(*env)->GetStringUTFChars(env, j_sql, NULL);
 
-#if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+#if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
         monetdbe_result** result = malloc(sizeof(monetdbe_result *));
         char *error_msg = monetdbe_prepare(db, sql, stmt, result);
 #else
@@ -894,7 +894,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         jfieldID statementNativeField = (*env)->GetFieldID(env, statementClass, "statementNative", "Ljava/nio/ByteBuffer;");
         (*env)->SetObjectField(env, j_statement, statementNativeField, (*env)->NewDirectByteBuffer(env, (*stmt), sizeof(monetdbe_statement)));
 
-#if MONETDB_VERSION_MINOR == JAN2022_VERSION_MINOR
+#if MONETDB_VERSION_MINOR > JUL2021_VERSION_MINOR
         setPreparedStatementVariables(env,j_statement,statementClass,result);
 #else
         setPreparedStatementVariablesJul(env,j_statement,statementClass,stmt);

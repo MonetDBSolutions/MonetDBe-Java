@@ -8,14 +8,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mdb_version: ["default","Jul2021"]
+        mdb_version: ["default","Jan2022","Jul2021"]
         artifact: ["slim", "fat"]
         include:
           - mdb_version: "default"
             ref: "master"
             mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/"
+          - mdb_version: "Jan2022"
+            ref: "master"
+            mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jan2022/"
           - mdb_version: "Jul2021"
-            ref: "v1.10"
+            ref: "master"
             mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jul2021/"
     env:
       MDBE_JAVA_VERSION: "1.10"
@@ -83,7 +86,6 @@ jobs:
         run: |
           mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
           wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-
       #Install native library; collect libraries
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
