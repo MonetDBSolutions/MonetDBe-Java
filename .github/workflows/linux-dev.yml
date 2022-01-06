@@ -31,12 +31,10 @@ jobs:
         uses: stCarolas/setup-maven@v4
         with:
           maven-version: 3.6.3
-      - name: Install packages
-        run: apt-get install wget
       - name: Set up test environment
         run: |
           mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
-          wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
+          curl -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
       - name: Build with Maven and test
         run: $GITHUB_WORKSPACE/build_dev.sh /usr/local false
       - name: Run example class (SimpleTypes)

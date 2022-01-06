@@ -87,7 +87,13 @@ public class MonetConnection extends MonetWrapper implements Connection {
     }
 
     private Integer parseOptionInt(Properties properties, String key, Integer default_value) {
-        String prop = properties.getProperty(key);
+        String prop = null;
+        if (properties.containsKey(key))
+            prop = properties.getProperty(key);
+        //Allow for both session_timeout and sessiontimeout
+        else if (properties.containsKey(key.replace("_","")))
+            prop = properties.getProperty(key.replace("_",""));
+        System.out.println(prop);
         if (prop != null) {
             try {
                 return Integer.parseInt(prop);
