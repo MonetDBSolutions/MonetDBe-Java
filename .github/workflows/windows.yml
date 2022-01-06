@@ -62,7 +62,8 @@ jobs:
         run: |
           Set-Location c:\
           curl.exe https://dev.monetdb.org/hg/MonetDB/archive/${{ env.MDB_VERSION }}.zip -O
-          unzip.exe ${{ env.MDB_VERSION }}.zip
+      - name: Unzip monetdb archive
+        run: unzip.exe ${{ env.MDB_VERSION }}.zip
       - name: Compile and install MonetDB
         run: |
           mkdir c:\MonetDB-${{ env.MDB_VERSION }}\build
@@ -71,9 +72,9 @@ jobs:
           cmake -G "Visual Studio 16 2019" `
             -A x64 `
             -DCMAKE_TOOLCHAIN_FILE=D:\a\MonetDBe-Java\MonetDBe-Java\vcpkg\scripts\buildsystems\vcpkg.cmake `
-            -DCMAKE_INSTALL_PREFIX=C:\monetdb `
+            -DCMAKE_INSTALL_PREFIX=C:\monetdb-${{ env.MDB_VERSION }} `
             -DTESTING=OFF `
-            -DCMAKE_BUILD_TYPE=Debug `
+            -DCMAKE_BUILD_TYPE=Release `
             -DASSERT=OFF `
             -DODBC=false `
             -DPY3INTEGRATION=OFF `
