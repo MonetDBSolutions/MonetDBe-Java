@@ -27,7 +27,7 @@ jobs:
             libmonetdb5_version: 31
             libstream_version: 15
     env:
-      MDBE_JAVA_VERSION: "1.10"
+      MDBE_JAVA_VERSION: "1.11-SNAPSHOT"
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
       PUBLISH_ARTIFACTS: "False"
     steps:
@@ -45,7 +45,7 @@ jobs:
         if: ${{ matrix.artifact == 'fat' }}
         run: |
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-fat.jar" >> $GITHUB_ENV
-          echo "MVN_FLAGS=mac-slim,mac-fat" >> $GITHUB_ENV
+          echo "MVN_FLAGS=mac-slim,mac-fat, release" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
           echo "MONETDB_INSTALL=${{ matrix.mdb_install }}" >> $GITHUB_ENV
           echo "LIBMONETDB5_VERSION=${{ matrix.libmonetdb5_version }}" >> $GITHUB_ENV
@@ -137,7 +137,7 @@ jobs:
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
+          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb

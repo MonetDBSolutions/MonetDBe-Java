@@ -4,7 +4,7 @@
 
     <groupId>monetdb</groupId>
     <artifactId>monetdbe-java</artifactId>
-    <version>1.10</version>
+    <version>1.11-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>MonetDB Embedded JDBC driver</description>
     <url>https://www.monetdb.org</url>
