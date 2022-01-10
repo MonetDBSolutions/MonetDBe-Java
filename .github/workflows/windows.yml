@@ -10,7 +10,7 @@ jobs:
       matrix:
         mdb_version: ["Jan2022","Jul2021"]
     env:
-      MDBE_JAVA_VERSION: "1.10"
+      MDBE_JAVA_VERSION: "1.11-SNAPSHOT"
       MDB_VERSION: ${{ matrix.mdb_version }}
     steps:
       - uses: actions/checkout@v2
@@ -62,8 +62,7 @@ jobs:
         run: |
           Set-Location c:\
           curl.exe https://dev.monetdb.org/hg/MonetDB/archive/${{ env.MDB_VERSION }}.zip -O
-      - name: Unzip monetdb archive
-        run: unzip.exe ${{ env.MDB_VERSION }}.zip
+          unzip.exe MonetDB-${{ env.MDB_VERSION }}.zip
       - name: Compile and install MonetDB
         run: |
           mkdir c:\MonetDB-${{ env.MDB_VERSION }}\build
