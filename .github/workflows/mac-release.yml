@@ -136,9 +136,23 @@ jobs:
 
       #Package jar, test and deploy
       - name: Compile Java, package into jar, do unit tests and deploy
+        if: ${{ matrix.mdb_version == 'Jan2022' }}
         run: |
           cd java
           mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
+          cd ..
+        env:
+          MVN_DEPLOY_USERNAME: monetdb
+          MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+      #Package jar, test and install
+      - name: Compile Java, package into jar, do unit tests and deploy
+        if: ${{ matrix.mdb_version != 'Jan2022' }}
+        run: |
+          cd java
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb

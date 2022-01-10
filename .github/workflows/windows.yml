@@ -71,7 +71,7 @@ jobs:
           cmake -G "Visual Studio 16 2019" `
             -A x64 `
             -DCMAKE_TOOLCHAIN_FILE=D:\a\MonetDBe-Java\MonetDBe-Java\vcpkg\scripts\buildsystems\vcpkg.cmake `
-            -DCMAKE_INSTALL_PREFIX=C:\monetdb-${{ env.MDB_VERSION }} `
+            -DCMAKE_INSTALL_PREFIX=C:\MonetDB-${{ env.MDB_VERSION }} `
             -DTESTING=OFF `
             -DCMAKE_BUILD_TYPE=Release `
             -DASSERT=OFF `
@@ -83,18 +83,27 @@ jobs:
           cmake --build . --target INSTALL  --config Release
 
       #Install native library, collect libraries, package jar, test and deploy
-      #mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release --no-transfer-progress
       - name: Install native library, collect libraries, package jar, test and deploy
+        if: ${{ matrix.mdb_version == 'Jan2022' }}
         run: |
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
-          mvn clean install "-DMonetDB_dir=C:\monetdb" --no-transfer-progress
+          mvn clean install "-DMonetDB_dir=C:\MonetDB-${{ env.MDB_VERSION }}" --no-transfer-progress
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
-          mvn clean deploy "-DMonetDB_dir=C:\monetdb" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release --no-transfer-progress
+          mvn clean deploy "-DMonetDB_dir=C:\MonetDB-${{ env.MDB_VERSION }}" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release --no-transfer-progress
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
           MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
+      #Install native library, collect libraries, package jar, test and install
+      - name: Install native library, collect libraries, package jar, test and install
+        if: ${{ matrix.mdb_version != 'Jan2022' }}
+        run: |
+          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
+          mvn clean install "-DMonetDB_dir=C:\MonetDB-${{ env.MDB_VERSION }}" --no-transfer-progress
+          Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
+          mvn clean install "-DMonetDB_dir=C:\MonetDB-${{ env.MDB_VERSION }}" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" --no-transfer-progress
 
       #Run example and publish jar
       - name: Run example class (ComplexTypes)
