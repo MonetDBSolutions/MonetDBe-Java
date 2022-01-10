@@ -13,22 +13,22 @@ jobs:
         include:
           - container: "monetdb/dev-builds:default_manylinux"
             artifact: "slim"
-            ref: "master"
+            mdb_version: "default"
           - container: "monetdb/dev-builds:default_manylinux"
             artifact: "fat"
-            ref: "master"
+            mdb_version: "default"
           - container: "monetdb/dev-builds:Jan2022_manylinux"
             artifact: "slim"
-            ref: "master"
+            mdb_version: "Jan2022"
           - container: "monetdb/dev-builds:Jan2022_manylinux"
             artifact: "fat"
-            ref: "master"
+            mdb_version: "Jan2022"
           - container: "monetdb/dev-builds:Jul2021_manylinux"
             artifact: "slim"
-            ref: "master"
+            mdb_version: "Jul2021"
           - container: "monetdb/dev-builds:Jul2021_manylinux"
             artifact: "fat"
-            ref: "master"
+            mdb_version: "Jul2021"
     container:
       image: ${{ matrix.container }}
     env:
@@ -37,21 +37,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ matrix.ref }}
+          ref: "master"
 
       #Set global environment variables
       #echo "MVN_FLAGS=linux-slim,release" >> $GITHUB_ENV
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
-          echo "MVN_FLAGS=linux-slim" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,release" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-slim.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
       #echo "MVN_FLAGS=linux-slim,linux-fat,release" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,linux-fat" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,linux-fat,release" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-fat.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
 
@@ -109,6 +109,7 @@ jobs:
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
@@ -116,6 +117,7 @@ jobs:
         run: |
           javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
           java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
+
       - name: Publish error log
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2

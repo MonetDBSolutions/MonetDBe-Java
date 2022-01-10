@@ -130,7 +130,8 @@ public class MonetConnection extends MonetWrapper implements Connection {
         else {
             //Directory for local, null for in-memory
             String path = props.getProperty("path", null);
-            error_msg = MonetNative.monetdbe_open(path, this, sessionTimeout, queryTimeout, memoryLimit, nrThreads, logFile);
+            //error_msg = MonetNative.monetdbe_open(path, this, sessionTimeout, queryTimeout, memoryLimit, nrThreads, logFile);
+            error_msg = MonetNative.monetdbe_open(path, this);
         }
         if (dbNative == null || error_msg != null)
             throw new SQLException(error_msg);
