@@ -148,7 +148,7 @@ jobs:
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Package jar, test and install
-      - name: Compile Java, package into jar, do unit tests and deploy
+      - name: Compile Java, package into jar, do unit tests and install
         if: ${{ matrix.mdb_version != 'Jan2022' }}
         run: |
           cd java
@@ -157,6 +157,8 @@ jobs:
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
       - name: Run example class (SimpleTypes)

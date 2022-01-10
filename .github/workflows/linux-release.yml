@@ -44,13 +44,13 @@ jobs:
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,release,release-sign-linux" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-slim.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV+
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,linux-fat,release,release-sign-linux" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,linux-fat" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-fat.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
 
@@ -68,12 +68,6 @@ jobs:
         uses: stCarolas/setup-maven@v4
         with:
           maven-version: 3.6.3
-      - name: Import GPG private key for maven release
-        id: import_gpg
-        uses: crazy-max/ghaction-import-gpg@v3
-        with:
-          gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
       - name: Install packages
         run: yum install -y patchelf chrpath wget
       #- name: Import GPG private key for maven release (for sign-maven-plugin)
@@ -109,11 +103,13 @@ jobs:
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
       - name: Run example class (SimpleTypes)
