@@ -672,7 +672,7 @@
                                 <artifactItem>
                                     <groupId>monetdb</groupId>
                                     <artifactId>monetdbe-java-native</artifactId>
-                                    <version>1.10</version>
+                                    <version>1.11-SNAPSHOT</version>
                                     <type>${os.library.type}</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.outputDirectory}/lib/${os.name.clean}</outputDirectory>

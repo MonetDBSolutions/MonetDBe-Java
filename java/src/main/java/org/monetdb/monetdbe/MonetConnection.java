@@ -93,7 +93,6 @@ public class MonetConnection extends MonetWrapper implements Connection {
         //Allow for both session_timeout and sessiontimeout
         else if (properties.containsKey(key.replace("_","")))
             prop = properties.getProperty(key.replace("_",""));
-        System.out.println(prop);
         if (prop != null) {
             try {
                 return Integer.parseInt(prop);
