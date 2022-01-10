@@ -38,14 +38,14 @@ jobs:
         if: ${{ matrix.artifact == 'slim' }}
         run: |
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-slim.jar" >> $GITHUB_ENV
-          echo "MVN_FLAGS=mac-slim" >> $GITHUB_ENV
+          echo "MVN_FLAGS=mac-slim,release" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
           echo "MONETDB_INSTALL=${{ matrix.mdb_install }}" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-fat.jar" >> $GITHUB_ENV
-          echo "MVN_FLAGS=mac-slim,mac-fat, release" >> $GITHUB_ENV
+          echo "MVN_FLAGS=mac-slim,mac-fat,release" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
           echo "MONETDB_INSTALL=${{ matrix.mdb_install }}" >> $GITHUB_ENV
           echo "LIBMONETDB5_VERSION=${{ matrix.libmonetdb5_version }}" >> $GITHUB_ENV

@@ -61,8 +61,8 @@ jobs:
       - name: Get monetdb
         run: |
           Set-Location c:\
-          curl.exe https://dev.monetdb.org/hg/MonetDB/archive/${{ env.MDB_VERSION }}.zip -O
-          unzip.exe MonetDB-${{ env.MDB_VERSION }}.zip
+          curl.exe https://www.monetdb.org/hg/MonetDB/archive/${{ env.MDB_VERSION }}.zip -O
+          unzip.exe ${{ env.MDB_VERSION }}.zip
       - name: Compile and install MonetDB
         run: |
           mkdir c:\MonetDB-${{ env.MDB_VERSION }}\build
