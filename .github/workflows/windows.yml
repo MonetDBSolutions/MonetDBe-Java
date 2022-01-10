@@ -89,7 +89,7 @@ jobs:
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\native
           mvn clean install "-DMonetDB_dir=C:\MonetDB-${{ env.MDB_VERSION }}" --no-transfer-progress
           Set-Location D:\a\MonetDBe-Java\MonetDBe-Java\java
-          mvn clean deploy "-DMonetDB_dir=C:\MonetDB-${{ env.MDB_VERSION }}" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release --no-transfer-progress
+          mvn clean deploy "-DMonetDB_dir=C:\MonetDB-${{ env.MDB_VERSION }}" "-DVCPKG_ROOT=$Env:VCPKG_ROOT" -P release,release-sign --no-transfer-progress
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
