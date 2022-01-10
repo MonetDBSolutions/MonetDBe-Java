@@ -30,6 +30,7 @@ jobs:
       MDBE_JAVA_VERSION: "1.11-SNAPSHOT"
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
       PUBLISH_ARTIFACTS: "False"
+      MDB_VERSION: ${{ matrix.mdb_version }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -156,8 +157,6 @@ jobs:
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
-          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
-          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
       - name: Run example class (SimpleTypes)
@@ -168,5 +167,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: ${{ matrix.mdb_version }}-${{env.ARTIFACT}}
+          name: ${{ env.MDB_VERSION }}-${{env.ARTIFACT}}
           path: ${{env.M2_REPO}}/${{env.ARTIFACT}}

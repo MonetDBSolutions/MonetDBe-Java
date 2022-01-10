@@ -93,8 +93,6 @@ jobs:
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
-          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
-          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Install native library, collect libraries, package jar, test and install
       - name: Install native library, collect libraries, package jar, test and install
@@ -115,5 +113,5 @@ jobs:
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: ${{ env.ARTIFACT }}
+          name: ${{ env.MDB_VERSION }}-${{ env.ARTIFACT }}
           path: ${{ env.M2_REPO }}\${{ env.ARTIFACT }}

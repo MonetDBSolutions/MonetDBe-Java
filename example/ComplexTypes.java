@@ -76,13 +76,13 @@ public class ComplexTypes {
     public static void main(String[] args) {
         try {
             Properties p = new Properties();
-            p.setProperty("logfile","/Users/bernardo/Monet/MonetDBe-Java/log.txt");
+            //p.setProperty("logfile","/Users/bernardo/Monet/MonetDBe-Java/log.txt");
             Connection c = DriverManager.getConnection("jdbc:monetdb:memory:", p);
             Statement st = c.createStatement();
             ResultSet rs;
-            st.execute("CALL logging.setadapter('basic');");
-            st.execute("CALL logging.setflushlevel('debug');");
-            st.execute("call logging.setcomplevel('algo', 'debug');");
+            //st.execute("CALL logging.setadapter('basic');");
+            //st.execute("CALL logging.setflushlevel('debug');");
+            //st.execute("call logging.setcomplevel('algo', 'debug');");
             if ((rs = st.getResultSet()) == null)
                 System.out.println("Update count: " + st.getUpdateCount());
             else
