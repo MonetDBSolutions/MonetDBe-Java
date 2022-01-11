@@ -9,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
 
 /**
  * Interface for C native methods in MonetDBe-Java.
@@ -119,7 +121,6 @@ public class MonetNative {
 
             //System.out.println("Loading dependencies from filesystem: " + libRoot.toString());
         }
-        //TODO Add exception if the wrong OS jar is used? (i.e. a mac system using the linux jar)
         Map<String, List<String>> dependencies = Files.walk(libRoot, 2)
                 .collect(Collectors.groupingBy((path -> path.getParent().getFileName().toString()),
                         Collectors.mapping(
@@ -165,11 +166,33 @@ public class MonetNative {
             throw new IOException("Library " + libName + " could not be found.");
         }
         File loadFile = new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName);
-        //Clean up file on JVM exit
-        loadFile.deleteOnExit();
         Path tempLibFile = loadFile.toPath();
-        Files.copy(is, tempLibFile, StandardCopyOption.REPLACE_EXISTING);
+        if (!loadFile.exists() || !libIsUpdated(is,tempLibFile)) {
+            //Clean up file on JVM exit
+            loadFile.deleteOnExit();
+            //Copy library contents in jar to temporary location
+            Files.copy(is, tempLibFile, StandardCopyOption.REPLACE_EXISTING);
+        }
+        else {
+            //Temporary location library already exists, and the checksum matches the library in the jar
+            //No need to copy, only load
+            System.out.println("File already exists, no copy");
+        }
         System.load(tempLibFile.toString());
+    }
+
+    //Compare the checksums from the library in the jar and the library in the temp location
+    //Used to check if the library in the jar needs to be copied, or the old one can be loaded
+    static boolean libIsUpdated(InputStream newLib, Path oldLibPath) throws IOException {
+        InputStream oldLib = Files.newInputStream(oldLibPath);
+        CheckedInputStream newIS = new CheckedInputStream(newLib, new CRC32());
+        CheckedInputStream oldIS = new CheckedInputStream(oldLib, new CRC32());
+        byte[] buffer = new byte[1024];
+        while (newIS.read(buffer, 0, buffer.length) >= 0);
+        long newChecksum = newIS.getChecksum().getValue();
+        while (oldIS.read(buffer, 0, buffer.length) >= 0);
+        long oldChecksum = oldIS.getChecksum().getValue();
+        return newChecksum == oldChecksum;
     }
 
     //Native library API
