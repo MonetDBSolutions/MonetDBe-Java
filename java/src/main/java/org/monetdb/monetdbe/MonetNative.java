@@ -107,7 +107,6 @@ public class MonetNative {
         //Loading within jar
         if ("jar".equalsIgnoreCase(uri.getScheme())) {
             libRoot = FileSystems.newFileSystem(uri, Collections.emptyMap()).getPath("/lib/" + os);
-            //System.out.println("Loading dependencies from within jar: " + libRoot.toString());
         }
         //Loading from file (IDE execution and maven unit tests)
         else {
@@ -118,8 +117,6 @@ public class MonetNative {
             else {
                 libRoot = Paths.get(uri.getPath() + os);
             }
-
-            //System.out.println("Loading dependencies from filesystem: " + libRoot.toString());
         }
         Map<String, List<String>> dependencies = Files.walk(libRoot, 2)
                 .collect(Collectors.groupingBy((path -> path.getParent().getFileName().toString()),
@@ -167,16 +164,13 @@ public class MonetNative {
         }
         File loadFile = new java.io.File(System.getProperty("java.io.tmpdir") + "/" + libName);
         Path tempLibFile = loadFile.toPath();
+        //If the temporary location library already exists, and the checksum matches the library in the jar
+        //No need to copy, only load
         if (!loadFile.exists() || !libIsUpdated(is,tempLibFile)) {
             //Clean up file on JVM exit
             loadFile.deleteOnExit();
             //Copy library contents in jar to temporary location
             Files.copy(is, tempLibFile, StandardCopyOption.REPLACE_EXISTING);
-        }
-        else {
-            //Temporary location library already exists, and the checksum matches the library in the jar
-            //No need to copy, only load
-            System.out.println("File already exists, no copy");
         }
         System.load(tempLibFile.toString());
     }
