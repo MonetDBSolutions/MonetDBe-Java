@@ -82,12 +82,12 @@ public class MonetResultSetMetaData extends MonetWrapper implements ResultSetMet
     }
 
     /**
-     * Feature not currently not supported.
-     * @throws java.sql.SQLFeatureNotSupportedException this feature not currently not supported
+     * Indicates whether the designated column is automatically numbered.
+     * @return false
      */
     @Override
     public boolean isAutoIncrement(int column) throws SQLException {
-        throw new SQLFeatureNotSupportedException("isAutoIncrement()");
+        return false;
     }
 
     /**
