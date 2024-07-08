@@ -25,7 +25,7 @@ jobs:
         #  mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
         #  wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
       - name: Build native part
-        run: cd native; mvn clean install -DMonetDB_dir=/usr/local
+        run: cd native; mvn clean install -DMonetDB_dir=/opt
       - name: Build java part
         run: cd java; mvn clean install
         #- name: Build with Maven and test
