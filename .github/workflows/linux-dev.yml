@@ -21,15 +21,15 @@ jobs:
           java-version: '21'
           cache: 'maven'
           cache-dependency-path: '*/pom.xml'
+      - name: Setup Maven
+        uses: stCarolas/setup-maven@v4
+        #with:
+        #  maven-version: 3.6.3
       - name: Build native part
         run: cd native; mvn clean install -DMonetDB_dir=/usr/local
       - name: Build java part
         run: cd java; mvn clean install
 
-        #- name: Setup Maven
-        #uses: stCarolas/setup-maven@v4
-        #with:
-        #  maven-version: 3.6.3
         #- name: Install packages
         #run: apt-get install curl
         #- name: Set up test environment
