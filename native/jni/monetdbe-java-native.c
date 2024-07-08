@@ -45,15 +45,11 @@ void set_options_remote(JNIEnv *env, monetdbe_options *opts, jstring j_host, jin
 
 monetdbe_options *set_options(JNIEnv *env, jint j_sessiontimeout, jint j_querytimeout, jint j_memorylimit, jint j_nr_threads)
 {
-    monetdbe_options *opts = malloc(sizeof(monetdbe_options));
+    monetdbe_options *opts = calloc(sizeof(monetdbe_options), 1);
     opts->memorylimit = (int)j_memorylimit;
     opts->querytimeout = (int)j_querytimeout;
     opts->sessiontimeout = (int)j_sessiontimeout;
     opts->nr_threads = (int)j_nr_threads;
-#ifdef MONETDBE_VERSION
-    opts->remote = NULL;
-    opts->mapi_server = NULL;
-#endif
     return opts;
 }
 
@@ -661,9 +657,10 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
 {
     monetdbe_database db = (*env)->GetDirectBufferAddress(env, j_db);
     monetdbe_statement **stmt = malloc(sizeof(monetdbe_statement *));
+    monetdbe_result *p_result = NULL;
     char *sql = (char *)(*env)->GetStringUTFChars(env, j_sql, NULL);
 
-    char *error_msg = monetdbe_prepare(db, sql, stmt);
+    char *error_msg = monetdbe_prepare(db, sql, stmt, &p_result);
     if (error_msg)
     {
         return (*env)->NewStringUTF(env, (const char *)error_msg);
@@ -677,6 +674,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
         (*env)->SetIntField(env, j_statement, paramsField, (jint)nParams);
 
         //Set parameter types
+	//TODO use p_result table!
         if (nParams > 0)
         {
             jintArray j_parameterTypes = (*env)->NewIntArray(env, nParams);
@@ -710,6 +708,7 @@ JNIEXPORT jstring JNICALL Java_org_monetdb_monetdbe_MonetNative_monetdbe_1prepar
 
         jfieldID statementNativeField = (*env)->GetFieldID(env, statementClass, "statementNative", "Ljava/nio/ByteBuffer;");
         (*env)->SetObjectField(env, j_statement, statementNativeField, (*env)->NewDirectByteBuffer(env, (*stmt), sizeof(monetdbe_statement)));
+    	monetdbe_cleanup_result(db, p_result);
         return NULL;
     }
 }

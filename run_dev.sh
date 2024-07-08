@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 if [ $# -eq 0 ]; then
     echo "No example to run was provided"
