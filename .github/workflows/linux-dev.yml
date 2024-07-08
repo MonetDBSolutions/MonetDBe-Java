@@ -22,9 +22,9 @@ jobs:
           cache: 'maven'
           cache-dependency-path: '*/pom.xml'
       - name: Build native part
-        run: cd native; nvm clean install -DMonetDB_dir=/usr/local
+        run: cd native; mvn clean install -DMonetDB_dir=/usr/local
       - name: Build java part
-        run: cd java; nvm clean install
+        run: cd java; mvn clean install
 
         #- name: Setup Maven
         #uses: stCarolas/setup-maven@v4
