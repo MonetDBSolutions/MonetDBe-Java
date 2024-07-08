@@ -11,7 +11,8 @@ jobs:
     container:
       image: ${{ matrix.container }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           ref: "master"
       - name: Set up JDK 1.8

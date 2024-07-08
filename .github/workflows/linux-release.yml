@@ -36,7 +36,8 @@ jobs:
       MONETDB_INSTALL: /usr/local
       MDB_VERSION: ${{ matrix.mdb_version }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
           ref: "master"
 
