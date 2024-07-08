@@ -24,7 +24,7 @@ jobs:
         #with:
         #  maven-version: 3.6.3
       - name: Install packages
-        run: apt install wget
+        run: apt-get install curl
       - name: Set up test environment
         run: |
           mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
