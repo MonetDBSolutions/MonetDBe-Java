@@ -41,13 +41,13 @@ public class Test_06_ComplexInsertAndQueryStatements {
 			try (Statement statement = conn.createStatement()) {
 				statement.executeUpdate(
 						"CREATE TABLE test06 (bd NUMERIC, s STRING, b BLOB, d DATE, t TIME, ts TIMESTAMP);");
-				// assertEquals(0, statement.getUpdateCount());
-				statement.executeUpdate("INSERT INTO test06 VALUES "
+				assertEquals(-1, statement.getUpdateCount());
+				assertEquals(4, statement.executeUpdate("INSERT INTO test06 VALUES "
 						+ "(34589.54, 'hello', '12ff803F', current_date, current_time, current_timestamp), "
 						+ "(34012933.888, 'world', '0000803F', str_to_date('23-09-1987', '%d-%m-%Y'), str_to_time('11:40:30', '%H:%M:%S'), str_to_timestamp('23-09-1987 11:40', '%d-%m-%Y %H:%M')), "
 						+ "(666.666, 'bye', 'ffffffff', str_to_date('23-09-1990', '%d-%m-%Y'), str_to_time('11:40:35', '%H:%M:%S'), str_to_timestamp('23-09-1990 11:40', '%d-%m-%Y %H:%M')), "
-						+ "(NULL, NULL, NULL, NULL, NULL, NULL);");
-				// assertEquals(4, statement.getUpdateCount());
+						+ "(NULL, NULL, NULL, NULL, NULL, NULL);"));
+				long time = Calendar.getInstance().getTimeInMillis();
 
 				// Query table
 				try (ResultSet rs = statement.executeQuery("SELECT * FROM test06;")) {
@@ -60,10 +60,14 @@ public class Test_06_ComplexInsertAndQueryStatements {
 					assertEquals("hello", rs.getString(2));
 					assertArrayEquals(new byte[] { 0x12, (byte) 0xFF, (byte) 0x80, 0x3F },
 							rs.getBlob(3).getBytes(1, (int) rs.getBlob(3).length()));
-					assertEquals(new Date(Calendar.getInstance().getTimeInMillis()).toString(),
+					assertEquals(new Date(time).toString(),
 							rs.getDate(4).toString());
-					// assertEquals(new Time(Calendar.getInstance().getTimeInMillis()), rs.getTime(5));
-					// assertEquals(new Timestamp(Calendar.getInstance().getTimeInMillis()), rs.getTimestamp(6));
+					//assertEquals(new Time(time).toString(), rs.getTime(5).toString());
+					//Timestamp ts = new Timestamp(time);
+					//ts.setNanos(0);
+					//Timestamp ts_db = rs.getTimestamp(6);
+					//ts_db.setNanos(0);
+					//assertEquals(ts, ts_db);
 
 					rs.next();
 					assertEquals(2, rs.getRow());

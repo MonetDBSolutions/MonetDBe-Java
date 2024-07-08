@@ -4,7 +4,7 @@
 
     <groupId>monetdb</groupId>
     <artifactId>monetdbe-java</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.11-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <description>MonetDB Embedded JDBC driver</description>
     <url>https://www.monetdb.org</url>
@@ -19,6 +19,13 @@
             <organizationUrl>https://www.monetdb.org</organizationUrl>
         </developer>
     </developers>
+
+    <licenses>
+        <license>
+            <name>Mozilla Public License, Version 2.0</name>
+            <url>https://www.mozilla.org/MPL/2.0/</url>
+        </license>
+    </licenses>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -492,7 +499,8 @@
         <profile>
             <id>cross</id>
             <properties>
-                <jar.classifier>cross</jar.classifier>
+                <!-- Do not skip tests, as this is a release profile -->
+                <skipTests>false</skipTests>
             </properties>
             <build>
                 <plugins>
@@ -576,7 +584,7 @@
                         </configuration>
                     </plugin>
                     <!-- Jar with source files -->
-                    <!--<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>3.0.1</version>
@@ -587,11 +595,14 @@
                                 <goals>
                                     <goal>jar-no-fork</goal>
                                 </goals>
+                                <configuration>
+                                    <classifier>sources</classifier>
+                                </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>
                     <!-- Jar with documentation -->
-                    <!--<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>3.2.0</version>
@@ -603,17 +614,17 @@
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <release>11</release>
+                                    <classifier>javadoc</classifier>
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>-->
+                    </plugin>
                 </plugins>
             </build>
         </profile>
 
         <profile>
-            <id>sign-gpg</id>
+            <id>release-sign</id>
             <build>
                 <plugins>
                     <plugin>
@@ -641,32 +652,30 @@
             </build>
         </profile>
 
-        <!--<profile>
-            <id>sign-jarsigner</id>
+        <profile>
+            <id>release-sign-linux</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jarsigner-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
                         <executions>
                             <execution>
-                                <id>sign</id>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <passphrase>${gpg.passphrase}</passphrase>
+                                </configuration>
                             </execution>
                         </executions>
-                        <configuration>
-                            <keystore>/root/.m2/private.key</keystore>
-                            <alias>bernardo</alias>
-                            <storepass>${MVN_GPG_PASSPHRASE}</storepass>
-                            <keypass>${MVN_GPG_PASSPHRASE}</keypass>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
-        </profile>-->
+        </profile>
     </profiles>
 
     <build>
@@ -696,7 +705,7 @@
                                 <artifactItem>
                                     <groupId>monetdb</groupId>
                                     <artifactId>monetdbe-java-native</artifactId>
-                                    <version>1.0-SNAPSHOT</version>
+                                    <version>1.11-SNAPSHOT</version>
                                     <type>${os.library.type}</type>
                                     <overWrite>false</overWrite>
                                     <outputDirectory>${project.build.outputDirectory}/lib/${os.name.clean}</outputDirectory>
@@ -733,27 +742,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.0.0-M5</version>
                 <configuration>
                     <includes>
                         <include>AllTests.java</include>
-                        <!--<include>Test_01_OpenAndCloseConnection</include>
-                        <include>Test_02_CloseConnectionTwice</include>
-                        <include>Test_03_AutoCommit</include>
-                        <include>Test_04_SimpleInsertAndQueryStatements</include>
-                        <include>Test_05_BasicInsertAndQueryStatements</include>
-                        <include>Test_06_ComplexInsertAndQueryStatements</include>
-                        <include>Test_07_SimplePreparedStatements</include>
-                        <include>Test_08_ComplexPreparedStatements</include>
-                        <include>Test_09_LoadAndQueryTaxi</include>
-                        <include>Test_10_MetaData</include>
-                        <include>Test_11_ConcurrentConnections</include>
-                        <include>Test_12_BatchesAndJoinsMovies</include>
-                        <include>Test_13_Schema</include>
-                        <include>Test_15_Transactions</include>
-                        <include>Test_16_MixedOrderStatements</include>
-                        <include>Test_17_QueryInThread</include>-->
-                        <!--<include>Test_14_MultipleResultSet</include>-->
                     </includes>
                     <skipTests>${skipTests}</skipTests>
                     <testFailureIgnore>true</testFailureIgnore>

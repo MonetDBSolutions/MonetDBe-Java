@@ -6,26 +6,51 @@ jobs:
     name: manylinux_jars
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        artifact: ["slim", "fat"]
-    container: monetdb/dev-builds:Jul2021_manylinux
+        container: ["monetdb/dev-builds:default_manylinux","monetdb/dev-builds:Jan2022_manylinux","monetdb/dev-builds:Jul2021_manylinux"]
+        artifact: ["slim","fat"]
+        include:
+          - container: "monetdb/dev-builds:default_manylinux"
+            artifact: "slim"
+            mdb_version: "default"
+          - container: "monetdb/dev-builds:default_manylinux"
+            artifact: "fat"
+            mdb_version: "default"
+          - container: "monetdb/dev-builds:Jan2022_manylinux"
+            artifact: "slim"
+            mdb_version: "Jan2022"
+          - container: "monetdb/dev-builds:Jan2022_manylinux"
+            artifact: "fat"
+            mdb_version: "Jan2022"
+          - container: "monetdb/dev-builds:Jul2021_manylinux"
+            artifact: "slim"
+            mdb_version: "Jul2021"
+          - container: "monetdb/dev-builds:Jul2021_manylinux"
+            artifact: "fat"
+            mdb_version: "Jul2021"
+    container:
+      image: ${{ matrix.container }}
     env:
-      MDBE_JAVA_VERSION: 1.0-SNAPSHOT
+      MDBE_JAVA_VERSION: "1.11-SNAPSHOT"
       MONETDB_INSTALL: /usr/local
+      MDB_VERSION: ${{ matrix.mdb_version }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: "master"
 
       #Set global environment variables
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,release" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-slim.jar" >> $GITHUB_ENV
-          echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
+          echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV+
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          echo "MVN_FLAGS=linux-slim,linux-fat,release" >> $GITHUB_ENV
+          echo "MVN_FLAGS=linux-slim,linux-fat" >> $GITHUB_ENV
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-linux-fat.jar" >> $GITHUB_ENV
           echo "M2_REPO=/root/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
 
@@ -43,17 +68,16 @@ jobs:
         uses: stCarolas/setup-maven@v4
         with:
           maven-version: 3.6.3
-      - name: Install patchelf
-        run: yum install -y patchelf
-      - name: Import GPG private key for maven release (for sign-maven-plugin)
-        run: |
-          touch /root/.m2/sign-key.asc
-          echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
+      - name: Install packages
+        run: yum install -y patchelf chrpath wget
+      #- name: Import GPG private key for maven release (for sign-maven-plugin)
+      #  run: |
+      #    touch /root/.m2/sign-key.asc
+      #    echo -e "${{ secrets.MVN_GPG_PRIVATE_KEY_SIMPLIFY }}" > /root/.m2/sign-key.asc
       - name: Set up test environment
         run: |
           mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
           wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-
       #Install native library; collect library dependencies
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
@@ -68,7 +92,9 @@ jobs:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib64
       - name: Change rpath of MonetDB libraries to package
         run: |
-          for file in $GITHUB_WORKSPACE/collect_libs/*; do patchelf --set-rpath $ORIGIN/. $file; done
+          ldd $GITHUB_WORKSPACE/collect_libs/*
+          for file in $GITHUB_WORKSPACE/collect_libs/*; do chrpath -r \$\ORIGIN/. $file; done
+          ldd $GITHUB_WORKSPACE/collect_libs/*
       - name: Collect transitive dependencies (only for fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: cp /lib64/libz.so.1 /lib64/libpcre.so.1 collect_libs
@@ -77,12 +103,12 @@ jobs:
       - name: Compile Java, package into jar, do unit tests and deploy
         run: |
           cd java
-          echo ${{ secrets.MVN_GPG_PRIVATE_KEY_USERNAME }} > /root/.m2/private.key
-          mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
           cd ..
         env:
           MVN_DEPLOY_USERNAME: monetdb
           MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
       #Run example and publish jar
@@ -90,8 +116,16 @@ jobs:
         run: |
           javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
           java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
-      - name: Publish Linux jar
+
+      - name: Publish error log
+        if: ${{ failure() }}
         uses: actions/upload-artifact@v2
         with:
-          name: ${{env.ARTIFACT}}
+          name: hs_err.log
+          path: /__w/MonetDBe-Java/MonetDBe-Java/hs_err_pid*.log
+      - name: Publish Linux jar
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: ${{ env.MDB_VERSION }}-${{env.ARTIFACT}}
           path: ${{env.M2_REPO}}/${{env.ARTIFACT}}

@@ -27,53 +27,66 @@ import java.util.List;
  * the defined SQL type of the input parameter. For instance, if the IN parameter has SQL type INTEGER, then the method setInt should be used.
  * If arbitrary parameter type conversions are required, the method setObject should be used with a target SQL type.
  */
+//TODO setBigDecimal support
 public class MonetPreparedStatement extends MonetStatement implements PreparedStatement {
-    /**
-     * The pointer to the C statement object
-     */
+    /* PreparedStatement state variables */
+    /** The pointer to the C statement object */
     protected ByteBuffer statementNative;
-    /**
-     * Metadata object containing info about this prepared statement
-     */
-    private MonetParameterMetaData parameterMetaData;
-    /**
-     * Number of bind-able parameters
-     */
-    protected int nParams;
-    /**
-     * Array of types of bind-able parameters
-     */
-    protected int[] monetdbeTypes;
-    /**
-     * Currently bound parameters
-     */
+    /** Currently bound parameters */
     private Object[] parameters;
-    /**
-     * Array of bound parameters, for use in executeBatch()
-     */
+    /** Array of bound parameters, for use in executeBatch() */
     private List<Object[]> parametersBatch = null;
+
+    /* Input parameters variables */
+    /** Metadata object containing info about the input parameters of the prepared statement */
+    private MonetParameterMetaData parameterMetaData;
+    /** Number of bind-able parameters */
+    protected int nParams;
+    /** Array of types of bind-able parameters */
+    protected int[] monetdbeTypes;
+    /** Array of MonetDB GDK internal types of bind-able parameters */
+    protected String[] paramMonetGDKTypes;
+    /** Digits for bind-able parameters */
+    protected int[] digitsInput;
+    /** Scales for bind-able parameters */
+    protected int[] scaleInput;
+
+    /* Output result variables */
+    /** Metadata object containing info about the output columns of the prepared statement */
+    private MonetResultSetMetaData resultSetMetaData;
+    /** Number of columns in the pre-compiled result set of the PreparedStatement */
+    protected int nCols;
+    /** MonetDB GDK types for the columns in the pre-compiled result set */
+    protected String[] resultMonetGDKTypes;
+    /** Column names for the pre-compiled result set */
+    protected String[] resultNames;
+    /** Digits for output columns */
+    protected int[] digitsOutput;
+    /** Scales for output columns */
+    protected int[] scaleOutput;
 
     /**
      * Prepared statement constructor, calls monetdbe_prepare() and super-class Statement constructor.
      * The prepared statement is destroyed if the monetdbe_prepare() call returned an error.
-     * The nParams, monetdbeTypes and statementNative variables are set within monetdbe_prepare();
+     *
+     * The statementNative variable is set within monetdbe_prepare()
+     * If there are input parameters: nParams, paramMonetGDKTypes, digitsInput and scaleInput are set within monetdbe_prepare()
+     * If there are output parameters: nCols, resultMonetGDKTypes, resultNames, digitsOutput and scaleOutput are set within monetdbe_prepare()
      *
      * @param conn parent connection
      * @param sql  query to prepare
      */
     public MonetPreparedStatement(MonetConnection conn, String sql) {
         super(conn);
-        //nParams, monetdbeTypes and statementNative variables are set within this function
-        String error_msg = MonetNative.monetdbe_prepare(conn.getDbNative(), sql, this);
+        this.nCols = 0;
+        String error_msg = MonetNative.monetdbe_prepare(conn.getDatabasePointer(), sql, this);
 
         //Failed prepare, destroy statement
-        if (error_msg != null || this.statementNative == null || (this.monetdbeTypes == null && nParams > 0) || (this.monetdbeTypes != null && this.monetdbeTypes.length != nParams)) {
+        if (error_msg != null || this.statementNative == null) {
             if (error_msg != null)
                 System.err.println("Prepare statement error: " + error_msg);
-            else if (this.statementNative == null)
+            else
                 System.err.println("Prepare statement error: statement native object is null");
-            else if (this.monetdbeTypes == null && nParams > 0)
-                System.err.println("Prepare statement error: type information was not correctly set");
 
             try {
                 this.close();
@@ -82,13 +95,47 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             }
         }
 
-        if (nParams >= 0) {
-            this.parameterMetaData = new MonetParameterMetaData(nParams, monetdbeTypes);
+        //Input parameters
+        //Jul2021: sets nParams and monetdbeTypes
+        //Jan2022: sets nParams, paramMonetGDKTypes, digitsInput and scaleInput
+        if (nParams > 0) {
+            //Jan2022
+            if (monetdbeTypes == null) {
+                this.monetdbeTypes = new int[nParams];
+                for (int i = 0; i < nParams; i++)
+                    monetdbeTypes[i] = MonetTypes.getMonetTypeFromGDKType(paramMonetGDKTypes[i]);
+                this.parameters = new Object[nParams];
+            }
+            //Jul2021 and before
+            else {
+                this.digitsInput = new int[nParams];
+                this.scaleInput = new int[nParams];
+                for (int i = 0; i < nParams; i++) {
+                    digitsInput[i] = -1;
+                    scaleInput[i] = -1;
+                }
+            }
+            this.parameterMetaData = new MonetParameterMetaData(nParams, monetdbeTypes,digitsInput,scaleInput);
             this.parameters = new Object[nParams];
+
         }
         else {
             //If there are no parameters, set the variable to null for later checks
             this.parameters = null;
+            this.monetdbeTypes = null;
+            this.parameterMetaData = null;
+        }
+
+        //Output parameters
+        //Jul2021: doesn't support output parameters
+        //Jan2022: sets nCols,resultMonetGDKtypes, resultNames, digitsOutput and scaleOutput
+        if (nCols > 0) {
+            //Jan2022
+            this.resultSetMetaData = new MonetResultSetMetaData(nCols,resultMonetGDKTypes,resultNames,digitsOutput,scaleOutput);
+        }
+        else {
+            //Jul2021
+            this.resultSetMetaData = null;
         }
     }
 
@@ -338,13 +385,21 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     }
 
     /**
-     * This feature is not currently supported
+     * Retrieves a ResultSetMetaData object that contains information about the columns of the ResultSet object that
+     * will be returned when this PreparedStatement object is executed.
      *
-     * @throws SQLFeatureNotSupportedException this feature is not currently supported.
+     * Because a PreparedStatement object is precompiled, it is possible to know about the ResultSet object that it
+     * will return without having to execute it. Consequently, it is possible to invoke the method getMetaData on a
+     * PreparedStatement object rather than waiting to execute it and then invoking the ResultSet.getMetaData method on
+     * the ResultSet object that is returned.
+     *
+     * @return the description of a ResultSet object's columns or null if there are no output columns
+     * @throws SQLException if a database access error occurs
      */
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        throw new SQLFeatureNotSupportedException("getMetaData()");
+        checkNotClosed();
+        return this.resultSetMetaData;
     }
 
     /**
@@ -357,7 +412,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
     @Override
     public ParameterMetaData getParameterMetaData() throws SQLException {
         checkNotClosed();
-        return parameterMetaData;
+        return this.parameterMetaData;
     }
 
     /**
@@ -702,14 +757,11 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
 
     /**
      * Sets the designated parameter to SQL NULL.
-     * <p>
-     * Note: You must specify the parameter's SQL type.
      *
      * @param parameterIndex Parameter index (starts at 1)
-     * @param sqlType        the SQL type code defined in java.sql.Types
+     * @param sqlType        the SQL type code defined in java.sql.Types (not used)
      * @throws SQLException                    if parameterIndex does not correspond to a parameter marker in the SQL statement;
      *                                         if a database access error occurs or this method is called on a closed PreparedStatement
-     * @throws SQLFeatureNotSupportedException - if sqlType is not supported
      */
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
@@ -718,7 +770,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
             throw new SQLException("parameterIndex does not correspond to a parameter marker in the statement");
         int monettype = monetdbeTypes[parameterIndex - 1];
 
-        String error_msg = MonetNative.monetdbe_bind_null(conn.getDbNative(), monettype, statementNative, parameterIndex - 1);
+        String error_msg = MonetNative.monetdbe_bind_null(conn.getDatabasePointer(), monettype, statementNative, parameterIndex - 1);
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }
@@ -1041,7 +1093,7 @@ public class MonetPreparedStatement extends MonetStatement implements PreparedSt
                     .withZoneSameInstant(ZoneOffset.UTC)
                     .toLocalDateTime();
         }
-        String error_msg = MonetNative.monetdbe_bind_timestamp(statementNative, parameterIndex - 1, localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(), localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond(), localDateTime.getNano() * 1000);
+        String error_msg = MonetNative.monetdbe_bind_timestamp(statementNative, parameterIndex - 1, localDateTime.getYear(), localDateTime.getMonthValue(), localDateTime.getDayOfMonth(), localDateTime.getHour(), localDateTime.getMinute(), localDateTime.getSecond(), (int) (x.toInstant().toEpochMilli() % 1000));
         if (error_msg != null) {
             throw new SQLException(error_msg);
         }

@@ -6,5 +6,5 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-javac -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar example/$1.java 
-java -cp java/target/monetdbe-java-1.0-SNAPSHOT.jar:example/ $1
+javac -cp java/target/monetdbe-java-1.11-SNAPSHOT.jar example/$1.java 
+java -cp java/target/monetdbe-java-1.11-SNAPSHOT.jar:example/ $1

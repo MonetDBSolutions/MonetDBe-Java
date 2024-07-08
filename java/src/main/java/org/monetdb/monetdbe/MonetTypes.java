@@ -7,6 +7,7 @@ import java.sql.*;
 /**
  * Helper class to convert between MonetDBe types, JDBC SQL types and Java classes.
  */
+//TODO Look into getMonetTypeStringFromGDKType()
 public class MonetTypes {
     static java.util.Map<Integer, Integer> typeMapMonetToSQL = new java.util.HashMap<Integer, Integer>();
     static {
@@ -247,7 +248,47 @@ public class MonetTypes {
     protected static Class<?> getClassForMonetType(final int monetdbeType) { return getClassForSQLType(getSQLTypeFromMonet(monetdbeType));}
 
     //Other utilities
-    static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+    //TODO The unknown type is incorrect (unknown)
+    //TODO The size_t type is incorrect (size)
+    //MonetDB GDK types
+    private static final String[] monetdbGDKTypes = {"bit","bte","sht","int","lng","hge","size","flt","dbl","str","blob","date","daytime","timestamp","unknown"};
+    //MonetDBe types
+    private static final String[] monetdbeTypes = {"monetdbe_bool","monetdbe_int8_t","monetdbe_int16_t","monetdbe_int32_t","monetdbe_int64_t","monetdbe_int128_t","monetdbe_size_t","monetdbe_float","monetdbe_double","monetdbe_str","monetdbe_blob","monetdbe_date","monetdbe_time","monetdbe_timestamp","monetdbe_type_unknown"};
+
+
+    /**
+     * Returns the MonetDBe string type for a MonetDB GDK type
+     * @param monetdbgdktype MonetDB GDK type
+     * @return Name of the MonetDBe type
+     */
+    protected static String getMonetTypeStringFromGDKType(final String monetdbgdktype) {
+        for (int i = 0; i < monetdbGDKTypes.length; i++)
+            if (monetdbGDKTypes[i].equals(monetdbgdktype))
+                return monetdbeTypes[i];
+        return "monetdbe_type_unknown";
+    }
+
+    /**
+     * Returns the MonetDBe int type for a MonetDB GDK type
+     * @param monetdbgdktype MonetDB GDK type
+     * @return Int value of the MonetDBe type
+     */
+    protected static int getMonetTypeFromGDKType(final String monetdbgdktype) {
+        for (int i = 0; i < monetdbGDKTypes.length; i++)
+            if (monetdbGDKTypes[i].equals(monetdbgdktype))
+                return i;
+        //Unknown type
+        return 13;
+    }
+
+    /**
+     * Returns the MonetDB GDK type for a MonetDBe int type
+     * @param monetdbetype MonetDBe type
+     * @return MonetDB GDK type
+     */
+    protected static String getGDKTypeFromMonetType(final int monetdbetype) {
+        return monetdbGDKTypes[monetdbetype];
+    }
 
     /**
      * Returns the String name for the MonetDBe type (int)
@@ -347,45 +388,6 @@ public class MonetTypes {
             case Types.TIMESTAMP:
             default:
                 return false;
-        }
-    }
-
-    /**
-     * Retrieves the maximum column size for a given SQL type.
-     * @param sqlType SQL type (int)
-     * @return type precision
-     */
-    //TODO Improve
-    protected static int getPrecision (int sqlType) {
-        switch (sqlType) {
-            case Types.TINYINT:
-                return 3;
-            case Types.SMALLINT:
-                return 5;
-            case Types.INTEGER:
-            case Types.REAL:
-                return 10;
-            case Types.BIGINT:
-            case Types.FLOAT:
-            case Types.DOUBLE:
-                return 19;
-            case Types.NUMERIC:
-            case Types.DECIMAL:
-                //Numeric/Decimal precision
-                return 0;
-            case Types.CHAR:
-            case Types.LONGVARCHAR:
-            case Types.CLOB:
-            case Types.VARCHAR:
-                //Lenght of String
-                return 0;
-            case Types.DATE:
-            case Types.TIME:
-            case Types.TIMESTAMP:
-                //Lenght of String converted date
-                return 0;
-            default:
-                return 0;
         }
     }
 }

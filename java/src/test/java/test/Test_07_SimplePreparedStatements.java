@@ -72,8 +72,6 @@ public class Test_07_SimplePreparedStatements {
 
 				// Clean up
 				int result = statement.executeUpdate("DROP TABLE test07;");
-				// TODO: Wrong affected rows number for drop table because we've dropped a table with 2 records it should be 2, but error in C layer
-				// assertEquals(2, result);
 				assertEquals(1, result);
 
 				assertEquals(-1, statement.getUpdateCount());

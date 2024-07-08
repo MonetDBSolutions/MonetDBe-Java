@@ -15,14 +15,14 @@ fi
 
 echo "Building native library"
 cd native
-mvn clean install -DMonetDB_dir=$1
+mvn clean install -DMonetDB_dir=$1 
 echo "Building dev jar"
 cd ../java
-mvn clean install $skipTests
+mvn clean install $skipTests 
 cd ..
 echo "Done!"
 
 #Clean up local test db
 if [ -n "$skipTests" ] && [ "$2" == "false" ]; then
-    rm -rf ../testdata/localdb/
+    rm -rf ../testdata/localdb/*
 fi

@@ -1,34 +1,56 @@
-name: MacOS CI - Release Slim and Fat Jar (from Homebrew)
+name: MacOS CI - Release Slim and Fat Jar
 on: [workflow_dispatch]
 
 jobs:
-  mac_brew_jars:
-    name: mac_brew_jars
+  mac_jars:
+    name: mac_jars
     runs-on: macos-latest
     strategy:
+      fail-fast: false
       matrix:
+        mdb_version: ["default","Jan2022","Jul2021"]
         artifact: ["slim", "fat"]
+        include:
+          - mdb_version: "default"
+            ref: "master"
+            mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-default/"
+            libmonetdb5_version: 32
+            libstream_version: 16
+          - mdb_version: "Jan2022"
+            ref: "master"
+            mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jan2022/"
+            libmonetdb5_version: 32
+            libstream_version: 16
+          - mdb_version: "Jul2021"
+            ref: "master"
+            mdb_install: "/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-Jul2021/"
+            libmonetdb5_version: 31
+            libstream_version: 15
     env:
-      MDBE_JAVA_VERSION: 1.0-SNAPSHOT
-      #Brew installation
-      MONETDB_INSTALL: /usr/local/Cellar/monetdb/11.39.17
+      MDBE_JAVA_VERSION: "1.11-SNAPSHOT"
       LIBMDBE_LOAD_PATH: /usr/local/opt/monetdb/lib
+      PUBLISH_ARTIFACTS: "False"
+      MDB_VERSION: ${{ matrix.mdb_version }}
     steps:
       - uses: actions/checkout@v2
-
-      #Set global environment variables
+        with:
+          ref: ${{ matrix.ref }}
       - name: Env variables (slim jar)
         if: ${{ matrix.artifact == 'slim' }}
         run: |
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-slim.jar" >> $GITHUB_ENV
-          echo "MVN_FLAGS=mac-slim,release,sign-gpg" >> $GITHUB_ENV
+          echo "MVN_FLAGS=mac-slim,release,release-sign" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
+          echo "MONETDB_INSTALL=${{ matrix.mdb_install }}" >> $GITHUB_ENV
       - name: Env variables (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
           echo "ARTIFACT=monetdbe-java-${{ env.MDBE_JAVA_VERSION }}-mac-fat.jar" >> $GITHUB_ENV
-          echo "MVN_FLAGS=mac-slim,mac-fat,release,sign-gpg" >> $GITHUB_ENV
+          echo "MVN_FLAGS=mac-slim,mac-fat,release,release-sign" >> $GITHUB_ENV
           echo "M2_REPO=/Users/runner/.m2/repository/monetdb/monetdbe-java/${{ env.MDBE_JAVA_VERSION }}" >> $GITHUB_ENV
+          echo "MONETDB_INSTALL=${{ matrix.mdb_install }}" >> $GITHUB_ENV
+          echo "LIBMONETDB5_VERSION=${{ matrix.libmonetdb5_version }}" >> $GITHUB_ENV
+          echo "LIBSTREAM_VERSION=${{ matrix.libstream_version }}" >> $GITHUB_ENV
 
       #Java, maven and gpg setup; download MonetDB from brew and set up test env
       - name: Set up JDK 1.8 and maven settings.xml
@@ -49,24 +71,41 @@ jobs:
         with:
           gpg-private-key: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.MVN_GPG_PASSPHRASE }}
-      - name: Install monetdb through brew
-        run: brew install monetdb
+      #- name: Install monetdb through brew
+      #  run: brew install monetdb
+      # Source installation (for Jul2021)
+      - name: Get brew bison
+        run: brew install bison hg
+      - name: Get monetdb
+        run: |
+          hg clone https://www.monetdb.org/hg/MonetDB/
+          cd MonetDB
+          hg update ${{ matrix.mdb_version }}
+          mkdir build MonetDB-${{ matrix.mdb_version }}
+      - name: Compile and install MonetDB
+        run: |
+          export CMAKE_LIBRARY_PATH="/usr/local/opt/bison/lib"
+          export PATH="/usr/local/opt/flex/bin:/usr/local/opt/bison/bin:$PATH"
+          export LDFLAGS="-L/usr/local/opt/bison/lib"
+          cd MonetDB/build/
+          cmake ../ -DCMAKE_INSTALL_PREFIX=/Users/runner/work/MonetDBe-Java/MonetDBe-Java/MonetDB/MonetDB-${{ matrix.mdb_version }}/ -DWITH_CRYPTO=OFF -DINT128=ON -DPY3INTEGRATION=OFF -DCMAKE_BUILD_TYPE=Release -DASSERT=OFF -DSTRICT=OFF -DRINTEGRATION=OFF
+          make install -j8
+          cd ../../
       - name: Set up test environment
         run: |
           mkdir -p $GITHUB_WORKSPACE/testdata/taxi $GITHUB_WORKSPACE/testdata/localdb
           wget -O testdata/taxi/yellow_tripdata_2016-01.csv https://s3.amazonaws.com/nyc-tlc/trip+data/yellow_tripdata_2016-01.csv
-
       #Install native library; collect libraries
       - name: Install native library (libmonetdbe-java.dylib)
         run: |
           cd native
-          mvn clean install -DMonetDB_dir=$MONETDB_INSTALL -P mac-release --no-transfer-progress
+          mvn clean install -DMonetDB_dir=${{env.MONETDB_INSTALL}} -P mac-release --no-transfer-progress
           cd ..
-      - name: Change load path for libmonetdbe dependency (to be rpath dependent)
-        run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
-        env:
-          M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ env.MDBE_JAVA_VERSION }}
-          ARTIFACT_NATIVE: monetdbe-java-native-${{ env.MDBE_JAVA_VERSION }}.dylib
+      #- name: Change load path for libmonetdbe dependency (to be rpath dependent)
+      #  run: install_name_tool -change $LIBMDBE_LOAD_PATH/libmonetdbe.1.dylib @rpath/libmonetdbe.1.dylib $M2_REPO_NATIVE/$ARTIFACT_NATIVE
+      #  env:
+      #    M2_REPO_NATIVE: /Users/runner/.m2/repository/monetdb/monetdbe-java-native/${{ env.MDBE_JAVA_VERSION }}
+      #    ARTIFACT_NATIVE: monetdbe-java-native-${{ env.MDBE_JAVA_VERSION }}.dylib
       - name: Copy direct dependencies (MonetDB libs)
         run: |
           mkdir collect_libs
@@ -75,31 +114,29 @@ jobs:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
       - name: Change rpath of libraries to package
         run: |
-          for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS $file; done
-          for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -delete_rpath $MONETDB_LIBS/monetdb5 $file; done
+          for file in $GITHUB_WORKSPACE/collect_libs/*.dylib; do otool -L $file; done
           for file in $GITHUB_WORKSPACE/collect_libs/*; do install_name_tool -add_rpath @loader_path/. $file; done
         env:
           MONETDB_LIBS: ${{ env.MONETDB_INSTALL }}/lib
+      #/usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib
       - name: Copy transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
-        run: cp /usr/local/opt/pcre/lib/libpcre.1.dylib /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib /usr/lib/libz.1.dylib /usr/lib/libxml2.2.dylib /usr/lib/libiconv.2.dylib /usr/local/opt/lz4/lib/liblz4.1.dylib /usr/local/opt/xz/lib/liblzma.5.dylib /usr/lib/libcurl.4.dylib /usr/lib/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs
+        run: cp /usr/lib/libpcre.0.dylib /usr/lib/libz.1.dylib /usr/lib/libxml2.2.dylib /usr/lib/libiconv.2.dylib /usr/local/opt/lz4/lib/liblz4.1.dylib /usr/lib/liblzma.5.dylib /usr/lib/libcurl.4.dylib /usr/lib/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs
       - name: Change load path of transitive dependencies (fat jar)
         if: ${{ matrix.artifact == 'fat' }}
         run: |
-          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmapi.12.dylib
-          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
-          install_name_tool -change /usr/local/opt/pcre/lib/libpcre.1.dylib @rpath/libpcre.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
-          install_name_tool -change /usr/local/opt/openssl@1.1/lib/libcrypto.1.1.dylib @rpath/libcrypto.1.1.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdbsql.11.dylib
-          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.30.dylib
-          install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/local/opt/xz/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/lib/libcurl.4.dylib @rpath/libcurl.4.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
-          install_name_tool -change /usr/lib/libbz2.1.0.dylib @rpath/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs/libstream.14.dylib
+          install_name_tool -change /usr/lib/libpcre.0.dylib @rpath/libpcre.0.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.${{ env.LIBMONETDB5_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libxml2.2.dylib @rpath/libxml2.2.dylib $GITHUB_WORKSPACE/collect_libs/libmonetdb5.${{ env.LIBMONETDB5_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libz.1.dylib @rpath/libz.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libiconv.2.dylib @rpath/libiconv.2.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/local/opt/lz4/lib/liblz4.1.dylib @rpath/liblz4.1.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/lib/liblzma.5.dylib @rpath/liblzma.5.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libcurl.4.dylib @rpath/libcurl.4.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
+          install_name_tool -change /usr/lib/libbz2.1.0.dylib @rpath/libbz2.1.0.dylib $GITHUB_WORKSPACE/collect_libs/libstream.${{ env.LIBSTREAM_VERSION }}.dylib
 
       #Package jar, test and deploy
       - name: Compile Java, package into jar, do unit tests and deploy
+        if: ${{ matrix.mdb_version == 'Jan2022' }}
         run: |
           cd java
           mvn clean deploy -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
@@ -110,15 +147,27 @@ jobs:
           MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
           MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
 
+      #Package jar, test and install
+      - name: Compile Java, package into jar, do unit tests and install
+        if: ${{ matrix.mdb_version != 'Jan2022' }}
+        run: |
+          cd java
+          mvn clean install -DCOLLECT_LIBS=$GITHUB_WORKSPACE/collect_libs -P ${{ env.MVN_FLAGS }} --no-transfer-progress
+          cd ..
+        env:
+          MVN_DEPLOY_USERNAME: monetdb
+          MVN_DEPLOY_PASSWORD: ${{ secrets.MVN_DEPLOY_PASSWORD }}
+          MVN_GPG_PRIVATE_KEY: ${{ secrets.MVN_GPG_PRIVATE_KEY }}
+          MVN_GPG_PASSPHRASE: ${{ secrets.MVN_GPG_PASSPHRASE }}
+
       #Run example and publish jar
-      - name: Uninstall MonetDB (to test the jar is portable)
-        run: brew uninstall monetdb
       - name: Run example class (SimpleTypes)
         run: |
           javac -cp ${{env.M2_REPO}}/${{env.ARTIFACT}} example/SimpleTypes.java
           java -cp ${{env.M2_REPO}}/${{env.ARTIFACT}}:example/ SimpleTypes
       - name: Publish Mac jar
         uses: actions/upload-artifact@v2
+        if: always()
         with:
-          name: ${{env.ARTIFACT}}
+          name: ${{ env.MDB_VERSION }}-${{env.ARTIFACT}}
           path: ${{env.M2_REPO}}/${{env.ARTIFACT}}
