@@ -19,6 +19,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'maven'
+          cache-dependency-path: '*/pom.xml'
+        - name: Build native part
+          run: cd native; nvm clean install -DMonetDB_dir=/usr/local
+        - name: Build java part
+          run: cd java; nvm clean install
+
         #- name: Setup Maven
         #uses: stCarolas/setup-maven@v4
         #with:
